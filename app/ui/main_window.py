@@ -6,7 +6,7 @@ import sys
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
     QToolBar, QStatusBar, QFileDialog, QMessageBox, 
-    QListWidget, QListWidgetItem, QMenu, QApplication
+    QListWidget, QListWidgetItem, QMenu, QApplication, QTabWidget, QLabel
 )
 from PyQt6.QtCore import Qt, QSize, QFileInfo, QUrl, QMimeData
 from PyQt6.QtGui import QAction, QIcon, QPixmap, QDrag, QDropEvent
@@ -14,6 +14,7 @@ from PyQt6.QtGui import QAction, QIcon, QPixmap, QDrag, QDropEvent
 from app.ui.video_player import VideoPlayer
 from app.ui.timeline_widget import TimelineWidget
 from app.ui.ai_panel import AIPanel
+from app.ui.smart_edit_panel import SmartEditPanel
 from app.core.video_manager import VideoManager
 
 
@@ -73,15 +74,29 @@ class MainWindow(QMainWindow):
         self.batch_import_action.triggered.connect(self._on_batch_import)
         
         # 设置操作
-        self.settings_action = QAction(QIcon("resources/icons/settings.png"), "设置", self)
+        self.settings_action = QAction(QIcon("resources/icons/settings.png"), "应用设置", self)
         self.settings_action.setShortcut("Ctrl+,")
         self.settings_action.triggered.connect(self._on_settings)
+        
+        # AI模型设置
+        self.ai_settings_action = QAction(QIcon(), "AI模型设置", self)
+        self.ai_settings_action.triggered.connect(self._on_ai_settings)
+        
+        # 布局设置
+        self.toggle_sidebar_action = QAction("显示/隐藏侧边栏", self)
+        self.toggle_sidebar_action.setShortcut("F9")
+        self.toggle_sidebar_action.triggered.connect(self._toggle_sidebar)
+        
+        # 视图操作
+        self.compact_view_action = QAction("紧凑视图", self)
+        self.compact_view_action.setCheckable(True)
+        self.compact_view_action.triggered.connect(self._toggle_compact_view)
     
     def _create_toolbars(self):
         """创建工具栏"""
         # 主工具栏
         self.main_toolbar = QToolBar("主工具栏", self)
-        self.main_toolbar.setIconSize(QSize(32, 32))
+        self.main_toolbar.setIconSize(QSize(28, 28))  # 减小图标尺寸
         self.main_toolbar.setMovable(False)
         self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.main_toolbar)
         
@@ -89,6 +104,7 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.open_action)
         self.main_toolbar.addAction(self.save_action)
         self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.import_action)
         self.main_toolbar.addAction(self.export_action)
         self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.settings_action)
@@ -101,6 +117,7 @@ class MainWindow(QMainWindow):
         
         main_layout = QVBoxLayout(self.central_widget)
         main_layout.setContentsMargins(5, 5, 5, 5)
+        main_layout.setSpacing(2)  # 减少空间间隔
         
         # 创建上下分隔面板
         self.main_splitter = QSplitter(Qt.Orientation.Vertical)
@@ -114,15 +131,22 @@ class MainWindow(QMainWindow):
         self.video_library = QWidget()
         self.video_library_layout = QVBoxLayout(self.video_library)
         self.video_library_layout.setContentsMargins(0, 0, 0, 0)
+        self.video_library_layout.setSpacing(2)  # 减少控件间距
+        
+        # 添加视频库标题
+        library_title = QLabel("视频库")
+        library_title.setStyleSheet("font-weight: bold; font-size: 12px; padding: 2px;")
+        library_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.video_library_layout.addWidget(library_title)
         
         # 视频列表
         self.video_list = QListWidget()
-        self.video_list.setIconSize(QSize(120, 67))  # 16:9比例的缩略图
+        self.video_list.setIconSize(QSize(100, 56))  # 减小缩略图尺寸
         self.video_list.setResizeMode(QListWidget.ResizeMode.Adjust)
         self.video_list.setViewMode(QListWidget.ViewMode.IconMode)
         self.video_list.setMovement(QListWidget.Movement.Static)
-        self.video_list.setGridSize(QSize(150, 120))
-        self.video_list.setSpacing(10)
+        self.video_list.setGridSize(QSize(120, 100))  # 减小网格尺寸
+        self.video_list.setSpacing(5)  # 减少间距
         self.video_list.setDragEnabled(True)  # 允许从列表中拖出项目
         self.video_list.itemDoubleClicked.connect(self._on_video_double_clicked)
         self.video_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -135,19 +159,35 @@ class MainWindow(QMainWindow):
         self.video_player = VideoPlayer()
         self.top_splitter.addWidget(self.video_player)
         
-        # 右侧区域 - AI面板
-        self.ai_panel = AIPanel()
-        self.top_splitter.addWidget(self.ai_panel)
+        # 右侧区域 - 功能面板（使用紧凑型选项卡）
+        self.right_panel = QTabWidget()
+        self.right_panel.setTabPosition(QTabWidget.TabPosition.North)
+        self.right_panel.setDocumentMode(True)  # 更现代的外观
+        self.right_panel.setTabsClosable(False)
+        self.right_panel.setMovable(True)
         
-        # 设置顶部分隔面板的初始大小比例
-        self.top_splitter.setSizes([250, 600, 250])
+        # AI字幕面板
+        self.ai_panel = AIPanel()
+        self.right_panel.addTab(self.ai_panel, "AI字幕")
+        
+        # 智能混剪面板
+        self.smart_edit_panel = SmartEditPanel()
+        self.right_panel.addTab(self.smart_edit_panel, "智能混剪")
+        
+        self.top_splitter.addWidget(self.right_panel)
+        
+        # 设置顶部分隔面板的初始大小比例 - 给播放器更多空间
+        self.top_splitter.setSizes([200, 700, 300])
         
         # 下半部分 - 时间线
         self.timeline = TimelineWidget()
         self.main_splitter.addWidget(self.timeline)
         
-        # 设置主分隔面板的初始大小比例
-        self.main_splitter.setSizes([400, 300])
+        # 设置主分隔面板的初始大小比例 - 给上半部分更多空间
+        self.main_splitter.setSizes([500, 200])
+        
+        # 创建主菜单
+        self._create_main_menu()
     
     def _create_statusbar(self):
         """创建状态栏"""
@@ -318,9 +358,55 @@ class MainWindow(QMainWindow):
             self._import_videos_from_folder(folder_path)
     
     def _on_settings(self):
-        """打开设置对话框"""
-        # TODO: 实现设置对话框
-        self.statusbar.showMessage("设置功能尚未实现")
+        """打开应用设置对话框"""
+        QMessageBox.information(self, "应用设置", "应用设置功能尚未实现")
+        
+    def _on_ai_settings(self):
+        """打开AI设置对话框"""
+        from app.ui.ai_settings_panel import AISettingsDialog
+        dialog = AISettingsDialog(self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            # 更新AI面板的设置
+            if hasattr(self.ai_panel, 'update_settings'):
+                self.ai_panel.update_settings(dialog.get_current_config())
+            
+            # 更新智能编辑面板的设置
+            if hasattr(self.smart_edit_panel, 'update_settings'):
+                self.smart_edit_panel.update_settings(dialog.get_current_config())
+                
+            self.statusbar.showMessage("AI设置已更新", 3000)
+        
+    def _toggle_sidebar(self):
+        """切换侧边栏显示状态"""
+        if self.video_library.isVisible():
+            self.video_library.hide()
+        else:
+            self.video_library.show()
+            
+    def _toggle_compact_view(self, checked):
+        """切换紧凑视图模式"""
+        if checked:
+            # 切换到紧凑视图
+            self.right_panel.hide()
+            # 调整视频播放器与视频库的比例
+            self.top_splitter.setSizes([150, 850, 0])
+        else:
+            # 切换回标准视图
+            self.right_panel.show()
+            self.top_splitter.setSizes([200, 700, 300])
+            
+    def _reset_layout(self):
+        """重置界面布局"""
+        # 显示所有面板
+        self.video_library.show()
+        self.right_panel.show()
+        
+        # 重置分隔比例
+        self.top_splitter.setSizes([200, 700, 300])
+        self.main_splitter.setSizes([500, 200])
+        
+        # 取消紧凑视图
+        self.compact_view_action.setChecked(False)
     
     def _import_video_files(self, file_paths):
         """导入视频文件"""
@@ -589,4 +675,47 @@ class MainWindow(QMainWindow):
                 event.acceptProposedAction()
                 return
         
-        event.ignore() 
+        event.ignore()
+    
+    def _create_main_menu(self):
+        """创建主菜单"""
+        menu_bar = self.menuBar()
+        
+        # 文件菜单
+        file_menu = menu_bar.addMenu("文件")
+        file_menu.addAction(self.new_action)
+        file_menu.addAction(self.open_action)
+        file_menu.addAction(self.save_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.import_action)
+        file_menu.addAction(self.batch_import_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.export_action)
+        file_menu.addSeparator()
+        file_menu.addAction("退出", self.close)
+        
+        # 编辑菜单
+        edit_menu = menu_bar.addMenu("编辑")
+        edit_menu.addAction("撤销", lambda: None).setEnabled(False)
+        edit_menu.addAction("重做", lambda: None).setEnabled(False)
+        edit_menu.addSeparator()
+        edit_menu.addAction("剪切", lambda: None).setEnabled(False)
+        edit_menu.addAction("复制", lambda: None).setEnabled(False)
+        edit_menu.addAction("粘贴", lambda: None).setEnabled(False)
+        
+        # 视图菜单
+        view_menu = menu_bar.addMenu("视图")
+        view_menu.addAction(self.toggle_sidebar_action)
+        view_menu.addAction(self.compact_view_action)
+        view_menu.addSeparator()
+        view_menu.addAction("重置布局", self._reset_layout)
+        
+        # 设置菜单
+        settings_menu = menu_bar.addMenu("设置")
+        settings_menu.addAction(self.settings_action)
+        settings_menu.addAction(self.ai_settings_action)
+        
+        # 帮助菜单
+        help_menu = menu_bar.addMenu("帮助")
+        help_menu.addAction("使用指南", lambda: None)
+        help_menu.addAction("关于", lambda: QMessageBox.about(self, "关于", "VideoEpicCreator - 专业视频混剪工具\n版本 0.1.0")) 

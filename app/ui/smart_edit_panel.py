@@ -5,12 +5,16 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
     QComboBox, QSlider, QCheckBox, QSpinBox, QTabWidget,
     QGroupBox, QScrollArea, QFrame, QSplitter, QGridLayout,
-    QTextEdit, QProgressBar, QFileDialog, QListWidget, QListWidgetItem
+    QTextEdit, QProgressBar, QFileDialog, QListWidget, QListWidgetItem,
+    QMessageBox
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QSize, QRectF
 from PyQt6.QtGui import QFont, QColor, QPainter, QPixmap, QIcon
 
 from app.ui.color_grading import ColorGradingPanel
+from app.ui.transition_panel import TransitionPanel
+from app.ui.mix_style_panel import MixStylePanel
+from app.ui.ai_settings_panel import AIModelSettingsPanel
 
 import time
 import os
@@ -179,189 +183,122 @@ class SegmentTimeline(QWidget):
 
 
 class SmartEditPanel(QWidget):
-    """智能混剪功能面板"""
+    """智能编辑面板"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.video_path = ""
         self.video_duration = 0  # 视频总时长(秒)
         self.segments = []  # 视频片段列表
-        self.init_ui()
+        self._init_ui()
     
-    def init_ui(self):
-        """初始化UI"""
-        main_layout = QVBoxLayout(self)
+    def _init_ui(self):
+        layout = QVBoxLayout(self)
         
-        # 主功能选项卡
-        self.tabs = QTabWidget()
-        main_layout.addWidget(self.tabs)
+        # 标题
+        title = QLabel("智能编辑")
+        title.setStyleSheet("font-size: 16px; font-weight: bold;")
+        layout.addWidget(title)
         
-        # 添加智能分段选项卡
-        self.segment_tab = QWidget()
-        self.tabs.addTab(self.segment_tab, "智能分段")
-        self._setup_segment_tab()
+        # 标签页
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setStyleSheet("""
+            QTabWidget::pane {
+                border: none;
+                background-color: #1e1e1e;
+                border-radius: 5px;
+            }
+            QTabBar::tab {
+                background-color: #2c2c2c;
+                color: #999;
+                padding: 8px 16px;
+                border: none;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+            }
+            QTabBar::tab:selected {
+                background-color: #1e1e1e;
+                color: #fff;
+            }
+        """)
         
-        # 添加调色匹配选项卡
+        # 调色标签页
         self.color_tab = QWidget()
-        self.tabs.addTab(self.color_tab, "智能调色")
         self._setup_color_tab()
+        self.tab_widget.addTab(self.color_tab, "智能调色")
         
-        # 状态栏
-        status_layout = QHBoxLayout()
-        self.status_label = QLabel("就绪")
-        status_layout.addWidget(self.status_label)
-        main_layout.addLayout(status_layout)
-    
-    def _setup_segment_tab(self):
-        """设置智能分段选项卡"""
-        segment_layout = QVBoxLayout(self.segment_tab)
+        # 转场标签页
+        self.transition_tab = QWidget()
+        self._setup_transition_tab()
+        self.tab_widget.addTab(self.transition_tab, "智能转场")
         
-        # 分析设置区
-        analysis_group = QGroupBox("分析设置")
-        analysis_layout = QGridLayout(analysis_group)
+        # 混剪风格标签页
+        self.mix_style_tab = QWidget()
+        self._setup_mix_style_tab()
+        self.tab_widget.addTab(self.mix_style_tab, "混剪风格")
         
-        # 分析模式
-        analysis_layout.addWidget(QLabel("分析模式："), 0, 0)
-        self.mode_combo = QComboBox()
-        self.mode_combo.addItems(["智能分析", "手动分段", "内容检测"])
-        analysis_layout.addWidget(self.mode_combo, 0, 1)
+        # AI大模型设置标签页
+        self.ai_settings_tab = QWidget()
+        self._setup_ai_settings_tab()
+        self.tab_widget.addTab(self.ai_settings_tab, "AI大模型")
         
-        # 内容类型
-        analysis_layout.addWidget(QLabel("内容类型："), 0, 2)
-        self.content_combo = QComboBox()
-        self.content_combo.addItems(["全部类型", "人物对话", "动作场景", "环境镜头", "过渡镜头", "特写镜头"])
-        analysis_layout.addWidget(self.content_combo, 0, 3)
+        layout.addWidget(self.tab_widget)
         
-        # 分段阈值
-        analysis_layout.addWidget(QLabel("分段阈值："), 1, 0)
-        self.threshold_slider = QSlider(Qt.Orientation.Horizontal)
-        self.threshold_slider.setRange(1, 10)
-        self.threshold_slider.setValue(5)
-        analysis_layout.addWidget(self.threshold_slider, 1, 1)
-        analysis_layout.addWidget(QLabel(f"当前值: {self.threshold_slider.value()}"), 1, 2)
-        
-        # 智能优化选项
-        self.optimize_checkbox = QCheckBox("使用AI优化分段结果")
-        self.optimize_checkbox.setChecked(True)
-        analysis_layout.addWidget(self.optimize_checkbox, 2, 0, 1, 2)
-        
-        # 标签检测
-        self.tag_checkbox = QCheckBox("自动提取内容标签")
-        self.tag_checkbox.setChecked(True)
-        analysis_layout.addWidget(self.tag_checkbox, 2, 2, 1, 2)
-        
-        segment_layout.addWidget(analysis_group)
-        
-        # 操作按钮区
-        button_layout = QHBoxLayout()
-        
-        self.open_button = QPushButton("打开视频")
-        self.open_button.clicked.connect(self.open_video)
-        button_layout.addWidget(self.open_button)
-        
-        self.analyze_button = QPushButton("开始分析")
-        self.analyze_button.clicked.connect(self.start_analysis)
-        button_layout.addWidget(self.analyze_button)
-        
-        self.export_button = QPushButton("导出分段")
-        self.export_button.clicked.connect(self.export_segments)
-        self.export_button.setEnabled(False)
-        button_layout.addWidget(self.export_button)
-        
-        segment_layout.addLayout(button_layout)
-        
-        # 进度条
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setTextVisible(True)
-        self.progress_bar.setFormat("%p% - %v/%m")
-        self.progress_bar.setValue(0)
-        self.progress_bar.setVisible(False)
-        segment_layout.addWidget(self.progress_bar)
-        
-        # 创建分割器
-        splitter = QSplitter(Qt.Orientation.Vertical)
-        segment_layout.addWidget(splitter)
-        
-        # 时间轴可视化
-        timeline_group = QGroupBox("分段时间轴")
-        timeline_layout = QVBoxLayout(timeline_group)
-        
-        self.timeline_widget = SegmentTimeline()
-        self.timeline_widget.segment_selected.connect(self.on_segment_selected)
-        timeline_layout.addWidget(self.timeline_widget)
-        
-        timeline_info_layout = QHBoxLayout()
-        timeline_info_layout.addWidget(QLabel("总时长："))
-        self.duration_label = QLabel("00:00:00")
-        timeline_info_layout.addWidget(self.duration_label)
-        
-        timeline_info_layout.addWidget(QLabel("片段数："))
-        self.segments_count_label = QLabel("0")
-        timeline_info_layout.addWidget(self.segments_count_label)
-        
-        timeline_info_layout.addStretch()
-        timeline_layout.addLayout(timeline_info_layout)
-        
-        splitter.addWidget(timeline_group)
-        
-        # 下半部分
-        bottom_widget = QWidget()
-        bottom_layout = QHBoxLayout(bottom_widget)
-        
-        # 片段列表
-        segments_group = QGroupBox("片段列表")
-        segments_layout = QVBoxLayout(segments_group)
-        
-        self.segments_list = QListWidget()
-        self.segments_list.setAlternatingRowColors(True)
-        segments_layout.addWidget(self.segments_list)
-        
-        # 列表操作按钮
-        list_button_layout = QHBoxLayout()
-        
-        self.select_all_button = QPushButton("全选")
-        self.select_all_button.clicked.connect(self.select_all_segments)
-        list_button_layout.addWidget(self.select_all_button)
-        
-        self.deselect_all_button = QPushButton("取消全选")
-        self.deselect_all_button.clicked.connect(self.deselect_all_segments)
-        list_button_layout.addWidget(self.deselect_all_button)
-        
-        self.delete_button = QPushButton("删除所选")
-        self.delete_button.clicked.connect(self.delete_selected_segments)
-        list_button_layout.addWidget(self.delete_button)
-        
-        segments_layout.addLayout(list_button_layout)
-        
-        bottom_layout.addWidget(segments_group)
-        
-        # 片段详情
-        details_group = QGroupBox("片段详情")
-        details_layout = QVBoxLayout(details_group)
-        
-        details_layout.addWidget(QLabel("选中片段信息："))
-        
-        self.details_text = QTextEdit()
-        self.details_text.setReadOnly(True)
-        details_layout.addWidget(self.details_text)
-        
-        bottom_layout.addWidget(details_group)
-        
-        splitter.addWidget(bottom_widget)
+        # 状态标签
+        self.status_label = QLabel()
+        self.status_label.setStyleSheet("color: #999;")
+        layout.addWidget(self.status_label)
     
     def _setup_color_tab(self):
-        """设置智能调色选项卡"""
-        color_layout = QVBoxLayout(self.color_tab)
-        
-        # 创建调色面板
-        self.color_grading_panel = ColorGradingPanel(self)
-        self.color_grading_panel.color_applied.connect(self._on_color_applied)
-        color_layout.addWidget(self.color_grading_panel)
+        """设置调色标签页"""
+        layout = QVBoxLayout(self.color_tab)
+        self.color_panel = ColorGradingPanel()
+        self.color_panel.color_applied.connect(self._on_color_applied)
+        layout.addWidget(self.color_panel)
+    
+    def _setup_transition_tab(self):
+        """设置转场标签页"""
+        layout = QVBoxLayout(self.transition_tab)
+        self.transition_panel = TransitionPanel()
+        self.transition_panel.status_updated.connect(self._on_status_updated)
+        layout.addWidget(self.transition_panel)
+    
+    def _setup_mix_style_tab(self):
+        """设置混剪风格标签页"""
+        layout = QVBoxLayout(self.mix_style_tab)
+        self.mix_style_panel = MixStylePanel()
+        self.mix_style_panel.preset_applied.connect(self._on_preset_applied)
+        self.mix_style_panel.status_updated.connect(self._on_status_updated)
+        layout.addWidget(self.mix_style_panel)
+    
+    def _setup_ai_settings_tab(self):
+        """设置AI大模型设置标签页"""
+        layout = QVBoxLayout(self.ai_settings_tab)
+        self.ai_settings_panel = AIModelSettingsPanel()
+        self.ai_settings_panel.status_updated.connect(self._on_status_updated)
+        layout.addWidget(self.ai_settings_panel)
     
     def _on_color_applied(self, color_params):
         """处理调色应用事件"""
-        # 这里可以处理调色应用后的操作
-        self.status_label.setText(f"已应用调色: {color_params['color_style']}")
+        # 更新状态标签
+        status_text = f"已应用调色: {color_params.get('color_style', '自定义')}"
+        self.status_label.setText(status_text)
+        
+    def _on_status_updated(self, message):
+        """处理状态更新"""
+        self.status_label.setText(message)
+        
+    def _on_preset_applied(self, preset):
+        """处理预设应用"""
+        # 更新调色面板
+        if "color" in preset:
+            self.color_panel.apply_preset(preset["color"])
+            
+        # 更新转场面板
+        if "transition" in preset:
+            self.transition_panel.apply_preset(preset["transition"])
+            
+        self.status_label.setText(f"已应用混剪风格预设：{preset['name']}")
     
     # 以下是智能分段功能的方法
     def open_video(self):
