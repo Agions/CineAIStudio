@@ -16,6 +16,7 @@ class ColorGradingPanel(QWidget):
     """智能调色面板"""
     
     color_applied = pyqtSignal(dict)  # 颜色应用信号
+    status_updated = pyqtSignal(str)  # 状态更新信号
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -248,28 +249,31 @@ class ColorGradingPanel(QWidget):
         self._update_preview()
     
     def _apply_preset(self, preset):
-        """应用预设方案"""
-        self.auto_match_check.setChecked(False)
-        
-        # 根据预设名称设置参数
+        """应用预设"""
         if preset == "电影暖色":
-            self._set_color_params(15, 25, -5, 25, -5)
+            self._set_color_params(20, 30, -5, 30, -5)
         elif preset == "清新自然":
-            self._set_color_params(10, 5, 10, 5, -10)
+            self._set_color_params(10, 0, 10, 0, 0)
         elif preset == "高级灰":
             self._set_color_params(-20, 10, 0, 0, 0)
         elif preset == "冷色科技":
-            self._set_color_params(5, 20, 0, -30, 10)
+            self._set_color_params(5, 15, 0, -30, 5)
         elif preset == "复古胶片":
-            self._set_color_params(-10, 15, -5, 15, 5)
+            self._set_color_params(-10, 20, -5, 15, -5)
         elif preset == "黑白经典":
-            self._set_color_params(-100, 35, 5, 0, 0)
+            self._set_color_params(-100, 40, 0, 0, 0)
         elif preset == "明亮鲜艳":
-            self._set_color_params(50, 20, 15, 10, 0)
+            self._set_color_params(40, 20, 15, 10, 0)
         elif preset == "暗调神秘":
-            self._set_color_params(5, 30, -20, -10, 15)
+            self._set_color_params(5, 40, -20, -10, 0)
         
-        self.status_label.setText(f"已应用'{preset}'预设")
+        # 更新预览
+        self._update_preview()
+        
+        # 更新状态
+        status_text = f"已应用'{preset}'预设"
+        self.status_label.setText(status_text)
+        self.status_updated.emit(status_text)
     
     def _load_video(self):
         """加载视频文件"""
