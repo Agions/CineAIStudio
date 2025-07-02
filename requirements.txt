@@ -1,11 +1,42 @@
+# Core UI Framework
 PyQt6==6.5.2
 PyQt6-Qt6==6.5.2
 PyQt6-sip==13.5.2
+
+# Video Processing
 opencv-python==4.8.0.76
 ffmpeg-python==0.2.0
 numpy==1.24.3
-requests==2.31.0
 pillow==10.0.0
+
+# HTTP Requests
+requests==2.31.0
+
+# AI Model Integrations
 openai==0.28.0
-dashscope==0.0.1  # 通义千问
-cairosvg==2.7.0   # SVG转PNG 
+dashscope==1.14.1  # 通义千问 (updated)
+ollama==0.1.7      # Ollama local models
+
+# Chinese AI Models
+qianfan==0.3.5     # 文心一言
+zhipuai==1.0.7     # 智谱AI
+
+# Voice Synthesis
+pyttsx3==2.90      # Local TTS
+azure-cognitiveservices-speech==1.34.0  # Azure Speech Services
+
+# Security & Encryption
+cryptography==41.0.7
+
+# Utilities
+cairosvg==2.7.0    # SVG转PNG
+python-dotenv==1.0.0  # Environment variables
+psutil==5.9.6      # System utilities
+pathlib2==2.3.7    # Enhanced path handling
+
+# Audio Processing
+librosa==0.10.1    # Audio analysis
+soundfile==0.12.1  # Audio file I/O
+
+# Scene Detection
+scenedetect==0.6.2 # Video scene detection
