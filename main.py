@@ -6,7 +6,8 @@ import atexit
 import os
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QIcon
-from app.ui.main_window import MainWindow
+from app.ui.professional_main_window import ProfessionalMainWindow
+from app.ui.global_style_fixer import apply_global_style_fixes
 
 
 def cleanup():
@@ -17,9 +18,17 @@ def cleanup():
 
 def setup_app_icon(app):
     """设置应用程序图标"""
-    icon_path = "resources/icons/app_icon.png"
-    if os.path.exists(icon_path):
-        app.setWindowIcon(QIcon(icon_path))
+    # 尝试不同尺寸的图标
+    icon_paths = [
+        "resources/icons/app_icon_64.png",
+        "resources/icons/app_icon_32.png",
+        "resources/icons/app_icon_128.png"
+    ]
+
+    for icon_path in icon_paths:
+        if os.path.exists(icon_path):
+            app.setWindowIcon(QIcon(icon_path))
+            break
 
 
 def main():
@@ -36,19 +45,16 @@ def main():
     # 设置应用图标
     setup_app_icon(app)
     
-    # 设置样式
-    try:
-        style_path = "resources/styles/style.qss"
-        if os.path.exists(style_path):
-            with open(style_path, "r") as f:
-                app.setStyleSheet(f.read())
-        else:
-            print(f"样式文件不存在: {style_path}")
-    except Exception as e:
-        print(f"加载样式失败: {e}")
-    
+    # 专业UI系统不需要外部CSS文件
+    # 所有样式都通过Python代码内联定义，避免CSS兼容性问题
+    print("✅ 使用专业UI系统 - 无需外部CSS文件")
+
+    # 应用全局样式修复
+    apply_global_style_fixes(app, is_dark=False)
+    print("✅ 应用全局样式修复")
+
     # 创建并显示主窗口
-    window = MainWindow()
+    window = ProfessionalMainWindow()
     window.show()
     
     # 进入事件循环

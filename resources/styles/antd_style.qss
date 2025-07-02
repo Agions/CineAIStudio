@@ -1,0 +1,368 @@
+/* VideoEpicCreator - Ant Design 风格样式表 */
+
+/* ==================== 颜色变量定义 ==================== */
+/* 基于 Ant Design 色彩体系 */
+
+/* 主色调 - 蓝色系 */
+/* Primary: #1890ff */
+/* Primary Hover: #40a9ff */
+/* Primary Active: #096dd9 */
+
+/* 中性色 */
+/* Text Primary: #262626 */
+/* Text Secondary: #595959 */
+/* Text Disabled: #bfbfbf */
+/* Border: #d9d9d9 */
+/* Background: #fafafa */
+
+/* 功能色 */
+/* Success: #52c41a */
+/* Warning: #faad14 */
+/* Error: #ff4d4f */
+/* Info: #1890ff */
+
+/* ==================== 全局样式 ==================== */
+QWidget {
+    background-color: #ffffff;
+    color: #262626;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-size: 14px;
+    line-height: 1.5715;
+}
+
+/* 主窗口 */
+QMainWindow {
+    background-color: #f0f2f5;
+}
+
+/* ==================== 导航和菜单 ==================== */
+/* 左侧导航栏 */
+QWidget[objectName="left_panel"] {
+    background-color: #ffffff;
+    border-right: 1px solid #f0f0f0;
+}
+
+/* 导航按钮 */
+QPushButton[objectName="nav_button"] {
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    text-align: left;
+    color: #262626;
+    font-weight: 400;
+    min-height: 40px;
+}
+
+QPushButton[objectName="nav_button"]:hover {
+    background-color: #f5f5f5;
+    color: #1890ff;
+}
+
+QPushButton[objectName="nav_button"]:checked {
+    background-color: #e6f7ff;
+    color: #1890ff;
+    font-weight: 600;
+}
+
+/* 标题样式 */
+QLabel[objectName="app_title"] {
+    color: #1890ff;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 16px;
+}
+
+/* ==================== 按钮样式 ==================== */
+/* 主要按钮 */
+QPushButton[objectName="primary_button"] {
+    background-color: #1890ff;
+    border: 1px solid #1890ff;
+    border-radius: 6px;
+    color: #ffffff;
+    padding: 8px 16px;
+    font-weight: 400;
+    min-height: 32px;
+}
+
+QPushButton[objectName="primary_button"]:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+}
+
+QPushButton[objectName="primary_button"]:pressed {
+    background-color: #096dd9;
+    border-color: #096dd9;
+}
+
+QPushButton[objectName="primary_button"]:disabled {
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+}
+
+/* 默认按钮 */
+QPushButton {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    color: #262626;
+    padding: 8px 16px;
+    font-weight: 400;
+    min-height: 32px;
+}
+
+QPushButton:hover {
+    border-color: #40a9ff;
+    color: #40a9ff;
+}
+
+QPushButton:pressed {
+    border-color: #096dd9;
+    color: #096dd9;
+}
+
+QPushButton:disabled {
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+}
+
+/* ==================== 输入框样式 ==================== */
+QLineEdit {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #262626;
+    font-size: 14px;
+}
+
+QLineEdit:focus {
+    border-color: #40a9ff;
+    outline: none;
+}
+
+QLineEdit:disabled {
+    background-color: #f5f5f5;
+    color: #bfbfbf;
+}
+
+/* ==================== 标签页样式 ==================== */
+QTabWidget {
+    background-color: transparent;
+}
+
+QTabWidget::pane {
+    border: 1px solid #f0f0f0;
+    border-top: none;
+    background-color: #ffffff;
+    border-radius: 0 0 6px 6px;
+}
+
+QTabBar::tab {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 16px;
+    margin-right: 8px;
+    color: #595959;
+    font-weight: 400;
+}
+
+QTabBar::tab:hover {
+    color: #40a9ff;
+}
+
+QTabBar::tab:selected {
+    color: #1890ff;
+    border-bottom-color: #1890ff;
+    font-weight: 600;
+}
+
+/* ==================== 列表样式 ==================== */
+QListWidget {
+    background-color: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    outline: none;
+}
+
+QListWidget::item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+QListWidget::item:last {
+    border-bottom: none;
+}
+
+QListWidget::item:hover {
+    background-color: #f5f5f5;
+}
+
+QListWidget::item:selected {
+    background-color: #e6f7ff;
+    color: #1890ff;
+}
+
+/* ==================== 分组框样式 ==================== */
+QGroupBox {
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    margin-top: 8px;
+    padding-top: 16px;
+    background-color: #ffffff;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 8px;
+    color: #262626;
+    font-weight: 600;
+    background-color: #ffffff;
+}
+
+/* ==================== 滚动条样式 ==================== */
+QScrollBar:vertical {
+    background-color: #fafafa;
+    width: 8px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #bfbfbf;
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #8c8c8c;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background-color: #fafafa;
+    height: 8px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #bfbfbf;
+    border-radius: 4px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #8c8c8c;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* ==================== 状态栏样式 ==================== */
+QStatusBar {
+    background-color: #ffffff;
+    border-top: 1px solid #f0f0f0;
+    color: #595959;
+    padding: 4px 8px;
+}
+
+/* ==================== 工具栏样式 ==================== */
+QToolBar {
+    background-color: #ffffff;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    spacing: 4px;
+    padding: 8px;
+}
+
+QToolButton {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 8px;
+    color: #595959;
+}
+
+QToolButton:hover {
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #262626;
+}
+
+QToolButton:pressed {
+    background-color: #e6f7ff;
+    border-color: #1890ff;
+    color: #1890ff;
+}
+
+/* ==================== 进度条样式 ==================== */
+QProgressBar {
+    border: none;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    text-align: center;
+    color: #262626;
+    height: 8px;
+}
+
+QProgressBar::chunk {
+    background-color: #1890ff;
+    border-radius: 4px;
+}
+
+/* ==================== 滑块样式 ==================== */
+QSlider::groove:horizontal {
+    border: none;
+    height: 4px;
+    background-color: #f5f5f5;
+    border-radius: 2px;
+}
+
+QSlider::handle:horizontal {
+    background-color: #1890ff;
+    border: 2px solid #ffffff;
+    width: 16px;
+    height: 16px;
+    margin: -6px 0;
+    border-radius: 8px;
+}
+
+QSlider::handle:horizontal:hover {
+    background-color: #40a9ff;
+}
+
+/* ==================== 特殊组件样式 ==================== */
+/* 视频播放器区域 */
+QWidget[objectName="video_player"] {
+    background-color: #000000;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+}
+
+/* 右侧面板 */
+QWidget[objectName="right_panel"] {
+    background-color: #ffffff;
+    border-left: 1px solid #f0f0f0;
+}
+
+/* 分隔器 */
+QSplitter::handle {
+    background-color: #f0f0f0;
+}
+
+QSplitter::handle:horizontal {
+    width: 1px;
+}
+
+QSplitter::handle:vertical {
+    height: 1px;
+}
