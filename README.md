@@ -210,7 +210,6 @@ VideoEpicCreator/
 
 - 项目主页: [GitHub](https://github.com/agions/VideoEpicCreator)
 - 问题反馈: [Issues](https://github.com/agions/VideoEpicCreator/issues)
-- 邮箱: support@videoepiccreator.com
 
 ---
 
