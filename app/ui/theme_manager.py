@@ -158,7 +158,7 @@ class ThemeManager(QObject):
                 'background': '#141414',
                 'surface': '#1f1f1f',
                 'border': '#434343',
-                'text_primary': '#ffffff',
+                'text': '#ffffff',
                 'text_secondary': '#a6a6a6',
                 'text_disabled': '#595959',
                 'success': '#49aa19',
@@ -173,7 +173,7 @@ class ThemeManager(QObject):
                 'background': '#ffffff',
                 'surface': '#fafafa',
                 'border': '#d9d9d9',
-                'text_primary': '#262626',
+                'text': '#262626',
                 'text_secondary': '#595959',
                 'text_disabled': '#bfbfbf',
                 'success': '#52c41a',
@@ -209,7 +209,7 @@ def apply_theme_to_widget(widget, theme_type: Optional[ThemeType] = None):
     widget.setStyleSheet(f"""
         QWidget {{
             background-color: {colors['background']};
-            color: {colors['text_primary']};
+            color: {colors['text']};
         }}
         QPushButton {{
             background-color: {colors['primary']};
