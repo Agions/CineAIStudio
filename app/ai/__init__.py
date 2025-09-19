@@ -1,25 +1,53 @@
 """
-AI module for VideoEpicCreator
+AI模块 - CineAIStudio人工智能集成系统
 
-This module contains all AI-related functionality including:
-- AI model integrations (OpenAI, 通义千问, 文心一言, Ollama, etc.)
-- Content generators (commentary, compilation, monologue)
-- Video analyzers (scene detection, emotion analysis, highlight detection)
+提供完整的AI功能，包括：
+- 6个中文AI模型的统一管理
+- 智能负载均衡和故障转移
+- 成本管理和优化
+- 内容审核和过滤
+- AI功能接口统一化
 """
 
+# 核心管理器
+from .ai_manager import AIManager, create_ai_manager
+
+# 模型基类
+from .models.base_model import BaseAIModel, AIModelConfig, AIResponse
+
+# 具体模型
+from .models.qianwen_model import QianwenModel
+from .models.wenxin_model import WenxinModel
+from .models.zhipu_model import ZhipuModel
+from .models.xunfei_model import XunfeiModel
+from .models.hunyuan_model import HunyuanModel
+from .models.deepseek_model import DeepSeekModel
+
+# 保持向后兼容
 from .ai_manager import AIManager
-from .scene_detector import SceneDetector, SceneInfo
-from .content_generator import ContentGenerator, GeneratedContent, ContentSegment
-from .models import (
-    BaseAIModel, AIModelConfig, AIResponse,
-    OpenAIModel, QianwenModel, WenxinModel, OllamaModel
-)
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
+__author__ = "CineAIStudio Team"
 
+# 主要导出
 __all__ = [
-    'AIManager', 'SceneDetector', 'SceneInfo',
-    'ContentGenerator', 'GeneratedContent', 'ContentSegment',
-    'BaseAIModel', 'AIModelConfig', 'AIResponse',
-    'OpenAIModel', 'QianwenModel', 'WenxinModel', 'OllamaModel'
+    # 核心管理器
+    'AIManager',
+    'create_ai_manager',
+    
+    # 模型基类
+    'BaseAIModel',
+    'AIModelConfig',
+    'AIResponse',
+    
+    # 具体模型
+    'QianwenModel',
+    'WenxinModel',
+    'ZhipuModel',
+    'XunfeiModel',
+    'HunyuanModel',
+    'DeepSeekModel',
+    
+    # 向后兼容
+    'AIManager'
 ]
