@@ -105,8 +105,8 @@ celerybeat.pid
 env/
 venv/
 ENV/
-env.bak
-venv.bak
+env.bak/
+venv.bak/
 
 # Spyder project settings
 .spyderproject
@@ -127,51 +127,95 @@ dmypy.json
 .pyre/
 
 # IDEs and editors
+# Visual Studio Code
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# Editor directories and files
-.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
 
-# VideoEpicCreator specific
-# Cache directories
-cache/
-.cached/
-tmp/
-temp/
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+.idea_modules/
 
-# Log files
-*.log
-logs/
+# Vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
 
-# Data directories
-data/
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
 
-# Export directories
-exports/
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
 
-# Thumbnail cache
-thumbnails/
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+AppleDouble
+.DS_Store?
+**/.DS_Store
+.DS_Store**
+.DS_Store
 
-# Configuration files (local)
-config.local
-settings.local
+# Windows
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+*.DS_STORE
+.DS_STORE?
+desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
 
-# Database files
-*.db
-*.sqlite
+# Linux
+*~
 
-# Media files (large files typically not committed)
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Video and media files
 *.mp4
 *.avi
 *.mov
@@ -179,35 +223,104 @@ settings.local
 *.wmv
 *.flv
 *.webm
+*.m4v
+*.m4a
 *.mp3
 *.wav
+*.flac
 *.aac
+*.ogg
+*.wma
+*.3gp
+*.3g2
 
-# AI model files (large files typically not committed)
+# Temporary files
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+
+# Log files
+*.log
+cineai_studio_errors.log
+# Project-specific files
+config.json
+settings.json
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# Application-specific directories
+temp/
+cache/
+output/
+exports/
+projects/*/temp/
+projects/*/cache/
+projects/*/output/
+
+# AI model related files
 *.pt
 *.pth
 *.onnx
 *.h5
 *.keras
+*.pb
+*.tflite
+*.mlmodel
 
-# Temporary files
-*.tmp
-*.temp
+# FFmpeg temporary files
+*.tmp.mp4
+*.tmp.avi
+*.tmp.mov
+
+# PyQt6 related
+*.pyc
+*.pyo
+*.qmlc
+*.jsc
+*.jsc.gz
+
+# UI component files that might be generated
+*.ui~
+
+# Resource files that might be generated
+resources/icons/generated/
+resources/styles/generated/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
 
 # Backup files
 *.bak
 *.backup
+*.old
+*.orig
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Merge files
+*.orig
+*.rej
+*.patch
 
-# Environment variables
-.env
-.env.local
-.env.*.local
+
+CLAUDE.md
+PRD.md
+CORE_REFACTOR_PLAN.md
+README_simplified.md
+REFACTOR_REPORT.md
+REFACTOR_SUMMARY.md
+UI_DESIGN_DOCUMENTATION.md
+VIDEO_PERFORMANCE_OPTIMIZATION.md
+VIDEO_PROCESSING_API.md
+
+simplified_main.py
+test_simplified_version.py
+debug_simplified.py
+test_simplified_version.py
+test_ui_simple.py
+test_ui_system.py

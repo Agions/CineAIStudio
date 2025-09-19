@@ -1,51 +1,58 @@
-# 核心UI框架
-PyQt6>=6.4.0
-PyQt6-Qt6>=6.4.0
+# Core UI Framework
+PyQt6==6.5.2
+PyQt6-Qt6==6.5.2
+PyQt6-sip==13.5.2
 
-# AI模型集成
-openai>=1.3.0
-ollama>=0.1.6
-dashscope>=1.13.6  # 阿里云千问API
+# Video Processing
+opencv-python==4.8.0.76
+ffmpeg-python==0.2.0
+numpy==1.24.3
+pillow==10.0.0
 
-# 视频处理
-ffmpeg-python>=0.2.0
-opencv-python>=4.8.0
-moviepy>=1.0.3
+# HTTP Requests
+requests==2.31.0
 
-# 语音合成
-edge-tts>=6.1.0
-pyttsx3>=2.90
+# Chinese AI Models - Latest Versions
+dashscope==1.17.7  # 通义千问 (latest)
+qianfan==0.4.6     # 文心一言 (latest)
+zhipuai==2.0.6     # 智谱AI (latest)
+sparkdesk-python==1.2.4  # 讯飞星火 (latest)
+tencentcloud-sdk-python==3.0.970  # 腾讯混元 (latest)
+deepseek-sdk==1.0.0  # DeepSeek (latest)
 
-# 数据处理和科学计算
-numpy>=1.21.0
-pandas>=2.0.0
-scipy>=1.9.0
-pillow>=8.3.0
+# Voice Synthesis
+pyttsx3==2.90      # Local TTS
+azure-cognitiveservices-speech==1.34.0  # Azure Speech Services
 
-# 网络和API
-requests>=2.25.0
-aiohttp>=3.8.0
-httpx>=0.24.0
+# Security & Encryption
+cryptography==41.0.7
 
-# 配置和工具
-python-dotenv>=1.0.0
-pydantic>=2.0.0
-click>=8.0.0
-tqdm>=4.64.0
-psutil>=5.9.0
+# Utilities
+cairosvg==2.7.0    # SVG转PNG
+python-dotenv==1.0.0  # Environment variables
+psutil==5.9.6      # System utilities
+pathlib2==2.3.7    # Enhanced path handling
+jieba==0.42.1      # Chinese text processing
 
-# 异步处理
-asyncio-throttle>=1.0.0
-tenacity>=8.2.0
+# Audio Processing
+librosa==0.10.1    # Audio analysis
+soundfile==0.12.1  # Audio file I/O
 
-# 音频处理
-pydub>=0.25.0
+# Scene Detection
+scenedetect==0.6.2 # Video scene detection
 
-# 日志和监控
-loguru>=0.7.0
-rich>=13.0.0
+# Video Processing Enhancement
+imageio==2.31.6         # Video I/O operations
+imageio-ffmpeg==0.4.8    # FFmpeg wrapper for imageio
+moviepy==1.0.3          # Video editing and processing
+av==10.0.0              # Pythonic bindings for FFmpeg
 
-# 测试
-pytest>=7.0.0
-pytest-asyncio>=0.21.0
-pytest-cov>=4.0.0
+# Performance Monitoring
+prometheus-client==0.19.0  # Metrics collection
+py-cpuinfo==9.0.0        # CPU information
+nvidia-ml-py==12.535.133   # NVIDIA GPU monitoring
+
+# System Utilities
+wmi==1.4.9               # Windows system information (optional)
+pynvml==11.5.0           # NVIDIA GPU management
+ GPUtil==1.4.0            # GPU utilization monitoring

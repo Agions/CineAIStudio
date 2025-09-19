@@ -1,928 +1,956 @@
-"""
-Enhanced AI Manager for VideoEpicCreator
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-This module provides an enhanced AI service manager with advanced features including
-provider management, load balancing, caching, and intelligent routing.
+"""
+重构的统一AI管理器
+集成优化的模型管理、成本管理、负载均衡和内容生成系统
 """
 
 import asyncio
-import time
 import json
-from typing import Dict, List, Optional, Union, AsyncGenerator, Any, Tuple
+import time
+import logging
+from typing import Dict, List, Optional, Any, Type, Union, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
-import hashlib
+from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
 import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from collections import defaultdict, deque
-import statistics
+from queue import PriorityQueue, Queue
 
-from ..core.base import BaseComponent, ComponentConfig, ComponentState
-from ..core.service_container import ServiceContainer, get_service_container, ServiceLifetime
-from ..core.events import EventSystem, get_event_system, Event, EventPriority
-from .providers import AIProvider, AIProviderInterface, AIRequest, AIResponse, ContentType
-from ..config.settings import Settings
+from PyQt6.QtCore import QObject, pyqtSignal, QTimer
 
+from .optimized_model_manager import OptimizedModelManager, ModelCapability, ModelRequest
+from .optimized_cost_manager import OptimizedCostManager, CostRecord, BudgetInfo
+from .intelligent_load_balancer import IntelligentLoadBalancer, LoadBalancingStrategy, RequestPriority
+from .intelligent_content_generator import (
+    IntelligentContentGenerator, ContentGenerationRequest, 
+    ContentGenerationType, ContentGenerationResult
+)
+from .models.base_model import BaseAIModel, AIModelConfig, AIResponse
+from .models.qianwen_model import QianwenModel
+from .models.wenxin_model import WenxinModel
+from .models.zhipu_model import ZhipuModel
+from .models.xunfei_model import XunfeiModel
+from .models.hunyuan_model import HunyuanModel
+from .models.deepseek_model import DeepSeekModel
 
-class AIProviderState(Enum):
-    """AI provider states"""
-    UNKNOWN = "unknown"
-    AVAILABLE = "available"
-    UNAVAILABLE = "unavailable"
-    DEGRADED = "degraded"
-    MAINTENANCE = "maintenance"
+from app.config.settings_manager import SettingsManager
 
-
-class LoadBalancingStrategy(Enum):
-    """Load balancing strategies"""
-    ROUND_ROBIN = "round_robin"
-    WEIGHTED_ROUND_ROBIN = "weighted_round_robin"
-    LEAST_CONNECTIONS = "least_connections"
-    FASTEST_RESPONSE = "fastest_response"
-    COST_BASED = "cost_based"
-    QUALITY_BASED = "quality_based"
+logger = logging.getLogger(__name__)
 
 
-@dataclass
-class ProviderMetrics:
-    """AI provider performance metrics"""
-    request_count: int = 0
-    success_count: int = 0
-    error_count: int = 0
-    total_response_time: float = 0.0
-    average_response_time: float = 0.0
-    total_tokens_used: int = 0
-    average_tokens_per_request: float = 0.0
-    cost_per_request: float = 0.0
-    quality_score: float = 0.0  # 0.0 to 1.0
-    last_request_time: float = 0.0
-    consecutive_errors: int = 0
-    health_score: float = 1.0  # 0.0 to 1.0
-    
-    def update_metrics(self, response: AIResponse, response_time: float):
-        """Update metrics with response data"""
-        self.request_count += 1
-        self.total_response_time += response_time
-        self.average_response_time = self.total_response_time / self.request_count
-        
-        if response.error:
-            self.error_count += 1
-            self.consecutive_errors += 1
-        else:
-            self.success_count += 1
-            self.consecutive_errors = 0
-            self.total_tokens_used += response.tokens_used
-            self.average_tokens_per_request = self.total_tokens_used / self.success_count
-        
-        self.last_request_time = time.time()
-        self._update_health_score()
-    
-    def _update_health_score(self):
-        """Update health score based on metrics"""
-        if self.request_count == 0:
-            self.health_score = 1.0
-            return
-        
-        # Calculate health score components
-        success_rate = self.success_count / self.request_count
-        error_penalty = min(0.5, self.consecutive_errors * 0.1)
-        latency_score = max(0.0, 1.0 - (self.average_response_time / 30.0))  # 30s timeout
-        
-        # Weighted health score
-        self.health_score = (success_rate * 0.5 + latency_score * 0.3 + self.quality_score * 0.2) - error_penalty
-        self.health_score = max(0.0, min(1.0, self.health_score))
+class AITaskType(Enum):
+    """AI任务类型"""
+    TEXT_GENERATION = "text_generation"
+    CONTENT_ANALYSIS = "content_analysis"
+    COMMENTARY_GENERATION = "commentary_generation"
+    MONOLOGUE_GENERATION = "monologue_generation"
+    SCENE_ANALYSIS = "scene_analysis"
+    SUBTITLE_GENERATION = "subtitle_generation"
+    VIDEO_EDITING_SUGGESTION = "video_editing_suggestion"
+    CONTENT_CLASSIFICATION = "content_classification"
 
 
 @dataclass
-class ProviderConfig:
-    """AI provider configuration"""
-    provider: AIProvider
-    enabled: bool = True
-    weight: int = 1  # For weighted load balancing
-    max_concurrent_requests: int = 10
-    request_timeout: int = 60
-    retry_attempts: int = 3
-    cost_per_token: float = 0.0
-    quality_threshold: float = 0.7
-    maintenance_mode: bool = False
-    custom_settings: Dict[str, Any] = field(default_factory=dict)
+class AITask:
+    """AI任务"""
+    task_id: str
+    task_type: AITaskType
+    content: str
+    context: Dict[str, Any] = field(default_factory=dict)
+    priority: RequestPriority = RequestPriority.NORMAL
+    provider: Optional[str] = None
+    parameters: Dict[str, Any] = field(default_factory=dict)
+    callback: Optional[Callable] = None
+    created_at: float = field(default_factory=time.time)
+    timeout: float = 30.0
+    retry_count: int = 0
+    max_retries: int = 3
 
 
-@dataclass
-class CacheEntry:
-    """Cache entry for AI responses"""
-    request_hash: str
-    response: AIResponse
-    timestamp: float
-    ttl: float  # Time to live in seconds
+class EnhancedAIManager(QObject):
+    """增强的AI管理器"""
     
-    def is_expired(self) -> bool:
-        """Check if cache entry is expired"""
-        return time.time() - self.timestamp > self.ttl
-
-
-class AIRequestRouter:
-    """AI request router for intelligent provider selection"""
+    # 信号定义
+    task_completed = pyqtSignal(str, object)  # 任务ID, 结果
+    task_failed = pyqtSignal(str, str)  # 任务ID, 错误信息
+    task_progress = pyqtSignal(str, float)  # 任务ID, 进度
+    model_health_updated = pyqtSignal(dict)  # 模型健康状态更新
+    usage_stats_updated = pyqtSignal(dict)  # 使用统计更新
+    cost_alert = pyqtSignal(object)  # 成本警报
+    content_generated = pyqtSignal(object)  # 内容生成完成
+    performance_metrics_updated = pyqtSignal(dict)  # 性能指标更新
     
-    def __init__(self, ai_manager: 'EnhancedAIManager'):
-        self.ai_manager = ai_manager
-        self._logger = logging.getLogger("ai_request_router")
-        self._request_history = defaultdict(lambda: deque(maxlen=100))
-        self._current_weights = {}
-    
-    def select_provider(self, request: AIRequest, strategy: LoadBalancingStrategy) -> AIProvider:
-        """Select the best provider for the request"""
-        available_providers = self._get_available_providers()
+    def __init__(self, settings_manager: SettingsManager):
+        super().__init__()
         
-        if not available_providers:
-            raise RuntimeError("No available AI providers")
+        self.settings_manager = settings_manager
         
-        if strategy == LoadBalancingStrategy.ROUND_ROBIN:
-            return self._round_robin_selection(available_providers)
-        elif strategy == LoadBalancingStrategy.WEIGHTED_ROUND_ROBIN:
-            return self._weighted_round_robin_selection(available_providers)
-        elif strategy == LoadBalancingStrategy.LEAST_CONNECTIONS:
-            return self._least_connections_selection(available_providers)
-        elif strategy == LoadBalancingStrategy.FASTEST_RESPONSE:
-            return self._fastest_response_selection(available_providers)
-        elif strategy == LoadBalancingStrategy.COST_BASED:
-            return self._cost_based_selection(available_providers, request)
-        elif strategy == LoadBalancingStrategy.QUALITY_BASED:
-            return self._quality_based_selection(available_providers, request)
-        else:
-            return available_providers[0]
-    
-    def _get_available_providers(self) -> List[AIProvider]:
-        """Get list of available providers"""
-        return [
-            provider for provider, config in self.ai_manager.provider_configs.items()
-            if (config.enabled and 
-                not config.maintenance_mode and
-                self.ai_manager.get_provider_state(provider) == AIProviderState.AVAILABLE)
-        ]
-    
-    def _round_robin_selection(self, providers: List[AIProvider]) -> AIProvider:
-        """Round robin provider selection"""
-        if not hasattr(self, '_round_robin_index'):
-            self._round_robin_index = 0
-        
-        provider = providers[self._round_robin_index % len(providers)]
-        self._round_robin_index += 1
-        return provider
-    
-    def _weighted_round_robin_selection(self, providers: List[AIProvider]) -> AIProvider:
-        """Weighted round robin provider selection"""
-        total_weight = sum(
-            self.ai_manager.provider_configs[provider].weight 
-            for provider in providers
-        )
-        
-        if total_weight == 0:
-            return providers[0]
-        
-        current_weight = getattr(self, '_current_weight', 0)
-        self._current_weight = (current_weight + 1) % total_weight
-        
-        cumulative_weight = 0
-        for provider in providers:
-            cumulative_weight += self.ai_manager.provider_configs[provider].weight
-            if current_weight < cumulative_weight:
-                return provider
-        
-        return providers[-1]
-    
-    def _least_connections_selection(self, providers: List[AIProvider]) -> AIProvider:
-        """Least connections provider selection"""
-        active_requests = self.ai_manager.get_active_requests_count()
-        
-        if not active_requests:
-            return providers[0]
-        
-        # Find provider with least active requests
-        provider_loads = [
-            (provider, active_requests.get(provider, 0))
-            for provider in providers
-        ]
-        
-        return min(provider_loads, key=lambda x: x[1])[0]
-    
-    def _fastest_response_selection(self, providers: List[AIProvider]) -> AIProvider:
-        """Fastest response time provider selection"""
-        response_times = {
-            provider: self.ai_manager.provider_metrics[provider].average_response_time
-            for provider in providers
+        # 核心组件
+        self.model_classes = {
+            "qianwen": QianwenModel,
+            "wenxin": WenxinModel,
+            "zhipu": ZhipuModel,
+            "xunfei": XunfeiModel,
+            "hunyuan": HunyuanModel,
+            "deepseek": DeepSeekModel
         }
         
-        return min(response_times, key=response_times.get)
-    
-    def _cost_based_selection(self, providers: List[AIProvider], request: AIRequest) -> AIProvider:
-        """Cost-based provider selection"""
-        estimated_costs = {}
+        # 初始化管理器
+        self.model_manager = OptimizedModelManager(self.model_classes)
+        self.cost_manager = OptimizedCostManager()
+        self.load_balancer = IntelligentLoadBalancer(self.model_manager, self.cost_manager)
+        self.content_generator = IntelligentContentGenerator(self.model_manager, self.cost_manager)
         
-        for provider in providers:
-            config = self.ai_manager.provider_configs[provider]
-            metrics = self.ai_manager.provider_metrics[provider]
-            
-            # Estimate cost based on tokens and provider rates
-            estimated_tokens = request.max_tokens
-            estimated_cost = estimated_tokens * config.cost_per_token
-            
-            # Adjust for reliability (higher cost for less reliable providers)
-            reliability_factor = metrics.health_score
-            adjusted_cost = estimated_cost / reliability_factor if reliability_factor > 0 else float('inf')
-            
-            estimated_costs[provider] = adjusted_cost
+        # 任务管理
+        self.task_queue = PriorityQueue()
+        self.active_tasks: Dict[str, AITask] = {}
+        self.task_results: Dict[str, Any] = {}
         
-        return min(estimated_costs, key=estimated_costs.get)
-    
-    def _quality_based_selection(self, providers: List[AIProvider], request: AIRequest) -> AIProvider:
-        """Quality-based provider selection"""
-        quality_scores = {}
+        # 线程池
+        self.thread_pool = ThreadPoolExecutor(max_workers=8)
         
-        for provider in providers:
-            config = self.ai_manager.provider_configs[provider]
-            metrics = self.ai_manager.provider_metrics[provider]
-            
-            # Calculate quality score based on various factors
-            health_score = metrics.health_score
-            quality_threshold = config.quality_threshold
-            
-            # Consider content type specialization
-            type_bonus = self._get_type_specialization_bonus(provider, request.content_type)
-            
-            final_score = health_score * 0.7 + type_bonus * 0.3
-            quality_scores[provider] = final_score
-        
-        return max(quality_scores, key=quality_scores.get)
-    
-    def _get_type_specialization_bonus(self, provider: AIProvider, content_type: ContentType) -> float:
-        """Get specialization bonus for content type"""
-        # This could be based on historical performance for specific content types
-        return 0.5  # Default bonus
-
-
-class AICache:
-    """AI response caching system"""
-    
-    def __init__(self, max_size: int = 1000, default_ttl: float = 3600.0):
-        self.max_size = max_size
-        self.default_ttl = default_ttl
-        self._cache: Dict[str, CacheEntry] = {}
-        self._lock = threading.RLock()
-        self._logger = logging.getLogger("ai_cache")
-    
-    def get(self, request: AIRequest) -> Optional[AIResponse]:
-        """Get cached response for request"""
-        cache_key = self._generate_cache_key(request)
-        
-        with self._lock:
-            if cache_key in self._cache:
-                entry = self._cache[cache_key]
-                if not entry.is_expired():
-                    self._logger.debug(f"Cache hit for request: {cache_key}")
-                    return entry.response
-                else:
-                    # Remove expired entry
-                    del self._cache[cache_key]
-        
-        return None
-    
-    def put(self, request: AIRequest, response: AIResponse, ttl: Optional[float] = None):
-        """Cache response for request"""
-        if response.error:
-            return  # Don't cache error responses
-        
-        cache_key = self._generate_cache_key(request)
-        cache_ttl = ttl or self.default_ttl
-        
-        with self._lock:
-            # Remove oldest entries if cache is full
-            if len(self._cache) >= self.max_size:
-                oldest_key = min(self._cache.keys(), 
-                                key=lambda k: self._cache[k].timestamp)
-                del self._cache[oldest_key]
-            
-            # Add new entry
-            entry = CacheEntry(
-                request_hash=cache_key,
-                response=response,
-                timestamp=time.time(),
-                ttl=cache_ttl
-            )
-            self._cache[cache_key] = entry
-            
-            self._logger.debug(f"Cached response for request: {cache_key}")
-    
-    def clear(self):
-        """Clear all cached entries"""
-        with self._lock:
-            self._cache.clear()
-        self._logger.info("AI cache cleared")
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """Get cache statistics"""
-        with self._lock:
-            return {
-                "size": len(self._cache),
-                "max_size": self.max_size,
-                "hit_rate": self._calculate_hit_rate(),
-                "expired_entries": len([e for e in self._cache.values() if e.is_expired()])
-            }
-    
-    def _generate_cache_key(self, request: AIRequest) -> str:
-        """Generate cache key for request"""
-        key_data = {
-            "prompt": request.prompt,
-            "content_type": request.content_type.value,
-            "provider": request.provider.value,
-            "model": request.model,
-            "max_tokens": request.max_tokens,
-            "temperature": request.temperature
-        }
-        
-        key_string = json.dumps(key_data, sort_keys=True)
-        return hashlib.md5(key_string.encode()).hexdigest()
-    
-    def _calculate_hit_rate(self) -> float:
-        """Calculate cache hit rate (simplified)"""
-        # This would need to track hits and misses over time
-        return 0.0
-
-
-class EnhancedAIManager(BaseComponent[Dict[str, Any]]):
-    """Enhanced AI Manager with advanced features"""
-    
-    def __init__(self, settings: Settings, config: Optional[ComponentConfig] = None):
-        super().__init__("enhanced_ai_manager", config)
-        self.settings = settings
-        
-        # Core components
-        self.providers: Dict[AIProvider, AIProviderInterface] = {}
-        self.provider_configs: Dict[AIProvider, ProviderConfig] = {}
-        self.provider_metrics: Dict[AIProvider, ProviderMetrics] = {}
-        self.provider_states: Dict[AIProvider, AIProviderState] = {}
-        
-        # Advanced features
-        self.request_router = AIRequestRouter(self)
-        self.cache = AICache()
-        self.active_requests: Dict[AIProvider, int] = defaultdict(int)
-        self.request_history = deque(maxlen=1000)
-        
-        # Configuration
-        self.load_balancing_strategy = LoadBalancingStrategy.QUALITY_BASED
+        # 配置
+        self.max_concurrent_tasks = 20
+        self.default_timeout = 30.0
         self.enable_caching = True
-        self.enable_load_balancing = True
-        self.max_concurrent_requests = 50
+        self.enable_content_moderation = True
         
-        # Threading
-        self._executor = ThreadPoolExecutor(max_workers=10)
-        self._lock = threading.RLock()
-        
-        # Services
-        self._event_system = get_event_system()
-        self._service_container = get_service_container()
-        
-        self._logger = logging.getLogger("enhanced_ai_manager")
-    
-    async def initialize(self) -> bool:
-        """Initialize the enhanced AI manager"""
-        try:
-            self.logger.info("Initializing Enhanced AI Manager")
-            
-            # Initialize providers
-            await self._initialize_providers()
-            
-            # Start health monitoring
-            self._start_health_monitoring()
-            
-            # Start cache cleanup
-            self._start_cache_cleanup()
-            
-            # Register with service container
-            self._service_container.register(EnhancedAIManager, EnhancedAIManager, 
-                                            ServiceLifetime.SINGLETON)
-            self._service_container._service_instances["EnhancedAIManager"] = self
-            
-            self.set_state(ComponentState.RUNNING)
-            return True
-        
-        except Exception as e:
-            self.handle_error(e, "initialize")
-            return False
-    
-    async def start(self) -> bool:
-        """Start the enhanced AI manager"""
-        try:
-            # Validate provider connections
-            await self._validate_all_providers()
-            
-            # Load provider configurations
-            await self._load_provider_configs()
-            
-            self.set_state(ComponentState.RUNNING)
-            return True
-        
-        except Exception as e:
-            self.handle_error(e, "start")
-            return False
-    
-    async def stop(self) -> bool:
-        """Stop the enhanced AI manager"""
-        try:
-            # Stop health monitoring
-            self._stop_health_monitoring()
-            
-            # Wait for active requests to complete
-            await self._wait_for_active_requests()
-            
-            self.set_state(ComponentState.STOPPED)
-            return True
-        
-        except Exception as e:
-            self.handle_error(e, "stop")
-            return False
-    
-    async def cleanup(self) -> bool:
-        """Clean up enhanced AI manager resources"""
-        try:
-            # Clear cache
-            self.cache.clear()
-            
-            # Clear providers
-            self.providers.clear()
-            self.provider_configs.clear()
-            self.provider_metrics.clear()
-            self.provider_states.clear()
-            
-            # Shutdown executor
-            self._executor.shutdown(wait=True)
-            
-            self.set_state(ComponentState.STOPPED)
-            return True
-        
-        except Exception as e:
-            self.handle_error(e, "cleanup")
-            return False
-    
-    def get_status(self) -> Dict[str, Any]:
-        """Get enhanced AI manager status"""
-        return {
-            "name": self.name,
-            "state": self.state.value,
-            "providers": {
-                provider.value: {
-                    "state": state.value,
-                    "metrics": metrics.__dict__,
-                    "config": config.__dict__,
-                    "active_requests": self.active_requests.get(provider, 0)
-                }
-                for provider, state, metrics, config in zip(
-                    self.provider_states.keys(),
-                    self.provider_states.values(),
-                    self.provider_metrics.values(),
-                    self.provider_configs.values()
-                )
-            },
-            "cache_stats": self.cache.get_stats(),
-            "load_balancing": {
-                "strategy": self.load_balancing_strategy.value,
-                "active_requests": dict(self.active_requests)
-            },
-            "statistics": {
-                "total_requests": sum(m.request_count for m in self.provider_metrics.values()),
-                "total_tokens": sum(m.total_tokens_used for m in self.provider_metrics.values()),
-                "average_response_time": statistics.mean(
-                    [m.average_response_time for m in self.provider_metrics.values() if m.request_count > 0]
-                ) if self.provider_metrics else 0.0,
-                "overall_success_rate": self._calculate_overall_success_rate()
-            },
-            "metrics": self.metrics.__dict__
+        # 性能监控
+        self.performance_stats = {
+            "total_tasks": 0,
+            "successful_tasks": 0,
+            "failed_tasks": 0,
+            "average_response_time": 0.0,
+            "total_cost": 0.0
         }
+        
+        # 定时器
+        self.stats_timer = QTimer()
+        self.stats_timer.timeout.connect(self._update_usage_stats)
+        self.stats_timer.start(60000)  # 每分钟更新统计
+        
+        # 初始化
+        self._initialize_system()
+        
+        logger.info("增强的AI管理器初始化完成")
     
-    async def _initialize_providers(self):
-        """Initialize AI providers based on settings"""
-        ai_settings = self.settings.get_ai_settings()
-        
-        # Initialize OpenAI provider
-        if ai_settings.openai_api_key:
-            from .providers import OpenAIProvider
-            self.providers[AIProvider.OPENAI] = OpenAIProvider(ai_settings.openai_api_key)
-            self.provider_configs[AIProvider.OPENAI] = ProviderConfig(
-                provider=AIProvider.OPENAI,
-                weight=3,
-                cost_per_token=0.002,  # $0.002 per 1K tokens
-                quality_threshold=0.8
-            )
-        
-        # Initialize Qianwen provider
-        if ai_settings.qianwen_api_key:
-            from .providers import QianwenProvider
-            self.providers[AIProvider.QIANWEN] = QianwenProvider(ai_settings.qianwen_api_key)
-            self.provider_configs[AIProvider.QIANWEN] = ProviderConfig(
-                provider=AIProvider.QIANWEN,
-                weight=2,
-                cost_per_token=0.001,  # $0.001 per 1K tokens
-                quality_threshold=0.7
-            )
-        
-        # Initialize Ollama provider
-        from .providers import OllamaProvider
-        self.providers[AIProvider.OLLAMA] = OllamaProvider(ai_settings.ollama_base_url)
-        self.provider_configs[AIProvider.OLLAMA] = ProviderConfig(
-            provider=AIProvider.OLLAMA,
-            weight=1,
-            cost_per_token=0.0,  # Free for local models
-            quality_threshold=0.6
-        )
-        
-        # Initialize metrics and states
-        for provider in self.providers:
-            self.provider_metrics[provider] = ProviderMetrics()
-            self.provider_states[provider] = AIProviderState.UNKNOWN
-    
-    async def _validate_all_providers(self):
-        """Validate all provider connections"""
-        validation_tasks = []
-        
-        for provider, instance in self.providers.items():
-            task = asyncio.create_task(self._validate_provider(provider))
-            validation_tasks.append(task)
-        
-        await asyncio.gather(*validation_tasks, return_exceptions=True)
-    
-    async def _validate_provider(self, provider: AIProvider):
-        """Validate a specific provider"""
+    def _initialize_system(self):
+        """初始化系统"""
         try:
-            instance = self.providers[provider]
-            is_valid = instance.validate_api_key()
+            # 加载配置
+            ai_config = self.settings_manager.get_setting("ai_models", {})
             
-            if is_valid:
-                self.provider_states[provider] = AIProviderState.AVAILABLE
-                self.logger.info(f"{provider.value} provider is available")
+            # 创建模型配置
+            model_configs = {}
+            for provider, config in ai_config.items():
+                if provider in self.model_classes and config.get("enabled", False):
+                    api_key = self.settings_manager.get_api_key(provider)
+                    
+                    model_config = AIModelConfig(
+                        name=config.get("model", provider),
+                        api_key=api_key,
+                        api_url=config.get("api_url", ""),
+                        max_tokens=config.get("max_tokens", 4096),
+                        temperature=config.get("temperature", 0.7),
+                        top_p=config.get("top_p", 0.9),
+                        frequency_penalty=config.get("frequency_penalty", 0.0),
+                        presence_penalty=config.get("presence_penalty", 0.0),
+                        enabled=config.get("enabled", False),
+                        use_proxy=config.get("use_proxy", False),
+                        proxy_url=config.get("proxy_url", ""),
+                        custom_headers=config.get("custom_headers", {})
+                    )
+                    
+                    model_configs[provider] = model_config
+            
+            # 异步初始化模型
+            asyncio.create_task(self._initialize_models_async(model_configs))
+            
+            # 启动任务处理器
+            self._start_task_processor()
+            
+            # 设置预算
+            budget_amount = self.settings_manager.get_setting("ai_budget.monthly_limit", 1000.0)
+            if budget_amount > 0:
+                self.cost_manager.create_budget("月度预算", budget_amount, 30)
+            
+            # 连接信号
+            self._connect_signals()
+            
+        except Exception as e:
+            logger.error(f"系统初始化失败: {e}")
+    
+    async def _initialize_models_async(self, model_configs: Dict[str, AIModelConfig]):
+        """异步初始化模型"""
+        try:
+            await self.model_manager.initialize_models(model_configs)
+            logger.info(f"成功初始化 {len(model_configs)} 个模型")
+        except Exception as e:
+            logger.error(f"模型初始化失败: {e}")
+    
+    def _connect_signals(self):
+        """连接信号"""
+        # 模型管理器信号
+        self.model_manager.model_health_updated.connect(self.model_health_updated)
+        self.model_manager.model_performance_updated.connect(self.performance_metrics_updated)
+        
+        # 成本管理器信号
+        self.cost_manager.cost_updated.connect(self._on_cost_updated)
+        self.cost_manager.budget_alert.connect(self.cost_alert)
+        self.cost_manager.cost_analysis_ready.connect(self._on_cost_analysis_ready)
+        
+        # 内容生成器信号
+        self.content_generator.content_generated.connect(self.content_generated)
+    
+    def _start_task_processor(self):
+        """启动任务处理器"""
+        def process_tasks():
+            while True:
+                try:
+                    if len(self.active_tasks) < self.max_concurrent_tasks:
+                        priority, task = self.task_queue.get()
+                        
+                        # 检查超时
+                        if task.timeout > 0 and time.time() - task.created_at > task.timeout:
+                            self.task_failed.emit(task.task_id, "任务超时")
+                            continue
+                        
+                        self.active_tasks[task.task_id] = task
+                        
+                        # 在线程池中执行任务
+                        future = self.thread_pool.submit(self._execute_task, task)
+                        future.add_done_callback(lambda f: self._task_completed(task.task_id, f))
+                        
+                    else:
+                        time.sleep(0.01)
+                        
+                except Exception as e:
+                    logger.error(f"处理任务时出错: {e}")
+                    time.sleep(1)
+        
+        processor_thread = threading.Thread(target=process_tasks, daemon=True)
+        processor_thread.start()
+    
+    def _execute_task(self, task: AITask) -> Any:
+        """执行AI任务"""
+        start_time = time.time()
+        
+        try:
+            # 根据任务类型执行
+            if task.task_type == AITaskType.TEXT_GENERATION:
+                # TODO: 移除asyncio.run - 这个文件即将被ai_service.py替代
+                # result = asyncio.run(self._execute_text_generation(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
+            elif task.task_type == AITaskType.CONTENT_ANALYSIS:
+                # result = asyncio.run(self._execute_content_analysis(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
+            elif task.task_type == AITaskType.COMMENTARY_GENERATION:
+                # result = asyncio.run(self._execute_commentary_generation(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
+            elif task.task_type == AITaskType.MONOLOGUE_GENERATION:
+                # result = asyncio.run(self._execute_monologue_generation(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
+            elif task.task_type == AITaskType.SCENE_ANALYSIS:
+                # result = asyncio.run(self._execute_scene_analysis(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
+            elif task.task_type == AITaskType.SUBTITLE_GENERATION:
+                # result = asyncio.run(self._execute_subtitle_generation(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
+            elif task.task_type == AITaskType.VIDEO_EDITING_SUGGESTION:
+                # result = asyncio.run(self._execute_editing_suggestion(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
+            elif task.task_type == AITaskType.CONTENT_CLASSIFICATION:
+                # result = asyncio.run(self._execute_content_classification(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
             else:
-                self.provider_states[provider] = AIProviderState.UNAVAILABLE
-                self.logger.warning(f"{provider.value} provider is not available")
+                # result = asyncio.run(self._execute_text_generation(task))
+                result = AIResponse(success=False, error_message="功能已迁移到新的AIService")
             
-            # Emit event
-            self._event_system.emit("provider_validated", {
-                "provider": provider.value,
-                "available": is_valid
-            })
-        
-        except Exception as e:
-            self.provider_states[provider] = AIProviderState.UNAVAILABLE
-            self.logger.error(f"Error validating {provider.value} provider: {e}")
-    
-    async def _load_provider_configs(self):
-        """Load provider configurations from settings"""
-        # This could load from database or configuration files
-        pass
-    
-    def _start_health_monitoring(self):
-        """Start health monitoring for providers"""
-        # Start background health check task
-        asyncio.create_task(self._health_monitor_loop())
-    
-    def _stop_health_monitoring(self):
-        """Stop health monitoring"""
-        # This would cancel the health monitoring task
-        pass
-    
-    async def _health_monitor_loop(self):
-        """Health monitoring loop"""
-        while self.state == ComponentState.RUNNING:
-            try:
-                await self._perform_health_checks()
-                await asyncio.sleep(60)  # Check every minute
-            except Exception as e:
-                self.logger.error(f"Error in health monitoring: {e}")
-                await asyncio.sleep(60)
-    
-    async def _perform_health_checks(self):
-        """Perform health checks on all providers"""
-        for provider, instance in self.providers.items():
-            try:
-                # Simple health check - could be more sophisticated
-                is_healthy = instance.validate_api_key()
-                
-                if is_healthy:
-                    if self.provider_states[provider] != AIProviderState.AVAILABLE:
-                        self.provider_states[provider] = AIProviderState.AVAILABLE
-                        self._event_system.emit("provider_recovered", {
-                            "provider": provider.value
-                        })
-                else:
-                    if self.provider_states[provider] == AIProviderState.AVAILABLE:
-                        self.provider_states[provider] = AIProviderState.UNAVAILABLE
-                        self._event_system.emit("provider_failed", {
-                            "provider": provider.value
-                        })
-            
-            except Exception as e:
-                self.logger.error(f"Health check failed for {provider.value}: {e}")
-                self.provider_states[provider] = AIProviderState.UNAVAILABLE
-    
-    def _start_cache_cleanup(self):
-        """Start cache cleanup task"""
-        asyncio.create_task(self._cache_cleanup_loop())
-    
-    async def _cache_cleanup_loop(self):
-        """Cache cleanup loop"""
-        while self.state == ComponentState.RUNNING:
-            try:
-                await self._cleanup_expired_cache_entries()
-                await asyncio.sleep(300)  # Clean every 5 minutes
-            except Exception as e:
-                self.logger.error(f"Error in cache cleanup: {e}")
-                await asyncio.sleep(300)
-    
-    async def _cleanup_expired_cache_entries(self):
-        """Clean up expired cache entries"""
-        # This is handled automatically by the cache get method
-        pass
-    
-    async def _wait_for_active_requests(self):
-        """Wait for active requests to complete"""
-        max_wait_time = 30  # seconds
-        wait_start = time.time()
-        
-        while sum(self.active_requests.values()) > 0:
-            if time.time() - wait_start > max_wait_time:
-                self.logger.warning("Timeout waiting for active requests to complete")
-                break
-            
-            await asyncio.sleep(0.1)
-    
-    def get_provider_state(self, provider: AIProvider) -> AIProviderState:
-        """Get provider state"""
-        return self.provider_states.get(provider, AIProviderState.UNKNOWN)
-    
-    def get_active_requests_count(self) -> Dict[AIProvider, int]:
-        """Get active requests count per provider"""
-        return dict(self.active_requests)
-    
-    def _calculate_overall_success_rate(self) -> float:
-        """Calculate overall success rate"""
-        total_requests = sum(m.request_count for m in self.provider_metrics.values())
-        total_successes = sum(m.success_count for m in self.provider_metrics.values())
-        
-        if total_requests == 0:
-            return 0.0
-        
-        return total_successes / total_requests
-    
-    # Enhanced AI generation methods
-    async def generate_content_enhanced(
-        self,
-        prompt: str,
-        content_type: ContentType,
-        provider: Optional[AIProvider] = None,
-        model: Optional[str] = None,
-        use_cache: bool = True,
-        strategy: Optional[LoadBalancingStrategy] = None,
-        **kwargs
-    ) -> AIResponse:
-        """Generate content with enhanced features"""
-        if not self.is_ready():
-            raise RuntimeError("AI Manager is not ready")
-        
-        start_time = time.time()
-        
-        # Check cache first
-        if use_cache and self.enable_caching:
-            cached_response = self.cache.get(AIRequest(
-                prompt=prompt,
-                content_type=content_type,
-                provider=provider or AIProvider.OPENAI,
-                model=model or "default",
-                **kwargs
-            ))
-            
-            if cached_response:
-                self.logger.debug("Returning cached response")
-                return cached_response
-        
-        # Select provider
-        if provider is None:
-            strategy = strategy or self.load_balancing_strategy
-            provider = self.request_router.select_provider(
-                AIRequest(prompt=prompt, content_type=content_type, 
-                         provider=AIProvider.OPENAI, **kwargs),
-                strategy
-            )
-        
-        if provider not in self.providers:
-            raise ValueError(f"Provider {provider.value} not available")
-        
-        # Check concurrency limits
-        config = self.provider_configs[provider]
-        if self.active_requests[provider] >= config.max_concurrent_requests:
-            self.logger.warning(f"Provider {provider.value} is at capacity")
-            # Could implement queuing or fallback here
-            raise RuntimeError(f"Provider {provider.value} is at capacity")
-        
-        # Execute request
-        self.active_requests[provider] += 1
-        
-        try:
-            # Get model
-            if model is None:
-                available_models = self.providers[provider].get_available_models()
-                model = available_models[0] if available_models else "default"
-            
-            # Create request
-            request = AIRequest(
-                prompt=prompt,
-                content_type=content_type,
-                provider=provider,
-                model=model,
-                **kwargs
-            )
-            
-            # Generate content
-            response = await self.providers[provider].generate_content(request)
+            # 更新性能统计
             response_time = time.time() - start_time
+            self._update_performance_stats(result, response_time)
             
-            # Update metrics
-            self.provider_metrics[provider].update_metrics(response, response_time)
+            return result
             
-            # Cache successful responses
-            if use_cache and self.enable_caching and not response.error:
-                self.cache.put(request, response)
-            
-            # Update metrics
-            self.update_metrics(response_time)
-            
-            # Emit event
-            self._event_system.emit("ai_content_generated", {
-                "provider": provider.value,
-                "content_type": content_type.value,
-                "success": not response.error,
-                "response_time": response_time,
-                "tokens_used": response.tokens_used
-            })
-            
-            return response
-        
         except Exception as e:
-            # Update error metrics
-            self.provider_metrics[provider].error_count += 1
-            
-            # Emit error event
-            self._event_system.emit("ai_content_generation_error", {
-                "provider": provider.value,
-                "content_type": content_type.value,
-                "error": str(e)
-            })
-            
-            self.handle_error(e, "generate_content_enhanced")
-            raise
-        
-        finally:
-            self.active_requests[provider] -= 1
+            logger.error(f"执行任务失败: {e}")
+            return {
+                "success": False,
+                "error_message": str(e),
+                "task_id": task.task_id
+            }
     
-    async def generate_stream_enhanced(
-        self,
-        prompt: str,
-        content_type: ContentType,
-        provider: Optional[AIProvider] = None,
-        model: Optional[str] = None,
-        strategy: Optional[LoadBalancingStrategy] = None,
-        **kwargs
-    ) -> AsyncGenerator[str, None]:
-        """Generate streaming content with enhanced features"""
-        if not self.is_ready():
-            raise RuntimeError("AI Manager is not ready")
+    async def _execute_text_generation(self, task: AITask) -> AIResponse:
+        """执行文本生成任务"""
+        capability = ModelCapability.TEXT_GENERATION
         
-        # Select provider
-        if provider is None:
-            strategy = strategy or self.load_balancing_strategy
-            provider = self.request_router.select_provider(
-                AIRequest(prompt=prompt, content_type=content_type, 
-                         provider=AIProvider.OPENAI, **kwargs),
-                strategy
+        # 选择提供商
+        if task.provider:
+            provider = task.provider
+        else:
+            provider, _ = await self.load_balancer.select_provider(
+                capability, task.content, task.priority
             )
         
-        if provider not in self.providers:
-            raise ValueError(f"Provider {provider.value} not available")
-        
-        # Get model
-        if model is None:
-            available_models = self.providers[provider].get_available_models()
-            model = available_models[0] if available_models else "default"
-        
-        # Create request
-        request = AIRequest(
-            prompt=prompt,
-            content_type=content_type,
+        # 创建模型请求
+        model_request = ModelRequest(
+            request_id=task.task_id,
             provider=provider,
-            model=model,
-            stream=True,
-            **kwargs
+            prompt=task.content,
+            capability=capability,
+            parameters=task.parameters,
+            priority=task.priority.value,
+            timeout=task.timeout
         )
         
-        # Generate streaming content
-        start_time = time.time()
-        self.active_requests[provider] += 1
+        # 执行请求
+        response = await self.model_manager.process_request(model_request)
         
+        # 更新负载均衡器
+        self.load_balancer.update_request_result(
+            provider, response.success, 
+            response.metadata.get("response_time", 0.0),
+            self.cost_manager.calculate_cost(
+                provider,
+                response.usage.get("prompt_tokens", 0),
+                response.usage.get("completion_tokens", 0)
+            )
+        )
+        
+        # 记录成本
+        if response.success:
+            cost_record = CostRecord(
+                timestamp=time.time(),
+                provider=provider,
+                request_id=task.task_id,
+                capability=capability.value,
+                input_tokens=response.usage.get("prompt_tokens", 0),
+                output_tokens=response.usage.get("completion_tokens", 0),
+                total_tokens=response.usage.get("total_tokens", 0),
+                cost=self.cost_manager.calculate_cost(
+                    provider,
+                    response.usage.get("prompt_tokens", 0),
+                    response.usage.get("completion_tokens", 0)
+                ),
+                success=response.success,
+                response_time=response.metadata.get("response_time", 0.0),
+                metadata={"task_type": task.task_type.value}
+            )
+            self.cost_manager.record_cost(cost_record)
+        
+        return response
+    
+    async def _execute_content_analysis(self, task: AITask) -> AIResponse:
+        """执行内容分析任务"""
+        capability = ModelCapability.CONTENT_ANALYSIS
+        
+        # 选择提供商
+        if task.provider:
+            provider = task.provider
+        else:
+            provider, _ = await self.load_balancer.select_provider(
+                capability, task.content, task.priority
+            )
+        
+        # 创建模型请求
+        model_request = ModelRequest(
+            request_id=task.task_id,
+            provider=provider,
+            prompt=task.content,
+            capability=capability,
+            parameters=task.parameters,
+            priority=task.priority.value,
+            timeout=task.timeout
+        )
+        
+        # 执行请求
+        response = await self.model_manager.process_request(model_request)
+        
+        # 更新负载均衡器和成本
+        self.load_balancer.update_request_result(
+            provider, response.success,
+            response.metadata.get("response_time", 0.0),
+            self.cost_manager.calculate_cost(
+                provider,
+                response.usage.get("prompt_tokens", 0),
+                response.usage.get("completion_tokens", 0)
+            )
+        )
+        
+        if response.success:
+            cost_record = CostRecord(
+                timestamp=time.time(),
+                provider=provider,
+                request_id=task.task_id,
+                capability=capability.value,
+                input_tokens=response.usage.get("prompt_tokens", 0),
+                output_tokens=response.usage.get("completion_tokens", 0),
+                total_tokens=response.usage.get("total_tokens", 0),
+                cost=self.cost_manager.calculate_cost(
+                    provider,
+                    response.usage.get("prompt_tokens", 0),
+                    response.usage.get("completion_tokens", 0)
+                ),
+                success=response.success,
+                response_time=response.metadata.get("response_time", 0.0),
+                metadata={"task_type": task.task_type.value}
+            )
+            self.cost_manager.record_cost(cost_record)
+        
+        return response
+    
+    async def _execute_commentary_generation(self, task: AITask) -> ContentGenerationResult:
+        """执行解说生成任务"""
+        # 创建内容生成请求
+        content_request = ContentGenerationRequest(
+            request_id=task.task_id,
+            content_type=ContentGenerationType.COMMENTARY,
+            prompt=task.content,
+            context=task.context,
+            style=task.parameters.get("style", "humorous"),
+            tone=task.parameters.get("tone", "casual"),
+            target_audience=task.parameters.get("target_audience", "general"),
+            max_length=task.parameters.get("max_length", 1000),
+            requirements=task.parameters.get("requirements", []),
+            priority=task.priority.value,
+            timeout=task.timeout
+        )
+        
+        # 生成内容
+        result = await self.content_generator.generate_content(content_request)
+        
+        return result
+    
+    async def _execute_monologue_generation(self, task: AITask) -> ContentGenerationResult:
+        """执行独白生成任务"""
+        content_request = ContentGenerationRequest(
+            request_id=task.task_id,
+            content_type=ContentGenerationType.MONOLOGUE,
+            prompt=task.content,
+            context=task.context,
+            style=task.parameters.get("style", "emotional"),
+            tone=task.parameters.get("tone", "dramatic"),
+            target_audience=task.parameters.get("target_audience", "general"),
+            max_length=task.parameters.get("max_length", 800),
+            requirements=task.parameters.get("requirements", []),
+            priority=task.priority.value,
+            timeout=task.timeout
+        )
+        
+        result = await self.content_generator.generate_content(content_request)
+        return result
+    
+    async def _execute_scene_analysis(self, task: AITask) -> AIResponse:
+        """执行场景分析任务"""
+        capability = ModelCapability.SCENE_ANALYSIS
+        
+        # 选择提供商
+        if task.provider:
+            provider = task.provider
+        else:
+            provider, _ = await self.load_balancer.select_provider(
+                capability, task.content, task.priority
+            )
+        
+        # 创建模型请求
+        model_request = ModelRequest(
+            request_id=task.task_id,
+            provider=provider,
+            prompt=task.content,
+            capability=capability,
+            parameters=task.parameters,
+            priority=task.priority.value,
+            timeout=task.timeout
+        )
+        
+        # 执行请求
+        response = await self.model_manager.process_request(model_request)
+        
+        # 更新负载均衡器和成本
+        self.load_balancer.update_request_result(
+            provider, response.success,
+            response.metadata.get("response_time", 0.0),
+            self.cost_manager.calculate_cost(
+                provider,
+                response.usage.get("prompt_tokens", 0),
+                response.usage.get("completion_tokens", 0)
+            )
+        )
+        
+        if response.success:
+            cost_record = CostRecord(
+                timestamp=time.time(),
+                provider=provider,
+                request_id=task.task_id,
+                capability=capability.value,
+                input_tokens=response.usage.get("prompt_tokens", 0),
+                output_tokens=response.usage.get("completion_tokens", 0),
+                total_tokens=response.usage.get("total_tokens", 0),
+                cost=self.cost_manager.calculate_cost(
+                    provider,
+                    response.usage.get("prompt_tokens", 0),
+                    response.usage.get("completion_tokens", 0)
+                ),
+                success=response.success,
+                response_time=response.metadata.get("response_time", 0.0),
+                metadata={"task_type": task.task_type.value}
+            )
+            self.cost_manager.record_cost(cost_record)
+        
+        return response
+    
+    async def _execute_subtitle_generation(self, task: AITask) -> ContentGenerationResult:
+        """执行字幕生成任务"""
+        content_request = ContentGenerationRequest(
+            request_id=task.task_id,
+            content_type=ContentGenerationType.CAPTION,
+            prompt=task.content,
+            context=task.context,
+            style="formal",
+            tone="neutral",
+            target_audience="general",
+            max_length=task.parameters.get("max_length", 2000),
+            requirements=["时间轴准确", "语言通顺", "符合视频节奏"],
+            priority=task.priority.value,
+            timeout=task.timeout
+        )
+        
+        result = await self.content_generator.generate_content(content_request)
+        return result
+    
+    async def _execute_editing_suggestion(self, task: AITask) -> AIResponse:
+        """执行编辑建议任务"""
+        capability = ModelCapability.CONTENT_ANALYSIS
+        
+        # 选择提供商
+        if task.provider:
+            provider = task.provider
+        else:
+            provider, _ = await self.load_balancer.select_provider(
+                capability, task.content, task.priority
+            )
+        
+        # 创建模型请求
+        model_request = ModelRequest(
+            request_id=task.task_id,
+            provider=provider,
+            prompt=task.content,
+            capability=capability,
+            parameters=task.parameters,
+            priority=task.priority.value,
+            timeout=task.timeout
+        )
+        
+        # 执行请求
+        response = await self.model_manager.process_request(model_request)
+        
+        # 更新负载均衡器和成本
+        self.load_balancer.update_request_result(
+            provider, response.success,
+            response.metadata.get("response_time", 0.0),
+            self.cost_manager.calculate_cost(
+                provider,
+                response.usage.get("prompt_tokens", 0),
+                response.usage.get("completion_tokens", 0)
+            )
+        )
+        
+        if response.success:
+            cost_record = CostRecord(
+                timestamp=time.time(),
+                provider=provider,
+                request_id=task.task_id,
+                capability=capability.value,
+                input_tokens=response.usage.get("prompt_tokens", 0),
+                output_tokens=response.usage.get("completion_tokens", 0),
+                total_tokens=response.usage.get("total_tokens", 0),
+                cost=self.cost_manager.calculate_cost(
+                    provider,
+                    response.usage.get("prompt_tokens", 0),
+                    response.usage.get("completion_tokens", 0)
+                ),
+                success=response.success,
+                response_time=response.metadata.get("response_time", 0.0),
+                metadata={"task_type": task.task_type.value}
+            )
+            self.cost_manager.record_cost(cost_record)
+        
+        return response
+    
+    async def _execute_content_classification(self, task: AITask) -> AIResponse:
+        """执行内容分类任务"""
+        capability = ModelCapability.CONTENT_ANALYSIS
+        
+        # 选择提供商
+        if task.provider:
+            provider = task.provider
+        else:
+            provider, _ = await self.load_balancer.select_provider(
+                capability, task.content, task.priority
+            )
+        
+        # 创建模型请求
+        model_request = ModelRequest(
+            request_id=task.task_id,
+            provider=provider,
+            prompt=task.content,
+            capability=capability,
+            parameters=task.parameters,
+            priority=task.priority.value,
+            timeout=task.timeout
+        )
+        
+        # 执行请求
+        response = await self.model_manager.process_request(model_request)
+        
+        # 更新负载均衡器和成本
+        self.load_balancer.update_request_result(
+            provider, response.success,
+            response.metadata.get("response_time", 0.0),
+            self.cost_manager.calculate_cost(
+                provider,
+                response.usage.get("prompt_tokens", 0),
+                response.usage.get("completion_tokens", 0)
+            )
+        )
+        
+        if response.success:
+            cost_record = CostRecord(
+                timestamp=time.time(),
+                provider=provider,
+                request_id=task.task_id,
+                capability=capability.value,
+                input_tokens=response.usage.get("prompt_tokens", 0),
+                output_tokens=response.usage.get("completion_tokens", 0),
+                total_tokens=response.usage.get("total_tokens", 0),
+                cost=self.cost_manager.calculate_cost(
+                    provider,
+                    response.usage.get("prompt_tokens", 0),
+                    response.usage.get("completion_tokens", 0)
+                ),
+                success=response.success,
+                response_time=response.metadata.get("response_time", 0.0),
+                metadata={"task_type": task.task_type.value}
+            )
+            self.cost_manager.record_cost(cost_record)
+        
+        return response
+    
+    def _task_completed(self, task_id: str, future):
+        """任务完成处理"""
         try:
-            async for chunk in self.providers[provider].generate_stream(request):
-                yield chunk
-        
+            if task_id in self.active_tasks:
+                task = self.active_tasks.pop(task_id)
+                
+                try:
+                    result = future.result()
+                    
+                    if result.get("success", False):
+                        self.task_completed.emit(task_id, result)
+                        
+                        # 执行回调
+                        if task.callback:
+                            task.callback(result)
+                    else:
+                        # 重试逻辑
+                        if task.retry_count < task.max_retries:
+                            task.retry_count += 1
+                            task.created_at = time.time()
+                            self.task_queue.put((task.priority.value, task))
+                            logger.info(f"任务 {task_id} 重试第 {task.retry_count} 次")
+                        else:
+                            self.task_failed.emit(task_id, result.get("error_message", "任务失败"))
+                    
+                    self.task_results[task_id] = result
+                    
+                except Exception as e:
+                    self.task_failed.emit(task_id, f"任务执行异常: {str(e)}")
+                    
         except Exception as e:
-            self.handle_error(e, "generate_stream_enhanced")
-            raise
-        
-        finally:
-            self.active_requests[provider] -= 1
+            logger.error(f"处理任务完成时出错: {e}")
     
-    def get_provider_recommendations(self, content_type: ContentType, 
-                                   requirements: Dict[str, Any]) -> List[AIProvider]:
-        """Get recommended providers for specific requirements"""
-        recommendations = []
+    def _update_performance_stats(self, result: Any, response_time: float):
+        """更新性能统计"""
+        self.performance_stats["total_tasks"] += 1
         
-        for provider, config in self.provider_configs.items():
-            if not config.enabled or config.maintenance_mode:
-                continue
+        if result.get("success", False):
+            self.performance_stats["successful_tasks"] += 1
             
-            metrics = self.provider_metrics[provider]
-            
-            # Score provider based on requirements
-            score = 0.0
-            
-            # Health score
-            score += metrics.health_score * 0.3
-            
-            # Quality threshold
-            if metrics.quality_score >= config.quality_threshold:
-                score += 0.2
-            
-            # Cost efficiency
-            if requirements.get("cost_sensitive", False):
-                cost_score = 1.0 - min(1.0, config.cost_per_token * 100)
-                score += cost_score * 0.2
-            
-            # Performance requirements
-            if requirements.get("low_latency", False):
-                latency_score = 1.0 - min(1.0, metrics.average_response_time / 10.0)
-                score += latency_score * 0.2
-            
-            # Specialization
-            if requirements.get("high_quality", False):
-                quality_score = metrics.quality_score
-                score += quality_score * 0.1
-            
-            recommendations.append((provider, score))
+            # 更新成本
+            if "cost" in result:
+                self.performance_stats["total_cost"] += result["cost"]
+        else:
+            self.performance_stats["failed_tasks"] += 1
         
-        # Sort by score and return providers
-        recommendations.sort(key=lambda x: x[1], reverse=True)
-        return [provider for provider, score in recommendations]
+        # 更新平均响应时间
+        if self.performance_stats["total_tasks"] > 0:
+            total_time = self.performance_stats["average_response_time"] * (self.performance_stats["total_tasks"] - 1) + response_time
+            self.performance_stats["average_response_time"] = total_time / self.performance_stats["total_tasks"]
     
-    def get_provider_statistics(self, provider: AIProvider) -> Dict[str, Any]:
-        """Get detailed statistics for a provider"""
-        if provider not in self.provider_metrics:
-            return {}
-        
-        metrics = self.provider_metrics[provider]
-        config = self.provider_configs.get(provider)
-        
-        return {
-            "provider": provider.value,
-            "state": self.provider_states[provider].value,
-            "metrics": metrics.__dict__,
-            "config": config.__dict__ if config else {},
-            "performance_analysis": {
-                "success_rate": metrics.success_count / max(1, metrics.request_count),
-                "average_latency": metrics.average_response_time,
-                "cost_efficiency": metrics.total_tokens_used * (config.cost_per_token if config else 0),
-                "quality_trend": self._calculate_quality_trend(provider)
-            }
+    def _update_usage_stats(self):
+        """更新使用统计"""
+        stats = {
+            "performance_stats": self.performance_stats,
+            "load_balancing_stats": self.load_balancer.get_load_balancing_stats(),
+            "cost_summary": self.cost_manager.get_cost_summary(),
+            "model_health": self.model_manager.get_model_health_summary(),
+            "generation_stats": self.content_generator.get_generation_stats()
         }
+        
+        self.usage_stats_updated.emit(stats)
     
-    def _calculate_quality_trend(self, provider: AIProvider) -> str:
-        """Calculate quality trend for a provider"""
-        # This would analyze historical quality data
-        return "stable"  # Placeholder
-    
-    async def optimize_provider_configs(self):
-        """Optimize provider configurations based on performance"""
-        # This would automatically adjust weights and settings
-        # based on historical performance data
+    def _on_cost_updated(self, cost_summary: dict):
+        """成本更新处理"""
+        # 可以在这里添加成本更新后的处理逻辑
         pass
     
-    def export_metrics(self) -> Dict[str, Any]:
-        """Export all metrics for analysis"""
+    def _on_cost_analysis_ready(self, analysis: dict):
+        """成本分析完成处理"""
+        # 可以在这里添加成本分析完成后的处理逻辑
+        pass
+    
+    # 公共接口
+    def generate_text(self, prompt: str, provider: str = None, **kwargs) -> str:
+        """生成文本（同步接口）"""
+        task_id = f"text_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.TEXT_GENERATION,
+            content=prompt,
+            provider=provider,
+            parameters=kwargs
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def generate_text_async(self, prompt: str, provider: str = None, 
+                          callback: Callable = None, **kwargs) -> str:
+        """生成文本（异步接口）"""
+        task_id = f"text_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.TEXT_GENERATION,
+            content=prompt,
+            provider=provider,
+            callback=callback,
+            parameters=kwargs
+        )
+        
+        self.task_queue.put((task.priority.value, task))
+        return task_id
+    
+    def generate_commentary(self, video_info: Dict[str, Any], style: str = "幽默风趣", 
+                          provider: str = None, **kwargs) -> ContentGenerationResult:
+        """生成视频解说"""
+        task_id = f"commentary_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.COMMENTARY_GENERATION,
+            content=f"为视频生成{style}的解说",
+            context=video_info,
+            provider=provider,
+            parameters={"style": style, **kwargs}
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def generate_monologue(self, video_info: Dict[str, Any], character: str = "主角", 
+                          emotion: str = "平静", provider: str = None, **kwargs) -> ContentGenerationResult:
+        """生成第一人称独白"""
+        task_id = f"monologue_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.MONOLOGUE_GENERATION,
+            content=f"为角色生成{emotion}的独白",
+            context=video_info,
+            provider=provider,
+            parameters={"character": character, "emotion": emotion, **kwargs}
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def analyze_content(self, content: str, analysis_type: str = "general", 
+                       provider: str = None) -> AIResponse:
+        """分析内容"""
+        task_id = f"analysis_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.CONTENT_ANALYSIS,
+            content=content,
+            provider=provider,
+            parameters={"analysis_type": analysis_type}
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def generate_subtitle(self, video_content: str, language: str = "zh", 
+                         provider: str = None) -> ContentGenerationResult:
+        """生成字幕"""
+        task_id = f"subtitle_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.SUBTITLE_GENERATION,
+            content=video_content,
+            provider=provider,
+            parameters={"language": language}
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def analyze_video_scene(self, video_description: str, provider: str = None) -> AIResponse:
+        """分析视频场景"""
+        task_id = f"scene_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.SCENE_ANALYSIS,
+            content=video_description,
+            provider=provider
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def get_editing_suggestions(self, video_info: Dict[str, Any], provider: str = None) -> AIResponse:
+        """获取视频编辑建议"""
+        prompt = f"""
+        请为以下视频提供编辑建议：
+        
+        视频信息：
+        - 时长：{video_info.get('duration', '未知')}
+        - 类型：{video_info.get('type', '未知')}
+        - 内容：{video_info.get('content', '未知')}
+        
+        请提供：
+        1. 节奏调整建议
+        2. 转场效果建议
+        3. 音效处理建议
+        4. 色彩调整建议
+        5. 整体优化建议
+        """
+        
+        task_id = f"editing_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.VIDEO_EDITING_SUGGESTION,
+            content=prompt,
+            provider=provider,
+            parameters={"video_info": video_info}
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def classify_content(self, content: str, provider: str = None) -> AIResponse:
+        """内容分类"""
+        task_id = f"classify_{int(time.time() * 1000)}"
+        task = AITask(
+            task_id=task_id,
+            task_type=AITaskType.CONTENT_CLASSIFICATION,
+            content=content,
+            provider=provider
+        )
+        
+        return self._execute_task_sync(task)
+    
+    def _execute_task_sync(self, task: AITask) -> Any:
+        """同步执行任务"""
+        self.task_queue.put((task.priority.value, task))
+        
+        # 等待任务完成
+        start_time = time.time()
+        timeout = task.timeout or self.default_timeout
+        
+        while time.time() - start_time < timeout:
+            if task.task_id in self.task_results:
+                result = self.task_results.pop(task.task_id)
+                return result
+            
+            time.sleep(0.01)
+        
+        # 超时处理
+        if task.task_id in self.active_tasks:
+            del self.active_tasks[task.task_id]
+        
         return {
-            "timestamp": time.time(),
-            "providers": {
-                provider.value: metrics.__dict__
-                for provider, metrics in self.provider_metrics.items()
-            },
-            "cache": self.cache.get_stats(),
-            "system": {
-                "total_requests": sum(m.request_count for m in self.provider_metrics.values()),
-                "total_tokens": sum(m.total_tokens_used for m in self.provider_metrics.values()),
-                "overall_success_rate": self._calculate_overall_success_rate()
-            }
+            "success": False,
+            "error_message": "任务执行超时"
         }
+    
+    def get_model_status(self) -> Dict[str, Any]:
+        """获取模型状态"""
+        return self.model_manager.get_model_health_summary()
+    
+    def get_usage_stats(self) -> Dict[str, Any]:
+        """获取使用统计"""
+        return self.cost_manager.get_cost_summary()
+    
+    def get_available_models(self) -> List[str]:
+        """获取可用模型列表"""
+        return [
+            provider for provider, metrics in self.model_manager.model_metrics.items()
+            if metrics.health_status.value in ["healthy", "degraded"]
+        ]
+    
+    def set_load_balancing_strategy(self, strategy: LoadBalancingStrategy):
+        """设置负载均衡策略"""
+        self.load_balancer.set_strategy(strategy)
+    
+    def set_cost_budget(self, budget: float, duration_days: int = 30):
+        """设置成本预算"""
+        self.cost_manager.create_budget("自定义预算", budget, duration_days)
+    
+    def get_provider_recommendations(self, capability: ModelCapability) -> List[Dict[str, Any]]:
+        """获取提供商推荐"""
+        return self.load_balancer.get_provider_recommendations(capability)
+    
+    def get_task_status(self, task_id: str) -> Dict[str, Any]:
+        """获取任务状态"""
+        if task_id in self.active_tasks:
+            task = self.active_tasks[task_id]
+            return {
+                "task_id": task_id,
+                "status": "processing",
+                "task_type": task.task_type.value,
+                "provider": task.provider,
+                "created_at": task.created_at,
+                "retry_count": task.retry_count
+            }
+        elif task_id in self.task_results:
+            return {
+                "task_id": task_id,
+                "status": "completed",
+                "result": self.task_results[task_id]
+            }
+        else:
+            return {
+                "task_id": task_id,
+                "status": "not_found"
+            }
+    
+    def cleanup(self):
+        """清理资源"""
+        logger.info("清理增强AI管理器资源")
+        
+        # 停止定时器
+        self.stats_timer.stop()
+        
+        # 关闭线程池
+        self.thread_pool.shutdown(wait=True)
+        
+        # 清理各个管理器
+        # TODO: 移除asyncio.run - 这个文件即将被ai_service.py替代
+        # asyncio.run(self.model_manager.cleanup())
+        try:
+            # 尝试同步清理
+            if hasattr(self.model_manager, 'cleanup_sync'):
+                self.model_manager.cleanup_sync()
+        except Exception as e:
+            logger.warning(f"模型管理器清理失败: {e}")
+        
+        logger.info("增强AI管理器资源清理完成")
+
+
+# 工厂函数
+def create_enhanced_ai_manager(settings_manager: SettingsManager) -> EnhancedAIManager:
+    """创建增强的AI管理器"""
+    return EnhancedAIManager(settings_manager)

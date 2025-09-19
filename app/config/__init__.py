@@ -1,16 +1,11 @@
 """
-Configuration module for VideoEpicCreator
+Configuration Management module
 
-This module handles application configuration, settings management,
-API key management, and environment configuration.
+Handles all application configuration:
+- Settings management
+- Secure API key storage with encryption
+- Default configurations
+- User preferences
 """
 
-from .settings import Settings
-from .api_key_manager import APIKeyManager
-from .config_loader import ConfigLoader
-
-__all__ = [
-    "Settings",
-    "APIKeyManager",
-    "ConfigLoader",
-]
+__all__ = []

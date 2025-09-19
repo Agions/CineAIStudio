@@ -16,11 +16,18 @@ class VideoClip:
         self.file_path = file_path
         self.start_time = start_time  # 开始时间（毫秒）
         self.end_time = end_time  # 结束时间（毫秒），None表示到文件结尾
-        self.clip_id = clip_id or self._generate_id()
+        self.id = clip_id or self._generate_id()  # 使用id而不是clip_id
+        self.clip_id = self.id  # 保持向后兼容
         self.name = os.path.basename(file_path)
-        self.duration = 0  # 时长（毫秒）
+        self.duration = 0  # 时长（秒）
         self.thumbnail = None  # 缩略图路径
+        self.thumbnail_path = None  # 缩略图路径（别名）
         self.metadata = {}  # 视频元数据
+        self.file_size = 0  # 文件大小
+
+        # 获取文件大小
+        if os.path.exists(file_path):
+            self.file_size = os.path.getsize(file_path)
         
     def _generate_id(self):
         """生成唯一ID"""
@@ -44,6 +51,7 @@ class VideoClip:
     def set_thumbnail(self, thumbnail_path):
         """设置缩略图路径"""
         self.thumbnail = thumbnail_path
+        self.thumbnail_path = thumbnail_path
     
     def to_dict(self):
         """转换为字典，用于保存"""
@@ -148,6 +156,10 @@ class VideoManager(QObject):
         if 0 <= index < len(self.videos):
             return self.videos[index]
         return None
+
+    def get_all_videos(self):
+        """获取所有视频"""
+        return self.videos.copy()
     
     def find_video_by_path(self, file_path):
         """通过文件路径查找视频"""
