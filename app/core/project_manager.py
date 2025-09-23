@@ -2,702 +2,822 @@
 # -*- coding: utf-8 -*-
 
 """
-项目管理器核心类
+CineAIStudio 项目管理器
 提供完整的项目生命周期管理功能
 """
 
-import json
 import os
-import uuid
+import json
 import shutil
-import logging
+import uuid
+import zipfile
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any, Callable
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union, Tuple
-from dataclasses import dataclass, asdict, field
-from PyQt6.QtCore import QObject, pyqtSignal, QTimer, QSettings
-from PyQt6.QtWidgets import QMessageBox, QApplication
+from enum import Enum
+import logging
 
-from .project import Project, ProjectInfo, ProjectSettings, ProjectMetadata
-from .video_manager import VideoManager
+from PyQt6.QtCore import QObject, pyqtSignal, QSettings
+
+from .config_manager import ConfigManager
+from .secure_key_manager import get_secure_key_manager
+from .event_system import EventSystem
+from .logger import Logger
+
+
+class ProjectStatus(Enum):
+    """项目状态枚举"""
+    ACTIVE = "active"
+    ARCHIVED = "archived"
+    TEMPLATE = "template"
+    CORRUPTED = "corrupted"
+
+
+class ProjectType(Enum):
+    """项目类型枚举"""
+    VIDEO_EDITING = "video_editing"
+    AI_ENHANCEMENT = "ai_enhancement"
+    COMPILATION = "compilation"
+    COMMENTARY = "commentary"
+    MULTIMEDIA = "multimedia"
 
 
 @dataclass
-class ProjectTemplate:
-    """项目模板"""
-    id: str
+class ProjectMetadata:
+    """项目元数据"""
     name: str
-    description: str
-    category: str
-    thumbnail_path: str = ""
-    settings: ProjectSettings = field(default_factory=ProjectSettings)
-    timeline_template: Dict[str, Any] = field(default_factory=dict)
+    description: str = ""
+    created_at: datetime = field(default_factory=datetime.now)
+    modified_at: datetime = field(default_factory=datetime.now)
+    version: str = "1.0.0"
+    author: str = ""
+    tags: List[str] = field(default_factory=list)
+    thumbnail_path: Optional[str] = None
+    project_type: ProjectType = ProjectType.VIDEO_EDITING
+    status: ProjectStatus = ProjectStatus.ACTIVE
+
+    def to_dict(self) -> Dict[str, Any]:
+        """转换为字典"""
+        data = asdict(self)
+        # 转换datetime对象为字符串
+        data['created_at'] = self.created_at.isoformat()
+        data['modified_at'] = self.modified_at.isoformat()
+        data['project_type'] = self.project_type.value
+        data['status'] = self.status.value
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMetadata':
+        """从字典创建实例"""
+        # 转换字符串为datetime对象
+        if isinstance(data.get('created_at'), str):
+            data['created_at'] = datetime.fromisoformat(data['created_at'])
+        if isinstance(data.get('modified_at'), str):
+            data['modified_at'] = datetime.fromisoformat(data['modified_at'])
+
+        # 转换枚举值
+        if isinstance(data.get('project_type'), str):
+            data['project_type'] = ProjectType(data['project_type'])
+        if isinstance(data.get('status'), str):
+            data['status'] = ProjectStatus(data['status'])
+
+        return cls(**data)
+
+
+@dataclass
+class ProjectSettings:
+    """项目设置"""
+    video_resolution: str = "1920x1080"
+    video_fps: int = 30
+    video_bitrate: str = "8000k"
+    audio_sample_rate: int = 44100
+    audio_bitrate: str = "192k"
+    auto_save_interval: int = 300  # 秒
+    backup_enabled: bool = True
+    backup_count: int = 10
     ai_settings: Dict[str, Any] = field(default_factory=dict)
     export_settings: Dict[str, Any] = field(default_factory=dict)
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    custom_settings: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class ProjectMedia:
+    """项目媒体文件"""
+    id: str
+    file_path: str
+    media_type: str  # video, audio, image
+    duration: Optional[float] = None
+    size: Optional[int] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectTemplate':
-        if 'settings' in data:
-            data['settings'] = ProjectSettings.from_dict(data['settings'])
+    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMedia':
         return cls(**data)
 
 
 @dataclass
-class ProjectStatistics:
-    """项目统计信息"""
-    total_projects: int = 0
-    active_projects: int = 0
-    completed_projects: int = 0
-    total_editing_time: int = 0  # 总编辑时间（小时）
-    total_videos_processed: int = 0
-    total_exports: int = 0
-    disk_usage: int = 0  # 磁盘使用量（字节）
-    last_updated: str = field(default_factory=lambda: datetime.now().isoformat())
+class ProjectTimeline:
+    """项目时间线"""
+    tracks: List[Dict[str, Any]] = field(default_factory=list)
+    duration: float = 0.0
+    markers: List[Dict[str, Any]] = field(default_factory=list)
+    effects: List[Dict[str, Any]] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectTimeline':
+        return cls(**data)
+
+
+class Project:
+    """项目类"""
+
+    def __init__(self, project_id: str, project_path: str, metadata: ProjectMetadata):
+        self.id = project_id
+        self.path = project_path
+        self.metadata = metadata
+        self.settings = ProjectSettings()
+        self.media_files: Dict[str, ProjectMedia] = {}
+        self.timeline = ProjectTimeline()
+        self.is_modified = False
+        self.is_loaded = False
+        self._auto_save_timer = None
+
+    def add_media_file(self, media_file: ProjectMedia) -> None:
+        """添加媒体文件"""
+        self.media_files[media_file.id] = media_file
+        self.is_modified = True
+        self.metadata.modified_at = datetime.now()
+
+    def remove_media_file(self, media_id: str) -> bool:
+        """移除媒体文件"""
+        if media_id in self.media_files:
+            del self.media_files[media_id]
+            self.is_modified = True
+            self.metadata.modified_at = datetime.now()
+            return True
+        return False
+
+    def get_media_file(self, media_id: str) -> Optional[ProjectMedia]:
+        """获取媒体文件"""
+        return self.media_files.get(media_id)
+
+    def get_all_media_files(self) -> List[ProjectMedia]:
+        """获取所有媒体文件"""
+        return list(self.media_files.values())
+
+    def update_settings(self, settings: Dict[str, Any]) -> None:
+        """更新项目设置"""
+        for key, value in settings.items():
+            if hasattr(self.settings, key):
+                setattr(self.settings, key, value)
+            else:
+                self.settings.custom_settings[key] = value
+        self.is_modified = True
+        self.metadata.modified_at = datetime.now()
+
+    def save(self) -> bool:
+        """保存项目"""
+        try:
+            project_data = {
+                'metadata': self.metadata.to_dict(),
+                'settings': asdict(self.settings),
+                'media_files': {k: v.to_dict() for k, v in self.media_files.items()},
+                'timeline': self.timeline.to_dict(),
+                'version': '2.0.0'
+            }
+
+            # 保存主项目文件
+            project_file = os.path.join(self.path, 'project.json')
+            with open(project_file, 'w', encoding='utf-8') as f:
+                json.dump(project_data, f, indent=2, ensure_ascii=False)
+
+            # 保存项目锁文件
+            lock_file = os.path.join(self.path, '.lock')
+            with open(lock_file, 'w') as f:
+                f.write(str(os.getpid()))
+
+            self.is_modified = False
+            return True
+
+        except Exception as e:
+            logging.error(f"Failed to save project {self.id}: {e}")
+            return False
+
+    def load(self) -> bool:
+        """加载项目"""
+        try:
+            project_file = os.path.join(self.path, 'project.json')
+            if not os.path.exists(project_file):
+                return False
+
+            with open(project_file, 'r', encoding='utf-8') as f:
+                project_data = json.load(f)
+
+            # 加载元数据
+            self.metadata = ProjectMetadata.from_dict(project_data['metadata'])
+
+            # 加载设置
+            settings_data = project_data.get('settings', {})
+            self.settings = ProjectSettings(**settings_data)
+
+            # 加载媒体文件
+            self.media_files.clear()
+            for media_id, media_data in project_data.get('media_files', {}).items():
+                self.media_files[media_id] = ProjectMedia.from_dict(media_data)
+
+            # 加载时间线
+            timeline_data = project_data.get('timeline', {})
+            self.timeline = ProjectTimeline.from_dict(timeline_data)
+
+            self.is_loaded = True
+            self.is_modified = False
+            return True
+
+        except Exception as e:
+            logging.error(f"Failed to load project {self.id}: {e}")
+            return False
+
+    def create_backup(self) -> Optional[str]:
+        """创建项目备份"""
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_name = f"backup_{timestamp}"
+            backup_path = os.path.join(self.path, 'backups', backup_name)
+
+            os.makedirs(backup_path, exist_ok=True)
+
+            # 复制项目文件
+            shutil.copy2(os.path.join(self.path, 'project.json'),
+                        os.path.join(backup_path, 'project.json'))
+
+            # 创建备份信息文件
+            backup_info = {
+                'timestamp': timestamp,
+                'created_at': datetime.now().isoformat(),
+                'project_version': self.metadata.version,
+                'description': f"自动备份 - {timestamp}"
+            }
+
+            with open(os.path.join(backup_path, 'backup_info.json'), 'w') as f:
+                json.dump(backup_info, f, indent=2)
+
+            return backup_path
+
+        except Exception as e:
+            logging.error(f"Failed to create backup for project {self.id}: {e}")
+            return None
+
+    def cleanup_old_backups(self, keep_count: int = 10) -> None:
+        """清理旧备份"""
+        try:
+            backup_dir = os.path.join(self.path, 'backups')
+            if not os.path.exists(backup_dir):
+                return
+
+            backups = []
+            for backup_name in os.listdir(backup_dir):
+                backup_path = os.path.join(backup_dir, backup_name)
+                if os.path.isdir(backup_path):
+                    backup_info_file = os.path.join(backup_path, 'backup_info.json')
+                    if os.path.exists(backup_info_file):
+                        with open(backup_info_file, 'r') as f:
+                            backup_info = json.load(f)
+                            backups.append((backup_path, backup_info['timestamp']))
+
+            # 按时间戳排序，保留最新的keep_count个备份
+            backups.sort(key=lambda x: x[1], reverse=True)
+            for backup_path, _ in backups[keep_count:]:
+                shutil.rmtree(backup_path)
+
+        except Exception as e:
+            logging.error(f"Failed to cleanup backups for project {self.id}: {e}")
 
 
 class ProjectManager(QObject):
     """项目管理器"""
 
     # 信号定义
-    project_created = pyqtSignal(ProjectInfo)           # 项目创建信号
-    project_loaded = pyqtSignal(ProjectInfo)           # 项目加载信号
-    project_saved = pyqtSignal(str)                     # 项目保存信号
-    project_closed = pyqtSignal()                       # 项目关闭信号
-    project_deleted = pyqtSignal(str)                   # 项目删除信号
-    project_list_updated = pyqtSignal()                 # 项目列表更新信号
-    project_modified = pyqtSignal()                     # 项目修改信号
-    template_loaded = pyqtSignal(ProjectTemplate)       # 模板加载信号
-    statistics_updated = pyqtSignal(ProjectStatistics) # 统计信息更新信号
-    error_occurred = pyqtSignal(str)                    # 错误信号
-    backup_created = pyqtSignal(str)                    # 备份创建信号
+    project_created = pyqtSignal(str)           # 项目创建信号
+    project_opened = pyqtSignal(str)            # 项目打开信号
+    project_saved = pyqtSignal(str)             # 项目保存信号
+    project_closed = pyqtSignal(str)            # 项目关闭信号
+    project_deleted = pyqtSignal(str)           # 项目删除信号
+    project_imported = pyqtSignal(str)          # 项目导入信号
+    project_exported = pyqtSignal(str)          # 项目导出信号
+    recent_projects_updated = pyqtSignal(list)  # 最近项目更新信号
+    error_occurred = pyqtSignal(str, str)       # 错误发生信号
 
-    def __init__(self, settings_manager=None):
+    def __init__(self, config_manager: ConfigManager):
         super().__init__()
 
-        self.settings_manager = settings_manager
-        self.video_manager = VideoManager()
+        self.config_manager = config_manager
+        self.logger = logging.getLogger(__name__)
+        self.secure_key_manager = get_secure_key_manager()
 
-        # 当前项目
+        # 项目存储
+        self.projects: Dict[str, Project] = {}
         self.current_project: Optional[Project] = None
-        self.is_modified = False
+        self.templates: Dict[str, Project] = {}
 
-        # 项目列表缓存
-        self._project_list: List[ProjectInfo] = []
-        self._project_templates: List[ProjectTemplate] = []
-        self._recent_projects: List[str] = []
+        # 项目目录
+        self.projects_dir = os.path.expanduser("~/CineAIStudio/Projects")
+        self.templates_dir = os.path.expanduser("~/CineAIStudio/Templates")
+        self.temp_dir = os.path.expanduser("~/CineAIStudio/Temp")
 
-        # 统计信息
-        self._statistics = ProjectStatistics()
+        # 确保目录存在
+        self._ensure_directories()
 
-        # 设置和配置
-        self._settings = QSettings("CineAIStudio", "ProjectManager")
-        self._max_recent_projects = 10
-        self._auto_save_enabled = True
-        self._auto_save_interval = 300  # 5分钟
+        # 加载最近项目
+        self.recent_projects: List[str] = self._load_recent_projects()
 
-        # 定时器
-        self._auto_save_timer = QTimer()
-        self._auto_save_timer.timeout.connect(self._auto_save_projects)
+        # 加载项目模板
+        self._load_templates()
 
-        # 日志记录
-        self._logger = logging.getLogger(__name__)
+        # 设置自动保存
+        self._setup_auto_save()
 
-        # 初始化
-        self._init_directories()
-        self._load_project_templates()
-        self._load_recent_projects()
-        self._start_auto_save()
+    def _ensure_directories(self) -> None:
+        """确保所需目录存在"""
+        for directory in [self.projects_dir, self.templates_dir, self.temp_dir]:
+            os.makedirs(directory, exist_ok=True)
 
-        # 连接信号
-        self._connect_signals()
+    def _load_recent_projects(self) -> List[str]:
+        """加载最近项目列表"""
+        return self.config_manager.get('editor.recent_files', [])
 
-    def _init_directories(self):
-        """初始化目录结构"""
-        self.projects_dir = Path.home() / "CineAIStudio" / "Projects"
-        self.templates_dir = Path.home() / "CineAIStudio" / "Templates"
-        self.cache_dir = Path.home() / "CineAIStudio" / "Cache"
+    def _save_recent_projects(self) -> None:
+        """保存最近项目列表"""
+        self.config_manager.set('editor.recent_files', self.recent_projects[:10])
+        self.recent_projects_updated.emit(self.recent_projects[:10])
 
-        # 创建目录
-        for directory in [self.projects_dir, self.templates_dir, self.cache_dir]:
-            directory.mkdir(parents=True, exist_ok=True)
+    def _add_to_recent_projects(self, project_path: str) -> None:
+        """添加项目到最近列表"""
+        if project_path in self.recent_projects:
+            self.recent_projects.remove(project_path)
+        self.recent_projects.insert(0, project_path)
+        self._save_recent_projects()
 
-    def _connect_signals(self):
-        """连接信号"""
-        if hasattr(self.video_manager, 'video_added'):
-            self.video_manager.video_added.connect(self._on_project_modified)
-        if hasattr(self.video_manager, 'video_removed'):
-            self.video_manager.video_removed.connect(self._on_project_modified)
+    def _setup_auto_save(self) -> None:
+        """设置自动保存"""
+        from PyQt6.QtCore import QTimer
 
-    def create_new_project(self, name: str, description: str = "",
-                          template: Optional[ProjectTemplate] = None) -> bool:
+        self.auto_save_timer = QTimer()
+        self.auto_save_timer.timeout.connect(self._auto_save)
+        self.auto_save_timer.start(60000)  # 每分钟检查一次
+
+    def _auto_save(self) -> None:
+        """自动保存当前项目"""
+        if self.current_project and self.current_project.is_modified:
+            auto_save_interval = self.current_project.settings.auto_save_interval
+            if auto_save_interval > 0:
+                # 检查是否需要自动保存
+                time_since_last_save = (datetime.now() - self.current_project.metadata.modified_at).total_seconds()
+                if time_since_last_save >= auto_save_interval:
+                    self.save_project(self.current_project.id, auto_save=True)
+
+    def create_project(self, name: str, project_type: ProjectType = ProjectType.VIDEO_EDITING,
+                     description: str = "", template_id: Optional[str] = None) -> Optional[str]:
         """创建新项目"""
         try:
-            # 创建项目
-            project = Project()
+            # 生成项目ID和路径
+            project_id = str(uuid.uuid4())
+            project_path = os.path.join(self.projects_dir, f"{name}_{project_id[:8]}")
 
-            # 应用模板设置
-            if template:
-                project.project_info.settings = template.settings
-                project.ai_settings = template.ai_settings.copy()
-                project.export_settings = template.export_settings.copy()
-                project.project_info.metadata.template_used = template.name
+            # 创建项目目录
+            os.makedirs(project_path, exist_ok=True)
 
-            # 创建项目
-            success = project.create_new(name, description)
-            if success:
+            # 创建子目录
+            subdirs = ['media', 'exports', 'backups', 'cache', 'assets']
+            for subdir in subdirs:
+                os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
+
+            # 创建项目元数据
+            metadata = ProjectMetadata(
+                name=name,
+                description=description,
+                project_type=project_type,
+                author=os.getlogin()
+            )
+
+            # 创建项目对象
+            project = Project(project_id, project_path, metadata)
+
+            # 如果使用模板，复制模板设置
+            if template_id and template_id in self.templates:
+                template = self.templates[template_id]
+                project.settings = template.settings
+                project.timeline = template.timeline
+
+            # 保存项目
+            if project.save():
+                self.projects[project_id] = project
                 self.current_project = project
-                self.is_modified = True
+                self._add_to_recent_projects(project_path)
 
-                # 添加到项目列表
-                self._add_project_to_list(project.project_info)
+                self.project_created.emit(project_id)
+                self.logger.info(f"Created project: {name} ({project_id})")
+                return project_id
 
-                # 添加到最近项目
-                self._add_to_recent_projects(project.project_info.file_path)
-
-                # 更新统计信息
-                self._update_statistics()
-
-                # 发射信号
-                self.project_created.emit(project.project_info)
-                self.project_modified.emit()
-
-                self._logger.info(f"创建新项目: {name}")
-                return True
-
-            return False
+            # 如果保存失败，删除项目目录
+            shutil.rmtree(project_path)
+            return None
 
         except Exception as e:
-            error_msg = f"创建项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
-            return False
+            self.logger.error(f"Failed to create project {name}: {e}")
+            self.error_occurred.emit("CREATE_ERROR", f"创建项目失败: {str(e)}")
+            return None
 
-    def load_project(self, file_path: str) -> bool:
-        """加载项目"""
+    def open_project(self, project_path: str) -> Optional[str]:
+        """打开项目"""
         try:
-            if not os.path.exists(file_path):
-                error_msg = f"项目文件不存在: {file_path}"
-                self.error_occurred.emit(error_msg)
-                return False
+            # 检查项目文件是否存在
+            project_file = os.path.join(project_path, 'project.json')
+            if not os.path.exists(project_file):
+                self.error_occurred.emit("OPEN_ERROR", f"项目文件不存在: {project_path}")
+                return None
 
-            # 关闭当前项目
-            if self.current_project:
-                self.close_current_project()
+            # 检查项目锁
+            lock_file = os.path.join(project_path, '.lock')
+            if os.path.exists(lock_file):
+                with open(lock_file, 'r') as f:
+                    pid = f.read().strip()
+                # 检查进程是否还在运行
+                if self._is_process_running(pid):
+                    self.error_occurred.emit("OPEN_ERROR", f"项目已被其他进程打开")
+                    return None
 
-            # 创建项目实例
-            project = Project()
+            # 加载项目数据
+            with open(project_file, 'r', encoding='utf-8') as f:
+                project_data = json.load(f)
+
+            # 创建项目元数据
+            metadata = ProjectMetadata.from_dict(project_data['metadata'])
+
+            # 创建项目对象
+            project = Project(metadata.name, project_path, metadata)
 
             # 加载项目
-            success = project.load_from_file(file_path)
-            if success:
+            if project.load():
+                self.projects[project.id] = project
                 self.current_project = project
-                self.is_modified = False
+                self._add_to_recent_projects(project_path)
 
-                # 添加到项目列表
-                self._add_project_to_list(project.project_info)
+                # 创建项目锁
+                with open(lock_file, 'w') as f:
+                    f.write(str(os.getpid()))
 
-                # 添加到最近项目
-                self._add_to_recent_projects(file_path)
+                self.project_opened.emit(project.id)
+                self.logger.info(f"Opened project: {metadata.name} ({project.id})")
+                return project.id
 
-                # 更新统计信息
-                self._update_statistics()
-
-                # 发射信号
-                self.project_loaded.emit(project.project_info)
-
-                self._logger.info(f"加载项目: {project.project_info.name}")
-                return True
-
-            return False
+            return None
 
         except Exception as e:
-            error_msg = f"加载项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
-            return False
+            self.logger.error(f"Failed to open project {project_path}: {e}")
+            self.error_occurred.emit("OPEN_ERROR", f"打开项目失败: {str(e)}")
+            return None
 
-    def save_project(self, file_path: Optional[str] = None) -> bool:
+    def save_project(self, project_id: str, auto_save: bool = False) -> bool:
         """保存项目"""
         try:
-            if not self.current_project:
+            if project_id not in self.projects:
                 return False
 
+            project = self.projects[project_id]
+
+            # 创建备份（如果需要）
+            if project.settings.backup_enabled and not auto_save:
+                backup_path = project.create_backup()
+                if backup_path:
+                    project.cleanup_old_backups(project.settings.backup_count)
+
             # 保存项目
-            success = self.current_project.save_to_file(file_path)
-            if success:
-                self.is_modified = False
-
-                # 更新项目列表
-                self._add_project_to_list(self.current_project.project_info)
-
-                # 更新统计信息
-                self._update_statistics()
-
-                # 发射信号
-                self.project_saved.emit(self.current_project.project_info.file_path)
-
-                self._logger.info(f"保存项目: {self.current_project.project_info.name}")
+            if project.save():
+                self.project_saved.emit(project_id)
+                if not auto_save:
+                    self.logger.info(f"Saved project: {project.metadata.name} ({project_id})")
                 return True
 
             return False
 
         except Exception as e:
-            error_msg = f"保存项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
+            self.logger.error(f"Failed to save project {project_id}: {e}")
+            self.error_occurred.emit("SAVE_ERROR", f"保存项目失败: {str(e)}")
             return False
 
-    def save_project_as(self, file_path: str) -> bool:
-        """项目另存为"""
+    def close_project(self, project_id: str) -> bool:
+        """关闭项目"""
         try:
-            if not self.current_project:
+            if project_id not in self.projects:
                 return False
 
-            # 更新项目文件路径
-            old_path = self.current_project.project_info.file_path
-            self.current_project.project_info.file_path = file_path
+            project = self.projects[project_id]
 
-            # 保存项目
-            success = self.save_project()
-            if success:
-                # 添加到最近项目
-                self._add_to_recent_projects(file_path)
+            # 如果项目已修改，询问是否保存
+            if project.is_modified:
+                # 这里应该显示对话框询问用户
+                # 为了简化，我们直接保存
+                self.save_project(project_id)
 
-                self._logger.info(f"项目另存为: {file_path}")
-                return True
-            else:
-                # 恢复原路径
-                self.current_project.project_info.file_path = old_path
-                return False
+            # 删除项目锁
+            lock_file = os.path.join(project.path, '.lock')
+            if os.path.exists(lock_file):
+                os.remove(lock_file)
 
-        except Exception as e:
-            error_msg = f"项目另存为失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
-            return False
-
-    def close_current_project(self) -> bool:
-        """关闭当前项目"""
-        try:
-            if self.current_project:
-                # 检查是否需要保存
-                if self.is_modified:
-                    reply = QMessageBox.question(
-                        None,
-                        "保存项目",
-                        f"项目 '{self.current_project.project_info.name}' 已修改，是否保存？",
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
-                    )
-
-                    if reply == QMessageBox.StandardButton.Yes:
-                        if not self.save_project():
-                            return False
-                    elif reply == QMessageBox.StandardButton.Cancel:
-                        return False
-
-                # 清理项目资源
-                self.current_project.cleanup()
+            # 如果是当前项目，清除当前项目
+            if self.current_project and self.current_project.id == project_id:
                 self.current_project = None
-                self.is_modified = False
 
-                # 发射信号
-                self.project_closed.emit()
-
-                self._logger.info("关闭当前项目")
-                return True
-
+            self.project_closed.emit(project_id)
+            self.logger.info(f"Closed project: {project.metadata.name} ({project_id})")
             return True
 
         except Exception as e:
-            error_msg = f"关闭项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
+            self.logger.error(f"Failed to close project {project_id}: {e}")
+            self.error_occurred.emit("CLOSE_ERROR", f"关闭项目失败: {str(e)}")
             return False
 
     def delete_project(self, project_id: str) -> bool:
         """删除项目"""
         try:
-            # 查找项目
-            project_info = None
-            for p in self._project_list:
-                if p.id == project_id:
-                    project_info = p
-                    break
-
-            if not project_info:
+            if project_id not in self.projects:
                 return False
 
-            # 如果是当前项目，先关闭
-            if self.current_project and self.current_project.project_info.id == project_id:
-                self.close_current_project()
+            project = self.projects[project_id]
 
-            # 删除项目文件和目录
-            if project_info.project_dir and os.path.exists(project_info.project_dir):
-                shutil.rmtree(project_info.project_dir)
+            # 关闭项目
+            self.close_project(project_id)
+
+            # 删除项目目录
+            if os.path.exists(project.path):
+                shutil.rmtree(project.path)
 
             # 从项目列表中移除
-            self._project_list = [p for p in self._project_list if p.id != project_id]
+            del self.projects[project_id]
 
             # 从最近项目中移除
-            if project_info.file_path in self._recent_projects:
-                self._recent_projects.remove(project_info.file_path)
+            if project.path in self.recent_projects:
+                self.recent_projects.remove(project.path)
                 self._save_recent_projects()
 
-            # 更新统计信息
-            self._update_statistics()
-
-            # 发射信号
             self.project_deleted.emit(project_id)
-            self.project_list_updated.emit()
-
-            self._logger.info(f"删除项目: {project_info.name}")
+            self.logger.info(f"Deleted project: {project.metadata.name} ({project_id})")
             return True
 
         except Exception as e:
-            error_msg = f"删除项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
+            self.logger.error(f"Failed to delete project {project_id}: {e}")
+            self.error_occurred.emit("DELETE_ERROR", f"删除项目失败: {str(e)}")
             return False
 
-    def get_project_list(self, filter_text: str = "", category: str = "") -> List[ProjectInfo]:
-        """获取项目列表"""
-        projects = self._project_list.copy()
-
-        # 应用过滤
-        if filter_text:
-            filter_text = filter_text.lower()
-            projects = [p for p in projects if
-                       filter_text in p.name.lower() or
-                       filter_text in p.description.lower() or
-                       any(filter_text in tag.lower() for tag in p.tags)]
-
-        if category:
-            projects = [p for p in projects if category in p.tags]
-
-        # 按修改时间排序
-        projects.sort(key=lambda x: x.modified_at, reverse=True)
-
-        return projects
-
-    def get_recent_projects(self) -> List[ProjectInfo]:
-        """获取最近项目列表"""
-        recent_projects = []
-
-        for file_path in self._recent_projects:
-            for project_info in self._project_list:
-                if project_info.file_path == file_path:
-                    recent_projects.append(project_info)
-                    break
-
-        return recent_projects
-
-    def get_project_templates(self, category: str = "") -> List[ProjectTemplate]:
-        """获取项目模板"""
-        if category:
-            return [t for t in self._project_templates if t.category == category]
-        return self._project_templates.copy()
-
-    def create_project_from_template(self, template_id: str, name: str, description: str = "") -> bool:
-        """从模板创建项目"""
-        template = None
-        for t in self._project_templates:
-            if t.id == template_id:
-                template = t
-                break
-
-        if not template:
-            self.error_occurred.emit(f"模板不存在: {template_id}")
-            return False
-
-        return self.create_new_project(name, description, template)
-
-    def export_project(self, export_path: str, format_type: str = "json") -> bool:
+    def export_project(self, project_id: str, export_path: str,
+                     include_media: bool = True) -> bool:
         """导出项目"""
         try:
-            if not self.current_project:
+            if project_id not in self.projects:
                 return False
 
-            success = self.current_project.export_project(export_path, format_type)
-            if success:
-                self._logger.info(f"导出项目: {export_path}")
-                return True
+            project = self.projects[project_id]
 
-            return False
+            # 创建ZIP文件
+            with zipfile.ZipFile(export_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                # 添加项目文件
+                project_file = os.path.join(project.path, 'project.json')
+                if os.path.exists(project_file):
+                    zipf.write(project_file, 'project.json')
+
+                # 添加媒体文件（如果需要）
+                if include_media:
+                    media_dir = os.path.join(project.path, 'media')
+                    if os.path.exists(media_dir):
+                        for root, dirs, files in os.walk(media_dir):
+                            for file in files:
+                                file_path = os.path.join(root, file)
+                                arcname = os.path.relpath(file_path, project.path)
+                                zipf.write(file_path, arcname)
+
+                # 添加导出信息
+                export_info = {
+                    'exported_at': datetime.now().isoformat(),
+                    'project_version': project.metadata.version,
+                    'cineai_version': '2.0.0',
+                    'include_media': include_media
+                }
+
+                zipf.writestr('export_info.json', json.dumps(export_info, indent=2))
+
+            self.project_exported.emit(project_id)
+            self.logger.info(f"Exported project: {project.metadata.name} to {export_path}")
+            return True
 
         except Exception as e:
-            error_msg = f"导出项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
+            self.logger.error(f"Failed to export project {project_id}: {e}")
+            self.error_occurred.emit("EXPORT_ERROR", f"导出项目失败: {str(e)}")
             return False
 
-    def import_project(self, import_path: str) -> bool:
+    def import_project(self, import_path: str) -> Optional[str]:
         """导入项目"""
         try:
-            # 关闭当前项目
-            if self.current_project:
-                self.close_current_project()
+            # 创建临时目录
+            temp_dir = os.path.join(self.temp_dir, f"import_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+            os.makedirs(temp_dir, exist_ok=True)
 
-            # 创建新项目
-            project = Project()
-            success = project.import_project(import_path)
+            # 解压ZIP文件
+            with zipfile.ZipFile(import_path, 'r') as zipf:
+                zipf.extractall(temp_dir)
 
-            if success:
-                self.current_project = project
-                self.is_modified = True
+            # 检查项目文件
+            project_file = os.path.join(temp_dir, 'project.json')
+            if not os.path.exists(project_file):
+                self.error_occurred.emit("IMPORT_ERROR", "无效的项目文件")
+                return None
 
-                # 添加到项目列表
-                self._add_project_to_list(project.project_info)
+            # 加载项目数据
+            with open(project_file, 'r', encoding='utf-8') as f:
+                project_data = json.load(f)
 
-                # 添加到最近项目
-                self._add_to_recent_projects(project.project_info.file_path)
+            # 创建项目目录
+            metadata = ProjectMetadata.from_dict(project_data['metadata'])
+            project_name = f"{metadata.name}_imported"
+            project_path = os.path.join(self.projects_dir, f"{project_name}_{uuid.uuid4().hex[:8]}")
 
-                # 更新统计信息
-                self._update_statistics()
+            # 复制项目文件
+            shutil.copytree(temp_dir, project_path)
 
-                # 发射信号
-                self.project_loaded.emit(project.project_info)
+            # 更新项目路径
+            project_file = os.path.join(project_path, 'project.json')
+            with open(project_file, 'r', encoding='utf-8') as f:
+                project_data = json.load(f)
 
-                self._logger.info(f"导入项目: {import_path}")
-                return True
+            project_data['metadata']['name'] = project_name
+            project_data['metadata']['modified_at'] = datetime.now().isoformat()
 
-            return False
+            with open(project_file, 'w', encoding='utf-8') as f:
+                json.dump(project_data, f, indent=2, ensure_ascii=False)
 
-        except Exception as e:
-            error_msg = f"导入项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
-            return False
+            # 清理临时目录
+            shutil.rmtree(temp_dir)
 
-    def backup_project(self) -> str:
-        """备份项目"""
-        try:
-            if not self.current_project:
-                return ""
+            # 打开项目
+            project_id = self.open_project(project_path)
+            if project_id:
+                self.project_imported.emit(project_id)
+                self.logger.info(f"Imported project: {project_name} from {import_path}")
+                return project_id
 
-            backup_path = self.current_project.create_backup()
-            if backup_path:
-                self.backup_created.emit(backup_path)
-                self._logger.info(f"创建项目备份: {backup_path}")
-
-            return backup_path
-
-        except Exception as e:
-            error_msg = f"备份项目失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
-            return ""
-
-    def restore_project_from_backup(self, backup_path: str) -> bool:
-        """从备份恢复项目"""
-        try:
-            if not self.current_project:
-                return False
-
-            success = self.current_project.restore_from_backup(backup_path)
-            if success:
-                self.is_modified = False
-                self._logger.info(f"从备份恢复项目: {backup_path}")
-
-            return success
+            return None
 
         except Exception as e:
-            error_msg = f"恢复备份失败: {str(e)}"
-            self._logger.error(error_msg)
-            self.error_occurred.emit(error_msg)
-            return False
+            self.logger.error(f"Failed to import project from {import_path}: {e}")
+            self.error_occurred.emit("IMPORT_ERROR", f"导入项目失败: {str(e)}")
+            return None
 
-    def get_project_statistics(self) -> ProjectStatistics:
-        """获取项目统计信息"""
-        return self._statistics
-
-    def search_projects(self, query: str, search_fields: List[str] = None) -> List[ProjectInfo]:
-        """搜索项目"""
-        if not search_fields:
-            search_fields = ['name', 'description', 'tags']
-
-        query = query.lower()
-        results = []
-
-        for project in self._project_list:
-            match = False
-
-            for field in search_fields:
-                if field == 'name' and query in project.name.lower():
-                    match = True
-                    break
-                elif field == 'description' and query in project.description.lower():
-                    match = True
-                    break
-                elif field == 'tags':
-                    if any(query in tag.lower() for tag in project.tags):
-                        match = True
-                        break
-
-            if match:
-                results.append(project)
-
-        return results
-
-    def _load_project_templates(self):
-        """加载项目模板"""
-        self._project_templates = []
-
-        # 默认模板
-        default_templates = [
-            ProjectTemplate(
-                id="commentary_template",
-                name="解说视频",
-                description="适用于游戏解说、教程视频制作",
-                category="解说",
-                settings=ProjectSettings(
-                    resolution="1920x1080",
-                    frame_rate=30,
-                    video_quality="high"
-                )
-            ),
-            ProjectTemplate(
-                id="compilation_template",
-                name="混剪视频",
-                description="适用于素材混剪、精彩集锦制作",
-                category="混剪",
-                settings=ProjectSettings(
-                    resolution="1920x1080",
-                    frame_rate=60,
-                    video_quality="high"
-                )
-            ),
-            ProjectTemplate(
-                id="monologue_template",
-                name="独白视频",
-                description="适用于口播、演讲视频制作",
-                category="独白",
-                settings=ProjectSettings(
-                    resolution="1920x1080",
-                    frame_rate=30,
-                    video_quality="high"
-                )
-            )
-        ]
-
-        self._project_templates.extend(default_templates)
-
-        # 加载自定义模板
-        template_file = self.templates_dir / "templates.json"
-        if template_file.exists():
-            try:
-                with open(template_file, 'r', encoding='utf-8') as f:
-                    template_data = json.load(f)
-
-                for data in template_data:
-                    template = ProjectTemplate.from_dict(data)
-                    self._project_templates.append(template)
-
-            except Exception as e:
-                self._logger.error(f"加载项目模板失败: {e}")
-
-    def _load_recent_projects(self):
-        """加载最近项目"""
-        self._recent_projects = self._settings.value("recent_projects", [], str)
-
-    def _save_recent_projects(self):
-        """保存最近项目"""
-        self._settings.setValue("recent_projects", self._recent_projects)
-
-    def _add_to_recent_projects(self, file_path: str):
-        """添加到最近项目"""
-        if file_path in self._recent_projects:
-            self._recent_projects.remove(file_path)
-
-        self._recent_projects.insert(0, file_path)
-
-        # 限制数量
-        if len(self._recent_projects) > self._max_recent_projects:
-            self._recent_projects = self._recent_projects[:self._max_recent_projects]
-
-        self._save_recent_projects()
-
-    def _add_project_to_list(self, project_info: ProjectInfo):
-        """添加项目到列表"""
-        # 检查是否已存在
-        for i, p in enumerate(self._project_list):
-            if p.id == project_info.id:
-                self._project_list[i] = project_info
-                break
-        else:
-            self._project_list.append(project_info)
-
-        self.project_list_updated.emit()
-
-    def _update_statistics(self):
-        """更新统计信息"""
-        try:
-            self._statistics.total_projects = len(self._project_list)
-            self._statistics.active_projects = len([p for p in self._project_list if p.status in ["draft", "editing"]])
-            self._statistics.completed_projects = len([p for p in self._project_list if p.status == "completed"])
-
-            # 计算总编辑时间
-            total_time = sum(p.metadata.total_editing_time for p in self._project_list)
-            self._statistics.total_editing_time = total_time // 3600  # 转换为小时
-
-            # 计算磁盘使用量
-            total_size = sum(p.file_size for p in self._project_list)
-            self._statistics.disk_usage = total_size
-
-            # 统计处理视频数
-            total_videos = sum(p.video_count for p in self._project_list)
-            self._statistics.total_videos_processed = total_videos
-
-            # 统计导出次数
-            total_exports = sum(p.metadata.export_count for p in self._project_list)
-            self._statistics.total_exports = total_exports
-
-            self._statistics.last_updated = datetime.now().isoformat()
-
-            self.statistics_updated.emit(self._statistics)
-
-        except Exception as e:
-            self._logger.error(f"更新统计信息失败: {e}")
-
-    def _start_auto_save(self):
-        """启动自动保存"""
-        if self._auto_save_enabled:
-            self._auto_save_timer.start(self._auto_save_interval * 1000)
-
-    def _auto_save_projects(self):
-        """自动保存项目"""
-        if self._auto_save_enabled and self.current_project and self.is_modified:
-            self._logger.info("执行自动保存")
-            self.save_project()
-
-    def _on_project_modified(self):
-        """项目修改回调"""
-        if self.current_project:
-            self.is_modified = True
-            self.project_modified.emit()
+    def get_project(self, project_id: str) -> Optional[Project]:
+        """获取项目"""
+        return self.projects.get(project_id)
 
     def get_current_project(self) -> Optional[Project]:
         """获取当前项目"""
         return self.current_project
 
-    def is_project_modified(self) -> bool:
-        """检查项目是否已修改"""
-        return self.is_modified
+    def get_all_projects(self) -> List[Project]:
+        """获取所有项目"""
+        return list(self.projects.values())
 
-    def cleanup(self):
+    def get_recent_projects(self) -> List[str]:
+        """获取最近项目列表"""
+        return self.recent_projects.copy()
+
+    def scan_projects(self) -> List[Project]:
+        """扫描项目目录，发现所有项目"""
+        discovered_projects = []
+
+        try:
+            for project_dir in os.listdir(self.projects_dir):
+                project_path = os.path.join(self.projects_dir, project_dir)
+                if os.path.isdir(project_path):
+                    project_file = os.path.join(project_path, 'project.json')
+                    if os.path.exists(project_file):
+                        try:
+                            with open(project_file, 'r', encoding='utf-8') as f:
+                                project_data = json.load(f)
+
+                            metadata = ProjectMetadata.from_dict(project_data['metadata'])
+                            project = Project(metadata.name, project_path, metadata)
+                            discovered_projects.append(project)
+
+                        except Exception as e:
+                            self.logger.warning(f"Failed to load project from {project_path}: {e}")
+
+            return discovered_projects
+
+        except Exception as e:
+            self.logger.error(f"Failed to scan projects: {e}")
+            return []
+
+    def _load_templates(self) -> None:
+        """加载项目模板"""
+        try:
+            if not os.path.exists(self.templates_dir):
+                return
+
+            for template_dir in os.listdir(self.templates_dir):
+                template_path = os.path.join(self.templates_dir, template_dir)
+                if os.path.isdir(template_path):
+                    template_file = os.path.join(template_path, 'project.json')
+                    if os.path.exists(template_file):
+                        try:
+                            with open(template_file, 'r', encoding='utf-8') as f:
+                                template_data = json.load(f)
+
+                            metadata = ProjectMetadata.from_dict(template_data['metadata'])
+                            metadata.status = ProjectStatus.TEMPLATE
+
+                            template = Project(metadata.name, template_path, metadata)
+                            template.load()
+
+                            self.templates[template_dir] = template
+
+                        except Exception as e:
+                            self.logger.warning(f"Failed to load template {template_dir}: {e}")
+
+            self.logger.info(f"Loaded {len(self.templates)} templates")
+
+        except Exception as e:
+            self.logger.error(f"Failed to load templates: {e}")
+
+    def get_templates(self) -> List[Project]:
+        """获取所有模板"""
+        return list(self.templates.values())
+
+    def create_template(self, project_id: str, template_name: str) -> bool:
+        """从项目创建模板"""
+        try:
+            if project_id not in self.projects:
+                return False
+
+            project = self.projects[project_id]
+
+            # 创建模板目录
+            template_path = os.path.join(self.templates_dir, template_name)
+            os.makedirs(template_path, exist_ok=True)
+
+            # 复制项目文件
+            shutil.copy2(os.path.join(project.path, 'project.json'),
+                        os.path.join(template_path, 'project.json'))
+
+            # 更新模板元数据
+            template_file = os.path.join(template_path, 'project.json')
+            with open(template_file, 'r', encoding='utf-8') as f:
+                template_data = json.load(f)
+
+            template_data['metadata']['name'] = template_name
+            template_data['metadata']['status'] = 'template'
+            template_data['metadata']['description'] = f"模板创建自项目: {project.metadata.name}"
+            template_data['metadata']['modified_at'] = datetime.now().isoformat()
+
+            with open(template_file, 'w', encoding='utf-8') as f:
+                json.dump(template_data, f, indent=2, ensure_ascii=False)
+
+            # 重新加载模板
+            self._load_templates()
+
+            self.logger.info(f"Created template: {template_name} from project {project_id}")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Failed to create template from project {project_id}: {e}")
+            return False
+
+    def _is_process_running(self, pid_str: str) -> bool:
+        """检查进程是否在运行"""
+        try:
+            import psutil
+            pid = int(pid_str)
+            return psutil.pid_exists(pid)
+        except (ImportError, ValueError):
+            # 如果没有psutil，返回False（假设进程不在运行）
+            return False
+
+    def cleanup(self) -> None:
         """清理资源"""
-        # 停止自动保存
-        self._auto_save_timer.stop()
+        # 关闭所有项目
+        for project_id in list(self.projects.keys()):
+            self.close_project(project_id)
 
-        # 关闭当前项目
-        if self.current_project:
-            self.close_current_project()
+        # 停止自动保存定时器
+        if hasattr(self, 'auto_save_timer'):
+            self.auto_save_timer.stop()
 
-        self._logger.info("项目管理器清理完成")
-
-    def __del__(self):
-        """析构函数"""
-        self.cleanup()
+        # 清理临时目录
+        if os.path.exists(self.temp_dir):
+            try:
+                shutil.rmtree(self.temp_dir)
+            except Exception as e:
+                self.logger.warning(f"Failed to cleanup temp directory: {e}")

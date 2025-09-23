@@ -1,3 +1,0 @@
-"""
-Ant Design Styles Package
-"""

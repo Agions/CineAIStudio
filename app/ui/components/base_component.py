@@ -2,538 +2,629 @@
 # -*- coding: utf-8 -*-
 
 """
-统一组件基类系统
-为所有UI组件提供统一的基础功能和生命周期管理
+CineAIStudio v2.0 基础UI组件
+提供统一的UI组件基类和通用功能
 """
 
-import logging
-from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, List, Union
-from dataclasses import dataclass
-from enum import Enum
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLayout
-from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QSettings
-from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+    QLabel, QFrame
+)
+from PyQt6.QtCore import (
+    Qt, pyqtSignal, QPoint, QPropertyAnimation,
+    QEasingCurve, QRect
+)
+from PyQt6.QtGui import (
+    QPainter, QPen, QBrush, QColor, QFont,
+    QPainterPath
+)
 
-
-class ComponentState(Enum):
-    """组件状态枚举"""
-    INITIALIZING = "initializing"
-    READY = "ready"
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    ERROR = "error"
-    DESTROYED = "destroyed"
-
-
-@dataclass
-class ComponentConfig:
-    """组件配置数据类"""
-    name: str
-    version: str = "1.0.0"
-    enabled: bool = True
-    theme_support: bool = True
-    auto_save: bool = True
-    debug_mode: bool = False
-    custom_settings: Dict[str, Any] = None
-
-    def __post_init__(self):
-        if self.custom_settings is None:
-            self.custom_settings = {}
+from ...core.logger import Logger
+from ...core.icon_manager import IconManager
 
 
-class ComponentError(Exception):
-    """组件异常基类"""
+class Theme:
+    """主题类"""
+    def __init__(self, name: str, colors: Dict[str, str], fonts: Dict[str, str]):
+        self.name = name
+        self.colors = colors
+        self.fonts = fonts
 
-    def __init__(self, message: str, error_code: str = "COMPONENT_ERROR",
-                 component_name: str = "Unknown", details: Optional[Dict[str, Any]] = None):
-        super().__init__(message)
-        self.error_code = error_code
-        self.component_name = component_name
-        self.details = details or {}
-        self.timestamp = None
 
-    def __str__(self):
-        return f"[{self.component_name}] {self.error_code}: {super().__str__()}"
+class ThemeService:
+    """主题服务类"""
+    def __init__(self):
+        self.current_theme = None
+        self.themes = {}
+
+    def get_current_theme(self) -> Optional[Theme]:
+        return self.current_theme
+
+    def set_theme(self, theme: Theme):
+        self.current_theme = theme
+
+
+class EventBus:
+    """事件总线类"""
+    def __init__(self):
+        self.handlers = {}
+
+    def subscribe(self, event_type: str, handler):
+        if event_type not in self.handlers:
+            self.handlers[event_type] = []
+        self.handlers[event_type].append(handler)
+
+    def publish(self, event_type: str, data=None):
+        if event_type in self.handlers:
+            for handler in self.handlers[event_type]:
+                handler(data)
+
+
+class ThemeColors:
+    """主题颜色类"""
+    def __init__(self):
+        self.background = "#ffffff"
+        self.foreground = "#000000"
+        self.primary = "#2196F3"
+        self.secondary = "#666666"
+        self.accent = "#FF4081"
+        self.success = "#4CAF50"
+        self.warning = "#FF9800"
+        self.error = "#F44336"
+        self.border = "#e0e0e0"
+        self.shadow = "rgba(0, 0, 0, 0.1)"
 
 
 class BaseComponent(QWidget):
-    """统一组件基类
-
-    所有UI组件都应该继承这个基类，以获得统一的功能：
-    - 生命周期管理
-    - 状态管理
-    - 主题支持
-    - 错误处理
-    - 配置管理
-    - 日志记录
-    """
+    """基础UI组件类"""
 
     # 信号定义
-    state_changed = pyqtSignal(ComponentState)          # 状态变更信号
-    error_occurred = pyqtSignal(str, str)             # 错误信号 (error_code, message)
-    config_changed = pyqtSignal(dict)                 # 配置变更信号
-    theme_changed = pyqtSignal(bool)                  # 主题变更信号
-    component_initialized = pyqtSignal()               # 组件初始化完成信号
+    theme_changed = pyqtSignal(Theme)
+    component_clicked = pyqtSignal()
+    component_hovered = pyqtSignal(bool)
+    data_changed = pyqtSignal(dict)
 
-    def __init__(self, parent: Optional[QWidget] = None,
-                 config: Optional[ComponentConfig] = None):
-        """初始化组件基类
-
-        Args:
-            parent: 父窗口部件
-            config: 组件配置对象
-
-        Raises:
-            ComponentError: 组件初始化失败时抛出
-        """
+    def __init__(self, parent=None, theme_service: Optional[ThemeService] = None):
         super().__init__(parent)
+        self.theme_service = theme_service
+        self.logger: Optional[Logger] = None
+        self.event_bus: Optional[EventBus] = None
 
-        # 组件基本信息
-        self._component_name = self.__class__.__name__
-        self._component_version = "1.0.0"
-
-        # 状态管理
-        self._state = ComponentState.INITIALIZING
-        self._is_enabled = True
-        self._is_visible = True
-
-        # 配置管理
-        self._config = config or ComponentConfig(name=self._component_name)
-        self._settings = QSettings(f"CineAIStudio/{self._component_name}", "ComponentSettings")
+        # 组件属性
+        self._component_id = ""
+        self._component_name = ""
+        self._tooltip_text = ""
+        self._enabled = True
+        self._visible = True
+        self._animation_enabled = True
 
         # 主题相关
-        self._is_dark_theme = False
-        self._theme_support = self._config.theme_support
+        self._current_theme: Optional[Theme] = None
+        self._custom_styles: Dict[str, str] = {}
 
-        # 错误处理
-        self._error_count = 0
-        self._max_errors = 10
+        # 动画相关
+        self._animations: Dict[str, QPropertyAnimation] = {}
 
-        # 日志记录
-        self._logger = logging.getLogger(f"component.{self._component_name.lower()}")
+        # 初始化
+        self._init_component()
+        self._setup_connections()
 
-        # 性能监控
-        self._performance_timer = QTimer()
-        self._performance_timer.timeout.connect(self._check_performance)
-
-        # 自动保存
-        self._auto_save_timer = QTimer()
-        self._auto_save_timer.timeout.connect(self._auto_save)
-
-        # 初始化组件
-        try:
-            self._initialize_component()
-            self.state_changed.emit(ComponentState.READY)
-            self.component_initialized.emit()
-            self._logger.info(f"Component {self._component_name} initialized successfully")
-        except Exception as e:
-            self._handle_error(f"Failed to initialize component: {str(e)}", "INIT_ERROR")
-            self._state = ComponentState.ERROR
-            self.state_changed.emit(ComponentState.ERROR)
-            raise ComponentError(
-                message=f"Component initialization failed: {str(e)}",
-                error_code="INIT_ERROR",
-                component_name=self._component_name
-            )
-
-    @abstractmethod
-    def _setup_ui(self) -> None:
-        """设置UI界面 - 子类必须实现
-
-        这个方法应该在子类中实现，用于创建和设置组件的UI界面。
-        """
-        raise NotImplementedError("Subclasses must implement _setup_ui()")
-
-    def _connect_signals(self) -> None:
-        """连接信号和槽 - 子类可选实现
-
-        子类可以重写这个方法来连接特定的信号和槽。
-        """
+    def _init_component(self):
+        """初始化组件（子类必须实现）"""
         pass
 
-    def _apply_styles(self) -> None:
-        """应用样式 - 子类可选实现
+    def _setup_connections(self):
+        """设置信号连接"""
+        if self.theme_service:
+            self.theme_service.theme_applied.connect(self._on_theme_changed)
 
-        子类可以重写这个方法来应用自定义样式。
-        """
+    def set_services(self, logger: Logger, event_bus: EventBus):
+        """设置服务"""
+        self.logger = logger
+        self.event_bus = event_bus
+
+    def _on_theme_changed(self, theme: Theme):
+        """处理主题变更"""
+        self._current_theme = theme
+        self._apply_theme()
+        self.theme_changed.emit(theme)
+
+    def _apply_theme(self):
+        """应用主题（子类可以重写）"""
+        if self._current_theme:
+            self.update()
+
+    def paintEvent(self, event):
+        """绘制事件"""
+        super().paintEvent(event)
+        if self._current_theme:
+            self._draw_custom_paint(event)
+
+    def _draw_custom_paint(self, event):
+        """自定义绘制（子类可以重写）"""
         pass
 
-    def _initialize_component(self) -> None:
-        """初始化组件
+    def set_component_id(self, component_id: str):
+        """设置组件ID"""
+        self._component_id = component_id
 
-        这个方法负责组件的完整初始化流程。
-        """
-        # 设置UI
-        self._setup_ui()
+    def get_component_id(self) -> str:
+        """获取组件ID"""
+        return self._component_id
 
-        # 连接信号
-        self._connect_signals()
+    def set_component_name(self, name: str):
+        """设置组件名称"""
+        self._component_name = name
 
-        # 应用样式
-        if self._theme_support:
-            self._apply_styles()
+    def get_component_name(self) -> str:
+        """获取组件名称"""
+        return self._component_name
 
-        # 加载配置
-        self._load_config()
+    def set_tooltip(self, tooltip: str):
+        """设置工具提示"""
+        self._tooltip_text = tooltip
+        self.setToolTip(tooltip)
 
-        # 启动定时器
-        if self._config.auto_save:
-            self._start_auto_save()
+    def get_tooltip(self) -> str:
+        """获取工具提示"""
+        return self._tooltip_text
 
-        # 性能监控
-        if self._config.debug_mode:
-            self._start_performance_monitoring()
-
-    def _load_config(self) -> None:
-        """加载组件配置"""
-        try:
-            # 从QSettings加载配置
-            custom_settings = self._settings.value("custom_settings", {})
-            if custom_settings:
-                self._config.custom_settings.update(custom_settings)
-
-            # 加载主题设置
-            self._is_dark_theme = self._settings.value("dark_theme", False, bool)
-
-            self._logger.debug(f"Configuration loaded for {self._component_name}")
-        except Exception as e:
-            self._handle_error(f"Failed to load configuration: {str(e)}", "CONFIG_ERROR")
-
-    def _save_config(self) -> None:
-        """保存组件配置"""
-        try:
-            self._settings.setValue("custom_settings", self._config.custom_settings)
-            self._settings.setValue("dark_theme", self._is_dark_theme)
-            self._settings.sync()
-
-            self._logger.debug(f"Configuration saved for {self._component_name}")
-        except Exception as e:
-            self._handle_error(f"Failed to save configuration: {str(e)}", "CONFIG_ERROR")
-
-    def _handle_error(self, message: str, error_code: str = "UNKNOWN_ERROR",
-                     details: Optional[Dict[str, Any]] = None) -> None:
-        """处理错误
-
-        Args:
-            message: 错误消息
-            error_code: 错误代码
-            details: 错误详情
-        """
-        self._error_count += 1
-
-        # 记录错误日志
-        self._logger.error(f"{error_code}: {message}", extra=details)
-
-        # 发射错误信号
-        self.error_occurred.emit(error_code, message)
-
-        # 如果错误过多，禁用组件
-        if self._error_count >= self._max_errors:
-            self._disable_component()
-            self._logger.warning(f"Component {self._component_name} disabled due to too many errors")
-
-    def _disable_component(self) -> None:
-        """禁用组件"""
-        self._is_enabled = False
-        self.setEnabled(False)
-        self._state = ComponentState.ERROR
-        self.state_changed.emit(ComponentState.ERROR)
-
-    def _start_auto_save(self) -> None:
-        """启动自动保存"""
-        self._auto_save_timer.start(30000)  # 30秒
-
-    def _auto_save(self) -> None:
-        """自动保存配置"""
-        if self._config.auto_save:
-            self._save_config()
-
-    def _start_performance_monitoring(self) -> None:
-        """启动性能监控"""
-        self._performance_timer.start(5000)  # 5秒
-
-    def _check_performance(self) -> None:
-        """检查性能"""
-        # 子类可以实现具体的性能检查逻辑
-        pass
-
-    # 公共方法
-    def set_theme(self, is_dark: bool) -> None:
-        """设置主题
-
-        Args:
-            is_dark: 是否使用深色主题
-        """
-        if not self._theme_support:
-            return
-
-        self._is_dark_theme = is_dark
-        self._apply_styles()
-        self.theme_changed.emit(is_dark)
-
-        # 保存主题设置
-        self._settings.setValue("dark_theme", is_dark)
-
-    def set_enabled(self, enabled: bool) -> None:
-        """设置组件启用状态
-
-        Args:
-            enabled: 是否启用组件
-        """
-        self._is_enabled = enabled
+    def set_enabled(self, enabled: bool):
+        """设置启用状态"""
+        self._enabled = enabled
         self.setEnabled(enabled)
-
-        if enabled:
-            self._state = ComponentState.READY
-        else:
-            self._state = ComponentState.INACTIVE
-
-        self.state_changed.emit(self._state)
-
-    def set_visible(self, visible: bool) -> None:
-        """设置组件可见性
-
-        Args:
-            visible: 是否可见
-        """
-        self._is_visible = visible
-        self.setVisible(visible)
-
-    def get_config(self) -> ComponentConfig:
-        """获取组件配置
-
-        Returns:
-            ComponentConfig: 组件配置对象
-        """
-        return self._config
-
-    def update_config(self, **kwargs) -> None:
-        """更新组件配置
-
-        Args:
-            **kwargs: 要更新的配置项
-        """
-        for key, value in kwargs.items():
-            if hasattr(self._config, key):
-                setattr(self._config, key, value)
-
-        self._save_config()
-        self.config_changed.emit(self._config.custom_settings)
-
-    def get_state(self) -> ComponentState:
-        """获取组件状态
-
-        Returns:
-            ComponentState: 当前状态
-        """
-        return self._state
+        self.update()
 
     def is_enabled(self) -> bool:
-        """检查组件是否启用
+        """检查是否启用"""
+        return self._enabled
 
-        Returns:
-            bool: 是否启用
-        """
-        return self._is_enabled
+    def set_visible(self, visible: bool):
+        """设置可见状态"""
+        self._visible = visible
+        self.setVisible(visible)
 
     def is_visible(self) -> bool:
-        """检查组件是否可见
+        """检查是否可见"""
+        return self._visible
 
-        Returns:
-            bool: 是否可见
-        """
-        return self._is_visible
+    def set_animation_enabled(self, enabled: bool):
+        """设置动画启用状态"""
+        self._animation_enabled = enabled
 
-    def get_error_count(self) -> int:
-        """获取错误计数
+    def is_animation_enabled(self) -> bool:
+        """检查动画是否启用"""
+        return self._animation_enabled
 
-        Returns:
-            int: 错误数量
-        """
-        return self._error_count
+    def add_custom_style(self, selector: str, style: str):
+        """添加自定义样式"""
+        self._custom_styles[selector] = style
+        self._update_stylesheet()
 
-    def reset_error_count(self) -> None:
-        """重置错误计数"""
-        self._error_count = 0
+    def remove_custom_style(self, selector: str):
+        """移除自定义样式"""
+        if selector in self._custom_styles:
+            del self._custom_styles[selector]
+            self._update_stylesheet()
 
-    def cleanup(self) -> None:
-        """清理组件资源
+    def _update_stylesheet(self):
+        """更新样式表"""
+        if self._custom_styles:
+            stylesheet = ""
+            for selector, style in self._custom_styles.items():
+                stylesheet += f"{selector} {{ {style} }}\n"
+            self.setStyleSheet(stylesheet)
 
-        子类应该重写这个方法来清理特定的资源。
-        """
-        # 停止定时器
-        self._auto_save_timer.stop()
-        self._performance_timer.stop()
+    def fade_in(self, duration: int = 300):
+        """淡入动画"""
+        if self._animation_enabled:
+            self._animate_property("opacity", 0.0, 1.0, duration)
 
-        # 保存配置
-        self._save_config()
+    def fade_out(self, duration: int = 300):
+        """淡出动画"""
+        if self._animation_enabled:
+            self._animate_property("opacity", 1.0, 0.0, duration)
 
-        # 更新状态
-        self._state = ComponentState.DESTROYED
-        self.state_changed.emit(ComponentState.DESTROYED)
+    def slide_in(self, direction: str = "left", duration: int = 300):
+        """滑入动画"""
+        if self._animation_enabled:
+            start_pos = self._get_start_position(direction)
+            end_pos = self.pos()
+            self._animate_position(start_pos, end_pos, duration)
 
-        self._logger.info(f"Component {self._component_name} cleaned up")
+    def slide_out(self, direction: str = "left", duration: int = 300):
+        """滑出动画"""
+        if self._animation_enabled:
+            start_pos = self.pos()
+            end_pos = self._get_end_position(direction)
+            self._animate_position(start_pos, end_pos, duration)
 
-    def closeEvent(self, event) -> None:
-        """关闭事件处理"""
-        self.cleanup()
-        super().closeEvent(event)
+    def _get_start_position(self, direction: str) -> QPoint:
+        """获取动画起始位置"""
+        width = self.width()
+        height = self.height()
+        current_pos = self.pos()
 
-    def __del__(self):
-        """析构函数"""
-        try:
-            self.cleanup()
-        except:
-            pass  # 防止析构时出现异常
-
-
-class ContainerComponent(BaseComponent):
-    """容器组件基类
-
-    用于包含其他组件的容器类组件。
-    """
-
-    def __init__(self, parent: Optional[QWidget] = None,
-                 config: Optional[ComponentConfig] = None,
-                 layout_type: str = "vertical"):
-        """初始化容器组件
-
-        Args:
-            parent: 父窗口部件
-            config: 组件配置
-            layout_type: 布局类型 ("vertical", "horizontal", "grid")
-        """
-        self._layout_type = layout_type
-        self._child_components: List[BaseComponent] = []
-        super().__init__(parent, config)
-
-    def _setup_ui(self) -> None:
-        """设置容器UI"""
-        if self._layout_type == "vertical":
-            self._main_layout = QVBoxLayout()
-        elif self._layout_type == "horizontal":
-            self._main_layout = QHBoxLayout()
+        if direction == "left":
+            return QPoint(current_pos.x() - width, current_pos.y())
+        elif direction == "right":
+            return QPoint(current_pos.x() + width, current_pos.y())
+        elif direction == "top":
+            return QPoint(current_pos.x(), current_pos.y() - height)
+        elif direction == "bottom":
+            return QPoint(current_pos.x(), current_pos.y() + height)
         else:
-            self._main_layout = QVBoxLayout()  # 默认垂直布局
+            return current_pos
 
-        self._main_layout.setContentsMargins(0, 0, 0, 0)
-        self._main_layout.setSpacing(0)
-        self.setLayout(self._main_layout)
+    def _get_end_position(self, direction: str) -> QPoint:
+        """获取动画结束位置"""
+        width = self.width()
+        height = self.height()
+        current_pos = self.pos()
 
-    def add_component(self, component: BaseComponent,
-                     stretch: int = 0, alignment: Optional[Qt.AlignmentFlag] = None) -> None:
-        """添加子组件
-
-        Args:
-            component: 要添加的组件
-            stretch: 拉伸因子
-            alignment: 对齐方式
-        """
-        if not isinstance(component, BaseComponent):
-            raise ComponentError("Child component must inherit from BaseComponent")
-
-        self._child_components.append(component)
-
-        if alignment:
-            self._main_layout.addWidget(component, stretch, alignment)
+        if direction == "left":
+            return QPoint(current_pos.x() - width, current_pos.y())
+        elif direction == "right":
+            return QPoint(current_pos.x() + width, current_pos.y())
+        elif direction == "top":
+            return QPoint(current_pos.x(), current_pos.y() - height)
+        elif direction == "bottom":
+            return QPoint(current_pos.x(), current_pos.y() + height)
         else:
-            self._main_layout.addWidget(component, stretch)
+            return current_pos
 
-        # 连接子组件信号
-        component.error_occurred.connect(self._on_child_error)
-        component.state_changed.connect(self._on_child_state_changed)
+    def _animate_property(self, property_name: str, start_value: float, end_value: float, duration: int):
+        """动画属性"""
+        animation = QPropertyAnimation(self, property_name.encode())
+        animation.setDuration(duration)
+        animation.setStartValue(start_value)
+        animation.setEndValue(end_value)
+        animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        animation.start()
 
-    def remove_component(self, component: BaseComponent) -> None:
-        """移除子组件
+        self._animations[property_name] = animation
 
-        Args:
-            component: 要移除的组件
-        """
-        if component in self._child_components:
-            self._child_components.remove(component)
-            self._main_layout.removeWidget(component)
+    def _animate_position(self, start_pos: QPoint, end_pos: QPoint, duration: int):
+        """动画位置"""
+        animation = QPropertyAnimation(self, b"pos")
+        animation.setDuration(duration)
+        animation.setStartValue(start_pos)
+        animation.setEndValue(end_pos)
+        animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        animation.start()
 
-            # 断开信号连接
-            component.error_occurred.disconnect(self._on_child_error)
-            component.state_changed.disconnect(self._on_child_state_changed)
+        self._animations["position"] = animation
 
-            # 清理组件
-            component.cleanup()
+    def stop_animations(self):
+        """停止所有动画"""
+        for animation in self._animations.values():
+            if animation.state() == QPropertyAnimation.State.Running:
+                animation.stop()
+        self._animations.clear()
 
-    def _on_child_error(self, error_code: str, message: str) -> None:
-        """处理子组件错误"""
-        self._handle_error(f"Child component error: {message}", f"CHILD_{error_code}")
+    def emit_data_changed(self, data: Dict[str, Any]):
+        """发送数据变更信号"""
+        self.data_changed.emit(data)
+        if self.event_bus:
+            self.event_bus.emit(f"component.{self._component_id}.data_changed", data)
 
-    def _on_child_state_changed(self, state: ComponentState) -> None:
-        """处理子组件状态变更"""
-        # 可以在这里实现容器级别的状态管理逻辑
-        pass
+    def log_info(self, message: str):
+        """记录信息日志"""
+        if self.logger:
+            self.logger.info(f"[{self._component_name}] {message}")
 
-    def cleanup(self) -> None:
-        """清理容器和所有子组件"""
-        # 清理所有子组件
-        for component in self._child_components[:]:  # 使用副本避免修改列表时的问题
+    def log_error(self, message: str):
+        """记录错误日志"""
+        if self.logger:
+            self.logger.error(f"[{self._component_name}] {message}")
+
+    def log_warning(self, message: str):
+        """记录警告日志"""
+        if self.logger:
+            self.logger.warning(f"[{self._component_name}] {message}")
+
+
+class BaseContainer(BaseComponent):
+    """基础容器组件"""
+
+    def __init__(self, parent=None, layout_type: str = "vertical", theme_service: Optional[ThemeService] = None):
+        super().__init__(parent, theme_service)
+        self.layout_type = layout_type
+        self.child_components: List[BaseComponent] = []
+
+    def _init_component(self):
+        """初始化组件"""
+        # 创建布局
+        if self.layout_type == "vertical":
+            self.layout = QVBoxLayout(self)
+        elif self.layout_type == "horizontal":
+            self.layout = QHBoxLayout(self)
+        elif self.layout_type == "grid":
+            self.layout = QGridLayout(self)
+        else:
+            self.layout = QVBoxLayout(self)
+
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+
+    def add_component(self, component: BaseComponent, stretch: int = 0, alignment: Optional[Qt.AlignmentFlag] = None):
+        """添加子组件"""
+        self.child_components.append(component)
+
+        if isinstance(self.layout, QVBoxLayout) or isinstance(self.layout, QHBoxLayout):
+            self.layout.addWidget(component, stretch)
+            if alignment:
+                self.layout.setAlignment(component, alignment)
+        elif isinstance(self.layout, QGridLayout):
+            # 简单的网格布局添加
+            row = len(self.child_components) - 1
+            self.layout.addWidget(component, row, 0)
+
+    def add_stretch(self, stretch: int = 1):
+        """添加弹性空间"""
+        if isinstance(self.layout, QVBoxLayout) or isinstance(self.layout, QHBoxLayout):
+            self.layout.addStretch(stretch)
+
+    def add_spacing(self, spacing: int):
+        """添加间距"""
+        if isinstance(self.layout, QVBoxLayout) or isinstance(self.layout, QHBoxLayout):
+            self.layout.addSpacing(spacing)
+
+    def remove_component(self, component: BaseComponent):
+        """移除子组件"""
+        if component in self.child_components:
+            self.child_components.remove(component)
+            self.layout.removeWidget(component)
+            component.setParent(None)
+
+    def clear_components(self):
+        """清空所有子组件"""
+        for component in self.child_components[:]:
             self.remove_component(component)
+        self.child_components.clear()
 
-        super().cleanup()
+    def get_child_components(self) -> List[BaseComponent]:
+        """获取子组件列表"""
+        return self.child_components.copy()
 
-
-# 工厂函数
-def create_component(component_class: type, *args, **kwargs) -> BaseComponent:
-    """创建组件实例的工厂函数
-
-    Args:
-        component_class: 组件类
-        *args: 位置参数
-        **kwargs: 关键字参数
-
-    Returns:
-        BaseComponent: 组件实例
-
-    Raises:
-        ComponentError: 如果组件类无效
-    """
-    if not issubclass(component_class, BaseComponent):
-        raise ComponentError("Component class must inherit from BaseComponent")
-
-    try:
-        return component_class(*args, **kwargs)
-    except Exception as e:
-        raise ComponentError(f"Failed to create component: {str(e)}", "CREATE_ERROR")
+    def find_component_by_id(self, component_id: str) -> Optional[BaseComponent]:
+        """根据ID查找子组件"""
+        for component in self.child_components:
+            if component.get_component_id() == component_id:
+                return component
+        return None
 
 
-# 装饰器用于自动注册组件
-def register_component(component_name: str):
-    """组件注册装饰器
+class BaseFrame(BaseContainer):
+    """基础框架组件"""
 
-    Args:
-        component_name: 组件名称
-    """
-    def decorator(cls):
-        cls._component_name = component_name
-        return cls
-    return decorator
+    def __init__(self, parent=None, layout_type: str = "vertical", frame_shape: QFrame.Shape = QFrame.Shape.Box,
+                 theme_service: Optional[ThemeService] = None):
+        super().__init__(parent, layout_type, theme_service)
+        self.frame_shape = frame_shape
+        self._border_width = 1
+        self._border_radius = 4
+        self._shadow_enabled = True
+
+    def _init_component(self):
+        """初始化组件"""
+        super()._init_component()
+
+        # 设置框架属性
+        self.setFrameShape(self.frame_shape)
+        self.setFrameShadow(QFrame.Shadow.Raised)
+
+    def set_frame_shape(self, shape: QFrame.Shape):
+        """设置框架形状"""
+        self.frame_shape = shape
+        self.setFrameShape(shape)
+
+    def set_border_width(self, width: int):
+        """设置边框宽度"""
+        self._border_width = width
+        self.update()
+
+    def set_border_radius(self, radius: int):
+        """设置边框圆角"""
+        self._border_radius = radius
+        self.update()
+
+    def set_shadow_enabled(self, enabled: bool):
+        """设置阴影启用状态"""
+        self._shadow_enabled = enabled
+        self.update()
+
+    def _draw_custom_paint(self, event):
+        """自定义绘制"""
+        if self._current_theme and self._border_radius > 0:
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+            # 绘制圆角边框
+            rect = self.rect()
+            path = QPainterPath()
+            path.addRoundedRect(rect, self._border_radius, self._border_radius)
+
+            # 设置边框
+            pen = QPen(QColor(self._current_theme.colors.border_color))
+            pen.setWidth(self._border_width)
+            painter.setPen(pen)
+
+            # 设置背景
+            brush = QBrush(QColor(self._current_theme.colors.background_color))
+            painter.setBrush(brush)
+
+            painter.drawPath(path)
+
+            # 绘制阴影
+            if self._shadow_enabled:
+                self._draw_shadow(painter, rect)
+
+    def _draw_shadow(self, painter: QPainter, rect: QRect):
+        """绘制阴影"""
+        if not self._current_theme:
+            return
+
+        shadow_color = QColor(self._current_theme.colors.border_color)
+        shadow_color.setAlpha(50)
+
+        for i in range(3):
+            shadow_rect = rect.adjusted(i + 1, i + 1, i + 1, i + 1)
+            path = QPainterPath()
+            path.addRoundedRect(shadow_rect, self._border_radius, self._border_radius)
+
+            pen = QPen(shadow_color)
+            pen.setWidth(1)
+            painter.setPen(pen)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawPath(path)
 
 
-if __name__ == "__main__":
-    # 示例用法
-    class ExampleComponent(BaseComponent):
-        """示例组件"""
+class BasePanel(BaseFrame):
+    """基础面板组件"""
 
-        def _setup_ui(self):
-            layout = QVBoxLayout(self)
-            label = QLabel("Example Component")
-            layout.addWidget(label)
+    def __init__(self, parent=None, layout_type: str = "vertical", title: str = "",
+                 theme_service: Optional[ThemeService] = None):
+        super().__init__(parent, layout_type, QFrame.Shape.Box, theme_service)
+        self.title = title
+        self.title_label: Optional[QLabel] = None
 
-        def _apply_styles(self):
-            if self._is_dark_theme:
-                self.setStyleSheet("background-color: #2b2b2b; color: white;")
-            else:
-                self.setStyleSheet("background-color: white; color: black;")
+    def _init_component(self):
+        """初始化组件"""
+        super()._init_component()
 
-    # 创建示例组件
-    example = ExampleComponent()
-    print(f"Component created: {example._component_name}")
-    print(f"Component state: {example.get_state()}")
+        # 如果有标题，创建标题标签
+        if self.title:
+            self._create_title_label()
+
+    def _create_title_label(self):
+        """创建标题标签"""
+        self.title_label = QLabel(self.title)
+        title_font = QFont("Arial", 12, QFont.Weight.Bold)
+        self.title_label.setFont(title_font)
+
+        # 添加到布局中
+        if isinstance(self.layout, QVBoxLayout):
+            self.layout.addWidget(self.title_label)
+        elif isinstance(self.layout, QHBoxLayout):
+            self.layout.addWidget(self.title_label)
+        elif isinstance(self.layout, QGridLayout):
+            self.layout.addWidget(self.title_label, 0, 0)
+
+    def set_title(self, title: str):
+        """设置标题"""
+        self.title = title
+        if self.title_label:
+            self.title_label.setText(title)
+        else:
+            self._create_title_label()
+
+    def get_title(self) -> str:
+        """获取标题"""
+        return self.title
+
+    def set_title_visible(self, visible: bool):
+        """设置标题可见性"""
+        if self.title_label:
+            self.title_label.setVisible(visible)
+
+
+class BaseButton(BaseComponent):
+    """基础按钮组件"""
+
+    clicked = pyqtSignal()
+    pressed = pyqtSignal()
+    released = pyqtSignal()
+
+    def __init__(self, text: str = "", parent=None, theme_service: Optional[ThemeService] = None):
+        super().__init__(parent, theme_service)
+        self.text = text
+        self._is_pressed = False
+        self._is_hovered = False
+
+    def _init_component(self):
+        """初始化组件"""
+        self.setFixedSize(100, 32)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def paintEvent(self, event):
+        """绘制事件"""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        rect = self.rect()
+        colors = self._get_colors()
+
+        # 绘制按钮背景
+        if self._is_pressed:
+            bg_color = colors.pressed_color
+        elif self._is_hovered:
+            bg_color = colors.hover_color
+        else:
+            bg_color = colors.secondary_color
+
+        painter.fillRect(rect, bg_color)
+
+        # 绘制边框
+        pen = QPen(QColor(colors.border_color))
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.drawRect(rect)
+
+        # 绘制文本
+        if self.text:
+            painter.setPen(QColor(colors.foreground_color))
+            font = QFont("Arial", 10)
+            painter.setFont(font)
+            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.text)
+
+    def _get_colors(self) -> ThemeColors:
+        """获取颜色"""
+        if self._current_theme:
+            return self._current_theme.colors
+        else:
+            return ThemeColors()
+
+    def mousePressEvent(self, event):
+        """鼠标按下事件"""
+        self._is_pressed = True
+        self.update()
+        self.pressed.emit()
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        """鼠标释放事件"""
+        self._is_pressed = False
+        self.update()
+        self.released.emit()
+        self.clicked.emit()
+        super().mouseReleaseEvent(event)
+
+    def enterEvent(self, event):
+        """鼠标进入事件"""
+        self._is_hovered = True
+        self.update()
+        self.component_hovered.emit(True)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        """鼠标离开事件"""
+        self._is_hovered = False
+        self.update()
+        self.component_hovered.emit(False)
+        super().leaveEvent(event)
+
+    def set_text(self, text: str):
+        """设置文本"""
+        self.text = text
+        self.update()
+
+    def get_text(self) -> str:
+        """获取文本"""
+        return self.text
+
+    def set_size(self, width: int, height: int):
+        """设置大小"""
+        self.setFixedSize(width, height)
