@@ -1,14 +1,9 @@
-"""
-UI Components module
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-Contains reusable UI components:
-- Enhanced video player
-- Enhanced timeline widget
-- Project list widget
-- AI control widgets
+"""
+CineAIStudio v2.0 UI组件库
+提供统一的UI组件接口
 """
 
-from .video_player import VideoPlayer
-from .timeline_widget import TimelineWidget
-
-__all__ = ['VideoPlayer', 'TimelineWidget']
+from .base_component import BaseComponent

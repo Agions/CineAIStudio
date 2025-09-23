@@ -2,583 +2,390 @@
 # -*- coding: utf-8 -*-
 
 """
-应用启动器 - 负责应用程序的初始化和启动
-整合所有服务和组件，提供统一的启动入口
+CineAIStudio v2.0 应用启动器
+负责应用程序的启动、初始化和运行
 """
 
-import os
 import sys
-import logging
-import time
+import os
 import traceback
-from typing import Optional, Dict, Any, List
+from typing import List, Optional
 
-from PyQt6.QtWidgets import QApplication, QMessageBox, QSplashScreen
-from PyQt6.QtCore import QTimer, Qt, QThreadPool, QSettings, QTranslator
-from PyQt6.QtGui import QPixmap, QFont, QIcon
+from PyQt6.QtWidgets import QApplication, QSplashScreen, QMessageBox
+from PyQt6.QtCore import QTimer, QThread, pyqtSignal, Qt
+from PyQt6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
 
-from app.config.settings_manager import SettingsManager
-from app.core.project_manager import ProjectManager
-from app.ai import create_unified_ai_service
-from app.core.service_container import ServiceContainer
-from app.core.unified_media_manager import UnifiedMediaManager
-from app.core.intelligent_video_processing_engine import IntelligentVideoProcessingEngine
-
-from app.ui.main_window_management import ManagementMainWindow
-from app.ui.unified_theme_system import UnifiedThemeManager, ThemeType
-from app.core.performance_optimizer import (
-    get_enhanced_performance_optimizer,
-    start_enhanced_performance_monitoring
-)
-from app.core.memory_manager import get_memory_manager, start_memory_monitoring
+from .core.config_manager import ConfigManager
+from .core.logger import Logger
+from .core.icon_manager import init_icon_manager
+from .core.project_manager import ProjectManager
+from .core.project_template_manager import ProjectTemplateManager
+from .core.project_settings_manager import ProjectSettingsManager
+from .core.project_version_manager import ProjectVersionManager
+from .utils.error_handler import handle_exception, show_error_dialog
+from .ui.main.main_window import MainWindow
+from .core.application import ApplicationState
 
 
-# 配置日志
-def setup_logging():
-    """设置日志配置"""
-    log_level = os.getenv('LOG_LEVEL', 'INFO')
+class SplashScreen(QSplashScreen):
+    """启动画面"""
 
-    # 创建日志目录
-    log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
-    os.makedirs(log_dir, exist_ok=True)
+    def __init__(self):
+        # 创建启动画面
+        splash_pixmap = QPixmap(600, 400)
+        splash_pixmap.fill(QColor("#1a1a1a"))
 
-    # 配置日志格式
-    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        painter = QPainter(splash_pixmap)
+        painter.setPen(QColor("#00BCD4"))
 
-    # 配置根日志器
-    logging.basicConfig(
-        level=getattr(logging, log_level.upper()),
-        format=log_format,
-        handlers=[
-            logging.FileHandler(os.path.join(log_dir, 'cineai_studio.log')),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+        # 绘制Logo
+        logo_font = QFont("Arial", 48, QFont.Weight.Bold)
+        painter.setFont(logo_font)
+        painter.drawText(splash_pixmap.rect(),
+                        int(Qt.AlignmentFlag.AlignCenter), "CineAIStudio")
 
-    # 设置第三方库日志级别
-    logging.getLogger('PyQt6').setLevel(logging.WARNING)
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
+        # 绘制版本信息
+        version_font = QFont("Arial", 14)
+        painter.setFont(version_font)
+        painter.setPen(QColor("#B0BEC5"))
+        version_rect = splash_pixmap.rect().adjusted(0, 100, 0, -100)
+        painter.drawText(version_rect,
+                        int(Qt.AlignmentFlag.AlignCenter), "专业AI视频编辑器 v2.0.0")
 
-    return logging.getLogger(__name__)
+        # 绘制加载信息
+        loading_font = QFont("Arial", 12)
+        painter.setFont(loading_font)
+        painter.setPen(QColor("#90A4AE"))
+        loading_rect = splash_pixmap.rect().adjusted(0, 150, 0, -50)
+        painter.drawText(loading_rect,
+                        int(Qt.AlignmentFlag.AlignCenter), "正在加载组件...")
+
+        painter.end()
+
+        super().__init__(splash_pixmap)
+        self.setFixedSize(600, 400)
 
 
 class ApplicationLauncher:
-    """应用启动器 - 负责应用程序的初始化和启动"""
+    """应用程序启动器"""
 
     def __init__(self):
-        self.logger = setup_logging()
-        self.app: Optional[QApplication] = None
-        self.main_window: Optional[ManagementMainWindow] = None
-        self.splash_screen: Optional[QSplashScreen] = None
-        self.service_container: Optional[ServiceContainer] = None
+        self.main_window: Optional[MainWindow] = None
+        self.splash_screen: Optional[SplashScreen] = None
+        self.logger: Optional[Logger] = None
+        self.config_manager: Optional[ConfigManager] = None
 
-        # 初始化状态
-        self.initialization_steps = [
-            "初始化应用程序",
-            "创建服务容器",
-            "初始化设置管理器",
-            "初始化主题系统",
-            "初始化AI服务",
-            "初始化项目管理器",
-            "初始化媒体管理器",
-            "初始化视频处理引擎",
-            "初始化性能监控",
-            "初始化内存管理",
-            "创建主窗口",
-            "完成初始化"
-        ]
-        self.current_step = 0
-
-    def launch(self, args: List[str]) -> int:
+    def launch(self, argv: List[str]) -> int:
         """启动应用程序"""
         try:
-            self.logger.info("启动 CineAIStudio 应用程序...")
+            # 确保QApplication已经创建
+            app = QApplication.instance()
+            if not app:
+                app = QApplication(argv)
 
-            # 步骤1: 初始化应用程序
-            self.update_progress("初始化应用程序")
-            self.app = QApplication(args)
-            self.app.setApplicationName("CineAIStudio")
-            self.app.setApplicationVersion("2.0.0")
-            self.app.setOrganizationName("CineAIStudio Team")
-
-            # 显示启动画面（必须在QApplication创建后）
-            self.show_splash_screen()
-
-            # 设置应用程序样式
-            self.setup_application_style()
-
-            # 步骤2: 创建服务容器
-            self.update_progress("创建服务容器")
-            self.service_container = ServiceContainer()
-
-            # 步骤3: 初始化设置管理器
-            self.update_progress("初始化设置管理器")
-            self.initialize_settings_manager()
-
-            # 步骤4: 初始化主题系统
-            self.update_progress("初始化主题系统")
-            self.initialize_theme_system()
-
-            # 应用主题（在QApplication创建后）
-            self.apply_theme()
-
-            # 步骤5: 初始化AI服务
-            self.update_progress("初始化AI服务")
-            self.initialize_ai_services()
-
-            # 步骤6: 初始化项目管理器
-            self.update_progress("初始化项目管理器")
-            self.initialize_project_manager()
-
-            # 步骤7: 初始化媒体管理器
-            self.update_progress("初始化媒体管理器")
-            self.initialize_media_manager()
-
-            # 步骤8: 初始化视频处理引擎
-            self.update_progress("初始化视频处理引擎")
-            self.initialize_video_processing_engine()
-
-            # 步骤9: 初始化性能监控
-            self.update_progress("初始化性能监控")
-            self.initialize_performance_monitoring()
-
-            # 步骤10: 初始化内存管理
-            self.update_progress("初始化内存管理")
-            self.initialize_memory_management()
-
-            # 步骤11: 创建主窗口
-            self.update_progress("创建主窗口")
-            self.create_main_window()
-
-            # 步骤12: 完成初始化
-            self.update_progress("完成初始化")
-            self.finalize_initialization()
-
-            # 关闭启动画面
-            self.hide_splash_screen()
-
-            # 显示主窗口
-            self.show_main_window()
-
-            # 运行应用程序
-            self.logger.info("应用程序启动完成")
-            return self.app.exec()
-
-        except Exception as e:
-            self.logger.error(f"应用程序启动失败: {e}")
-            self.logger.error(traceback.format_exc())
-
-            # 显示错误对话框
-            if self.app:
-                QMessageBox.critical(
-                    None,
-                    "启动失败",
-                    f"应用程序启动失败:\n\n{str(e)}\n\n请查看日志文件获取详细信息。"
-                )
-
-            return 1
-
-    def show_splash_screen(self):
-        """显示启动画面"""
-        try:
-            # 创建启动画面
-            splash_pixmap = QPixmap(400, 200)
-            splash_pixmap.fill(Qt.GlobalColor.white)
-
-            # 创建启动画面窗口
-            self.splash_screen = QSplashScreen(splash_pixmap)
-            self.splash_screen.setWindowFlags(Qt.WindowType.SplashScreen | Qt.WindowType.FramelessWindowHint)
+            # 显示启动画面
+            self.splash_screen = SplashScreen()
             self.splash_screen.show()
 
-            # 设置启动画面样式
-            self.splash_screen.showMessage(
-                "正在启动 CineAIStudio...",
-                Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom,
-                Qt.GlobalColor.black
-            )
+            # 处理Qt事件
+            app.processEvents()
 
-            self.app.processEvents() if self.app else None
+            # 初始化日志系统
+            self._initialize_logging()
 
-        except Exception as e:
-            self.logger.warning(f"显示启动画面失败: {e}")
+            # 创建应用配置
+            config = self._create_application_config()
 
-    def hide_splash_screen(self):
-        """隐藏启动画面"""
-        if self.splash_screen:
-            self.splash_screen.finish(self.main_window)
-            self.splash_screen = None
+            # 保存配置管理器
+            self.config_manager = config
 
-    def update_progress(self, step_message: str):
-        """更新启动进度"""
-        self.current_step += 1
-        progress = (self.current_step / len(self.initialization_steps)) * 100
-
-        if self.splash_screen:
-            self.splash_screen.showMessage(
-                f"{step_message}... ({self.current_step}/{len(self.initialization_steps)})",
-                Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom,
-                Qt.GlobalColor.black
-            )
-
-        self.logger.info(f"初始化进度: {step_message} ({progress:.1f}%)")
-
-        if self.app:
-            self.app.processEvents()
-
-    def setup_application_style(self):
-        """设置应用程序样式"""
-        try:
-            # 设置应用程序字体
-            font = QFont("Segoe UI", 10)
-            self.app.setFont(font)
-
-            # 设置应用程序图标
-            icon_path = os.path.join(
-                os.path.dirname(__file__),
-                '..',
-                'resources',
-                'icons',
-                'app_icon.png'
-            )
-            if os.path.exists(icon_path):
-                self.app.setWindowIcon(QIcon(icon_path))
-
-            # 设置高DPI支持
-            self.app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-            self.app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-
-        except Exception as e:
-            self.logger.warning(f"设置应用程序样式失败: {e}")
-
-    def initialize_settings_manager(self):
-        """初始化设置管理器"""
-        try:
-            settings_manager = SettingsManager()
-            self.service_container.register_instance('settings_manager', settings_manager)
-            self.logger.info("设置管理器初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化设置管理器失败: {e}")
-            raise
-
-    def initialize_theme_system(self):
-        """初始化主题系统"""
-        try:
-            theme_manager = UnifiedThemeManager()
-            self.service_container.register_instance('theme_manager', theme_manager)
-
-            # 加载主题设置，但不立即应用（等待QApplication创建）
-            settings_manager = self.service_container.get('settings_manager')
-            is_dark_theme = settings_manager.get_setting('ui.dark_theme', False)
-
-            # 保存主题选择，稍后应用
-            self._theme_type = ThemeType.DARK if is_dark_theme else ThemeType.LIGHT
-
-            self.logger.info("主题系统初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化主题系统失败: {e}")
-            raise
-
-    def initialize_ai_services(self):
-        """初始化AI服务"""
-        try:
-            settings_manager = self.service_container.get('settings_manager')
-            ai_service = create_unified_ai_service(settings_manager)
-            self.service_container.register_instance('ai_service', ai_service)
-            self.logger.info("AI服务初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化AI服务失败: {e}")
-            # AI服务初始化失败不影响应用启动
-            self.logger.warning("AI服务初始化失败，部分AI功能可能不可用")
-            # 创建一个空的AI服务占位符
-            from app.ai.interfaces import IAIService, AIResponse, AIRequest
-            class DummyAIService(IAIService):
-                def process_request(self, request: AIRequest):
-                    return AIResponse(request.request_id, False, "AI服务不可用")
-                def submit_request(self, request: AIRequest):
-                    return request.request_id
-                def get_request_status(self, request_id: str):
-                    return {"status": "failed"}
-                def cancel_request(self, request_id: str):
-                    return False
-                def get_health_status(self):
-                    return {}
-                def get_usage_stats(self):
-                    from app.ai.interfaces import AIUsageStats
-                    return AIUsageStats()
-                def get_available_providers(self):
-                    return []
-                def set_budget_limit(self, limit: float):
-                    pass
-                def cleanup(self):
-                    pass
-
-            dummy_service = DummyAIService()
-            self.service_container.register_instance('ai_service', dummy_service)
-
-    def initialize_project_manager(self):
-        """初始化项目管理器"""
-        try:
-            project_manager = ProjectManager()
-            self.service_container.register_instance('project_manager', project_manager)
-            self.logger.info("项目管理器初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化项目管理器失败: {e}")
-            raise
-
-    def initialize_media_manager(self):
-        """初始化媒体管理器"""
-        try:
-            media_manager = UnifiedMediaManager()
-            self.service_container.register_instance('media_manager', media_manager)
-            self.logger.info("媒体管理器初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化媒体管理器失败: {e}")
-            raise
-
-    def initialize_video_processing_engine(self):
-        """初始化视频处理引擎"""
-        try:
-            video_engine = IntelligentVideoProcessingEngine()
-            self.service_container.register_instance('video_engine', video_engine)
-            self.logger.info("视频处理引擎初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化视频处理引擎失败: {e}")
-            raise
-
-    def initialize_performance_monitoring(self):
-        """初始化性能监控"""
-        try:
-            # 延迟启动性能监控，避免影响启动速度
-            QTimer.singleShot(3000, self._start_performance_monitoring)
-            self.logger.info("性能监控初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化性能监控失败: {e}")
-            # 性能监控失败不影响应用启动
-            self.logger.warning("性能监控初始化失败，性能监控功能可能不可用")
-
-    def _start_performance_monitoring(self):
-        """启动性能监控"""
-        try:
-            start_enhanced_performance_monitoring(1000)
-            self.logger.info("性能监控已启动")
-        except Exception as e:
-            self.logger.error(f"启动性能监控失败: {e}")
-
-    def initialize_memory_management(self):
-        """初始化内存管理"""
-        try:
-            # 延迟启动内存监控
-            QTimer.singleShot(2000, self._start_memory_monitoring)
-            self.logger.info("内存管理初始化完成")
-
-        except Exception as e:
-            self.logger.error(f"初始化内存管理失败: {e}")
-            # 内存管理失败不影响应用启动
-            self.logger.warning("内存管理初始化失败，内存优化功能可能不可用")
-
-    def apply_theme(self):
-        """应用主题"""
-        try:
-            if hasattr(self, '_theme_type') and self.service_container:
-                theme_manager = self.service_container.get('theme_manager')
-                if theme_manager:
-                    theme_manager.set_theme(self._theme_type)
-                    self.logger.info(f"主题已应用: {self._theme_type}")
-        except Exception as e:
-            self.logger.error(f"应用主题失败: {e}")
-
-    def _start_memory_monitoring(self):
-        """启动内存监控"""
-        try:
-            start_memory_monitoring(2000)
-            self.logger.info("内存监控已启动")
-        except Exception as e:
-            self.logger.error(f"启动内存监控失败: {e}")
-
-    def create_main_window(self):
-        """创建主窗口"""
-        try:
-            # 从服务容器获取依赖
-            settings_manager = self.service_container.get('settings_manager')
-            project_manager = self.service_container.get('project_manager')
-            ai_service = self.service_container.get('ai_service')
+            # 初始化项目管理系统
+            self._initialize_project_management()
 
             # 创建主窗口
-            self.main_window = ManagementMainWindow(settings_manager, project_manager, ai_service)
+            self._create_main_window()
 
-            # 注册主窗口到服务容器
-            self.service_container.register_instance('main_window', self.main_window)
+            # 连接信号
+            self._connect_signals()
 
-            self.logger.info("主窗口创建完成")
+            # 启动应用程序
+            self._start_application()
+
+            # 隐藏启动画面，显示主窗口
+            if self.splash_screen:
+                self.splash_screen.finish(self.main_window)
+
+            if self.main_window:
+                self.main_window.show()
+
+            # 运行应用程序
+            return self._run_application()
 
         except Exception as e:
-            self.logger.error(f"创建主窗口失败: {e}")
+            self._handle_launch_error(e)
+            return 1
+
+    def _initialize_logging(self) -> None:
+        """初始化日志系统"""
+        try:
+            # 创建日志管理器
+            self.logger = Logger("CineAIStudio")
+
+            self.logger.info("初始化日志系统")
+
+            # 简化的错误处理
+            import sys
+            def handle_exception(exc_type, exc_value, exc_traceback):
+                self.logger.error(f"未捕获的异常: {exc_value}")
+                show_error_dialog(None, "错误", f"应用程序遇到错误: {exc_value}")
+
+            sys.excepthook = handle_exception
+
+        except Exception as e:
+            print(f"Failed to initialize logging: {e}")
+            # 使用print作为最后的日志手段
+            traceback.print_exc()
+
+    def _create_application_config(self) -> ConfigManager:
+        """创建应用程序配置"""
+        config = ConfigManager()
+
+        # 初始化图标管理器
+        init_icon_manager()
+
+        return config
+
+    def _initialize_project_management(self) -> None:
+        """初始化项目管理系统"""
+        try:
+            if self.splash_screen:
+                self.splash_screen.showMessage("正在初始化项目管理系统...",
+                                           int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
+                                           QColor("#FFFFFF"))
+
+            # 创建项目管理器
+            self.project_manager = ProjectManager(self.config_manager)
+
+            # 创建模板管理器
+            self.template_manager = ProjectTemplateManager(self.config_manager)
+
+            # 创建设置管理器
+            self.settings_manager = ProjectSettingsManager(self.config_manager)
+
+            self.logger.info("Project management system initialized successfully")
+
+        except Exception as e:
+            self.logger.error(f"Failed to initialize project management: {e}")
             raise
 
-    def finalize_initialization(self):
-        """完成初始化"""
+    def _initialize_application(self, argv: List[str]) -> bool:
+        """初始化应用程序"""
         try:
-            # 设置全局异常处理
-            self.setup_global_exception_handling()
+            if self.splash_screen:
+                self.splash_screen.showMessage("正在初始化应用程序核心...",
+                                           int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
+                                           QColor("#FFFFFF"))
 
-            # 设置信号处理
-            self.setup_signal_handling()
+            # 初始化应用程序
+            if not self.application.initialize(argv):
+                self.logger.error("Failed to initialize application")
+                return False
 
-            # 初始化完成后的设置
-            self.post_initialization_setup()
+            # 等待初始化完成
+            if not self._wait_for_application_ready():
+                self.logger.error("Application initialization timeout")
+                return False
 
-            self.logger.info("应用程序初始化完成")
+            self.logger.info("Application initialized successfully")
+            return True
 
         except Exception as e:
-            self.logger.error(f"完成初始化失败: {e}")
+            self.logger.error(f"Failed to initialize application: {e}")
+            self.logger.error(traceback.format_exc())
+            return False
+
+    def _create_main_window(self) -> None:
+        """创建主窗口"""
+        try:
+            if self.splash_screen:
+                self.splash_screen.showMessage("正在创建用户界面...",
+                                           int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
+                                           QColor("#FFFFFF"))
+
+            # 创建简化版主窗口
+            self.main_window = MainWindow()
+
+            self.logger.info("Main window created successfully")
+
+        except Exception as e:
+            self.logger.error(f"Failed to create main window: {e}")
+            self.logger.error(traceback.format_exc())
             raise
 
-    def setup_global_exception_handling(self):
-        """设置全局异常处理"""
-        def handle_exception(exc_type, exc_value, exc_traceback):
-            self.logger.critical(
-                f"未捕获的异常: {exc_type.__name__}: {exc_value}",
-                exc_info=(exc_type, exc_value, exc_traceback)
-            )
+    def _connect_signals(self) -> None:
+        """连接信号"""
+        if not self.application:
+            return
 
-            # 在主线程中显示错误对话框
-            if self.main_window:
-                QTimer.singleShot(0, lambda: self.show_critical_error(
-                    f"发生未处理的异常:\n\n{exc_type.__name__}: {exc_value}"
-                ))
+        # 应用程序状态信号
+        self.application.state_changed.connect(self._on_application_state_changed)
 
-        sys.excepthook = handle_exception
+        # 应用程序错误信号
+        self.application.error_occurred.connect(self._on_application_error)
 
-    def setup_signal_handling(self):
-        """设置信号处理"""
-        try:
-            import signal
-
-            def signal_handler(signum, frame):
-                self.logger.info(f"接收到信号 {signum}，准备关闭应用程序")
-                if self.main_window:
-                    self.main_window.close()
-
-            signal.signal(signal.SIGINT, signal_handler)
-            signal.signal(signal.SIGTERM, signal_handler)
-
-        except Exception as e:
-            self.logger.warning(f"设置信号处理失败: {e}")
-
-    def post_initialization_setup(self):
-        """初始化完成后的设置"""
-        try:
-            # 设置线程池
-            thread_pool = QThreadPool.globalInstance()
-            thread_pool.setMaxThreadCount(8)
-
-            # 应用最后的主题设置
-            theme_manager = self.service_container.get('theme_manager')
-            if self.main_window:
-                theme_manager.set_theme("professional_dark")
-
-            # 恢复上次的工作状态
-            self.restore_session()
-
-        except Exception as e:
-            self.logger.warning(f"初始化后设置失败: {e}")
-
-    def restore_session(self):
-        """恢复会话"""
-        try:
-            settings_manager = self.service_container.get('settings_manager')
-
-            # 恢复窗口几何状态
-            geometry = settings_manager.get_setting('window.geometry')
-            if geometry and self.main_window:
-                self.main_window.restoreGeometry(geometry)
-
-            state = settings_manager.get_setting('window.state')
-            if state and self.main_window:
-                self.main_window.restoreState(state)
-
-            # 恢复最近打开的项目
-            recent_project = settings_manager.get_setting('recent_project')
-            if recent_project and self.main_window:
-                project_manager = self.service_container.get('project_manager')
-                try:
-                    project_manager.load_project(recent_project)
-                except Exception as e:
-                    self.logger.warning(f"恢复最近项目失败: {e}")
-
-        except Exception as e:
-            self.logger.warning(f"恢复会话失败: {e}")
-
-    def show_main_window(self):
-        """显示主窗口"""
+        # 主窗口信号（如果存在）
         if self.main_window:
-            self.main_window.show()
+            self.main_window.error_occurred.connect(self._on_window_error)
 
-            # 如果有启动参数，处理启动参数
-            if len(sys.argv) > 1:
-                self.handle_startup_arguments(sys.argv[1:])
-
-    def handle_startup_arguments(self, args: List[str]):
-        """处理启动参数"""
+    def _start_application(self) -> None:
+        """启动应用程序"""
         try:
-            for arg in args:
-                if arg.endswith('.cineai') or arg.endswith('.json'):
-                    # 打开项目文件
-                    project_manager = self.service_container.get('project_manager')
-                    project_manager.load_project(arg)
-                    break
-                elif arg == '--performance':
-                    # 启动到性能监控页面
-                    if self.main_window:
-                        self.main_window.navigate_to_page('performance')
-                elif arg == '--debug':
-                    # 启用调试模式
-                    logging.getLogger().setLevel(logging.DEBUG)
-                    self.logger.info("调试模式已启用")
+            if self.splash_screen:
+                self.splash_screen.showMessage("正在启动应用程序...",
+                                           int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
+                                           QColor("#FFFFFF"))
+
+            # 启动应用程序
+            if not self.application.start():
+                self.logger.error("Failed to start application")
+                raise RuntimeError("Failed to start application")
+
+            self.logger.info("Application started successfully")
 
         except Exception as e:
-            self.logger.warning(f"处理启动参数失败: {e}")
+            self.logger.error(f"Failed to start application: {e}")
+            raise
 
-    def show_critical_error(self, message: str):
-        """显示严重错误"""
-        if self.app:
-            QMessageBox.critical(
-                None,
-                "严重错误",
-                f"应用程序遇到严重错误:\n\n{message}\n\n应用程序即将关闭。"
-            )
+    def _run_application(self) -> int:
+        """运行应用程序"""
+        try:
+            self.logger.info("Starting application main loop")
 
-        if self.main_window:
-            self.main_window.close()
+            # 运行应用程序
+            exit_code = self.application.run()
+
+            self.logger.info(f"Application exited with code: {exit_code}")
+            return exit_code
+
+        except Exception as e:
+            self.logger.error(f"Error running application: {e}")
+            self.logger.error(traceback.format_exc())
+            return 1
+
+    def _wait_for_application_ready(self, timeout: int = 30) -> bool:
+        """等待应用程序就绪"""
+        import time
+
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            if self.application and self.application.is_ready():
+                return True
+
+            # 处理Qt事件
+            app = QApplication.instance()
+            if app:
+                app.processEvents()
+
+            # 短暂等待
+            QThread.msleep(100)
+
+        return False
+
+    def _on_application_state_changed(self, state: ApplicationState) -> None:
+        """应用程序状态变化处理"""
+        state_messages = {
+            ApplicationState.INITIALIZING: "正在初始化...",
+            ApplicationState.STARTING: "正在启动...",
+            ApplicationState.READY: "应用程序已就绪",
+            ApplicationState.RUNNING: "正在运行",
+            ApplicationState.PAUSED: "已暂停",
+            ApplicationState.SHUTTING_DOWN: "正在关闭...",
+            ApplicationState.ERROR: "发生错误"
+        }
+
+        message = state_messages.get(state, f"状态: {state.value}")
+
+        if self.logger:
+            self.logger.info(f"Application state changed to: {state.value}")
+
+        if self.splash_screen:
+            self.splash_screen.showMessage(message,
+                                       int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
+                                       QColor("#FFFFFF"))
+
+    def _on_application_error(self, error_type: str, error_message: str) -> None:
+        """应用程序错误处理"""
+        if self.logger:
+            self.logger.error(f"Application error: {error_type} - {error_message}")
+
+    def _on_window_error(self, error_type: str, error_message: str) -> None:
+        """窗口错误处理"""
+        if self.logger:
+            self.logger.error(f"Window error: {error_type} - {error_message}")
+
+    def _on_error_occurred(self, error_info) -> None:
+        """错误处理"""
+        if self.logger:
+            self.logger.error(f"Error occurred: {error_info.error_type} - {error_info.message}")
+
+    def _handle_launch_error(self, error: Exception) -> None:
+        """处理启动错误"""
+        error_msg = f"Failed to launch application: {str(error)}"
+
+        if self.logger:
+            self.logger.error(error_msg)
+            self.logger.error(traceback.format_exc())
+        else:
+            print(error_msg)
+            traceback.print_exc()
+
+        # 尝试显示错误对话框
+        try:
+            app = QApplication.instance()
+            if app:
+                QMessageBox.critical(None, "启动失败",
+                                   f"应用程序启动失败：\n\n{str(error)}\n\n请检查日志文件获取详细信息。")
+        except Exception:
+            pass
 
 
-def main():
+def main() -> int:
     """主函数"""
     try:
-        # 创建启动器
-        launcher = ApplicationLauncher()
+        # 检查Python版本
+        if sys.version_info < (3, 8):
+            print("Error: Python 3.8 or higher is required")
+            return 1
 
-        # 启动应用程序
+        # 创建Qt应用程序
+        qt_app = QApplication(sys.argv)
+        qt_app.setApplicationName("CineAIStudio")
+        qt_app.setApplicationVersion("2.0.0")
+        qt_app.setOrganizationName("CineAIStudio Team")
+
+        # 设置应用程序样式
+        qt_app.setStyle("Fusion")
+
+        # 创建并运行启动器
+        launcher = ApplicationLauncher()
         exit_code = launcher.launch(sys.argv)
 
-        # 退出
-        sys.exit(exit_code)
+        # 清理资源
+        if launcher.application:
+            launcher.application.shutdown()
+
+        return exit_code
 
     except KeyboardInterrupt:
-        print("\n应用程序被用户中断")
-        sys.exit(0)
+        print("\nApplication interrupted by user")
+        return 0
+
     except Exception as e:
-        print(f"应用程序启动失败: {e}")
+        print(f"Fatal error: {e}")
         traceback.print_exc()
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)

@@ -1,58 +1,81 @@
-# Core UI Framework
-PyQt6==6.5.2
-PyQt6-Qt6==6.5.2
-PyQt6-sip==13.5.2
+# CineAIStudio v2.0 Requirements
+# Python 3.12 Compatible Versions
+# 解决 Issue #5: Python 3.12 兼容性问题
 
-# Video Processing
-opencv-python==4.8.0.76
+# Core UI Framework - Python 3.12 compatible versions
+PyQt6>=6.6.0            # 6.6.0+ 支持 Python 3.12
+PyQt6-Qt6>=6.6.0
+PyQt6-sip>=13.6.0
+
+# Video Processing - Python 3.12 compatible versions
+opencv-python>=4.8.1      # 4.8.1+ 支持 Python 3.12
 ffmpeg-python==0.2.0
-numpy==1.24.3
-pillow==10.0.0
+numpy>=1.26.0             # 1.26.0+ 支持 Python 3.12
+Pillow>=10.1.0           # 10.1.0+ 支持 Python 3.12
 
 # HTTP Requests
-requests==2.31.0
+requests>=2.31.0
 
-# Chinese AI Models - Latest Versions
-dashscope==1.17.7  # 通义千问 (latest)
-qianfan==0.4.6     # 文心一言 (latest)
-zhipuai==2.0.6     # 智谱AI (latest)
-sparkdesk-python==1.2.4  # 讯飞星火 (latest)
-tencentcloud-sdk-python==3.0.970  # 腾讯混元 (latest)
-deepseek-sdk==1.0.0  # DeepSeek (latest)
+# Chinese AI Models - Latest versions with Python 3.12 support
+dashscope>=1.17.7         # 通义千问
+qianfan>=0.4.6            # 文心一言
+zhipuai>=2.0.6            # 智谱AI
+sparkdesk-python>=1.2.4  # 讯飞星火
+tencentcloud-sdk-python>=3.0.970  # 腾讯混元
+deepseek-sdk>=1.0.0       # DeepSeek
 
 # Voice Synthesis
-pyttsx3==2.90      # Local TTS
-azure-cognitiveservices-speech==1.34.0  # Azure Speech Services
+pyttsx3>=2.90             # Local TTS
+azure-cognitiveservices-speech>=1.34.0  # Azure Speech Services
 
 # Security & Encryption
-cryptography==41.0.7
+cryptography>=42.0.0      # 42.0.0+ 支持 Python 3.12
 
-# Utilities
-cairosvg==2.7.0    # SVG转PNG
-python-dotenv==1.0.0  # Environment variables
-psutil==5.9.6      # System utilities
-pathlib2==2.3.7    # Enhanced path handling
-jieba==0.42.1      # Chinese text processing
+# Utilities - Python 3.12 compatible versions
+cairosvg>=2.7.0           # SVG转PNG
+python-dotenv>=1.0.0      # Environment variables
+psutil>=5.9.6             # System utilities
+# pathlib2 removed - Python 3.12 has pathlib built-in
+jieba>=0.42.1             # Chinese text processing
 
-# Audio Processing
-librosa==0.10.1    # Audio analysis
-soundfile==0.12.1  # Audio file I/O
+# Audio Processing - Python 3.12 compatible versions
+librosa>=0.10.1           # Audio analysis
+soundfile>=0.12.1         # Audio file I/O
 
 # Scene Detection
-scenedetect==0.6.2 # Video scene detection
+scenedetect>=0.6.2         # Video scene detection
 
 # Video Processing Enhancement
-imageio==2.31.6         # Video I/O operations
-imageio-ffmpeg==0.4.8    # FFmpeg wrapper for imageio
-moviepy==1.0.3          # Video editing and processing
-av==10.0.0              # Pythonic bindings for FFmpeg
+imageio>=2.31.6           # Video I/O operations
+imageio-ffmpeg>=0.4.8     # FFmpeg wrapper for imageio
+moviepy>=1.0.3            # Video editing and processing
+av>=11.0.0                # Pythonic bindings for FFmpeg
 
-# Performance Monitoring
-prometheus-client==0.19.0  # Metrics collection
-py-cpuinfo==9.0.0        # CPU information
-nvidia-ml-py==12.535.133   # NVIDIA GPU monitoring
+# Performance Optimization
+py-cpuinfo>=9.0.0         # CPU information
+nvidia-ml-py>=12.535.133   # NVIDIA GPU monitoring
 
 # System Utilities
-wmi==1.4.9               # Windows system information (optional)
-pynvml==11.5.0           # NVIDIA GPU management
- GPUtil==1.4.0            # GPU utilization monitoring
+wmi==1.4.9                # Windows system information (optional)
+pynvml>=11.5.0            # NVIDIA GPU management
+GPUtil>=1.4.0             # GPU utilization monitoring
+
+# Testing and Quality Assurance
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-qt>=4.2.0
+black>=23.7.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Development Tools
+setuptools>=68.0.0        # Python 3.12 compatibility
+wheel>=0.41.0
+
+# Documentation
+sphinx>=7.0.0
+sphinx-rtd-theme>=1.3.0
+
+# Build and Packaging
+build>=0.10.0
+twine>=4.0.0

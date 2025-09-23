@@ -1,350 +1,705 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+CineAIStudio v2.0 首页
+提供快速开始、最近项目、系统状态和AI工具入口
+"""
+
+import os
+import sys
+from typing import Optional, Dict, Any, List
+from dataclasses import dataclass
+from datetime import datetime
+
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QFrame, QGridLayout, QScrollArea, QSizePolicy
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
+    QPushButton, QLabel, QFrame, QGroupBox, QSplitter
 )
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont, QPixmap
+from PyQt6.QtCore import (
+    Qt, QTimer, pyqtSignal
+)
+from PyQt6.QtGui import QFont
 
-from app.core.project_manager import ProjectManager
-from app.ai import AIManager
+from ...core.application import Application, ApplicationState
+from ...core.config_manager import ConfigManager
+from ...core.logger import Logger
+from ...core.event_bus import EventBus
 
 
-class FeatureCard(QWidget):
-    """功能卡片组件"""
+@dataclass
+class ProjectInfo:
+    """项目信息"""
+    id: str
+    name: str
+    path: str
+    description: str
+    last_modified: datetime
+    thumbnail: Optional[str] = None
+    duration: int = 0  # 视频时长（秒）
+    file_count: int = 0  # 文件数量
 
-    clicked = pyqtSignal(str)  # 功能ID
 
-    def __init__(self, feature_id: str, title: str, description: str, icon: str = "", parent=None):
-        super().__init__(parent)
+class QuickStartPanel(QWidget):
+    """快速开始面板"""
 
-        self.feature_id = feature_id
-        self.setFixedSize(280, 160)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
+    project_created = pyqtSignal(ProjectInfo)
 
-        self._setup_ui(title, description, icon)
-        self._apply_styles()
+    def __init__(self, application: Application):
+        super().__init__()
+        self.application = application
+        self.logger = application.get_service(Logger)
+        self.config_manager = application.get_service(ConfigManager)
 
-    def _setup_ui(self, title: str, description: str, icon: str):
-        """设置UI"""
+        self._init_ui()
+
+    def _init_ui(self):
+        """初始化用户界面"""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(12)
-
-        # 图标
-        if icon:
-            icon_label = QLabel(icon)
-            icon_label.setFont(QFont("Arial", 32))
-            icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            layout.addWidget(icon_label)
+        layout.setSpacing(15)
 
         # 标题
-        title_label = QLabel(title)
-        title_label.setFont(QFont("Arial", 16, QFont.Weight.Bold))
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setObjectName("card_title")
+        title_label = QLabel("快速开始")
+        title_font = QFont("Arial", 16, QFont.Weight.Bold)
+        title_label.setFont(title_font)
+        title_label.setStyleSheet("color: #ffffff; margin-bottom: 10px;")
         layout.addWidget(title_label)
 
-        # 描述
+        # 快速操作按钮网格
+        button_layout = QGridLayout()
+        button_layout.setSpacing(15)
+
+        # 创建项目按钮
+        create_project_btn = self._create_action_button(
+            "创建新项目",
+            "开始一个新的视频编辑项目",
+            self._on_create_project
+        )
+        button_layout.addWidget(create_project_btn, 0, 0)
+
+        # 打开项目按钮
+        open_project_btn = self._create_action_button(
+            "打开项目",
+            "打开已有的视频编辑项目",
+            self._on_open_project
+        )
+        button_layout.addWidget(open_project_btn, 0, 1)
+
+        # 导入媒体按钮
+        import_media_btn = self._create_action_button(
+            "导入媒体",
+            "导入视频、音频或图片文件",
+            self._on_import_media
+        )
+        button_layout.addWidget(import_media_btn, 1, 0)
+
+        # AI工具按钮
+        ai_tools_btn = self._create_action_button(
+            "AI工具",
+            "使用AI功能处理视频",
+            self._on_ai_tools
+        )
+        button_layout.addWidget(ai_tools_btn, 1, 1)
+
+        layout.addLayout(button_layout)
+        layout.addStretch()
+
+    def _create_action_button(self, title: str, description: str, callback) -> QWidget:
+        """创建操作按钮"""
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        # 按钮样式
+        button = QPushButton(title)
+        button.setFixedSize(160, 80)
+        button.setStyleSheet("""
+            QPushButton {
+                background-color: #2d2d2d;
+                color: #ffffff;
+                border: 2px solid #404040;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: bold;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+                border-color: #1890ff;
+            }
+            QPushButton:pressed {
+                background-color: #1890ff;
+                border-color: #1890ff;
+            }
+        """)
+        button.clicked.connect(callback)
+
+        # 描述标签
         desc_label = QLabel(description)
-        desc_label.setFont(QFont("Arial", 12))
-        desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         desc_label.setWordWrap(True)
-        desc_label.setObjectName("card_description")
+        desc_label.setStyleSheet("""
+            QLabel {
+                color: #b0b0b0;
+                font-size: 12px;
+                text-align: center;
+            }
+        """)
+        desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        layout.addWidget(button)
         layout.addWidget(desc_label)
 
-    def _apply_styles(self):
-        """应用样式"""
-        self.setStyleSheet("""
-            FeatureCard {
-                background-color: #ffffff;
-                border: 1px solid #f0f0f0;
-                border-radius: 12px;
-            }
+        return container
 
-            FeatureCard:hover {
+    def _on_create_project(self):
+        """创建新项目"""
+        try:
+            from PyQt6.QtWidgets import QFileDialog
+
+            # 选择项目保存位置
+            project_dir = QFileDialog.getExistingDirectory(
+                self,
+                "选择项目保存位置",
+                os.path.expanduser("~")
+            )
+
+            if project_dir:
+                # 创建项目
+                project_name = f"项目_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                project_path = os.path.join(project_dir, project_name)
+
+                # 创建项目目录
+                os.makedirs(project_path, exist_ok=True)
+
+                # 创建项目信息
+                project_info = ProjectInfo(
+                    id=f"project_{datetime.now().timestamp()}",
+                    name=project_name,
+                    path=project_path,
+                    description="新建项目",
+                    last_modified=datetime.now()
+                )
+
+                self.project_created.emit(project_info)
+                self.logger.info(f"创建新项目: {project_name}")
+
+        except Exception as e:
+            self.logger.error(f"创建项目失败: {e}")
+
+    def _on_open_project(self):
+        """打开项目"""
+        try:
+            from PyQt6.QtWidgets import QFileDialog
+
+            # 选择项目文件
+            project_file, _ = QFileDialog.getOpenFileName(
+                self,
+                "打开项目",
+                os.path.expanduser("~"),
+                "CineAIStudio项目 (*.cineaiproj);;所有文件 (*)"
+            )
+
+            if project_file:
+                self.logger.info(f"打开项目: {project_file}")
+
+        except Exception as e:
+            self.logger.error(f"打开项目失败: {e}")
+
+    def _on_import_media(self):
+        """导入媒体"""
+        try:
+            from PyQt6.QtWidgets import QFileDialog
+
+            # 选择媒体文件
+            files, _ = QFileDialog.getOpenFileNames(
+                self,
+                "导入媒体文件",
+                os.path.expanduser("~"),
+                "媒体文件 (*.mp4 *.avi *.mov *.mkv *.mp3 *.wav *.jpg *.png *.bmp);;所有文件 (*)"
+            )
+
+            if files:
+                self.logger.info(f"导入媒体文件: {len(files)} 个")
+
+        except Exception as e:
+            self.logger.error(f"导入媒体失败: {e}")
+
+    def _on_ai_tools(self):
+        """AI工具"""
+        try:
+            self.logger.info("打开AI工具")
+            # 这里可以跳转到AI工具页面或显示AI工具面板
+
+        except Exception as e:
+            self.logger.error(f"打开AI工具失败: {e}")
+
+
+class RecentProjectsPanel(QWidget):
+    """最近项目面板"""
+
+    project_opened = pyqtSignal(ProjectInfo)
+
+    def __init__(self, application: Application):
+        super().__init__()
+        self.application = application
+        self.logger = application.get_service(Logger)
+        self.config_manager = application.get_service(ConfigManager)
+
+        self.recent_projects: List[ProjectInfo] = []
+
+        self._init_ui()
+        self._load_recent_projects()
+
+    def _init_ui(self):
+        """初始化用户界面"""
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+
+        # 标题和刷新按钮
+        header_layout = QHBoxLayout()
+
+        title_label = QLabel("最近项目")
+        title_font = QFont("Arial", 16, QFont.Weight.Bold)
+        title_label.setFont(title_font)
+        title_label.setStyleSheet("color: #ffffff;")
+        header_layout.addWidget(title_label)
+
+        header_layout.addStretch()
+
+        refresh_btn = QPushButton("刷新")
+        refresh_btn.setFixedSize(60, 30)
+        refresh_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2d2d2d;
+                color: #ffffff;
+                border: 1px solid #404040;
+                border-radius: 4px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #404040;
                 border-color: #1890ff;
-                background-color: #f0f9ff;
             }
+        """)
+        refresh_btn.clicked.connect(self._refresh_projects)
+        header_layout.addWidget(refresh_btn)
 
-            QLabel#card_title {
-                color: #262626;
-                font-weight: 600;
+        layout.addLayout(header_layout)
+
+        # 项目列表
+        self.projects_scroll = QScrollArea()
+        self.projects_scroll.setWidgetResizable(True)
+        self.projects_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.projects_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+        self.projects_widget = QWidget()
+        self.projects_layout = QVBoxLayout(self.projects_widget)
+        self.projects_layout.setContentsMargins(0, 0, 0, 0)
+        self.projects_layout.setSpacing(10)
+
+        self.projects_scroll.setWidget(self.projects_widget)
+        layout.addWidget(self.projects_scroll)
+
+    def _load_recent_projects(self):
+        """加载最近项目"""
+        try:
+            # 从配置管理器加载最近项目
+            settings = self.config_manager.get_settings()
+            recent_projects_data = settings.get("recent_projects", [])
+
+            self.recent_projects = []
+            for project_data in recent_projects_data:
+                if os.path.exists(project_data.get("path", "")):
+                    project_info = ProjectInfo(
+                        id=project_data["id"],
+                        name=project_data["name"],
+                        path=project_data["path"],
+                        description=project_data.get("description", ""),
+                        last_modified=datetime.fromisoformat(project_data["last_modified"]),
+                        thumbnail=project_data.get("thumbnail"),
+                        duration=project_data.get("duration", 0),
+                        file_count=project_data.get("file_count", 0)
+                    )
+                    self.recent_projects.append(project_info)
+
+            self._update_projects_display()
+
+        except Exception as e:
+            self.logger.error(f"加载最近项目失败: {e}")
+
+    def _refresh_projects(self):
+        """刷新项目列表"""
+        self._load_recent_projects()
+
+    def _update_projects_display(self):
+        """更新项目显示"""
+        # 清空现有项目
+        for i in reversed(range(self.projects_layout.count())):
+            item = self.projects_layout.itemAt(i)
+            if item.widget():
+                item.widget().deleteLater()
+
+        # 添加项目卡片
+        for project in self.recent_projects[:5]:  # 只显示最近5个项目
+            project_card = self._create_project_card(project)
+            self.projects_layout.addWidget(project_card)
+
+        self.projects_layout.addStretch()
+
+    def _create_project_card(self, project: ProjectInfo) -> QWidget:
+        """创建项目卡片"""
+        card = QFrame()
+        card.setFrameStyle(QFrame.Shape.Box)
+        card.setStyleSheet("""
+            QFrame {
+                background-color: #2d2d2d;
+                border: 1px solid #404040;
+                border-radius: 8px;
+                padding: 10px;
             }
-
-            QLabel#card_description {
-                color: #595959;
-                line-height: 1.4;
+            QFrame:hover {
+                border-color: #1890ff;
             }
         """)
 
-    def mousePressEvent(self, event):
-        """鼠标点击事件"""
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.clicked.emit(self.feature_id)
-        super().mousePressEvent(event)
+        layout = QHBoxLayout(card)
+        layout.setContentsMargins(10, 10, 10, 10)
+
+        # 项目信息
+        info_layout = QVBoxLayout()
+
+        name_label = QLabel(project.name)
+        name_font = QFont("Arial", 14, QFont.Weight.Bold)
+        name_label.setFont(name_font)
+        name_label.setStyleSheet("color: #ffffff;")
+        info_layout.addWidget(name_label)
+
+        desc_label = QLabel(project.description)
+        desc_label.setStyleSheet("color: #b0b0b0; font-size: 12px;")
+        info_layout.addWidget(desc_label)
+
+        # 项目统计
+        stats_label = QLabel(f"时长: {project.duration}s | 文件: {project.file_count} | 更新: {project.last_modified.strftime('%Y-%m-%d')}")
+        stats_label.setStyleSheet("color: #808080; font-size: 11px;")
+        info_layout.addWidget(stats_label)
+
+        layout.addLayout(info_layout)
+        layout.addStretch()
+
+        # 打开按钮
+        open_btn = QPushButton("打开")
+        open_btn.setFixedSize(60, 30)
+        open_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #1890ff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #40a9ff;
+            }
+        """)
+        open_btn.clicked.connect(lambda: self.project_opened.emit(project))
+        layout.addWidget(open_btn)
+
+        return card
+
+    def add_project(self, project: ProjectInfo):
+        """添加项目到最近列表"""
+        try:
+            # 检查是否已存在
+            for i, existing_project in enumerate(self.recent_projects):
+                if existing_project.id == project.id:
+                    # 移动到顶部
+                    self.recent_projects.pop(i)
+                    break
+
+            # 添加到顶部
+            self.recent_projects.insert(0, project)
+
+            # 只保留最近10个项目
+            self.recent_projects = self.recent_projects[:10]
+
+            # 保存到配置
+            self._save_recent_projects()
+
+            # 更新显示
+            self._update_projects_display()
+
+        except Exception as e:
+            self.logger.error(f"添加项目失败: {e}")
+
+    def _save_recent_projects(self):
+        """保存最近项目到配置"""
+        try:
+            recent_projects_data = []
+            for project in self.recent_projects:
+                recent_projects_data.append({
+                    "id": project.id,
+                    "name": project.name,
+                    "path": project.path,
+                    "description": project.description,
+                    "last_modified": project.last_modified.isoformat(),
+                    "thumbnail": project.thumbnail,
+                    "duration": project.duration,
+                    "file_count": project.file_count
+                })
+
+            settings = self.config_manager.get_settings()
+            settings["recent_projects"] = recent_projects_data
+            self.config_manager.update_settings(settings)
+
+        except Exception as e:
+            self.logger.error(f"保存最近项目失败: {e}")
 
 
-class QuickStatsWidget(QWidget):
-    """快速统计组件"""
+class SystemStatusPanel(QWidget):
+    """系统状态面板"""
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._setup_ui()
+    def __init__(self, application: Application):
+        super().__init__()
+        self.application = application
+        self.logger = application.get_service(Logger)
+        self.config_manager = application.get_service(ConfigManager)
 
-    def _setup_ui(self):
-        """设置UI"""
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(20)
+        self._init_ui()
+        self._setup_timer()
 
-        # 统计项目
-        stats = [
-            ("项目数量", "0", "🎬"),
-            ("视频文件", "0", "📹"),
-            ("AI处理", "0", "🤖"),
-            ("导出视频", "0", "📤")
-        ]
-
-        for title, value, icon in stats:
-            stat_widget = self._create_stat_item(title, value, icon)
-            layout.addWidget(stat_widget)
-
-    def _create_stat_item(self, title: str, value: str, icon: str) -> QWidget:
-        """创建统计项目"""
-        widget = QWidget()
-        widget.setFixedSize(120, 80)
-
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(16, 12, 16, 12)
-        layout.setSpacing(4)
-
-        # 图标和数值
-        top_layout = QHBoxLayout()
-
-        icon_label = QLabel(icon)
-        icon_label.setFont(QFont("Arial", 20))
-        top_layout.addWidget(icon_label)
-
-        value_label = QLabel(value)
-        value_label.setFont(QFont("Arial", 18, QFont.Weight.Bold))
-        value_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        value_label.setObjectName("stat_value")
-        top_layout.addWidget(value_label)
-
-        layout.addLayout(top_layout)
+    def _init_ui(self):
+        """初始化用户界面"""
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
 
         # 标题
-        title_label = QLabel(title)
-        title_label.setFont(QFont("Arial", 11))
-        title_label.setObjectName("stat_title")
+        title_label = QLabel("系统状态")
+        title_font = QFont("Arial", 16, QFont.Weight.Bold)
+        title_label.setFont(title_font)
+        title_label.setStyleSheet("color: #ffffff;")
         layout.addWidget(title_label)
 
-        # 样式
-        widget.setStyleSheet("""
-            QWidget {
-                background-color: #ffffff;
-                border: 1px solid #f0f0f0;
-                border-radius: 8px;
+        # 状态信息
+        self.status_widget = QWidget()
+        status_layout = QGridLayout(self.status_widget)
+        status_layout.setSpacing(15)
+
+        # 应用程序状态
+        self.app_status_label = QLabel("应用程序状态: 就绪")
+        self.app_status_label.setStyleSheet("color: #4caf50; font-size: 12px;")
+        status_layout.addWidget(self.app_status_label, 0, 0)
+
+        # 内存使用
+        self.memory_label = QLabel("内存使用: 计算中...")
+        self.memory_label.setStyleSheet("color: #ff9800; font-size: 12px;")
+        status_layout.addWidget(self.memory_label, 0, 1)
+
+        # CPU使用率
+        self.cpu_label = QLabel("CPU使用率: 计算中...")
+        self.cpu_label.setStyleSheet("color: #2196f3; font-size: 12px;")
+        status_layout.addWidget(self.cpu_label, 1, 0)
+
+        # 磁盘空间
+        self.disk_label = QLabel("磁盘空间: 计算中...")
+        self.disk_label.setStyleSheet("color: #9c27b0; font-size: 12px;")
+        status_layout.addWidget(self.disk_label, 1, 1)
+
+        layout.addWidget(self.status_widget)
+
+        # 系统信息
+        info_group = QGroupBox("系统信息")
+        info_layout = QVBoxLayout(info_group)
+
+        info_text = f"""
+        <table style='color: #b0b0b0; font-size: 12px;'>
+            <tr><td>版本:</td><td>{self.application.get_config().version}</td></tr>
+            <tr><td>Python:</td><td>{sys.version.split()[0]}</td></tr>
+            <tr><td>Qt版本:</td><td>{self.application.get_config().qt_version}</td></tr>
+            <tr><td>工作目录:</td><td>{os.getcwd()}</td></tr>
+        </table>
+        """
+
+        info_label = QLabel(info_text)
+        info_label.setTextFormat(Qt.TextFormat.RichText)
+        info_layout.addWidget(info_label)
+
+        layout.addWidget(info_group)
+        layout.addStretch()
+
+    def _setup_timer(self):
+        """设置定时器"""
+        self.status_timer = QTimer()
+        self.status_timer.timeout.connect(self._update_status)
+        self.status_timer.start(2000)  # 每2秒更新一次
+
+    def _update_status(self):
+        """更新状态信息"""
+        try:
+            # 更新应用程序状态
+            app_state = self.application.get_state()
+            state_text = {
+                ApplicationState.INITIALIZING: "初始化中",
+                ApplicationState.STARTING: "启动中",
+                ApplicationState.READY: "就绪",
+                ApplicationState.RUNNING: "运行中",
+                ApplicationState.PAUSING: "暂停中",
+                ApplicationState.SHUTTING_DOWN: "关闭中",
+                ApplicationState.ERROR: "错误"
             }
 
-            QLabel#stat_value {
-                color: #1890ff;
-                font-weight: 600;
+            state_color = {
+                ApplicationState.INITIALIZING: "#ff9800",
+                ApplicationState.STARTING: "#2196f3",
+                ApplicationState.READY: "#4caf50",
+                ApplicationState.RUNNING: "#4caf50",
+                ApplicationState.PAUSING: "#ff9800",
+                ApplicationState.SHUTTING_DOWN: "#f44336",
+                ApplicationState.ERROR: "#f44336"
             }
 
-            QLabel#stat_title {
-                color: #595959;
-            }
-        """)
+            self.app_status_label.setText(f"应用程序状态: {state_text.get(app_state, '未知')}")
+            self.app_status_label.setStyleSheet(f"color: {state_color.get(app_state, '#808080')}; font-size: 12px;")
 
-        return widget
+            # 更新系统资源使用情况
+            self._update_system_resources()
+
+        except Exception as e:
+            self.logger.error(f"更新状态失败: {e}")
+
+    def _update_system_resources(self):
+        """更新系统资源使用情况"""
+        try:
+            import psutil
+
+            # 内存使用
+            memory = psutil.virtual_memory()
+            memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
+            self.memory_label.setText(f"内存使用: {memory_mb:.1f}MB / {memory.total / 1024 / 1024 / 1024:.1f}GB")
+
+            # CPU使用率
+            cpu_percent = psutil.cpu_percent(interval=1)
+            self.cpu_label.setText(f"CPU使用率: {cpu_percent:.1f}%")
+
+            # 磁盘空间
+            disk = psutil.disk_usage('/')
+            self.disk_label.setText(f"磁盘空间: {disk.free / 1024 / 1024 / 1024:.1f}GB / {disk.total / 1024 / 1024 / 1024:.1f}GB")
+
+        except ImportError:
+            self.memory_label.setText("内存使用: psutil未安装")
+            self.cpu_label.setText("CPU使用率: psutil未安装")
+            self.disk_label.setText("磁盘空间: psutil未安装")
+        except Exception as e:
+            self.logger.error(f"更新系统资源失败: {e}")
 
 
 class HomePage(QWidget):
-    """首页组件"""
+    """CineAIStudio v2.0 首页"""
 
-    feature_requested = pyqtSignal(str)  # 功能请求信号
+    def __init__(self, application: Application):
+        super().__init__()
+        self.application = application
+        self.logger = application.get_service(Logger)
+        self.config_manager = application.get_service(ConfigManager)
+        self.event_bus = application.get_service(EventBus)
 
-    def __init__(self, project_manager: ProjectManager, ai_manager: AIManager, parent=None):
-        super().__init__(parent)
+        self._init_ui()
+        self._setup_connections()
 
-        self.project_manager = project_manager
-        self.ai_manager = ai_manager
+    def _init_ui(self):
+        """初始化用户界面"""
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        self._setup_ui()
-        self._connect_signals()
+        # 创建分割器
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.setChildrenCollapsible(False)
 
-    def _setup_ui(self):
-        """设置UI"""
-        # 创建滚动区域
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        # 左侧面板
+        left_panel = QWidget()
+        left_layout = QVBoxLayout(left_panel)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(0)
 
-        # 主内容
-        content_widget = QWidget()
-        scroll_area.setWidget(content_widget)
+        # 快速开始面板
+        self.quick_start_panel = QuickStartPanel(self.application)
+        left_layout.addWidget(self.quick_start_panel)
 
-        layout = QVBoxLayout(content_widget)
-        layout.setContentsMargins(32, 32, 32, 32)
-        layout.setSpacing(32)
+        # 右侧面板
+        right_panel = QWidget()
+        right_layout = QVBoxLayout(right_panel)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(0)
 
-        # 欢迎区域
-        welcome_section = self._create_welcome_section()
-        layout.addWidget(welcome_section)
+        # 最近项目面板
+        self.recent_projects_panel = RecentProjectsPanel(self.application)
+        right_layout.addWidget(self.recent_projects_panel)
 
-        # 快速统计
-        stats_section = self._create_stats_section()
-        layout.addWidget(stats_section)
+        # 系统状态面板
+        self.system_status_panel = SystemStatusPanel(self.application)
+        right_layout.addWidget(self.system_status_panel)
 
-        # 核心功能
-        features_section = self._create_features_section()
-        layout.addWidget(features_section)
+        # 设置分割器比例
+        splitter.addWidget(left_panel)
+        splitter.addWidget(right_panel)
+        splitter.setSizes([400, 600])
 
-        # 快速操作
-        actions_section = self._create_actions_section()
-        layout.addWidget(actions_section)
+        layout.addWidget(splitter)
 
-        # 主布局
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.addWidget(scroll_area)
+    def _setup_connections(self):
+        """设置信号连接"""
+        # 快速开始面板信号
+        self.quick_start_panel.project_created.connect(self._on_project_created)
 
-    def _create_welcome_section(self) -> QWidget:
-        """创建欢迎区域"""
-        section = QWidget()
-        layout = QVBoxLayout(section)
-        layout.setSpacing(16)
+        # 最近项目面板信号
+        self.recent_projects_panel.project_opened.connect(self._on_project_opened)
 
-        # 主标题
-        title = QLabel("欢迎使用 CineAIStudio")
-        title.setFont(QFont("Arial", 28, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setObjectName("welcome_title")
-        layout.addWidget(title)
+        # 事件总线订阅
+        self.event_bus.subscribe("project.created", self._on_project_created_event)
+        self.event_bus.subscribe("project.opened", self._on_project_opened_event)
 
-        # 副标题
-        subtitle = QLabel("AI驱动的短剧视频编辑器，让创作更简单")
-        subtitle.setFont(QFont("Arial", 16))
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setObjectName("welcome_subtitle")
-        layout.addWidget(subtitle)
+    def _on_project_created(self, project: ProjectInfo):
+        """处理项目创建"""
+        self.logger.info(f"项目创建: {project.name}")
+        self.recent_projects_panel.add_project(project)
 
-        # 样式
-        section.setStyleSheet("""
-            QLabel#welcome_title {
-                color: #1890ff;
-                margin: 20px 0px;
-            }
+        # 发送事件
+        self.event_bus.emit("project.created", project)
 
-            QLabel#welcome_subtitle {
-                color: #595959;
-                margin-bottom: 20px;
-            }
-        """)
+    def _on_project_opened(self, project: ProjectInfo):
+        """处理项目打开"""
+        self.logger.info(f"项目打开: {project.name}")
+        self.recent_projects_panel.add_project(project)
 
-        return section
+        # 发送事件
+        self.event_bus.emit("project.opened", project)
 
-    def _create_stats_section(self) -> QWidget:
-        """创建统计区域"""
-        section = QWidget()
-        layout = QVBoxLayout(section)
-        layout.setSpacing(16)
+    def _on_project_created_event(self, project: ProjectInfo):
+        """处理项目创建事件"""
+        self.recent_projects_panel.add_project(project)
 
-        # 标题
-        title = QLabel("项目概览")
-        title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
-        title.setObjectName("section_title")
-        layout.addWidget(title)
+    def _on_project_opened_event(self, project: ProjectInfo):
+        """处理项目打开事件"""
+        self.recent_projects_panel.add_project(project)
 
-        # 统计组件
-        self.stats_widget = QuickStatsWidget()
-        layout.addWidget(self.stats_widget)
+    def refresh(self):
+        """刷新首页"""
+        try:
+            self.recent_projects_panel._refresh_projects()
+            self.system_status_panel._update_status()
+            self.logger.info("首页刷新完成")
 
-        return section
+        except Exception as e:
+            self.logger.error(f"刷新首页失败: {e}")
 
-    def _create_features_section(self) -> QWidget:
-        """创建功能区域"""
-        section = QWidget()
-        layout = QVBoxLayout(section)
-        layout.setSpacing(20)
+    def get_application(self) -> Application:
+        """获取应用程序实例"""
+        return self.application
 
-        # 标题
-        title = QLabel("核心AI功能")
-        title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
-        title.setObjectName("section_title")
-        layout.addWidget(title)
-
-        # 功能卡片网格
-        grid_layout = QGridLayout()
-        grid_layout.setSpacing(20)
-
-        # 功能卡片
-        features = [
-            ("ai_commentary", "AI短剧解说", "智能生成解说内容并同步到视频", "🎬"),
-            ("ai_compilation", "AI高能混剪", "自动检测精彩片段并生成混剪", "⚡"),
-            ("ai_monologue", "AI第一人称独白", "生成第一人称叙述内容", "🎭"),
-            ("video_management", "视频管理", "管理和组织您的视频项目", "📁")
-        ]
-
-        for i, (feature_id, title, desc, icon) in enumerate(features):
-            card = FeatureCard(feature_id, title, desc, icon)
-            card.clicked.connect(self.feature_requested.emit)
-
-            row = i // 2
-            col = i % 2
-            grid_layout.addWidget(card, row, col)
-
-        layout.addLayout(grid_layout)
-
-        return section
-
-    def _create_actions_section(self) -> QWidget:
-        """创建快速操作区域"""
-        section = QWidget()
-        layout = QVBoxLayout(section)
-        layout.setSpacing(16)
-
-        # 标题
-        title = QLabel("快速操作")
-        title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
-        title.setObjectName("section_title")
-        layout.addWidget(title)
-
-        # 操作按钮
-        actions_layout = QHBoxLayout()
-        actions_layout.setSpacing(16)
-
-        # 新建项目
-        new_project_btn = QPushButton("📁 新建项目")
-        new_project_btn.setObjectName("primary_button")
-        new_project_btn.setMinimumHeight(44)
-        new_project_btn.setFont(QFont("Arial", 14))
-        actions_layout.addWidget(new_project_btn)
-
-        # 导入视频
-        import_video_btn = QPushButton("📹 导入视频")
-        import_video_btn.setMinimumHeight(44)
-        import_video_btn.setFont(QFont("Arial", 14))
-        actions_layout.addWidget(import_video_btn)
-
-        # 打开设置
-        settings_btn = QPushButton("⚙️ 设置")
-        settings_btn.setMinimumHeight(44)
-        settings_btn.setFont(QFont("Arial", 14))
-        actions_layout.addWidget(settings_btn)
-
-        actions_layout.addStretch()
-
-        layout.addLayout(actions_layout)
-
-        return section
-
-    def _connect_signals(self):
-        """连接信号"""
-        # 这里可以连接项目管理器的信号来更新统计信息
-        pass
+    def get_config(self) -> Any:
+        """获取配置"""
+        return self.application.get_config()
