@@ -126,3 +126,19 @@ class ConfigManager:
         """更新设置（别名）"""
         self._config.update(settings)
         self.save()
+
+    def get_config(self, module_name: str) -> Dict[str, Any]:
+        """获取特定模块的配置"""
+        return self.get(module_name, {})
+
+
+# 全局配置管理器实例
+_config_manager: Optional[ConfigManager] = None
+
+
+def get_config_manager() -> ConfigManager:
+    """获取全局配置管理器实例"""
+    global _config_manager
+    if _config_manager is None:
+        _config_manager = ConfigManager()
+    return _config_manager

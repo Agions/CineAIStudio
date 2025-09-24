@@ -69,7 +69,7 @@ class PerformanceMonitor:
     """性能监控器"""
 
     def __init__(self):
-        self.logger = Logger.get_logger(__name__)
+        self.logger = Logger(__name__)
         self.monitoring = False
         self.monitor_thread = None
         self.resource_history = []
@@ -240,7 +240,7 @@ class ExportOptimizer:
     """导出优化器"""
 
     def __init__(self):
-        self.logger = Logger.get_logger(__name__)
+        self.logger = Logger(__name__)
         self.monitor = PerformanceMonitor()
         self.config = ExportOptimizationConfig(OptimizationLevel.AUTO)
         self.optimization_stats = {
@@ -382,7 +382,7 @@ class ExportOptimizer:
     def _check_nvenc_support(self) -> bool:
         """检查NVENC支持"""
         try:
-            result = subprocess.run(['ffmpeg', -encoders'], capture_output=True, text=True)
+            result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True)
             return 'h264_nvenc' in result.stdout
         except:
             return False
@@ -390,7 +390,7 @@ class ExportOptimizer:
     def _check_amf_support(self) -> bool:
         """检查AMF支持"""
         try:
-            result = subprocess.run(['ffmpeg', -encoders], capture_output=True, text=True)
+            result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True)
             return 'h264_amf' in result.stdout
         except:
             return False
@@ -398,7 +398,7 @@ class ExportOptimizer:
     def _check_qsv_support(self) -> bool:
         """检查QSV支持"""
         try:
-            result = subprocess.run(['ffmpeg', -encoders], capture_output=True, text=True)
+            result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True)
             return 'h264_qsv' in result.stdout
         except:
             return False

@@ -16,8 +16,9 @@ from urllib.parse import urljoin
 
 from .base_ai_service import (
     BaseAIService, ModelInfo, ModelRequest, ModelResponse,
-    ModelStatus, ModelCapability, get_secure_key_manager
+    ModelStatus, ModelCapability
 )
+from ..core.secure_key_manager import get_secure_key_manager
 
 
 class WenxinService(BaseAIService):
@@ -893,7 +894,7 @@ class MoonshotService(BaseAIService):
         if not self.validate_request(request):
             return None
 
-        request_id = f"{self.service_name}_{int(time.time() * 100_id}")
+        request_id = f"{self.service_name}_{int(time.time() * 1000}")
         self.emit_request_started(request_id)
 
         try:

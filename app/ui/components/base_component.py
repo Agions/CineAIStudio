@@ -21,8 +21,13 @@ from PyQt6.QtGui import (
     QPainterPath
 )
 
-from ...core.logger import Logger
+from ...core.logger import get_logger
 from ...core.icon_manager import IconManager
+from ...utils.ui_error_handler import (
+    get_ui_error_handler, UIErrorInfo, UIErrorType, UIErrorSeverity,
+    ui_error_handler_decorator, ErrorContext as UIErrorContext
+)
+from ...utils.error_handler import ErrorContext, RecoveryAction, ErrorType, ErrorSeverity, get_global_error_handler
 
 
 class Theme:
@@ -85,12 +90,14 @@ class BaseComponent(QWidget):
     component_clicked = pyqtSignal()
     component_hovered = pyqtSignal(bool)
     data_changed = pyqtSignal(dict)
+    component_error = pyqtSignal(UIErrorInfo)  # 组件错误信号
 
     def __init__(self, parent=None, theme_service: Optional[ThemeService] = None):
         super().__init__(parent)
         self.theme_service = theme_service
         self.logger: Optional[Logger] = None
         self.event_bus: Optional[EventBus] = None
+        self.ui_error_handler = get_ui_error_handler()
 
         # 组件属性
         self._component_id = ""
@@ -107,9 +114,55 @@ class BaseComponent(QWidget):
         # 动画相关
         self._animations: Dict[str, QPropertyAnimation] = {}
 
+        # 错误处理
+        self._error_count = 0
+        self._max_error_count = 10  # 最大错误次数限制
+
         # 初始化
-        self._init_component()
-        self._setup_connections()
+        try:
+            self._init_component()
+            self._setup_connections()
+        except Exception as e:
+            self._handle_component_error(e, "initialization")
+
+    def _handle_component_error(self, exception: Exception, operation: str, severity: UIErrorSeverity = UIErrorSeverity.MAJOR):
+        """处理组件错误"""
+        self._error_count += 1
+
+        # 如果错误次数过多，禁用组件
+        if self._error_count >= self._max_error_count:
+            self.setEnabled(False)
+            self.setVisible(False)
+            error_severity = UIErrorSeverity.CRITICAL
+            user_message = f"组件 {self._component_name} 发生过多错误，已自动禁用"
+        else:
+            error_severity = severity
+            user_message = f"组件 {self._component_name} 操作失败"
+
+        ui_error_info = UIErrorInfo(
+            error_type=ErrorType.UI,
+            severity=ErrorSeverity.HIGH if severity == UIErrorSeverity.CRITICAL else ErrorSeverity.MEDIUM,
+            message=f"{operation} failed: {str(exception)}",
+            exception=exception,
+            ui_error_type=UIErrorType.WIDGET_CREATION,
+            ui_severity=error_severity,
+            recovery_action=RecoveryAction.RETRY if self._error_count < self._max_error_count else RecoveryAction.CONTACT_SUPPORT,
+            user_message=user_message,
+            ui_context=UIErrorContext(
+                widget_type=self.__class__.__name__,
+                widget_name=self._component_name,
+                parent_widget=self.parent().__class__.__name__ if self.parent() else None,
+                event_type=operation,
+                ui_state={"error_count": self._error_count, "enabled": self.isEnabled()}
+            ),
+            widget=self
+        )
+
+        # 发送组件错误信号
+        self.component_error.emit(ui_error_info)
+
+        # 使用UI错误处理器处理错误
+        self.ui_error_handler.handle_ui_error(ui_error_info, show_dialog=severity != UIErrorSeverity.MINOR)
 
     def _init_component(self):
         """初始化组件（子类必须实现）"""
@@ -117,19 +170,28 @@ class BaseComponent(QWidget):
 
     def _setup_connections(self):
         """设置信号连接"""
-        if self.theme_service:
-            self.theme_service.theme_applied.connect(self._on_theme_changed)
+        try:
+            if self.theme_service:
+                self.theme_service.theme_applied.connect(self._on_theme_changed)
+        except Exception as e:
+            self._handle_component_error(e, "setup_connections", UIErrorSeverity.MODERATE)
 
     def set_services(self, logger: Logger, event_bus: EventBus):
         """设置服务"""
-        self.logger = logger
-        self.event_bus = event_bus
+        try:
+            self.logger = logger
+            self.event_bus = event_bus
+        except Exception as e:
+            self._handle_component_error(e, "set_services", UIErrorSeverity.MODERATE)
 
     def _on_theme_changed(self, theme: Theme):
         """处理主题变更"""
-        self._current_theme = theme
-        self._apply_theme()
-        self.theme_changed.emit(theme)
+        try:
+            self._current_theme = theme
+            self._apply_theme()
+            self.theme_changed.emit(theme)
+        except Exception as e:
+            self._handle_component_error(e, "theme_change", UIErrorSeverity.MINOR)
 
     def _apply_theme(self):
         """应用主题（子类可以重写）"""
@@ -138,9 +200,18 @@ class BaseComponent(QWidget):
 
     def paintEvent(self, event):
         """绘制事件"""
-        super().paintEvent(event)
-        if self._current_theme:
-            self._draw_custom_paint(event)
+        try:
+            super().paintEvent(event)
+            if self._current_theme:
+                self._draw_custom_paint(event)
+        except Exception as e:
+            self._handle_component_error(e, "paintEvent", UIErrorSeverity.MINOR)
+            # 对于绘制错误，至少显示一个基本的背景
+            try:
+                fallback_painter = QPainter(self)
+                fallback_painter.fillRect(self.rect(), QColor("#ffcccc"))
+            except:
+                pass
 
     def _draw_custom_paint(self, event):
         """自定义绘制（子类可以重写）"""

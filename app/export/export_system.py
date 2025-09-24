@@ -24,7 +24,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyQt6.QtCore import QObject, pyqtSignal, QTimer, QThread
 from PyQt6.QtWidgets import QMessageBox
 
-from ..core.event_system import EventSystem
+from ..core.event_system import EventBus
 from ..core.logger import Logger
 
 
@@ -113,7 +113,7 @@ class ExportEngine:
     """导出引擎基类"""
 
     def __init__(self):
-        self.logger = Logger.get_logger(__name__)
+        self.logger = Logger(__name__)
 
     def export(self, task: ExportTask) -> bool:
         """执行导出任务"""
@@ -339,7 +339,7 @@ class ExportQueueManager(QObject):
 
     def __init__(self):
         super().__init__()
-        self.logger = Logger.get_logger(__name__)
+        self.logger = Logger(__name__)
         self.task_queue = queue.PriorityQueue()
         self.active_tasks: Dict[str, ExportTask] = {}
         self.completed_tasks: List[ExportTask] = []
@@ -497,7 +497,7 @@ class ExportPresetManager:
     """导出预设管理器"""
 
     def __init__(self):
-        self.logger = Logger.get_logger(__name__)
+        self.logger = Logger(__name__)
         self.presets: Dict[str, ExportPreset] = {}
         self._load_default_presets()
 
@@ -672,10 +672,10 @@ class ExportSystem(QObject):
 
     def __init__(self):
         super().__init__()
-        self.logger = Logger.get_logger(__name__)
+        self.logger = Logger(__name__)
         self.queue_manager = ExportQueueManager()
         self.preset_manager = ExportPresetManager()
-        self.event_system = EventSystem()
+        self.event_system = EventBus()
 
         # 连接信号
         self._connect_signals()

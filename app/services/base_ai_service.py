@@ -77,7 +77,7 @@ class ModelResponse:
     metadata: Optional[Dict[str, Any]] = None
 
 
-class BaseAIService(QObject, ABC):
+class BaseAIService(ABC, QObject):
     """基础AI服务抽象类"""
 
     # 信号定义

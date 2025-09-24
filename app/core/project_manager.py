@@ -21,9 +21,8 @@ import logging
 from PyQt6.QtCore import QObject, pyqtSignal, QSettings
 
 from .config_manager import ConfigManager
-from .secure_key_manager import get_secure_key_manager
-from .event_system import EventSystem
-from .logger import Logger
+from ..utils.file_error_handler import get_file_error_handler, FileOperationType
+from ..utils.error_handler import get_global_error_handler, ErrorInfo, ErrorType, ErrorSeverity, ErrorContext, RecoveryAction
 
 
 class ProjectStatus(Enum):
@@ -195,30 +194,79 @@ class Project:
 
             # 保存主项目文件
             project_file = os.path.join(self.path, 'project.json')
-            with open(project_file, 'w', encoding='utf-8') as f:
-                json.dump(project_data, f, indent=2, ensure_ascii=False)
+            file_handler = get_file_error_handler()
+            result = file_handler.safe_json_dump(
+                project_data,
+                project_file,
+                component="ProjectSave",
+                indent=2
+            )
+
+            if not result.success:
+                return False
 
             # 保存项目锁文件
             lock_file = os.path.join(self.path, '.lock')
-            with open(lock_file, 'w') as f:
-                f.write(str(os.getpid()))
+            try:
+                with open(lock_file, 'w') as f:
+                    f.write(str(os.getpid()))
+            except Exception as lock_error:
+                logging.warning(f"Failed to create lock file: {lock_error}")
 
             self.is_modified = False
+            self.metadata.modified_at = datetime.now()
             return True
 
         except Exception as e:
+            error_info = ErrorInfo(
+                error_type=ErrorType.FILE,
+                severity=ErrorSeverity.HIGH,
+                message=f"Failed to save project {self.id}: {str(e)}",
+                exception=e,
+                context=ErrorContext(
+                    component="Project",
+                    operation="save",
+                    system_state={"project_id": self.id, "project_path": self.path}
+                ),
+                recovery_action=RecoveryAction.ROLLBACK,
+                user_message="项目保存失败，请检查磁盘空间和文件权限"
+            )
+
+            # 使用全局错误处理器
+            global_handler = get_global_error_handler()
+            global_handler.handle_error(error_info)
+
             logging.error(f"Failed to save project {self.id}: {e}")
             return False
 
     def load(self) -> bool:
         """加载项目"""
-        try:
-            project_file = os.path.join(self.path, 'project.json')
-            if not os.path.exists(project_file):
-                return False
+        project_file = os.path.join(self.path, 'project.json')
+        if not os.path.exists(project_file):
+            error_info = ErrorInfo(
+                error_type=ErrorType.FILE,
+                severity=ErrorSeverity.HIGH,
+                message=f"Project file not found: {project_file}",
+                context=ErrorContext(
+                    component="Project",
+                    operation="load",
+                    system_state={"project_id": self.id, "project_path": self.path}
+                ),
+                recovery_action=RecoveryAction.NONE,
+                user_message="项目文件不存在，可能已被删除或移动"
+            )
 
-            with open(project_file, 'r', encoding='utf-8') as f:
-                project_data = json.load(f)
+            global_handler = get_global_error_handler()
+            global_handler.handle_error(error_info)
+            return False
+
+        try:
+            # 使用文件错误处理器安全加载JSON
+            file_handler = get_file_error_handler()
+            project_data = file_handler.safe_json_load(project_file, component="ProjectLoad")
+
+            if project_data is None:
+                return False
 
             # 加载元数据
             self.metadata = ProjectMetadata.from_dict(project_data['metadata'])
@@ -241,6 +289,24 @@ class Project:
             return True
 
         except Exception as e:
+            error_info = ErrorInfo(
+                error_type=ErrorType.FILE,
+                severity=ErrorSeverity.CRITICAL,
+                message=f"Failed to load project {self.id}: {str(e)}",
+                exception=e,
+                context=ErrorContext(
+                    component="Project",
+                    operation="load",
+                    system_state={"project_id": self.id, "project_path": self.path}
+                ),
+                recovery_action=RecoveryAction.CONTACT_SUPPORT,
+                user_message="项目文件损坏，无法加载，请从备份恢复"
+            )
+
+            # 使用全局错误处理器
+            global_handler = get_global_error_handler()
+            global_handler.handle_error(error_info)
+
             logging.error(f"Failed to load project {self.id}: {e}")
             return False
 
@@ -319,7 +385,9 @@ class ProjectManager(QObject):
 
         self.config_manager = config_manager
         self.logger = logging.getLogger(__name__)
-        self.secure_key_manager = get_secure_key_manager()
+        self.file_error_handler = get_file_error_handler()
+        self.global_error_handler = get_global_error_handler()
+        # self.secure_key_manager = get_secure_key_manager()
 
         # 项目存储
         self.projects: Dict[str, Project] = {}
@@ -390,30 +458,82 @@ class ProjectManager(QObject):
             project_id = str(uuid.uuid4())
             project_path = os.path.join(self.projects_dir, f"{name}_{project_id[:8]}")
 
-            # 创建项目目录
-            os.makedirs(project_path, exist_ok=True)
+            # 使用文件错误处理器安全创建目录
+            try:
+                os.makedirs(project_path, exist_ok=True)
 
-            # 创建子目录
-            subdirs = ['media', 'exports', 'backups', 'cache', 'assets']
-            for subdir in subdirs:
-                os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
+                # 创建子目录
+                subdirs = ['media', 'exports', 'backups', 'cache', 'assets']
+                for subdir in subdirs:
+                    subdir_path = os.path.join(project_path, subdir)
+                    os.makedirs(subdir_path, exist_ok=True)
+
+            except Exception as dir_error:
+                error_info = ErrorInfo(
+                    error_type=ErrorType.FILE,
+                    severity=ErrorSeverity.HIGH,
+                    message=f"Failed to create project directories: {str(dir_error)}",
+                    exception=dir_error,
+                    context=ErrorContext(
+                        component="ProjectManager",
+                        operation="create_project_directories",
+                        system_state={"project_name": name, "project_path": project_path}
+                    ),
+                    recovery_action=RecoveryAction.CONTACT_SUPPORT,
+                    user_message="无法创建项目目录，请检查磁盘空间和权限"
+                )
+                self.global_error_handler.handle_error(error_info)
+                return None
 
             # 创建项目元数据
-            metadata = ProjectMetadata(
-                name=name,
-                description=description,
-                project_type=project_type,
-                author=os.getlogin()
-            )
+            try:
+                metadata = ProjectMetadata(
+                    name=name,
+                    description=description,
+                    project_type=project_type,
+                    author=os.getlogin()
+                )
+            except Exception as metadata_error:
+                error_info = ErrorInfo(
+                    error_type=ErrorType.VALIDATION,
+                    severity=ErrorSeverity.MEDIUM,
+                    message=f"Failed to create project metadata: {str(metadata_error)}",
+                    exception=metadata_error,
+                    context=ErrorContext(
+                        component="ProjectManager",
+                        operation="create_project_metadata",
+                        system_state={"project_name": name}
+                    ),
+                    recovery_action=RecoveryAction.RETRY,
+                    user_message="项目元数据创建失败，正在重试..."
+                )
+                self.global_error_handler.handle_error(error_info)
+                return None
 
             # 创建项目对象
             project = Project(project_id, project_path, metadata)
 
             # 如果使用模板，复制模板设置
             if template_id and template_id in self.templates:
-                template = self.templates[template_id]
-                project.settings = template.settings
-                project.timeline = template.timeline
+                try:
+                    template = self.templates[template_id]
+                    project.settings = template.settings
+                    project.timeline = template.timeline
+                except Exception as template_error:
+                    error_info = ErrorInfo(
+                        error_type=ErrorType.CONFIG,
+                        severity=ErrorSeverity.MEDIUM,
+                        message=f"Failed to apply template: {str(template_error)}",
+                        exception=template_error,
+                        context=ErrorContext(
+                            component="ProjectManager",
+                            operation="apply_template",
+                            system_state={"project_name": name, "template_id": template_id}
+                        ),
+                        recovery_action=RecoveryAction.SKIP,
+                        user_message="模板应用失败，将使用默认设置"
+                    )
+                    self.global_error_handler.handle_error(error_info, show_dialog=False)
 
             # 保存项目
             if project.save():
@@ -426,11 +546,30 @@ class ProjectManager(QObject):
                 return project_id
 
             # 如果保存失败，删除项目目录
-            shutil.rmtree(project_path)
+            try:
+                if os.path.exists(project_path):
+                    shutil.rmtree(project_path)
+            except Exception as cleanup_error:
+                self.logger.warning(f"Failed to cleanup failed project directory: {cleanup_error}")
+
             return None
 
         except Exception as e:
-            self.logger.error(f"Failed to create project {name}: {e}")
+            error_info = ErrorInfo(
+                error_type=ErrorType.SYSTEM,
+                severity=ErrorSeverity.CRITICAL,
+                message=f"Failed to create project {name}: {str(e)}",
+                exception=e,
+                context=ErrorContext(
+                    component="ProjectManager",
+                    operation="create_project",
+                    system_state={"project_name": name, "project_type": project_type.value}
+                ),
+                recovery_action=RecoveryAction.CONTACT_SUPPORT,
+                user_message="项目创建失败，请检查系统配置和可用资源"
+            )
+
+            self.global_error_handler.handle_error(error_info)
             self.error_occurred.emit("CREATE_ERROR", f"创建项目失败: {str(e)}")
             return None
 

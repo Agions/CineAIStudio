@@ -40,6 +40,7 @@ class PageType(Enum):
     HOME = "home"
     SETTINGS = "settings"
     VIDEO_EDITOR = "video_editor"
+    EXPORT = "export"
 
 
 @dataclass
@@ -104,6 +105,7 @@ class MainWindow(QMainWindow):
         self.home_page: Optional[QWidget] = None
         self.settings_page: Optional[QWidget] = None
         self.video_editor_page: Optional[QWidget] = None
+        self.export_page: Optional[QWidget] = None
 
         # 初始化UI
         self._init_ui()
@@ -147,23 +149,28 @@ class MainWindow(QMainWindow):
             home_icon = get_icon("home", 24)
             settings_icon = get_icon("settings", 24)
             video_icon = get_icon("video", 24)
+            export_icon = get_icon("export", 24)
         except Exception:
             # 如果图标获取失败，使用空图标
             home_icon = QIcon()
             settings_icon = QIcon()
             video_icon = QIcon()
+            export_icon = QIcon()
 
         self.home_btn = QPushButton(home_icon, "首页")
         self.settings_btn = QPushButton(settings_icon, "设置")
         self.editor_btn = QPushButton(video_icon, "视频编辑器")
+        self.export_btn = QPushButton(export_icon, "视频导出")
 
         self.home_btn.setFixedSize(120, 40)
         self.settings_btn.setFixedSize(120, 40)
         self.editor_btn.setFixedSize(140, 40)
+        self.export_btn.setFixedSize(120, 40)
 
         self.home_btn.clicked.connect(lambda: self.switch_to_page(PageType.HOME))
         self.settings_btn.clicked.connect(lambda: self.switch_to_page(PageType.SETTINGS))
         self.editor_btn.clicked.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
+        self.export_btn.clicked.connect(lambda: self.switch_to_page(PageType.EXPORT))
 
         # 设置按钮样式
         button_style = """
@@ -185,10 +192,12 @@ class MainWindow(QMainWindow):
         self.home_btn.setStyleSheet(button_style)
         self.settings_btn.setStyleSheet(button_style)
         self.editor_btn.setStyleSheet(button_style)
+        self.export_btn.setStyleSheet(button_style)
 
         navigation_layout.addWidget(self.home_btn)
         navigation_layout.addWidget(self.settings_btn)
         navigation_layout.addWidget(self.editor_btn)
+        navigation_layout.addWidget(self.export_btn)
         navigation_layout.addStretch()
 
         main_layout.addLayout(navigation_layout)
@@ -229,6 +238,11 @@ class MainWindow(QMainWindow):
             from .pages.video_editor_page import VideoEditorPage
             self.video_editor_page = VideoEditorPage(self.application)
             self.page_stack.addWidget(self.video_editor_page)
+
+            # 创建导出页面
+            from .pages.export_page import ExportPage
+            self.export_page = ExportPage(self.application)
+            self.page_stack.addWidget(self.export_page)
 
             self.logger.info("页面初始化完成")
 
@@ -390,6 +404,8 @@ class MainWindow(QMainWindow):
                 self.page_stack.setCurrentWidget(self.settings_page)
             elif page_type == PageType.VIDEO_EDITOR and self.video_editor_page:
                 self.page_stack.setCurrentWidget(self.video_editor_page)
+            elif page_type == PageType.EXPORT and self.export_page:
+                self.page_stack.setCurrentWidget(self.export_page)
             else:
                 self.logger.warning(f"页面不存在或未初始化: {page_type}")
                 return
@@ -404,7 +420,8 @@ class MainWindow(QMainWindow):
             page_names = {
                 PageType.HOME: "首页",
                 PageType.SETTINGS: "设置",
-                PageType.VIDEO_EDITOR: "视频编辑器"
+                PageType.VIDEO_EDITOR: "视频编辑器",
+                PageType.EXPORT: "视频导出"
             }
             page_name = page_names.get(page_type, "未知")
             self.status_updated.emit(f"当前页面: {page_name}")
@@ -441,6 +458,7 @@ class MainWindow(QMainWindow):
             self.home_btn.setStyleSheet(base_style)
             self.settings_btn.setStyleSheet(base_style)
             self.editor_btn.setStyleSheet(base_style)
+            self.export_btn.setStyleSheet(base_style)
 
             # 高亮当前页面按钮
             if self.current_page == PageType.HOME:
@@ -449,6 +467,8 @@ class MainWindow(QMainWindow):
                 self.settings_btn.setStyleSheet(base_style.replace("#2d2d2d", "#1890ff"))
             elif self.current_page == PageType.VIDEO_EDITOR:
                 self.editor_btn.setStyleSheet(base_style.replace("#2d2d2d", "#1890ff"))
+            elif self.current_page == PageType.EXPORT:
+                self.export_btn.setStyleSheet(base_style.replace("#2d2d2d", "#1890ff"))
 
     def _on_theme_changed(self, theme_name: str):
         """处理主题变更事件"""

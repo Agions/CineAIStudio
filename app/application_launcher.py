@@ -22,7 +22,11 @@ from .core.project_manager import ProjectManager
 from .core.project_template_manager import ProjectTemplateManager
 from .core.project_settings_manager import ProjectSettingsManager
 from .core.project_version_manager import ProjectVersionManager
-from .utils.error_handler import handle_exception, show_error_dialog
+from .utils.error_handler import (
+    get_global_error_handler, set_global_error_handler,
+    ErrorInfo, ErrorType, ErrorSeverity, ErrorContext, RecoveryAction,
+    setup_global_exception_handler
+)
 from .ui.main.main_window import MainWindow
 from .core.application import ApplicationState
 
@@ -74,6 +78,7 @@ class ApplicationLauncher:
         self.splash_screen: Optional[SplashScreen] = None
         self.logger: Optional[Logger] = None
         self.config_manager: Optional[ConfigManager] = None
+        self.error_handler = None
 
     def launch(self, argv: List[str]) -> int:
         """启动应用程序"""
@@ -130,16 +135,17 @@ class ApplicationLauncher:
         try:
             # 创建日志管理器
             self.logger = Logger("CineAIStudio")
-
             self.logger.info("初始化日志系统")
 
-            # 简化的错误处理
-            import sys
-            def handle_exception(exc_type, exc_value, exc_traceback):
-                self.logger.error(f"未捕获的异常: {exc_value}")
-                show_error_dialog(None, "错误", f"应用程序遇到错误: {exc_value}")
+            # 设置全局错误处理器
+            self.error_handler = setup_global_exception_handler(self.logger)
+            set_global_error_handler(self.error_handler)
 
-            sys.excepthook = handle_exception
+            # 连接错误处理器信号
+            if hasattr(self.error_handler, 'error_occurred'):
+                self.error_handler.error_occurred.connect(self._on_error_occurred)
+
+            self.logger.info("错误处理系统初始化完成")
 
         except Exception as e:
             print(f"Failed to initialize logging: {e}")
@@ -339,14 +345,86 @@ class ApplicationLauncher:
             print(error_msg)
             traceback.print_exc()
 
-        # 尝试显示错误对话框
+        # 创建错误信息
+        error_info = ErrorInfo(
+            error_type=ErrorType.SYSTEM,
+            severity=ErrorSeverity.CRITICAL,
+            message=error_msg,
+            exception=error,
+            context=ErrorContext(
+                component="ApplicationLauncher",
+                operation="launch",
+                system_state={"argv": sys.argv if 'sys' in globals() else []}
+            ),
+            recovery_action=RecoveryAction.CONTACT_SUPPORT,
+            user_message="应用程序启动失败，请检查系统配置和日志文件"
+        )
+
+        # 使用错误处理器处理错误
+        if self.error_handler:
+            self.error_handler.handle_error(error_info)
+        else:
+            # 回退到简单错误对话框
+            try:
+                app = QApplication.instance()
+                if app:
+                    QMessageBox.critical(None, "启动失败",
+                                       f"应用程序启动失败：\n\n{str(error)}\n\n请检查日志文件获取详细信息。")
+            except Exception:
+                pass
+
+    def _on_error_occurred(self, error_info: ErrorInfo) -> None:
+        """处理错误发生信号"""
+        if self.logger:
+            self.logger.error(f"应用程序错误: {error_info.error_type.value} - {error_info.message}")
+
+        # 更新启动画面状态
+        if self.splash_screen:
+            status_messages = {
+                ErrorSeverity.CRITICAL: "发生严重错误",
+                ErrorSeverity.HIGH: "应用程序错误",
+                ErrorSeverity.MEDIUM: "操作警告",
+                ErrorSeverity.LOW: "提示信息"
+            }
+            message = status_messages.get(error_info.severity, "状态更新")
+            self.splash_screen.showMessage(message,
+                                       int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
+                                       QColor("#FF5252"))
+
+        # 根据错误严重程度决定是否需要关闭应用程序
+        if error_info.severity == ErrorSeverity.CRITICAL:
+            self.logger.critical("发生严重错误，应用程序将关闭")
+            if self.main_window:
+                self.main_window.close()
+
+    def _safe_execute_critical(self, func: Callable, *args, **kwargs) -> Any:
+        """安全执行关键函数"""
         try:
-            app = QApplication.instance()
-            if app:
-                QMessageBox.critical(None, "启动失败",
-                                   f"应用程序启动失败：\n\n{str(error)}\n\n请检查日志文件获取详细信息。")
-        except Exception:
-            pass
+            return func(*args, **kwargs)
+        except Exception as e:
+            error_info = ErrorInfo(
+                error_type=ErrorType.SYSTEM,
+                severity=ErrorSeverity.HIGH,
+                message=f"关键操作失败: {func.__name__} - {str(e)}",
+                exception=e,
+                context=ErrorContext(
+                    component="ApplicationLauncher",
+                    operation="critical_function",
+                    system_state={"function": func.__name__}
+                ),
+                recovery_action=RecoveryAction.RETRY,
+                user_message="关键操作失败，正在尝试恢复..."
+            )
+
+            if self.error_handler:
+                self.error_handler.handle_error(error_info)
+
+            # 对于关键操作，尝试重试一次
+            try:
+                return func(*args, **kwargs)
+            except Exception as retry_error:
+                self.logger.critical(f"关键操作重试失败: {func.__name__} - {str(retry_error)}")
+                raise
 
 
 def main() -> int:

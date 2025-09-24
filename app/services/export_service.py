@@ -22,7 +22,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from ..export.export_system import ExportSystem, ExportTask, ExportPreset, ExportFormat, ExportQuality
 from ..export.jianying_draft_generator import JianyingDraftGenerator
 from ..core.logger import Logger
-from ..core.event_system import EventSystem
+from ..core.event_system import EventBus
 
 
 class ExportServiceMode(Enum):
@@ -66,9 +66,9 @@ class ExportService:
     """导出服务管理器"""
 
     def __init__(self):
-        self.logger = Logger.get_logger(__name__)
+        self.logger = Logger(__name__)
         self.export_system = ExportSystem()
-        self.event_system = EventSystem()
+        self.event_system = EventBus()
         self.executor = ThreadPoolExecutor(max_workers=4)
         self.jobs: Dict[str, ExportJob] = {}
         self.templates: Dict[str, ExportTemplate] = {}

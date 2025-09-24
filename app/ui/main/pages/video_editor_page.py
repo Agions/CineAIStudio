@@ -23,239 +23,83 @@ from PyQt6.QtGui import QIcon, QAction, QFont, QPixmap, QPalette, QColor, QDragE
 from .base_page import BasePage
 from app.services.mock_ai_service import MockAIService
 from app.core.icon_manager import get_icon
-
-
-class MediaLibraryPanel(QWidget):
-    """媒体库面板"""
+from app.ui.main.components.enhanced_media_library import EnhancedMediaLibrary, MediaLibraryConfig
+  class MediaLibraryPanel(QWidget):
+    """增强的媒体库面板"""
 
     video_selected = pyqtSignal(str)
     audio_selected = pyqtSignal(str)
     image_selected = pyqtSignal(str)
     project_opened = pyqtSignal(str)
+    media_imported = pyqtSignal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_ui()
-        self.setup_drag_drop()
-        self.setup_context_menu()
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(5)
+        layout.setSpacing(0)
 
-        # 标签页
-        self.tab_widget = QTabWidget()
-        self.tab_widget.setStyleSheet("""
-            QTabWidget::pane { border: 1px solid #3A3A3A; }
-            QTabBar::tab {
-                background: #2A2A2A;
-                color: #B0B0B0;
-                padding: 8px 16px;
-                border: 1px solid #3A3A3A;
-                margin-right: 2px;
-            }
-            QTabBar::tab:selected {
-                background: #404040;
-                color: #FFFFFF;
-                border-bottom: 2px solid #00A8FF;
-            }
-        """)
+        # 配置增强媒体库
+        config = MediaLibraryConfig(
+            thumbnail_size=QSize(120, 68),
+            grid_spacing=8,
+            items_per_row=3,
+            show_details=True,
+            auto_refresh=True,
+            cache_enabled=True
+        )
 
-        # 视频素材页
-        self.video_tab = QWidget()
-        video_layout = QVBoxLayout(self.video_tab)
+        # 创建增强媒体库
+        self.media_library = EnhancedMediaLibrary(config)
+        layout.addWidget(self.media_library)
 
-        self.video_list = QListWidget()
-        self.video_list.setStyleSheet("""
-            QListWidget {
-                background: #2A2A2A;
-                border: 1px solid #3A3A3A;
-                color: #FFFFFF;
-            }
-            QListWidget::item {
-                padding: 8px;
-                border-bottom: 1px solid #3A3A3A;
-            }
-            QListWidget::item:hover {
-                background: #3A3A3A;
-            }
-            QListWidget::item:selected {
-                background: #404040;
-            }
-        """)
-        self.video_list.setViewMode(QListWidget.ViewMode.IconMode)
-        self.video_list.setIconSize(QSize(80, 60))
-        self.video_list.setGridSize(QSize(100, 80))
+        # 连接信号
+        self.media_library.media_selected.connect(self._on_media_selected)
+        self.media_library.media_double_clicked.connect(self._on_media_double_clicked)
+        self.media_library.media_imported.connect(self._on_media_imported)
+        self.media_library.refresh_requested.connect(self._on_refresh_requested)
 
-        # 添加工具提示
-        self.video_list.setToolTip("拖拽视频文件到此处或双击打开")
+    def _on_media_selected(self, file_path: str):
+        """处理媒体选择"""
+        # 根据文件类型发出相应信号
+        if file_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm')):
+            self.video_selected.emit(file_path)
+        elif file_path.lower().endswith(('.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a')):
+            self.audio_selected.emit(file_path)
+        elif file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp')):
+            self.image_selected.emit(file_path)
 
-        # 添加一些示例视频
-        for i in range(6):
-            item = QListWidgetItem(f"视频_{i+1}.mp4")
-            item(QIcon("resources/icons/32/video.png"))
-            item.setToolTip(f"视频文件: {item.text()}\n时长: 00:{i*2:02d}:00\n分辨率: 1920x1080\n双击播放")
-            self.video_list.addItem(item)
+    def _on_media_double_clicked(self, file_path: str):
+        """处理媒体双击"""
+        self._on_media_selected(file_path)
 
-        # 连接双击事件
-        self.video_list.itemDoubleClicked.connect(self._on_video_double_clicked)
+    def _on_media_imported(self, media_list: list):
+        """处理媒体导入完成"""
+        self.media_imported.emit(media_list)
 
-        video_layout.addWidget(self.video_list)
+    def _on_refresh_requested(self):
+        """处理刷新请求"""
+        self.media_library.refresh_media_library()
 
-        # 音频素材页
-        self.audio_tab = QWidget()
-        audio_layout = QVBoxLayout(self.audio_tab)
+    def import_media_files(self):
+        """导入媒体文件"""
+        self.media_library.import_media_files()
 
-        self.audio_list = QListWidget()
-        self.audio_list.setStyleSheet(self.video_list.styleSheet())
-        self.audio_list.setViewMode(QListWidget.ViewMode.ListMode)
+    def refresh_library(self):
+        """刷新媒体库"""
+        self.media_library.refresh_media_library()
 
-        # 添加工具提示
-        self.audio_list.setToolTip("拖拽音频文件到此处或双击打开")
+    def get_statistics(self):
+        """获取统计信息"""
+        return self.media_library.get_statistics()
 
-        # 添加一些示例音频
-        for i in range(3):
-            item = QListWidgetItem(f"音频_{i+1}.mp3")
-            item(QIcon("resources/icons/32/audio.png"))
-            item.setToolTip(f"音频文件: {item.text()}\n时长: 00:0{i*30}:00\n格式: MP3\n双击播放")
-            self.audio_list.addItem(item)
-
-        # 连接双击事件
-        self.audio_list.itemDoubleClicked.connect(self._on_audio_double_clicked)
-
-        audio_layout.addWidget(self.audio_list)
-
-        # 图片素材页
-        self.image_tab = QWidget()
-        image_layout = QVBoxLayout(self.image_tab)
-
-        self.image_list = QListWidget()
-        self.image_list.setStyleSheet(self.video_list.styleSheet())
-        self.image_list.setViewMode(QListWidget.ViewMode.IconMode)
-        self.image_list.setIconSize(QSize(80, 80))
-        self.image_list.setGridSize(QSize(100, 100))
-
-        # 添加工具提示
-        self.image_list.setToolTip("拖拽图片文件到此处或双击打开")
-
-        # 添加一些示例图片
-        for i in range(8):
-            item = QListWidgetItem(f"图片_{i+1}.jpg")
-            item(QIcon("resources/icons/32/image.png"))
-            item.setToolTip(f"图片文件: {item.text()}\n尺寸: 1920x1080\n格式: JPEG\n双击查看")
-            self.image_list.addItem(item)
-
-        # 连接双击事件
-        self.image_list.itemDoubleClicked.connect(self._on_image_double_clicked)
-
-        image_layout.addWidget(self.image_list)
-
-        # 导出文件页
-        self.export_tab = QWidget()
-        export_layout = QVBoxLayout(self.export_tab)
-
-        self.export_list = QListWidget()
-        self.export_list.setStyleSheet(self.video_list.styleSheet())
-        self.export_list.setViewMode(QListWidget.ViewMode.ListMode)
-
-        # 添加工具提示
-        self.export_list.setToolTip("双击打开导出的视频文件")
-
-        # 添加一些示例导出文件
-        for i in range(4):
-            item = QListWidgetItem(f"导出_{i+1}.mp4")
-            item(QIcon("resources/icons/32/video.png"))
-            item.setToolTip(f"导出文件: {item.text()}\n大小: {100+i*50}MB\n导出时间: 2024-01-{i+10:02d}\n双击播放")
-            self.export_list.addItem(item)
-
-        # 连接双击事件
-        self.export_list.itemDoubleClicked.connect(self._on_export_double_clicked)
-
-        export_layout.addWidget(self.export_list)
-
-        # 添加标签页
-        self.tab_widget.addTab(self.video_tab, "视频素材")
-        self.tab_widget.addTab(self.audio_tab, "音频素材")
-        self.tab_widget.addTab(self.image_tab, "图片素材")
-        self.tab_widget.addTab(self.export_tab, "导出文件")
-
-        layout.addWidget(self.tab_widget)
-
-    def setup_drag_drop(self):
-        """设置拖放功能"""
-        self.setAcceptDrops(True)
-        self.video_list.setAcceptDrops(True)
-        self.audio_list.setAcceptDrops(True)
-        self.image_list.setAcceptDrops(True)
-
-    def setup_context_menu(self):
-        """设置右键菜单"""
-        # 为每个列表设置右键菜单
-        self.video_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.audio_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.image_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-
-        self.video_list.customContextMenuRequested.connect(self._show_video_context_menu)
-        self.audio_list.customContextMenuRequested.connect(self._show_audio_context_menu)
-        self.image_list.customContextMenuRequested.connect(self._show_image_context_menu)
-
-    def dragEnterEvent(self, event: QDragEnterEvent):
-        """拖拽进入事件"""
-        if event.mimeData().hasUrls():
-            event.acceptProposedAction()
-
-    def dropEvent(self, event: QDropEvent):
-        """拖拽放下事件"""
-        urls = event.mimeData().urls()
-        file_paths = [url.toLocalFile() for url in urls if url.isLocalFile()]
-
-        if file_paths:
-            self.add_media_files(file_paths)
-
-    def add_media_files(self, file_paths: List[str]):
-        """添加媒体文件到相应的列表"""
-        video_extensions = {'.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm'}
-        audio_extensions = {'.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a'}
-        image_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp'}
-
-        for file_path in file_paths:
-            if not os.path.exists(file_path):
-                continue
-
-            file_ext = os.path.splitext(file_path)[1].lower()
-
-            if file_ext in video_extensions:
-                self._add_video_file(file_path)
-            elif file_ext in audio_extensions:
-                self._add_audio_file(file_path)
-            elif file_ext in image_extensions:
-                self._add_image_file(file_path)
-
-    def _add_video_file(self, file_path: str):
-        """添加视频文件"""
-        file_name = os.path.basename(file_path)
-        item = QListWidgetItem(file_name)
-        item.setData(Qt.ItemDataRole.UserRole, file_path)
-        item(QIcon("resources/icons/32/video.png"))
-        self.video_list.addItem(item)
-
-    def _add_audio_file(self, file_path: str):
-        """添加音频文件"""
-        file_name = os.path.basename(file_path)
-        item = QListWidgetItem(file_name)
-        item.setData(Qt.ItemDataRole.UserRole, file_path)
-        item(QIcon("resources/icons/32/audio.png"))
-        self.audio_list.addItem(item)
-
-    def _add_image_file(self, file_path: str):
-        """添加图片文件"""
-        file_name = os.path.basename(file_path)
-        item = QListWidgetItem(file_name)
-        item.setData(Qt.ItemDataRole.UserRole, file_path)
-        item(QIcon("resources/icons/32/image.png"))
-        self.image_list.addItem(item)
-
+    def cleanup(self):
+        """清理资源"""
+        self.media_library.cleanup()
+        
     def _show_video_context_menu(self, position):
         """显示视频文件右键菜单"""
         menu = QMenu()
@@ -754,99 +598,7 @@ class PreviewPanel(QWidget):
         if self.audio_output:
             self.audio_output = None
 
-        # 预览区域
-        self.preview_area = QGraphicsView()
-        self.preview_area.setMinimumHeight(400)
-        self.preview_area.setStyleSheet("""
-            QGraphicsView {
-                background: #1A1A1A;
-                border: 2px solid #3A3A3A;
-                border-radius: 4px;
-            }
-        """)
-
-        # 创建场景
-        self.scene = QGraphicsScene()
-        self.preview_area.setScene(self.scene)
-
-        # 添加示例文本
-        text_item = self.scene.addText("视频预览区域")
-        text_item.setDefaultTextColor(QColor(255, 255, 255))
-        text_item.setPos(50, 50)
-
-        layout.addWidget(self.preview_area)
-
-        # 播放控制栏
-        control_layout = QHBoxLayout()
-
-        # 播放按钮
-        self.play_btn = QPushButton(get_icon("play", 16), "")
-        self.play_btn.setStyleSheet("""
-            QPushButton {
-                background: #404040;
-                color: #FFFFFF;
-                border: 1px solid #3A3A3A;
-                padding: 8px;
-                border-radius: 4px;
-            }
-            QPushButton:hover {
-                background: #505050;
-            }
-        """)
-
-        # 时间显示
-        self.time_label = QLabel("00:00:00 / 00:00:00")
-        self.time_label.setStyleSheet("color: #B0B0B0;")
-
-        # 进度条
-        self.progress_slider = QSlider(Qt.Orientation.Horizontal)
-        self.progress_slider.setStyleSheet("""
-            QSlider::groove:horizontal {
-                background: #2A2A2A;
-                height: 4px;
-                border-radius: 2px;
-            }
-            QSlider::handle:horizontal {
-                background: #00A8FF;
-                width: 12px;
-                height: 12px;
-                border-radius: 6px;
-                margin: -4px 0;
-            }
-        """)
-
-        # 音量控制
-        self.volume_btn = QPushButton(get_icon("audio", 16), "")
-        self.volume_btn.setStyleSheet(self.play_btn.styleSheet())
-
-        self.volume_slider = QSlider(Qt.Orientation.Horizontal)
-        self.volume_slider.setMaximumWidth(100)
-        self.volume_slider.setStyleSheet(self.progress_slider.styleSheet())
-
-        # 缩放控制
-        self.zoom_combo = QComboBox()
-        self.zoom_combo.addItems(["25%", "50%", "75%", "100%", "125%", "150%"])
-        self.zoom_combo.setCurrentText("100%")
-        self.zoom_combo.setStyleSheet("""
-            QComboBox {
-                background: #2A2A2A;
-                color: #FFFFFF;
-                border: 1px solid #3A3A3A;
-                padding: 4px;
-                border-radius: 4px;
-            }
-        """)
-
-        control_layout.addWidget(self.play_btn)
-        control_layout.addWidget(self.time_label)
-        control_layout.addWidget(self.progress_slider, 1)
-        control_layout.addWidget(self.volume_btn)
-        control_layout.addWidget(self.volume_slider)
-        control_layout.addWidget(self.zoom_combo)
-
-        layout.addLayout(control_layout)
-
-
+        # 清理完成
 class PropertiesPanel(QWidget):
     """属性面板"""
 

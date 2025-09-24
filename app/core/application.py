@@ -177,6 +177,13 @@ class Application(QObject):
                     except Exception as e:
                         self.error_occurred.emit("SERVICE_ERROR", f"Error stopping service {service_name}: {str(e)}")
 
+            # 关闭导出系统
+            if hasattr(self, 'export_integration'):
+                try:
+                    self.export_integration.shutdown()
+                except Exception as e:
+                    self.error_occurred.emit("SERVICE_ERROR", f"Error stopping export integration: {str(e)}")
+
             # 保存配置
             self._save_configuration()
 
@@ -400,8 +407,9 @@ class Application(QObject):
     def _init_services(self) -> bool:
         """初始化其他服务"""
         try:
-            # 这里可以初始化其他服务
-            # 例如：AI服务、文件服务、媒体服务等
+            # 初始化导出系统集成
+            from .export_integration import initialize_export_integration
+            self.export_integration = initialize_export_integration(self)
 
             self.logger.info("服务初始化完成")
             return True
@@ -413,7 +421,19 @@ class Application(QObject):
 
     def _register_core_services(self) -> None:
         """注册核心服务"""
-        # 注册核心服务到服务容器
+        # 注册项目管理器
+        try:
+            from .project_manager import ProjectManager
+            from .config_manager import ConfigManager
+            config_manager = self.get_service_by_name("config_manager")
+            if config_manager:
+                project_manager = ProjectManager(config_manager)
+                self.register_service("project_manager", project_manager)
+                self.logger.info("项目管理器注册完成")
+        except Exception as e:
+            self.logger.error(f"注册项目管理器失败: {e}")
+
+        # 注册其他核心服务
         pass
 
     def _load_configuration(self) -> None:

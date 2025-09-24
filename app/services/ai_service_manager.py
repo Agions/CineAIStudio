@@ -4,21 +4,26 @@
 """
 AI服务管理器
 管理所有AI服务的配置、调度和监控
+支持国产AI模型的真实API调用和视频处理功能
 """
 
 import json
 import time
 import threading
-from typing import Dict, Any, Optional, List, Callable
-from dataclasses import dataclass
+import asyncio
+import queue
+from typing import Dict, Any, Optional, List, Callable, Union
+from dataclasses import dataclass, asdict
 from enum import Enum
-from PyQt6.QtCore import QObject, pyqtSignal, QTimer
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from PyQt6.QtCore import QObject, pyqtSignal, QTimer, QThread, pyqtSlot
 
 from .base_ai_service import (
     BaseAIService, ModelInfo, ModelRequest, ModelResponse,
     ModelStatus, ModelCapability
 )
 from .chinese_ai_services import ChineseAIServiceFactory
+from .ai_error_handler import AIErrorHandler, RetryConfig
 from ..core.secure_key_manager import get_secure_key_manager
 from ..core.logger import Logger
 
@@ -82,6 +87,12 @@ class AIServiceManager(QObject):
         self.active_requests: Dict[str, str] = {}  # request_id -> service_name
         self.request_callbacks: Dict[str, Callable] = {}
         self.key_manager = get_secure_key_manager()
+
+        # 错误处理器
+        self.error_handler = AIErrorHandler(self.logger)
+
+        # 线程池
+        self.executor = ThreadPoolExecutor(max_workers=10)
 
         # 定时器
         self.health_check_timer = QTimer()
@@ -272,11 +283,58 @@ class AIServiceManager(QObject):
             if callback:
                 self.request_callbacks[request_id] = callback
 
-            # 发送请求
-            response = service.send_request(request)
+            # 异步发送请求
+            def send_async_request():
+                try:
+                    # 使用错误处理器执行请求
+                    response = self.error_handler.execute_with_retry(
+                        service.send_request,
+                        service_name,
+                        model_id,
+                        request_id,
+                        request
+                    )
 
-            # 更新统计
-            self._update_usage_stats(service_name, request, response)
+                    # 更新统计
+                    self._update_usage_stats(service_name, request, response)
+
+                    # 调用回调
+                    if request_id in self.request_callbacks:
+                        try:
+                            self.request_callbacks[request_id](response)
+                        except Exception as e:
+                            self.logger.error(f"回调函数执行失败: {e}")
+                        finally:
+                            del self.request_callbacks[request_id]
+
+                    # 清理请求记录
+                    if request_id in self.active_requests:
+                        del self.active_requests[request_id]
+
+                except Exception as e:
+                    # 处理错误
+                    error_info = self.error_handler.handle_error(
+                        e, service_name, model_id, request_id,
+                        {"prompt": prompt[:100] + "..." if len(prompt) > 100 else prompt}
+                    )
+
+                    self.logger.error(f"请求失败: {error_info.message}")
+
+                    # 调用错误回调
+                    if request_id in self.request_callbacks:
+                        try:
+                            self.request_callbacks[request_id](None)
+                        except Exception as callback_error:
+                            self.logger.error(f"错误回调执行失败: {callback_error}")
+                        finally:
+                            del self.request_callbacks[request_id]
+
+                    # 清理请求记录
+                    if request_id in self.active_requests:
+                        del self.active_requests[request_id]
+
+            # 提交到线程池执行
+            self.executor.submit(send_async_request)
 
             return request_id
 
@@ -566,6 +624,46 @@ class AIServiceManager(QObject):
             "configured_models": self.get_configured_models()
         }
 
+    def get_error_statistics(self) -> Dict[str, Any]:
+        """获取错误统计信息"""
+        try:
+            return self.error_handler.get_error_statistics()
+        except Exception as e:
+            self.logger.error(f"获取错误统计失败: {e}")
+            return {}
+
+    def get_circuit_breaker_status(self) -> Dict[str, str]:
+        """获取熔断器状态"""
+        try:
+            return self.error_handler.get_circuit_breaker_status()
+        except Exception as e:
+            self.logger.error(f"获取熔断器状态失败: {e}")
+            return {}
+
+    def reset_service_circuit_breaker(self, service_name: str):
+        """重置服务熔断器"""
+        try:
+            self.error_handler.reset_circuit_breaker(service_name)
+            self.logger.info(f"已重置服务 {service_name} 的熔断器")
+        except Exception as e:
+            self.logger.error(f"重置熔断器失败: {e}")
+
+    def update_retry_config(self, max_retries: int = 3, base_delay: float = 1.0,
+                          max_delay: float = 60.0, enable_jitter: bool = True):
+        """更新重试配置"""
+        try:
+            from .ai_error_handler import RetryConfig
+            config = RetryConfig(
+                max_retries=max_retries,
+                base_delay=base_delay,
+                max_delay=max_delay,
+                jitter=enable_jitter
+            )
+            self.error_handler.update_retry_config(config)
+            self.logger.info("已更新重试配置")
+        except Exception as e:
+            self.logger.error(f"更新重试配置失败: {e}")
+
     def cleanup(self):
         """清理资源"""
         try:
@@ -573,9 +671,15 @@ class AIServiceManager(QObject):
             self.health_check_timer.stop()
             self.stats_timer.stop()
 
+            # 关闭线程池
+            self.executor.shutdown(wait=True)
+
             # 清理所有服务
             for service in self.services.values():
                 service.cleanup()
+
+            # 清理错误处理器
+            self.error_handler.clear_error_history()
 
             # 清理数据
             self.services.clear()

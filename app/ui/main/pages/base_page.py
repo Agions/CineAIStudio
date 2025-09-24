@@ -47,10 +47,17 @@ class BasePage(QWidget):
     def _setup_ui(self) -> None:
         """设置UI"""
         self.setObjectName(f"{self.page_id}_page")
-        self.main_layout = QVBoxLayout()
-        self.main_layout.setContentsMargins(20, 20, 20, 20)
-        self.main_layout.setSpacing(0)
-        self.setLayout(self.main_layout)
+
+        # 安全地设置主布局
+        if self.layout() is None:
+            self.main_layout = QVBoxLayout()
+            self.main_layout.setContentsMargins(20, 20, 20, 20)
+            self.main_layout.setSpacing(0)
+            self.setLayout(self.main_layout)
+        else:
+            self.main_layout = self.layout()
+            self.main_layout.setContentsMargins(20, 20, 20, 20)
+            self.main_layout.setSpacing(0)
 
     def _create_layout(self) -> None:
         """创建布局"""
