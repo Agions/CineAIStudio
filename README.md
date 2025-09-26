@@ -132,6 +132,88 @@ python main.py
 - 编写单元测试
 - 更新文档
 
+## 常见问题 (FAQ)
+
+### 1. pip install 失败，报 "externally-managed-environment" 错误 (macOS)
+
+**问题**: 在 macOS 上运行 `pip install -r requirements.txt` 时出现外部管理环境错误。
+
+**解决方案**:
+
+- 使用虚拟环境 (venv) 安装依赖，避免系统 Python 冲突。
+- 按照 "使用 venv" 部分步骤创建 .venv 并激活。
+- 示例:
+  ```
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install --upgrade pip
+  pip install -r requirements.txt
+  ```
+- **原因**: macOS Python 3.9+ 默认外部管理，防止系统包冲突。venv 隔离环境解决此问题。
+
+### 2. requirements.txt 缺失 AI 依赖 (sparkdesk-python, deepseek-sdk 等)
+
+**问题**: 安装后 AI 功能报 ImportError 或模型不可用。
+
+**解决方案**:
+
+- requirements.txt 已更新包含所有 AI SDK：
+  - iFlytekSpark>=1.0.0 (星火大模型，替换 sparkdesk-python)
+  - deepseek-sdk>=1.0.0 (DeepSeek)
+  - dashscope>=1.17.7 (通义千问)
+  - qianfan>=0.4.6 (文心一言)
+  - zhipuai>=2.0.6 (智谱 AI)
+- 重新安装: `pip install -r requirements.txt` (在 venv 中)。
+- 配置 API 密钥: 编辑 .env 文件添加 API_KEY=your_key (参考 app/core/secure_key_manager.py)。
+
+### 3. Python 版本兼容问题 (非 3.12)
+
+**问题**: 系统 Python 3.9.6，安装失败或运行时版本错误。
+
+**解决方案**:
+
+- requirements.txt 支持 Python 3.9+ (调整版本如 PyQt6>=6.4.0, numpy>=1.21.0)。
+- 使用系统 Python 创建 venv 测试安装成功。
+- 如果需要 Python 3.12，安装 via Homebrew: `brew install python@3.12`，然后使用 `python3.12 -m venv .venv`。
+- 验证版本: `python -V` 应为 3.9+。
+
+### 4. main.py 启动失败或 "管理器问题"
+
+**问题**: 运行 `python main.py` 报 ImportError、QApplication 错误或 UI 不显示。
+
+**解决方案**:
+
+- 确保 venv 激活并依赖安装: `source .venv/bin/activate && pip install -r requirements.txt`。
+- 检查 PyQt6 安装: `pip show PyQt6` (应 >=6.4.0)。
+- 常见错误:
+  - "No module named 'app.core.application'": 确保在项目根目录运行，sys.path 已添加。
+  - UI 不启动: 安装 FFmpeg (brew install ffmpeg)，检查日志 (logs/app.log)。
+- 测试运行: `python main.py` 应显示启动画面和主窗口，无异常。
+
+### 5. AI 功能不可用 (模型加载失败)
+
+**问题**: AI 增强/字幕生成报 API 错误或模型未找到。
+
+**解决方案**:
+
+- 配置 .env: API_KEY=your_key, MODEL_ID=spark-large-v3.5 等 (参考 app/services/ai_service_manager.py)。
+- 测试健康检查: 运行应用，检查 AI 设置页 (一键 AI 配置)。
+- 网络问题: 确保代理/防火墙允许访问 AI API (e.g., spark-api.xf-yun.com)。
+- 更新 SDK: `pip install --upgrade dashscope qianfan zhipuai iFlytekSpark deepseek-sdk`。
+
+### 6. 视频导入/导出失败
+
+**问题**: 导入 MP4 报格式错误，或导出无输出。
+
+**解决方案**:
+
+- 安装 FFmpeg: `brew install ffmpeg` (macOS) 或系统包管理器。
+- 支持格式: MP4/AVI/MOV/MKV (OpenCV/FFmpeg 处理)。
+- 权限问题: 确保 .venv 有读写权限，输出路径存在。
+- 日志检查: 查看 logs/app.log 错误 (e.g., "FFmpeg not found")。
+
+如果问题持续，检查 GitHub Issues 或提交新 issue 提供日志。
+
 ## 许可证
 
 MIT License - 详见 LICENSE 文件

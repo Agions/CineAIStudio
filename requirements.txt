@@ -20,9 +20,9 @@ requests>=2.31.0
 dashscope>=1.17.7         # 通义千问
 qianfan>=0.4.6            # 文心一言
 zhipuai>=2.0.6            # 智谱AI
-sparkdesk-python>=1.2.4  # 讯飞星火
+openai>=1.0.0  # OpenAI 通用方案，支持 GPT 模型作为 fallback
 tencentcloud-sdk-python>=3.0.970  # 腾讯混元
-deepseek-sdk>=1.0.0       # DeepSeek
+deepseek-sdk>=0.1.0       # DeepSeek
 
 # Voice Synthesis
 pyttsx3>=2.90             # Local TTS
