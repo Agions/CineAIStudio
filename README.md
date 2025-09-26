@@ -24,7 +24,20 @@ poetry install
 poetry run cineai-studio
 ```
 
-### 使用 venv
+### 使用 venv (解决 macOS Python 3.12 外部管理环境问题)
+
+```bash
+git clone https://github.com/Agions/CineAIStudio.git
+cd CineAIStudio
+python3 -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+# .venv\Scripts\activate  # Windows
+pip install --upgrade pip
+pip install -r requirements.txt
+python main.py
+```
+
+**注意**: 如果遇到 "externally-managed-environment" 错误，请使用虚拟环境 (venv) 安装依赖。requirements.txt 已更新支持 Python 3.12，包括 sparkdesk-python 和 deepseek-sdk 等 AI SDK。
 
 ```bash
 git clone https://github.com/agions/cineai-studio.git
@@ -125,9 +138,9 @@ MIT License - 详见 LICENSE 文件
 
 ## 联系
 
-- Email: team@cineaistudio.com
-- GitHub Issues: [Issues](https://github.com/agions/cineai-studio/issues)
+- Email: agions@qq.com
+- GitHub Issues: [Issues](https://github.com/agions/CineAIStudio/issues)
 
 ---
 
-_Copyright © 2025 CineAIStudio Team_
+\_Copyright © 2025 Agions
