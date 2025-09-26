@@ -17,6 +17,10 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyQt6.QtCore import QObject, pyqtSignal, QTimer, QThread, pyqtSlot
+from functools import lru_cache
+from datetime import datetime, timedelta
+import gc
+import weakref
 
 from .base_ai_service import (
     BaseAIService, ModelInfo, ModelRequest, ModelResponse,
@@ -84,9 +88,13 @@ class AIServiceManager(QObject):
         self.services: Dict[str, BaseAIService] = {}
         self.service_health: Dict[str, ServiceHealth] = {}
         self.usage_stats: Dict[str, ServiceUsageStats] = {}
-        self.active_requests: Dict[str, str] = {}  # request_id -> service_name
-        self.request_callbacks: Dict[str, Callable] = {}
+        self.active_requests = weakref.WeakValueDictionary()  # request_id -> service_name (弱引用)
+        self.request_callbacks = weakref.WeakValueDictionary()  # request_id -> callback (弱引用)
         self.key_manager = get_secure_key_manager()
+
+        # 响应缓存：键为cache_key，值为(weakref.ref(response), timestamp)
+        self.response_cache = {}
+        self.cache_ttl = 300  # 5分钟TTL
 
         # 错误处理器
         self.error_handler = AIErrorHandler(self.logger)
@@ -96,8 +104,8 @@ class AIServiceManager(QObject):
 
         # 定时器
         self.health_check_timer = QTimer()
-        self.health_check_timer.timeout.connect(self._perform_health_check)
-        self.health_check_timer.start(30000)  # 30秒检查一次
+        self.health_check_timer.timeout.connect(self._perform_health_check_async)
+        self.health_check_timer.start(60000)  # 增加到60秒，减少频率
 
         self.stats_timer = QTimer()
         self.stats_timer.timeout.connect(self._update_stats)
@@ -252,7 +260,7 @@ class AIServiceManager(QObject):
 
     def send_request(self, service_name: str, model_id: str, prompt: str,
                     callback: Optional[Callable] = None, **kwargs) -> Optional[str]:
-        """发送请求"""
+        """发送请求（带缓存）"""
         try:
             if service_name not in self.services:
                 self.logger.error(f"服务不存在: {service_name}")
@@ -262,6 +270,18 @@ class AIServiceManager(QObject):
             if model_id not in service.get_configured_models():
                 self.logger.error(f"模型未配置: {service_name}.{model_id}")
                 return None
+
+            # 检查缓存
+            cache_key = f"{service_name}_{model_id}_{hash(prompt[:100])}"  # 简化hash
+            now = datetime.now()
+            if cache_key in self.response_cache:
+                cached_response, timestamp = self.response_cache[cache_key]
+                if now - timestamp < timedelta(seconds=self.cache_ttl):
+                    # 缓存命中
+                    self.logger.info(f"缓存命中: {cache_key}")
+                    if callback:
+                        callback(cached_response)
+                    return cache_key  # 使用cache_key作为request_id
 
             # 创建请求
             request = ModelRequest(
@@ -278,10 +298,10 @@ class AIServiceManager(QObject):
 
             # 生成请求ID
             request_id = f"{service_name}_{model_id}_{int(time.time() * 1000)}"
-            self.active_requests[request_id] = service_name
+            self.active_requests[request_id] = service_name  # 弱引用自动管理
 
             if callback:
-                self.request_callbacks[request_id] = callback
+                self.request_callbacks[request_id] = callback  # 弱引用
 
             # 异步发送请求
             def send_async_request():
@@ -295,21 +315,26 @@ class AIServiceManager(QObject):
                         request
                     )
 
+                    # 缓存响应
+                    self.response_cache[cache_key] = (response, now)
+                    # 限制缓存大小
+                    if len(self.response_cache) > 100:
+                        # 移除最旧
+                        oldest_key = min(self.response_cache.keys(), key=lambda k: self.response_cache[k][1])
+                        del self.response_cache[oldest_key]
+
                     # 更新统计
                     self._update_usage_stats(service_name, request, response)
 
-                    # 调用回调
-                    if request_id in self.request_callbacks:
+                    # 调用回调（弱引用可能已过期）
+                    callback_ref = self.request_callbacks.get(request_id)
+                    if callback_ref:
                         try:
-                            self.request_callbacks[request_id](response)
+                            callback_ref()(response)
                         except Exception as e:
                             self.logger.error(f"回调函数执行失败: {e}")
-                        finally:
-                            del self.request_callbacks[request_id]
 
-                    # 清理请求记录
-                    if request_id in self.active_requests:
-                        del self.active_requests[request_id]
+                    # 弱引用自动清理，无需del
 
                 except Exception as e:
                     # 处理错误
@@ -320,18 +345,15 @@ class AIServiceManager(QObject):
 
                     self.logger.error(f"请求失败: {error_info.message}")
 
-                    # 调用错误回调
-                    if request_id in self.request_callbacks:
+                    # 调用错误回调（弱引用）
+                    callback_ref = self.request_callbacks.get(request_id)
+                    if callback_ref:
                         try:
-                            self.request_callbacks[request_id](None)
+                            callback_ref()(None)
                         except Exception as callback_error:
                             self.logger.error(f"错误回调执行失败: {callback_error}")
-                        finally:
-                            del self.request_callbacks[request_id]
 
-                    # 清理请求记录
-                    if request_id in self.active_requests:
-                        del self.active_requests[request_id]
+                    # 弱引用自动清理
 
             # 提交到线程池执行
             self.executor.submit(send_async_request)
@@ -355,11 +377,7 @@ class AIServiceManager(QObject):
             service = self.services[service_name]
             success = service.cancel_current_request()
 
-            if success:
-                del self.active_requests[request_id]
-                if request_id in self.request_callbacks:
-                    del self.request_callbacks[request_id]
-
+            # 弱引用自动清理
             return success
 
         except Exception as e:
@@ -421,8 +439,9 @@ class AIServiceManager(QObject):
         service = self.services[service_name]
         return service.get_model_info(model_id)
 
+    @lru_cache(maxsize=128)
     def estimate_cost(self, service_name: str, model_id: str, prompt: str) -> float:
-        """估算成本"""
+        """估算成本（缓存）"""
         try:
             if service_name not in self.services:
                 return 0.0
@@ -435,15 +454,19 @@ class AIServiceManager(QObject):
             self.logger.error(f"估算成本失败: {e}")
             return 0.0
 
-    def _perform_health_check(self):
-        """执行健康检查"""
-        try:
-            for service_name, service in self.services.items():
-                if service.get_configured_models():
-                    self._check_service_health(service_name)
+    def _perform_health_check_async(self):
+        """异步执行健康检查"""
+        def async_check():
+            try:
+                for service_name, service in self.services.items():
+                    if service.get_configured_models():
+                        self._check_service_health(service_name)
+                gc.collect()  # 清理临时对象
+            except Exception as e:
+                self.logger.error(f"健康检查失败: {e}")
 
-        except Exception as e:
-            self.logger.error(f"健康检查失败: {e}")
+        # 使用线程池异步执行
+        self.executor.submit(async_check)
 
     def _check_service_health(self, service_name: str):
         """检查单个服务健康状态"""
@@ -500,6 +523,7 @@ class AIServiceManager(QObject):
         try:
             # 这里可以添加更详细的统计逻辑
             self.stats_updated.emit(self.usage_stats)
+            gc.collect()  # 定期垃圾回收
 
         except Exception as e:
             self.logger.error(f"更新统计失败: {e}")
@@ -518,6 +542,8 @@ class AIServiceManager(QObject):
                 stats.successful_requests += 1
                 stats.total_tokens += response.usage.get("total_tokens", 0)
                 stats.total_cost += response.cost
+                # 弱引用响应
+                weak_response = weakref.ref(response)
             else:
                 stats.failed_requests += 1
 
@@ -576,36 +602,30 @@ class AIServiceManager(QObject):
         service_name = self.active_requests.get(request_id, "")
         self.request_completed.emit(request_id, service_name, response)
 
-        # 调用回调函数
-        if request_id in self.request_callbacks:
+        # 调用回调函数（弱引用）
+        callback_ref = self.request_callbacks.get(request_id)
+        if callback_ref:
             try:
-                self.request_callbacks[request_id](response)
+                callback_ref()(response)
             except Exception as e:
                 self.logger.error(f"回调函数执行失败: {e}")
-            finally:
-                del self.request_callbacks[request_id]
 
-        # 清理请求记录
-        if request_id in self.active_requests:
-            del self.active_requests[request_id]
+        # 弱引用自动清理
 
     def _on_request_error(self, request_id: str, error_message: str):
         """请求错误处理"""
         service_name = self.active_requests.get(request_id, "")
         self.request_failed.emit(request_id, service_name, error_message)
 
-        # 调用回调函数
-        if request_id in self.request_callbacks:
+        # 调用回调函数（弱引用）
+        callback_ref = self.request_callbacks.get(request_id)
+        if callback_ref:
             try:
-                self.request_callbacks[request_id](None)
+                callback_ref()(None)
             except Exception as e:
                 self.logger.error(f"回调函数执行失败: {e}")
-            finally:
-                del self.request_callbacks[request_id]
 
-        # 清理请求记录
-        if request_id in self.active_requests:
-            del self.active_requests[request_id]
+        # 弱引用自动清理
 
     def _on_model_info_loaded(self, model_id: str, model_info: ModelInfo):
         """模型信息加载完成处理"""
@@ -681,12 +701,12 @@ class AIServiceManager(QObject):
             # 清理错误处理器
             self.error_handler.clear_error_history()
 
-            # 清理数据
+            # 清理数据（弱引用自动处理）
             self.services.clear()
             self.service_health.clear()
             self.usage_stats.clear()
-            self.active_requests.clear()
-            self.request_callbacks.clear()
+            self.response_cache.clear()
+            gc.collect()
 
             self.logger.info("AI服务管理器清理完成")
 

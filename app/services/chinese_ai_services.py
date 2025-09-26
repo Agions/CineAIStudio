@@ -121,7 +121,8 @@ class WenxinService(BaseAIService):
         if not self.validate_request(request):
             return None
 
-        request_id = f"{self.service_name}_{int(time.time() * 1000)}"
+        current_time = int(time.time() * 1000)
+        request_id = f"{self.service_name}_{current_time}"
         self.emit_request_started(request_id)
 
         try:
@@ -274,7 +275,8 @@ class SparkService(BaseAIService):
         if not self.validate_request(request):
             return None
 
-        request_id = f"{self.service_name}_{int(time.time() * 1000)}"
+        current_time = int(time.time() * 1000)
+        request_id = f"{self.service_name}_{current_time}"
         self.emit_request_started(request_id)
 
         try:
@@ -431,7 +433,8 @@ class QwenService(BaseAIService):
         if not self.validate_request(request):
             return None
 
-        request_id = f"{self.service_name}_{int(time.time() * 1000)}"
+        current_time = int(time.time() * 1000)
+        request_id = f"{self.service_name}_{current_time}"
         self.emit_request_started(request_id)
 
         try:
@@ -592,7 +595,8 @@ class GLMService(BaseAIService):
         if not self.validate_request(request):
             return None
 
-        request_id = f"{self.service_name}_{int(time.time() * 1000)}"
+        current_time = int(time.time() * 1000)
+        request_id = f"{self.service_name}_{current_time}"
         self.emit_request_started(request_id)
 
         try:
@@ -737,7 +741,8 @@ class BaichuanService(BaseAIService):
         if not self.validate_request(request):
             return None
 
-        request_id = f"{self.service_name}_{int(time.time() * 1000)}"
+        current_time = int(time.time() * 1000)
+        request_id = f"{self.service_name}_{current_time}"
         self.emit_request_started(request_id)
 
         try:
@@ -894,7 +899,8 @@ class MoonshotService(BaseAIService):
         if not self.validate_request(request):
             return None
 
-        request_id = f"{self.service_name}_{int(time.time() * 1000}")
+        current_time = int(time.time() * 1000)
+        request_id = f"{self.service_name}_{current_time}"
         self.emit_request_started(request_id)
 
         try:

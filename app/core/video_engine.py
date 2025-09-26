@@ -11,11 +11,14 @@ import time
 import asyncio
 import threading
 from typing import Dict, List, Optional, Tuple, Union, Callable, Any, AsyncGenerator
+from PyQt6.QtCore import QThreadPool, QRunnable, pyqtSignal, QObject
+from functools import lru_cache
+import gc
+import weakref
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 import json
-import weakref
 from contextlib import asynccontextmanager
 
 from .logger import get_logger
@@ -125,7 +128,7 @@ class VideoEngine:
         self.ffmpeg_utils = get_ffmpeg_utils()
 
         # 流管理
-        self.streams: Dict[str, VideoStream] = {}
+        self.streams = weakref.WeakValueDictionary()  # 弱引用字典，避免内存泄漏
         self.stream_lock = threading.Lock()
 
         # 操作历史
@@ -143,6 +146,14 @@ class VideoEngine:
             'cpu_usage': 0,
             'gpu_usage': 0
         }
+
+        # 线程池 for 异步操作
+        self.thread_pool = QThreadPool()
+        self.thread_pool.setMaxThreadCount(4)
+
+        # video_info 缓存
+        self.video_info_cache = {}
+        self.cache_ttl = 3600  # 1小时
 
         # 初始化锁
         self.init_lock = threading.Lock()
@@ -217,6 +228,7 @@ class VideoEngine:
 
                 self.event_bus.publish("engine_initialized", result)
                 self.logger.info("视频引擎初始化成功")
+                gc.collect()  # 初始化后垃圾回收
                 return result
 
             except Exception as e:
@@ -266,11 +278,17 @@ class VideoEngine:
             raise
 
     def _initialize_hardware_acceleration(self) -> None:
-        """初始化硬件加速"""
+        """初始化硬件加速，包括NVENC支持"""
         try:
             # 检查硬件加速是否可用
             if self.settings.enable_hardware_acceleration:
-                self.logger.info("硬件加速已启用")
+                # 检测NVIDIA GPU for NVENC
+                nvidia_info = self.hardware_acceleration.get_gpu_info('nvidia')
+                if nvidia_info and nvidia_info.get('nvenc_supported', False):
+                    self.settings.default_video_codec = VideoCodec.H264_NVENC
+                    self.logger.info("NVENC硬件加速已启用 (NVIDIA GPU检测到)")
+                else:
+                    self.logger.info("硬件加速已启用 (CPU/其他GPU)")
             else:
                 self.logger.info("硬件加速已禁用")
 
@@ -363,6 +381,7 @@ class VideoEngine:
                 self.settings.default_quality_preset = config.get("default_quality_preset", self.settings.default_quality_preset)
 
             self.logger.info("配置加载完成")
+            gc.collect()  # 初始化后清理
         except Exception as e:
             self.logger.error(f"配置加载失败: {str(e)}")
 
@@ -387,33 +406,12 @@ class VideoEngine:
             if not stream_id:
                 stream_id = f"stream_{int(time.time() * 1000)}"
 
-            # 获取视频信息
-            video_info = self.ffmpeg_utils.get_video_info(video_path)
-
-            # 创建视频流
-            video_stream = VideoStream(
-                id=stream_id,
-                path=video_path,
-                video_info=video_info,
-                is_open=True
-            )
-
-            with self.stream_lock:
-                self.streams[stream_id] = video_stream
-
-            duration = time.time() - start_time
-
-            result = OperationResult(
-                success=True,
-                message=f"视频流已打开: {stream_id}",
-                data={'stream_id': stream_id, 'video_info': video_info},
-                duration=duration,
-                metadata={'stream_id': stream_id}
-            )
-
-            self.event_bus.publish("stream_opened", result)
-            self.logger.info(f"视频流已打开: {stream_id}")
-            return result
+            # 异步获取视频信息（使用worker）
+            worker = VideoInfoWorker(video_path, self)
+            worker.signals.result.connect(lambda info: self._on_video_info_ready(info, stream_id, start_time, video_path))
+            worker.signals.error.connect(lambda err: self._on_video_info_error(err, stream_id, start_time))
+            self.thread_pool.start(worker)
+            return OperationResult(success=True, message=f"视频流打开任务已提交: {stream_id}")  # 异步返回
 
         except Exception as e:
             duration = time.time() - start_time
@@ -441,6 +439,52 @@ class VideoEngine:
             self.event_bus.publish("stream_error", result)
             return result
 
+    def _on_video_info_ready(self, video_info: VideoInfo, stream_id: str, start_time: float, video_path: str):
+        """视频信息准备完成"""
+        try:
+            # 缓存video_info
+            self.video_info_cache[video_path] = (video_info, time.time())
+
+            # 创建视频流
+            video_stream = VideoStream(
+                id=stream_id,
+                path=video_path,
+                video_info=video_info,
+                is_open=True
+            )
+
+            with self.stream_lock:
+                self.streams[stream_id] = video_stream
+
+            duration = time.time() - start_time
+
+            result = OperationResult(
+                success=True,
+                message=f"视频流已打开: {stream_id}",
+                data={'stream_id': stream_id, 'video_info': video_info},
+                duration=duration,
+                metadata={'stream_id': stream_id}
+            )
+
+            self.event_bus.publish("stream_opened", result)
+            self.logger.info(f"视频流已打开: {stream_id}")
+            gc.collect()  # 打开流后清理
+
+        except Exception as e:
+            self._on_video_info_error(str(e), stream_id, start_time)
+
+    def _on_video_info_error(self, error_msg: str, stream_id: str, start_time: float):
+        """视频信息错误"""
+        duration = time.time() - start_time
+        result = OperationResult(
+            success=False,
+            message=f"打开视频流失败: {error_msg}",
+            error=Exception(error_msg),
+            duration=duration
+        )
+        self.event_bus.publish("stream_error", result)
+        self.logger.error(f"视频流打开失败: {stream_id}, {error_msg}")
+
     def close_video_stream(self, stream_id: str) -> OperationResult:
         """关闭视频流"""
         if self.state != EngineState.READY:
@@ -459,11 +503,11 @@ class VideoEngine:
                         message=f"视频流不存在: {stream_id}"
                     )
 
-                video_stream = self.streams[stream_id]
-                video_stream.is_open = False
-
-                # 清理资源
-                del self.streams[stream_id]
+                video_stream = self.streams.get(stream_id)
+                if video_stream:
+                    video_stream.is_open = False
+    
+                # 弱引用自动清理，无需del
 
             duration = time.time() - start_time
 
@@ -494,18 +538,18 @@ class VideoEngine:
     def get_video_stream(self, stream_id: str) -> Optional[VideoStream]:
         """获取视频流"""
         with self.stream_lock:
-            return self.streams.get(stream_id)
+            return self.streams.get(stream_id)  # 弱引用，如果已回收返回None
 
     def get_all_streams(self) -> List[VideoStream]:
         """获取所有视频流"""
         with self.stream_lock:
-            return list(self.streams.values())
+            return list(self.streams.values())  # 自动排除已回收的
 
     def process_video(self, input_path: str, output_path: str, operation_type: str,
                      operation_params: Optional[Dict[str, Any]] = None,
                      priority: ProcessingPriority = ProcessingPriority.NORMAL,
                      callback: Optional[Callable[[ProcessingTask], None]] = None) -> OperationResult:
-        """处理视频"""
+        """处理视频（异步提交，支持NVENC编码）"""
         if self.state != EngineState.READY:
             return OperationResult(
                 success=False,
@@ -521,6 +565,15 @@ class VideoEngine:
         start_time = time.time()
 
         try:
+            # 默认启用NVENC如果可用
+            params = operation_params or {}
+            if self.settings.enable_hardware_acceleration and 'encoder' not in params:
+                nvidia_info = self.hardware_acceleration.get_gpu_info('nvidia')
+                if nvidia_info and nvidia_info.get('nvenc_supported', False):
+                    params['encoder'] = 'nvenc'
+                    params['video_codec'] = 'h264_nvenc'
+                    self.logger.info("自动启用NVENC编码")
+
             # 创建处理任务
             task_id = f"task_{int(time.time() * 1000)}"
             task = ProcessingTask(
@@ -530,35 +583,46 @@ class VideoEngine:
                 output_path=output_path,
                 priority=priority,
                 callback=callback,
-                metadata={'type': operation_type, **(operation_params or {})}
+                metadata={'type': operation_type, **params}
             )
 
-            # 添加任务到处理器
-            success = self.video_processor.add_task(task)
+            # 异步添加任务，使用thread_pool
+            class ProcessingWorker(QRunnable):
+                def __init__(self, task, start_time, engine):
+                    super().__init__()
+                    self.task = task
+                    self.start_time = start_time
+                    self.engine = engine
 
-            if not success:
-                return OperationResult(
-                    success=False,
-                    message="无法添加处理任务"
-                )
+                def run(self):
+                    success = self.engine.video_processor.add_task(self.task)
+                    duration = time.time() - self.start_time
+                    if success:
+                        result = OperationResult(
+                            success=True,
+                            message=f"视频处理任务已提交: {self.task.id}",
+                            data={'task_id': self.task.id, 'task': self.task},
+                            duration=duration,
+                            metadata={'task_id': self.task.id, 'operation_type': self.task.metadata.get('type')}
+                        )
+                        self.engine.event_bus.publish("video_processing_started", result)
+                        self.engine.logger.info(f"视频处理任务已提交: {self.task.id} (编码器: {self.task.metadata.get('encoder', 'software')})")
+                    else:
+                        result = OperationResult(
+                            success=False,
+                            message="无法添加处理任务",
+                            duration=duration
+                        )
+                        self.engine.event_bus.publish("video_processing_error", result)
+                        self.engine.logger.error(f"视频处理任务添加失败: {self.task.id}")
 
-            duration = time.time() - start_time
+            worker = ProcessingWorker(task, start_time, self)
+            self.thread_pool.start(worker)
 
-            result = OperationResult(
-                success=True,
-                message=f"视频处理任务已提交: {task_id}",
-                data={'task_id': task_id, 'task': task},
-                duration=duration,
-                metadata={'task_id': task_id, 'operation_type': operation_type}
-            )
-
-            self.event_bus.publish("video_processing_started", result)
-            self.logger.info(f"视频处理任务已提交: {task_id}")
-            return result
+            return OperationResult(success=True, message=f"视频处理任务提交中: {task_id}")
 
         except Exception as e:
             duration = time.time() - start_time
-
             error_info = ErrorInfo(
                 error_type=ErrorType.MEDIA,
                 severity=ErrorSeverity.HIGH,
@@ -582,9 +646,10 @@ class VideoEngine:
             self.event_bus.publish("video_processing_error", result)
             return result
 
+    @lru_cache(maxsize=50)
     def create_thumbnail(self, video_path: str, output_path: str,
                         timestamp: float = 0.0, size: Tuple[int, int] = (320, 180)) -> OperationResult:
-        """创建缩略图"""
+        """创建缩略图（缓存）"""
         if self.state != EngineState.READY:
             return OperationResult(
                 success=False,
@@ -608,6 +673,7 @@ class VideoEngine:
 
             self.event_bus.publish("thumbnail_created", result)
             self.logger.info(f"缩略图创建成功: {thumbnail_path}")
+            gc.collect()  # 清理临时FFmpeg资源
             return result
 
         except Exception as e:
@@ -724,16 +790,23 @@ class VideoEngine:
             'ffmpeg_metrics': {
                 'is_busy': self.ffmpeg_utils.is_busy(),
                 'queue_size': self.ffmpeg_utils.command_queue.qsize()
-            }
+            },
+            'cache_size': len(self.video_info_cache)
         }
 
         if self.video_processor:
             metrics['video_processor'] = self.video_processor.get_performance_metrics()
 
+        # 清理过期缓存
+        now = time.time()
+        expired = [k for k, v in self.video_info_cache.items() if now - v[1] > self.cache_ttl]
+        for k in expired:
+            del self.video_info_cache[k]
+
         return metrics
 
     def optimize_performance(self) -> OperationResult:
-        """优化性能"""
+        """优化性能，包括NVENC配置"""
         if self.state != EngineState.READY:
             return OperationResult(
                 success=False,
@@ -745,6 +818,13 @@ class VideoEngine:
         try:
             # 优化硬件加速设置
             self.hardware_acceleration.optimize_for_video_processing()
+
+            # NVENC特定优化
+            nvidia_info = self.hardware_acceleration.get_gpu_info('nvidia')
+            if nvidia_info and nvidia_info.get('nvenc_supported', False):
+                self.settings.default_video_codec = VideoCodec.H264_NVENC
+                self.settings.default_quality_preset = 'fast'  # NVENC fast preset
+                self.logger.info("NVENC性能优化已应用")
 
             # 优化视频处理器设置
             if self.video_processor:
@@ -759,10 +839,10 @@ class VideoEngine:
 
             result = OperationResult(
                 success=True,
-                message="性能优化完成",
+                message="性能优化完成 (NVENC启用)",
                 data={'optimization_settings': optimization_settings},
                 duration=duration,
-                metadata={'optimization_settings': optimization_settings}
+                metadata={'optimization_settings': optimization_settings, 'nvenc_enabled': nvidia_info is not None}
             )
 
             self.event_bus.publish("performance_optimized", result)
@@ -876,6 +956,9 @@ class VideoEngine:
                 for stream_id in list(self.streams.keys()):
                     self.close_video_stream(stream_id)
 
+            # 清空缓存
+            self.video_info_cache.clear()
+
             # 清理临时文件
             import shutil
             if os.path.exists(self.settings.temp_directory):
@@ -885,6 +968,7 @@ class VideoEngine:
             if os.path.exists(self.settings.cache_directory):
                 shutil.rmtree(self.settings.cache_directory)
 
+            gc.collect()
             self.logger.info("资源清理完成")
         except Exception as e:
             self.logger.error(f"资源清理失败: {str(e)}")
@@ -893,6 +977,34 @@ class VideoEngine:
         """析构函数"""
         self.shutdown()
 
+
+# Worker类用于异步视频信息提取
+class VideoInfoSignals(QObject):
+    result = pyqtSignal(object)
+    error = pyqtSignal(str)
+
+class VideoInfoWorker(QRunnable):
+    def __init__(self, video_path: str, engine: VideoEngine):
+        super().__init__()
+        self.video_path = video_path
+        self.engine = engine
+        self.signals = VideoInfoSignals()
+
+    def run(self):
+        try:
+            # 检查缓存
+            cache_key = self.video_path
+            if hasattr(self.engine, 'video_info_cache') and cache_key in self.engine.video_info_cache:
+                info, timestamp = self.engine.video_info_cache[cache_key]
+                if time.time() - timestamp < self.engine.cache_ttl:
+                    self.signals.result.emit(info)
+                    return
+
+            # 获取信息
+            info = self.engine.ffmpeg_utils.get_video_info(self.video_path)
+            self.signals.result.emit(info)
+        except Exception as e:
+            self.signals.error.emit(str(e))
 
 # 全局视频引擎实例
 _video_engine: Optional[VideoEngine] = None

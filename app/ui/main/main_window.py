@@ -15,7 +15,7 @@ from enum import Enum
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget,
     QToolBar, QStatusBar, QMenuBar, QSplitter, QFrame, QLabel,
-    QSizePolicy, QApplication, QMessageBox, QPushButton
+    QSizePolicy, QApplication, QMessageBox, QPushButton, QDialog
 )
 from PyQt6.QtCore import (
     Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
@@ -33,6 +33,11 @@ from ...core.event_system import EventBus
 from ...core.application import Application, ApplicationState, ErrorInfo, ErrorType, ErrorSeverity
 from ...utils.error_handler import ErrorHandler
 from ...utils.error_handler import handle_exception, show_error_dialog
+from ..components.enhanced_interactions import (
+    EnhancedButton, LoadingIndicator, SmoothStackedWidget,
+    ToastNotification, ProgressOverlay, InteractiveGuide
+)
+from ..components.help_system import HelpSystem
 
 
 class PageType(Enum):
@@ -95,10 +100,15 @@ class MainWindow(QMainWindow):
 
         # 窗口配置
         self.window_config = WindowConfig()
+        # 注册媒体服务
+        from ...services.media_service import MediaService
+        self.media_service = MediaService(self.logger)
+        self.application.register_service("media_service", self.media_service)
+        self.media_service.media_imported.connect(self._on_media_imported)
 
         # 组件初始化
         self.central_widget: Optional[QWidget] = None
-        self.page_stack: Optional[QStackedWidget] = None
+        self.page_stack: Optional[SmoothStackedWidget] = None
         self.status_bar: Optional[QStatusBar] = None
 
         # 页面组件
@@ -106,6 +116,13 @@ class MainWindow(QMainWindow):
         self.settings_page: Optional[QWidget] = None
         self.video_editor_page: Optional[QWidget] = None
         self.export_page: Optional[QWidget] = None
+
+        # 增强交互组件
+        self.loading_indicator: Optional[LoadingIndicator] = None
+        self.toast_notification: Optional[ToastNotification] = None
+        self.progress_overlay: Optional[ProgressOverlay] = None
+        self.interactive_guide: Optional[InteractiveGuide] = None
+        self.help_system: Optional[HelpSystem] = None
 
         # 初始化UI
         self._init_ui()
@@ -157,64 +174,62 @@ class MainWindow(QMainWindow):
             video_icon = QIcon()
             export_icon = QIcon()
 
-        self.home_btn = QPushButton(home_icon, "首页")
-        self.settings_btn = QPushButton(settings_icon, "设置")
-        self.editor_btn = QPushButton(video_icon, "视频编辑器")
-        self.export_btn = QPushButton(export_icon, "视频导出")
+        self.home_btn = EnhancedButton(home_icon, "首页")
+        self.settings_btn = EnhancedButton(settings_icon, "设置")
+        self.editor_btn = EnhancedButton(video_icon, "视频编辑器")
+        self.export_btn = EnhancedButton(export_icon, "视频导出")
+
+        # 帮助按钮
+        try:
+            help_icon = get_icon("help", 24)
+        except Exception:
+            help_icon = QIcon()
+        self.help_btn = EnhancedButton(help_icon, "帮助")
 
         self.home_btn.setFixedSize(120, 40)
         self.settings_btn.setFixedSize(120, 40)
         self.editor_btn.setFixedSize(140, 40)
         self.export_btn.setFixedSize(120, 40)
+        self.help_btn.setFixedSize(120, 40)
 
         self.home_btn.clicked.connect(lambda: self.switch_to_page(PageType.HOME))
         self.settings_btn.clicked.connect(lambda: self.switch_to_page(PageType.SETTINGS))
         self.editor_btn.clicked.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
         self.export_btn.clicked.connect(lambda: self.switch_to_page(PageType.EXPORT))
-
-        # 设置按钮样式
-        button_style = """
-            QPushButton {
-                background-color: #2d2d2d;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #404040;
-            }
-            QPushButton:pressed {
-                background-color: #1890ff;
-            }
-        """
-        self.home_btn.setStyleSheet(button_style)
-        self.settings_btn.setStyleSheet(button_style)
-        self.editor_btn.setStyleSheet(button_style)
-        self.export_btn.setStyleSheet(button_style)
+        self.help_btn.clicked.connect(self._show_help)
 
         navigation_layout.addWidget(self.home_btn)
         navigation_layout.addWidget(self.settings_btn)
         navigation_layout.addWidget(self.editor_btn)
         navigation_layout.addWidget(self.export_btn)
+        navigation_layout.addWidget(self.help_btn)
         navigation_layout.addStretch()
 
         main_layout.addLayout(navigation_layout)
 
-        # 创建页面堆栈
-        self.page_stack = QStackedWidget()
+        # 创建页面堆栈 - 使用平滑切换
+        self.page_stack = SmoothStackedWidget()
         main_layout.addWidget(self.page_stack, 1)
 
         # 创建状态栏
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
+        # 添加媒体导入按钮到工具栏
+        self._create_toolbar()
+
+        # 创建工具栏
+        self._create_toolbar()
+        # 创建菜单栏
+        self._create_menu_bar()
 
         # 初始化页面
         self._init_pages()
 
         # 设置默认页面
         self.switch_to_page(PageType.HOME)
+
+        # 创建增强交互组件
+        self._create_enhanced_components()
 
         # 应用样式
         self._apply_style()
@@ -437,38 +452,52 @@ class MainWindow(QMainWindow):
                     ErrorSeverity.MEDIUM
                 )
 
+    def _create_enhanced_components(self):
+        """创建增强交互组件"""
+        try:
+            # 创建加载指示器
+            self.loading_indicator = LoadingIndicator(self)
+            self.loading_indicator.hide()
+
+            # 创建Toast通知
+            self.toast_notification = ToastNotification(self)
+            self.toast_notification.hide()
+
+            # 创建进度覆盖层
+            self.progress_overlay = ProgressOverlay(self)
+            self.progress_overlay.hide()
+
+            # 创建交互式引导
+            self.interactive_guide = InteractiveGuide(self)
+            self.interactive_guide.hide()
+
+            # 创建帮助系统
+            self.help_system = HelpSystem(self.application)
+            self.help_system.hide()
+
+            self.logger.info("增强交互组件创建完成")
+
+        except Exception as e:
+            self.logger.error(f"创建增强交互组件失败: {e}")
+
     def _update_navigation_buttons(self):
         """更新导航按钮状态"""
-        # 重置所有按钮样式
-        base_style = """
-            QPushButton {
-                background-color: #2d2d2d;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #404040;
-            }
-        """
+        # 重置所有按钮状态
+        self.home_btn.set_active(False)
+        self.settings_btn.set_active(False)
+        self.editor_btn.set_active(False)
+        self.export_btn.set_active(False)
+        self.help_btn.set_active(False)
 
-        if self.is_dark_theme:
-            self.home_btn.setStyleSheet(base_style)
-            self.settings_btn.setStyleSheet(base_style)
-            self.editor_btn.setStyleSheet(base_style)
-            self.export_btn.setStyleSheet(base_style)
-
-            # 高亮当前页面按钮
-            if self.current_page == PageType.HOME:
-                self.home_btn.setStyleSheet(base_style.replace("#2d2d2d", "#1890ff"))
-            elif self.current_page == PageType.SETTINGS:
-                self.settings_btn.setStyleSheet(base_style.replace("#2d2d2d", "#1890ff"))
-            elif self.current_page == PageType.VIDEO_EDITOR:
-                self.editor_btn.setStyleSheet(base_style.replace("#2d2d2d", "#1890ff"))
-            elif self.current_page == PageType.EXPORT:
-                self.export_btn.setStyleSheet(base_style.replace("#2d2d2d", "#1890ff"))
+        # 设置当前页面按钮为激活状态
+        if self.current_page == PageType.HOME:
+            self.home_btn.set_active(True)
+        elif self.current_page == PageType.SETTINGS:
+            self.settings_btn.set_active(True)
+        elif self.current_page == PageType.VIDEO_EDITOR:
+            self.editor_btn.set_active(True)
+        elif self.current_page == PageType.EXPORT:
+            self.export_btn.set_active(True)
 
     def _on_theme_changed(self, theme_name: str):
         """处理主题变更事件"""
@@ -547,6 +576,8 @@ class MainWindow(QMainWindow):
         try:
             # 保存设置
             self._save_settings()
+            # 确保可访问性焦点管理
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
             # 询问确认
             reply = QMessageBox.question(
@@ -569,10 +600,18 @@ class MainWindow(QMainWindow):
             event.accept()
 
     def keyPressEvent(self, event):
-        """处理键盘事件"""
+        """处理键盘事件 - 增强可访问性"""
         try:
+            # Tab导航
+            if event.key() == Qt.Key.Key_Tab:
+                self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+                # 焦点移动到下一个控件
+                current_focus = self.focusWidget()
+                if current_focus:
+                    # 简化焦点管理，实际可使用QAccessible
+                    pass
             # Ctrl+Q: 退出
-            if event.key() == Qt.Key.Key_Q and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            elif event.key() == Qt.Key.Key_Q and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 self.close()
             # F11: 全屏切换
             elif event.key() == Qt.Key.Key_F11:
@@ -583,6 +622,9 @@ class MainWindow(QMainWindow):
             # F5: 刷新
             elif event.key() == Qt.Key.Key_F5:
                 self.refresh_ui()
+            # F1: 帮助
+            elif event.key() == Qt.Key.Key_F1:
+                self._show_help()
             else:
                 super().keyPressEvent(event)
 
@@ -610,11 +652,303 @@ class MainWindow(QMainWindow):
     def show_error_message(self, title: str, message: str):
         """显示错误消息"""
         QMessageBox.critical(self, title, message)
+        # 同时显示Toast通知
+        if self.toast_notification:
+            self.toast_notification.show_toast("error", message)
 
     def show_info_message(self, title: str, message: str):
         """显示信息消息"""
         QMessageBox.information(self, title, message)
+        # 同时显示Toast通知
+        if self.toast_notification:
+            self.toast_notification.show_toast("info", message)
 
     def show_warning_message(self, title: str, message: str):
         """显示警告消息"""
         QMessageBox.warning(self, title, message)
+        # 同时显示Toast通知
+        if self.toast_notification:
+            self.toast_notification.show_toast("warning", message)
+
+    def show_loading(self, message: str = "加载中..."):
+        """显示加载指示器"""
+        if self.loading_indicator:
+            self.loading_indicator.set_message(message)
+            self.loading_indicator.show()
+
+    def hide_loading(self):
+        """隐藏加载指示器"""
+        if self.loading_indicator:
+            self.loading_indicator.hide()
+
+    def show_progress(self, title: str, message: str = "", maximum: int = 100):
+        """显示进度覆盖层"""
+        if self.progress_overlay:
+            self.progress_overlay.set_title(title)
+            self.progress_overlay.set_message(message)
+            self.progress_overlay.set_maximum(maximum)
+            self.progress_overlay.set_value(0)
+            self.progress_overlay.show()
+
+    def update_progress(self, value: int, message: str = ""):
+        """更新进度"""
+        if self.progress_overlay:
+            self.progress_overlay.set_value(value)
+            if message:
+                self.progress_overlay.set_message(message)
+
+    def hide_progress(self):
+        """隐藏进度覆盖层"""
+        if self.progress_overlay:
+            self.progress_overlay.hide()
+
+    def show_toast(self, message_type: str, message: str, duration: int = 3000):
+        """显示Toast通知"""
+        if self.toast_notification:
+            self.toast_notification.show_toast(message_type, message, duration)
+
+    def show_guide(self, steps: list):
+        """显示交互式引导"""
+        if self.interactive_guide:
+            self.interactive_guide.set_steps(steps)
+            self.interactive_guide.show()
+
+    def hide_guide(self):
+        """隐藏交互式引导"""
+        if self.interactive_guide:
+            self.interactive_guide.hide()
+
+    def _create_menu_bar(self):
+        """创建菜单栏"""
+        try:
+            # 创建菜单栏
+            menubar = self.menuBar()
+
+            # 文件菜单
+            file_menu = menubar.addMenu("文件(&F)")
+
+            # 新建项目
+            new_action = QAction("新建项目", self)
+            new_action.setShortcut(QKeySequence.StandardKey.New)
+            new_action.triggered.connect(self._on_new_project)
+            file_menu.addAction(new_action)
+
+            # 打开项目
+            open_action = QAction("打开项目", self)
+            open_action.setShortcut(QKeySequence.StandardKey.Open)
+            open_action.triggered.connect(self._on_open_project)
+            file_menu.addAction(open_action)
+
+            file_menu.addSeparator()
+
+            # 退出
+            exit_action = QAction("退出", self)
+            exit_action.setShortcut(QKeySequence.StandardKey.Quit)
+            exit_action.triggered.connect(self.close)
+            file_menu.addAction(exit_action)
+
+            # 编辑菜单
+            edit_menu = menubar.addMenu("编辑(&E)")
+
+            # 设置
+            settings_action = QAction("设置", self)
+            settings_action.setShortcut(QKeySequence.StandardKey.Preferences)
+            settings_action.triggered.connect(lambda: self.switch_to_page(PageType.SETTINGS))
+            edit_menu.addAction(settings_action)
+
+            # 视图菜单
+            view_menu = menubar.addMenu("视图(&V)")
+
+            # 首页
+            home_action = QAction("首页", self)
+            home_action.setShortcut("Ctrl+1")
+            home_action.triggered.connect(lambda: self.switch_to_page(PageType.HOME))
+            view_menu.addAction(home_action)
+
+            # 视频编辑器
+            editor_action = QAction("视频编辑器", self)
+            editor_action.setShortcut("Ctrl+2")
+            editor_action.triggered.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
+            view_menu.addAction(editor_action)
+
+            # 导出
+            export_action = QAction("视频导出", self)
+            export_action.setShortcut("Ctrl+3")
+            export_action.triggered.connect(lambda: self.switch_to_page(PageType.EXPORT))
+            view_menu.addAction(export_action)
+
+            # 帮助菜单
+            help_menu = menubar.addMenu("帮助(&H)")
+
+            # 帮助文档
+            help_action = QAction("帮助文档", self)
+            help_action.setShortcut(QKeySequence.StandardKey.HelpContents)
+            help_action.triggered.connect(self._show_help)
+            help_menu.addAction(help_action)
+
+            # 快速入门
+            quick_start_action = QAction("快速入门", self)
+            quick_start_action.triggered.connect(self._show_quick_start)
+            help_menu.addAction(quick_start_action)
+
+            # 键盘快捷键
+            shortcuts_action = QAction("键盘快捷键", self)
+            shortcuts_action.setShortcut("Ctrl+?")
+            shortcuts_action.triggered.connect(self._show_shortcuts)
+            help_menu.addAction(shortcuts_action)
+
+            help_menu.addSeparator()
+
+            # 关于
+            about_action = QAction("关于", self)
+            about_action.triggered.connect(self._show_about)
+            help_menu.addAction(about_action)
+
+            self.logger.info("菜单栏创建完成")
+
+        except Exception as e:
+            self.logger.error(f"创建菜单栏失败: {e}")
+
+    def _show_help(self):
+        """显示帮助系统"""
+        if self.help_system:
+            self.help_system.show()
+            self.help_system.raise_()
+            self.help_system.activateWindow()
+
+    def _show_quick_start(self):
+        """显示快速入门引导"""
+        if self.help_system:
+            self.help_system.show()
+            self.help_system.show_tutorial("quick_start")
+
+    def _show_shortcuts(self):
+        """显示键盘快捷键"""
+        if self.help_system:
+            self.help_system.show()
+            self.help_system.navigate_to_topic("键盘快捷键")
+
+    def _show_about(self):
+        """显示关于对话框"""
+        about_text = """
+        <h2>CineAIStudio v2.0</h2>
+        <p>专业AI视频编辑器</p>
+        <p>基于人工智能的智能视频处理系统</p>
+        <br>
+        <p><b>特性：</b></p>
+        <ul>
+            <li>AI智能视频分析</li>
+            <li>自动剪辑建议</li>
+            <li>智能音频处理</li>
+            <li>专业时间线编辑</li>
+            <li>多种格式导出</li>
+        </ul>
+        <br>
+        <p>© 2024 CineAIStudio Team</p>
+        """
+
+        QMessageBox.about(self, "关于 CineAIStudio", about_text)
+
+    def _on_new_project(self):
+        """处理新建项目"""
+        self.show_info_message("新建项目", "新建项目功能正在开发中")
+
+    def _on_open_project(self):
+        """处理打开项目"""
+        self.show_info_message("打开项目", "打开项目功能正在开发中")
+
+    def _create_toolbar(self):
+        """创建工具栏"""
+        toolbar = QToolBar("主工具栏")
+        toolbar.setStyleSheet("""
+            QToolBar {
+                background: #2A2A2A;
+                border: none;
+                spacing: 5px;
+            }
+            QToolButton {
+                background: transparent;
+                border: none;
+                padding: 5px;
+                border-radius: 4px;
+            }
+            QToolButton:hover {
+                background: #3A3A3A;
+            }
+            QToolButton:pressed {
+                background: #404040;
+            }
+        """)
+        self.addToolBar(toolbar)
+
+        # 导入媒体按钮
+        import_action = QAction(get_icon("import", 24), "导入媒体", self)
+        import_action.setToolTip("导入视频、音频或图片文件 (Ctrl+I)")
+        import_action.setShortcut(QKeySequence.StandardKey.Open)
+        import_action.triggered.connect(self._import_media)
+        toolbar.addAction(import_action)
+
+        # 新建项目按钮
+        new_action = QAction(get_icon("new", 24), "新建项目", self)
+        new_action.setToolTip("创建新项目 (Ctrl+N)")
+        new_action.setShortcut(QKeySequence.StandardKey.New)
+        new_action.triggered.connect(self._on_new_project)
+        toolbar.addAction(new_action)
+
+        # 保存项目按钮
+        save_action = QAction(get_icon("save", 24), "保存项目", self)
+        save_action.setToolTip("保存当前项目 (Ctrl+S)")
+        save_action.setShortcut(QKeySequence.StandardKey.Save)
+        save_action.triggered.connect(self._on_save_project)
+        toolbar.addAction(save_action)
+
+        toolbar.addSeparator()
+
+        # AI助手按钮
+        ai_action = QAction(get_icon("ai_magic", 24), "AI助手", self)
+        ai_action.setToolTip("打开AI对话页面")
+        ai_action.triggered.connect(lambda: self.switch_to_page(PageType.AI_DIALOG))
+        toolbar.addAction(ai_action)
+
+        # 多摄像头按钮
+        multicam_action = QAction(get_icon("multicam", 24), "多摄像头", self)
+        multicam_action.setToolTip("打开多摄像头编辑模式")
+        multicam_action.triggered.connect(self._open_multicam_mode)
+        toolbar.addAction(multicam_action)
+
+    def _import_media(self):
+        """导入媒体"""
+        if self.media_service:
+            imported = self.media_service.import_media(self)
+            if imported:
+                self.show_info_message("导入成功", f"成功导入 {len(imported)} 个媒体文件")
+            else:
+                self.show_warning_message("导入失败", "没有选择文件或导入失败")
+
+    def _on_save_project(self):
+        """保存项目"""
+        self.show_info_message("保存项目", "保存项目功能正在开发中")
+
+    def _open_multicam_mode(self):
+        """打开多摄像头模式"""
+        self.show_info_message("多摄像头", "多摄像头编辑功能正在开发中")
+
+    def _on_media_imported(self, metadata):
+        """媒体导入完成"""
+        self.show_toast("info", f"导入媒体: {metadata.filename}")
+        # 切换到视频编辑页面并刷新
+        self.switch_to_page(PageType.VIDEO_EDITOR)
+        if hasattr(self.video_editor_page, 'media_panel'):
+            self.video_editor_page.media_panel.refresh_library()
+
+    def setAccessibleName(self, name: str):
+        """设置可访问名称"""
+        super().setAccessibleName(name)
+        # 确保所有子控件有可访问名称
+        for child in self.findChildren(QWidget):
+            if not child.accessibleName():
+                child.setAccessibleName(child.objectName() or "控件")
+
+    def setAccessibleDescription(self, description: str):
+        """设置可访问描述"""
+        super().setAccessibleDescription(description)

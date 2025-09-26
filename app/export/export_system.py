@@ -73,6 +73,8 @@ class ExportPreset:
     bitrate: int
     fps: float
     audio_bitrate: int
+    supports_alpha: bool = False
+    hw_acceleration: Optional[str] = None  # e.g., "cuda", "qsv", "nvenc"
     codec_params: Dict[str, Any] = field(default_factory=dict)
     description: str = ""
 
@@ -133,6 +135,8 @@ class FFmpegEngine(ExportEngine):
 
     def __init__(self):
         super().__init__()
+        from ..core.hardware_acceleration import get_hardware_acceleration
+        self.hardware_acceleration = get_hardware_acceleration()
         self.ffmpeg_path = self._find_ffmpeg()
         self.supported_formats = [
             ExportFormat.MP4_H264,
@@ -204,16 +208,26 @@ class FFmpegEngine(ExportEngine):
         """构建FFmpeg命令"""
         cmd = [self.ffmpeg_path]
 
+        # 硬件加速参数
+        hw_accel = task.preset.hw_acceleration
+        if hw_accel and self.hardware_acceleration.hw_acceleration_type != "NONE":
+            if hw_accel == "cuda" and self.hardware_acceleration.supported_frameworks:
+                cmd.extend(["-hwaccel", "cuda", "-hwaccel_output_format", "cuda"])
+                cmd.extend(["-c:v", "h264_nvenc" if task.preset.format == ExportFormat.MP4_H264 else "hevc_nvenc"])
+            elif hw_accel == "qsv" and "intel" in [g.vendor.value for g in self.hardware_acceleration.gpus]:
+                cmd.extend(["-hwaccel", "qsv", "-c:v", "h264_qsv"])
+            # 添加更多如 "nvenc", "quick_sync" 等
+
         # 输入参数
         cmd.extend(["-i", task.metadata.get("input_file", "")])
 
         # 视频编码参数
         preset = task.preset
-        if preset.format == ExportFormat.MP4_H264:
+        if preset.format == ExportFormat.MP4_H264 and not hw_accel:
             cmd.extend(["-c:v", "libx264"])
             cmd.extend(["-preset", "medium"])
             cmd.extend(["-crf", "23"])
-        elif preset.format == ExportFormat.MP4_H265:
+        elif preset.format == ExportFormat.MP4_H265 and not hw_accel:
             cmd.extend(["-c:v", "libx265"])
             cmd.extend(["-preset", "medium"])
             cmd.extend(["-crf", "28"])
@@ -375,66 +389,84 @@ class ExportQueueManager(QObject):
 
     def _worker_loop(self):
         """工作线程主循环"""
+        from PyQt6.QtCore import QThreadPool, QRunnable, Slot, QThread
+        self.thread_pool = QThreadPool()
+        self.thread_pool.setMaxThreadCount(self.max_concurrent_tasks)
+
         while self.is_running:
             try:
                 # 检查是否有空闲的任务槽
                 if len(self.active_tasks) < self.max_concurrent_tasks:
                     # 从队列获取任务
-                    task = self.task_queue.get_nowait()
-                    task.status = ExportStatus.QUEUED
+                    try:
+                        priority, task_id, task = self.task_queue.get_nowait()
+                        task.status = ExportStatus.QUEUED
 
-                    # 启动任务
-                    threading.Thread(
-                        target=self._execute_task,
-                        args=(task,),
-                        daemon=True
-                    ).start()
+                        # 创建QRunnable任务
+                        class ExportRunnable(QRunnable):
+                            def __init__(self, task, manager):
+                                super().__init__()
+                                self.task = task
+                                self.manager = manager
+
+                            @Slot()
+                            def run(self):
+                                self.manager._execute_task(self.task)
+
+                        runnable = ExportRunnable(task, self)
+                        self.thread_pool.start(runnable)
+                    except queue.Empty:
+                        pass
 
                 time.sleep(0.1)
 
-            except queue.Empty:
-                time.sleep(0.5)
             except Exception as e:
                 self.logger.error(f"Worker loop error: {e}")
                 time.sleep(1)
 
-    def _execute_task(self, task: ExportTask):
-        """执行导出任务"""
-        try:
-            task.status = ExportStatus.PROCESSING
-            task.started_at = time.time()
-            self.active_tasks[task.id] = task
+    def _execute_task(self, task: ExportTask, max_retries: int = 3):
+        """执行导出任务，支持重试"""
+        for attempt in range(max_retries):
+            try:
+                task.status = ExportStatus.PROCESSING
+                task.started_at = time.time()
+                self.active_tasks[task.id] = task
 
-            self.task_started.emit(task)
+                self.task_started.emit(task)
 
-            # 获取对应的导出引擎
-            engine = self.engines.get(task.preset.format)
-            if not engine:
-                raise ValueError(f"No engine available for format: {task.preset.format}")
+                # 获取对应的导出引擎
+                engine = self.engines.get(task.preset.format)
+                if not engine:
+                    raise ValueError(f"No engine available for format: {task.preset.format}")
 
-            # 执行导出
-            success = engine.export(task)
+                # 执行导出
+                success = engine.export(task)
 
-            if success:
-                task.status = ExportStatus.COMPLETED
-                task.completed_at = time.time()
-                self.completed_tasks.append(task)
-                self.task_completed.emit(task)
-            else:
+                if success:
+                    task.status = ExportStatus.COMPLETED
+                    task.completed_at = time.time()
+                    self.completed_tasks.append(task)
+                    self.task_completed.emit(task)
+                    return  # 成功退出重试循环
+                else:
+                    raise RuntimeError(f"Export failed on attempt {attempt + 1}: {task.error_message}")
+
+            except Exception as e:
                 task.status = ExportStatus.FAILED
+                task.error_message = str(e)
+                task.completed_at = time.time()
                 self.failed_tasks[task.id] = task
-                self.task_failed.emit(task, task.error_message)
+                self.task_failed.emit(task, str(e))
 
-        except Exception as e:
-            task.status = ExportStatus.FAILED
-            task.error_message = str(e)
-            task.completed_at = time.time()
-            self.failed_tasks[task.id] = task
-            self.task_failed.emit(task, str(e))
+                if attempt < max_retries - 1:
+                    self.logger.warning(f"Retry {attempt + 1}/{max_retries} for task {task.id}: {e}")
+                    time.sleep(2 ** attempt)  # 指数退避
+                else:
+                    self.logger.error(f"All retries failed for task {task.id}: {e}")
 
-        finally:
-            self.active_tasks.pop(task.id, None)
-            self.queue_changed.emit()
+            finally:
+                self.active_tasks.pop(task.id, None)
+                self.queue_changed.emit()
 
     def add_task(self, task: ExportTask) -> bool:
         """添加导出任务"""

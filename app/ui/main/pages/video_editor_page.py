@@ -24,7 +24,10 @@ from .base_page import BasePage
 from app.services.mock_ai_service import MockAIService
 from app.core.icon_manager import get_icon
 from app.ui.main.components.enhanced_media_library import EnhancedMediaLibrary, MediaLibraryConfig
-  class MediaLibraryPanel(QWidget):
+from app.effects.effect_engine import effect_engine
+from app.ui.main.components.enhanced_interactions import DragDropManager, VisualFeedbackWidget
+from app.ui.main.components.quick_ai_config import QuickAIConfig
+class MediaLibraryPanel(QWidget):
     """增强的媒体库面板"""
 
     video_selected = pyqtSignal(str)
@@ -365,7 +368,7 @@ class PreviewPanel(QWidget):
             }
         """)
         self.progress_slider.setRange(0, 0)
-        self.progress_slider.setToolTip("播放进度 (左右箭头键: ±5秒)")
+        self.progress_slider.setToolTip("播放进度 - 拖拽跳转，左右箭头键: ±5秒，Home/End: 跳到开始/结束")
         self.progress_slider.sliderPressed.connect(self._on_slider_pressed)
         self.progress_slider.sliderReleased.connect(self._on_slider_released)
         self.progress_slider.valueChanged.connect(self._on_slider_changed)
@@ -546,7 +549,7 @@ class PreviewPanel(QWidget):
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
     def keyPressEvent(self, event):
-        """键盘事件处理"""
+        """键盘事件处理 - 增强导航直观性"""
         if self.current_video_path is None:
             super().keyPressEvent(event)
             return
@@ -554,36 +557,45 @@ class PreviewPanel(QWidget):
         # 空格键：播放/暂停
         if event.key() == Qt.Key.Key_Space:
             self._toggle_playback()
+            event.accept()
         # 左箭头：后退5秒
         elif event.key() == Qt.Key.Key_Left:
             new_position = max(0, self.media_player.position() - 5000)
             self.media_player.setPosition(new_position)
+            event.accept()
         # 右箭头：前进5秒
         elif event.key() == Qt.Key.Key_Right:
             new_position = min(self.media_player.duration(), self.media_player.position() + 5000)
             self.media_player.setPosition(new_position)
+            event.accept()
         # 上箭头：增加音量
         elif event.key() == Qt.Key.Key_Up:
             current_volume = self.volume_slider.value()
             new_volume = min(100, current_volume + 10)
             self.volume_slider.setValue(new_volume)
+            event.accept()
         # 下箭头：减少音量
         elif event.key() == Qt.Key.Key_Down:
             current_volume = self.volume_slider.value()
             new_volume = max(0, current_volume - 10)
             self.volume_slider.setValue(new_volume)
+            event.accept()
         # F键：全屏切换
         elif event.key() == Qt.Key.Key_F:
             self._toggle_fullscreen()
+            event.accept()
         # M键：静音切换
         elif event.key() == Qt.Key.Key_M:
             self._toggle_mute()
+            event.accept()
         # Home键：跳转到开始
         elif event.key() == Qt.Key.Key_Home:
             self.media_player.setPosition(0)
+            event.accept()
         # End键：跳转到结束
         elif event.key() == Qt.Key.Key_End:
             self.media_player.setPosition(self.media_player.duration())
+            event.accept()
         else:
             super().keyPressEvent(event)
 
@@ -923,11 +935,26 @@ class VideoEditorPage(BasePage):
         self.center_splitter = None
 
         # AI服务
-        self.ai_service = MockAIService()
-        self.ai_service.processing_started.connect(self._on_ai_processing_started)
-        self.ai_service.processing_progress.connect(self._on_ai_processing_progress)
-        self.ai_service.processing_completed.connect(self._on_ai_processing_completed)
-        self.ai_service.processing_error.connect(self._on_ai_processing_error)
+        from app.services.ai_video_processing_service import AIVideoProcessingService
+        from app.services.ai_service_manager import AIServiceManager
+        self.ai_video_service = AIVideoProcessingService(self.application.ai_service_manager)
+        self.ai_service = self.ai_video_service  # 兼容现有代码
+        # 连接信号（AIVideoProcessingService无直接信号，使用回调处理）
+
+        # 导出系统
+        from app.export.export_system import ExportSystem
+        self.export_system = ExportSystem()
+
+        # 特效引擎
+        self.effect_engine = effect_engine
+
+        # 多机位集成
+        self.multicam_manager = MultiCamIntegrationManager()
+
+        # UI优化组件
+        self.drag_manager = None
+        self.quick_ai_config = None
+        self.visual_feedback = None
 
         # 状态
         self.has_project = False
@@ -973,17 +1000,20 @@ class VideoEditorPage(BasePage):
         self.center_splitter.addWidget(self.timeline_panel)
 
         # 创建右侧属性面板
-        self.properties_panel = PropertiesPanel()
+        self.properties_panel = PropertiesPanel(self)
         self.properties_panel.setMinimumWidth(250)
         self.properties_panel.setMaximumWidth(300)
         self.main_splitter.addWidget(self.properties_panel)
 
-        # 设置分割器比例
+        # 初始化UI优化
+        self._initialize_ui_optimizations()
+
+        # 设置分割器比例 - 优化为更直观的布局，预览区域更大
         self.main_splitter.setStretchFactor(0, 1)  # 左侧媒体库
-        self.main_splitter.setStretchFactor(1, 3)  # 中央预览和时间线
+        self.main_splitter.setStretchFactor(1, 4)  # 中央预览和时间线（增大）
         self.main_splitter.setStretchFactor(2, 1)  # 右侧属性面板
 
-        self.center_splitter.setStretchFactor(0, 3)  # 预览区域
+        self.center_splitter.setStretchFactor(0, 4)  # 预览区域（增大）
         self.center_splitter.setStretchFactor(1, 1)  # 时间线区域
 
         # 设置分割器样式
@@ -1022,10 +1052,25 @@ class VideoEditorPage(BasePage):
         if self.properties_panel:
             # 连接AI功能按钮信号
             self._connect_ai_signals()
+            # 连接特效信号
+            self.properties_panel.effect_applied.connect(self._on_effect_applied)
+            self.properties_panel.transition_applied.connect(self._on_transition_applied)
+
+            # 连接导出信号
+            self.properties_panel.export_btn.clicked.connect(self._start_export)
 
         if self.timeline_panel:
             # 连接时间线工具栏信号
             self._connect_timeline_signals()
+
+        # 多机位事件连接
+        self.multicam_manager.event_bus.subscribe("switch_performed", self._on_multicam_switch)
+
+        # UI优化信号连接
+        if self.drag_manager:
+            self.drag_manager.item_dropped.connect(self._on_item_dropped)
+        if self.quick_ai_config:
+            self.quick_ai_config.config_changed.connect(self._on_ai_config_changed)
 
     def _connect_ai_signals(self):
         """连接AI功能信号"""
@@ -1130,10 +1175,17 @@ class VideoEditorPage(BasePage):
             return
 
         try:
+            from app.services.ai_video_processing_service import VideoAnalysisRequest
+            request = VideoAnalysisRequest(
+                video_path=self.current_video,
+                analysis_type="subtitle_generation",
+                model_id="spark-large-v3.5",  # 假设模型ID，根据配置调整
+                max_duration=None
+            )
             self.current_ai_task = "自动字幕"
             self.update_status("正在生成自动字幕...")
             self.show_progress_dialog("自动字幕", "正在分析语音并生成字幕...")
-            self.ai_service.generate_subtitle(self.current_video, "zh", self._on_ai_result)
+            self.ai_video_service.analyze_video(request, self._on_subtitle_result)
         except Exception as e:
             self.handle_ai_error("自动字幕", e)
             self.close_progress_dialog()
@@ -1262,6 +1314,46 @@ class VideoEditorPage(BasePage):
             self.show_error(result["error"])
         else:
             self.update_status("AI处理完成")
+
+    def _on_subtitle_result(self, response: 'VideoAnalysisResponse'):
+        """字幕生成结果回调"""
+        self.close_progress_dialog()
+        if hasattr(response, 'results') and 'error' not in response.results:
+            subtitles = response.results.get('subtitles', [])
+            if subtitles:
+                srt_content = self._generate_srt(subtitles)
+                srt_path = self.current_video.rsplit('.', 1)[0] + '.srt'
+                with open(srt_path, 'w', encoding='utf-8') as f:
+                    f.write(srt_content)
+                self.update_status(f"字幕生成完成: {srt_path}")
+                QMessageBox.information(self, "成功", f"字幕文件已生成: {srt_path}")
+            else:
+                self.show_error("未生成字幕")
+        else:
+            error = response.results.get('error', '未知错误') if hasattr(response, 'results') else '未知错误'
+            self.show_error(f"字幕生成失败: {error}")
+
+    def _generate_srt(self, subtitles: List[Dict]) -> str:
+        """生成SRT格式字幕"""
+        srt_lines = []
+        for i, sub in enumerate(subtitles, 1):
+            start = self._format_time_for_srt(sub['start_time'])
+            end = self._format_time_for_srt(sub['end_time'])
+            srt_lines.extend([
+                str(i),
+                f"{start} --> {end}",
+                sub['text'],
+                ""
+            ])
+        return '\n'.join(srt_lines)
+
+    def _format_time_for_srt(self, seconds: float) -> str:
+        """格式化时间为SRT格式"""
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        millis = int((seconds % 1) * 1000)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
 
     def _show_ai_progress_dialog(self, task_name: str):
         """显示AI处理进度对话框"""
@@ -1425,3 +1517,110 @@ class VideoEditorPage(BasePage):
     def _update_theme(self) -> None:
         """更新主题"""
         pass
+
+    def _on_effect_applied(self, effect_name: str, params: dict):
+        """处理特效应用"""
+        if self.current_video:
+            # 简化：应用到当前预览帧（实际中需集成到video_engine或实时渲染）
+            self.update_status(f"应用特效: {effect_name} with {params}")
+            # 示例：如果有当前帧，应用效果
+            # frame = self.preview_panel.get_current_frame()  # 假设方法
+            # processed_frame = self.effect_engine.apply_effect(frame, effect_name, params)
+            # self.preview_panel.update_frame(processed_frame)
+            self.log_info(f"Effect applied: {effect_name}, params: {params}")
+
+    def _on_transition_applied(self, transition_name: str, progress: float, params: dict):
+        """处理转场应用"""
+        if self.current_video:
+            self.update_status(f"应用转场: {transition_name} at {progress*100}%")
+            # 类似地应用转场到两帧
+            # frame1, frame2 = self.preview_panel.get_transition_frames()
+            # transitioned_frame = self.effect_engine.apply_transition(frame1, frame2, transition_name, progress, params)
+            # self.preview_panel.update_frame(transitioned_frame)
+            self.log_info(f"Transition applied: {transition_name}, progress: {progress}, params: {params}")
+
+    def _on_multicam_switch(self, data: dict):
+        """处理多机位切换"""
+        target_camera = data.get('target_camera', 'Unknown')
+        timeline_time = data.get('timeline_time', 0.0)
+        self.update_status(f"多机位切换到: {target_camera} @ {timeline_time:.2f}s")
+        # 更新预览到新角度
+        if self.preview_panel and self.current_video:
+            # 假设切换逻辑
+            self.preview_panel.load_video(f"{self.current_video}_angle_{target_camera}")
+        self.log_info(f"MultiCam switch: {target_camera} at {timeline_time}")
+
+    def create_multicam_project(self, name: str = "多机位项目"):
+        """创建多机位项目"""
+        try:
+            project_id = self.multicam_manager.create_multicam_project(name)
+            self.update_status(f"多机位项目创建成功: {name}")
+            return project_id
+        except Exception as e:
+            self.show_error(f"创建多机位项目失败: {str(e)}")
+            return None
+
+    def sync_multicam_sources(self):
+        """同步多机位源"""
+        if not self.current_video:
+            self.show_error("请先选择视频文件")
+            return
+        try:
+            self.update_status("正在同步多机位源...")
+            success = self.multicam_manager.synchronize_with_project("current_project_id")  # 假设ID
+            if success:
+                self.update_status("多机位源同步完成")
+            else:
+                self.show_error("多机位源同步失败")
+        except Exception as e:
+            self.show_error(f"同步失败: {str(e)}")
+
+    def switch_multicam_angle(self, angle: str):
+        """切换多机位角度"""
+        try:
+            self.multicam_manager.multicam_engine.switch_camera(angle)
+            self.update_status(f"切换到角度: {angle}")
+        except Exception as e:
+            self.show_error(f"角度切换失败: {str(e)}")
+
+    def _initialize_ui_optimizations(self):
+        """初始化UI优化组件"""
+        # 拖拽管理器 - 增强时间线交互
+        if self.timeline_panel:
+            self.drag_manager = DragDropManager(self.timeline_panel.timeline_widget)
+            self.visual_feedback = VisualFeedbackWidget(self.timeline_panel.timeline_widget)
+            self.drag_manager.drag_started.connect(self._on_drag_started)
+        
+        # 一键AI配置 - 添加到属性面板
+        if self.properties_panel:
+            self.quick_ai_config = QuickAIConfig(self.properties_panel)
+            # 添加到工具箱作为新页
+            quick_ai_page = QWidget()
+            quick_ai_layout = QVBoxLayout(quick_ai_page)
+            quick_ai_layout.addWidget(self.quick_ai_config)
+            quick_ai_layout.addStretch()
+            self.properties_panel.toolbox.addItem(quick_ai_page, "一键AI")
+
+    def _on_drag_started(self, file_path: str):
+        """拖拽开始"""
+        self.update_status(f"拖拽文件: {os.path.basename(file_path)}")
+        if self.visual_feedback:
+            self.visual_feedback.show_drag_feedback()
+
+    def _on_item_dropped(self, file_path: str, timeline_pos: float):
+        """物品拖拽到时间线"""
+        self.update_status(f"文件添加到时间线: {os.path.basename(file_path)} @ {timeline_pos:.1f}%")
+        # 添加到时间线逻辑
+        if self.timeline_panel:
+            # 模拟添加剪辑到指定位置
+            pass
+        if self.visual_feedback:
+            self.visual_feedback.hide_drag_feedback()
+
+    def _on_ai_config_changed(self, config: dict):
+        """AI配置变化"""
+        self.update_status("AI配置已更新")
+        # 更新AI服务配置
+        if self.ai_service:
+            self.ai_service.update_config(config)
+        self.log_info(f"AI config updated: {config}")

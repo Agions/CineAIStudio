@@ -15,6 +15,8 @@ from pathlib import Path
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QTimer, pyqtSignal, QObject, QSettings
 
+from ..utils.error_handler import ErrorType, ErrorSeverity, ErrorInfo
+
 
 class ApplicationState(Enum):
     """应用程序状态枚举"""
@@ -25,35 +27,6 @@ class ApplicationState(Enum):
     PAUSED = "paused"
     SHUTTING_DOWN = "shutting_down"
     ERROR = "error"
-
-
-class ErrorType(Enum):
-    """错误类型枚举"""
-    SYSTEM = "system"
-    UI = "ui"
-    FILE = "file"
-    NETWORK = "network"
-    AI = "ai"
-    UNKNOWN = "unknown"
-
-
-class ErrorSeverity(Enum):
-    """错误严重程度枚举"""
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
-
-
-@dataclass
-class ErrorInfo:
-    """错误信息数据类"""
-    error_type: ErrorType
-    severity: ErrorSeverity
-    message: str
-    details: Optional[str] = None
-    exception: Optional[Exception] = None
-    timestamp: float = field(default_factory=lambda: QApplication.instance().property('timestamp') if QApplication.instance() else 0)
 
 
 class Application(QObject):

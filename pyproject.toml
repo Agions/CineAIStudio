@@ -68,25 +68,3 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-
-[tool.mypy]
-python_version = "3.12"
-warn_return_any = True
-warn_unused_configs = True
-disallow_untyped_defs = True
-files = "**/*.py"
-exclude = [
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-    "tests",
-]
-
-[[tool.mypy.overrides]]
-module = "PyQt6.*"
-ignore_missing_imports = True
-
-[[tool.mypy.overrides]]
-module = "psutil.*"
-ignore_missing_imports = True

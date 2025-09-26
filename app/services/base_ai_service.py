@@ -6,7 +6,7 @@
 定义所有AI服务的通用接口和基础功能
 """
 
-from abc import ABC, abstractmethod
+# from abc import ABC, abstractmethod  # 暂时移除以避免元类冲突
 from typing import Dict, Any, Optional, List, Callable
 from enum import Enum
 from dataclasses import dataclass
@@ -77,7 +77,7 @@ class ModelResponse:
     metadata: Optional[Dict[str, Any]] = None
 
 
-class BaseAIService(ABC, QObject):
+class BaseAIService(QObject):
     """基础AI服务抽象类"""
 
     # 信号定义
@@ -96,37 +96,37 @@ class BaseAIService(ABC, QObject):
         self.is_processing = False
         self.current_request_id = None
 
-    @abstractmethod
+    # @abstractmethod  # 暂时移除
     def get_provider_name(self) -> str:
         """获取提供商名称"""
         pass
 
-    @abstractmethod
+    # @abstractmethod  # 暂时移除
     def get_available_models(self) -> List[str]:
         """获取可用模型列表"""
         pass
 
-    @abstractmethod
+    # @abstractmethod  # 暂时移除
     def configure_model(self, model_id: str, api_key: str, **kwargs) -> bool:
         """配置模型"""
         pass
 
-    @abstractmethod
+    # @abstractmethod  # 暂时移除
     def test_connection(self, model_id: str) -> bool:
         """测试连接"""
         pass
 
-    @abstractmethod
+    # @abstractmethod  # 暂时移除
     def send_request(self, request: ModelRequest) -> Optional[ModelResponse]:
         """发送请求"""
         pass
 
-    @abstractmethod
+    # @abstractmethod  # 暂时移除
     def get_model_info(self, model_id: str) -> Optional[ModelInfo]:
         """获取模型信息"""
         pass
 
-    @abstractmethod
+    # @abstractmethod  # 暂时移除
     def estimate_cost(self, request: ModelRequest) -> float:
         """估算成本"""
         pass

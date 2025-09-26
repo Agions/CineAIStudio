@@ -29,6 +29,9 @@ class LogFormat(Enum):
 
 
 class Logger:
+    @classmethod
+    def get_logger(cls, name: str) -> 'Logger':
+        return cls(name)
     """简化日志记录器"""
 
     def __init__(self, name: str, level: int = logging.INFO):

@@ -9,7 +9,7 @@ CineAIStudio v2.0 应用启动器
 import sys
 import os
 import traceback
-from typing import List, Optional
+from typing import List, Optional, Callable, Any
 
 from PyQt6.QtWidgets import QApplication, QSplashScreen, QMessageBox
 from PyQt6.QtCore import QTimer, QThread, pyqtSignal, Qt
@@ -28,7 +28,7 @@ from .utils.error_handler import (
     setup_global_exception_handler
 )
 from .ui.main.main_window import MainWindow
-from .core.application import ApplicationState
+from .core.application import Application, ApplicationState
 
 
 class SplashScreen(QSplashScreen):
@@ -79,6 +79,7 @@ class ApplicationLauncher:
         self.logger: Optional[Logger] = None
         self.config_manager: Optional[ConfigManager] = None
         self.error_handler = None
+        self.application = None
 
     def launch(self, argv: List[str]) -> int:
         """启动应用程序"""
@@ -157,7 +158,7 @@ class ApplicationLauncher:
         config = ConfigManager()
 
         # 初始化图标管理器
-        init_icon_manager()
+        init_icon_manager("resources/icons")
 
         return config
 
@@ -192,6 +193,10 @@ class ApplicationLauncher:
                                            int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
                                            QColor("#FFFFFF"))
 
+            # 创建应用程序对象
+            if self.application is None:
+                self.application = Application(self.config_manager)
+
             # 初始化应用程序
             if not self.application.initialize(argv):
                 self.logger.error("Failed to initialize application")
@@ -218,8 +223,17 @@ class ApplicationLauncher:
                                            int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter),
                                            QColor("#FFFFFF"))
 
-            # 创建简化版主窗口
-            self.main_window = MainWindow()
+            # 确保应用程序对象已创建和初始化
+            if self.application is None:
+                self.application = Application(self.config_manager)
+
+                # 初始化应用程序
+                if not self.application.initialize([]):
+                    self.logger.error("Failed to initialize application")
+                    raise RuntimeError("Failed to initialize application")
+
+            # 创建主窗口
+            self.main_window = MainWindow(self.application)
 
             self.logger.info("Main window created successfully")
 

@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
     QLabel, QPushButton, QSlider, QSpinBox, QDoubleSpinBox,
     QComboBox, QCheckBox, QGroupBox, QFrame, QSplitter,
-    QToolBar, QMenu, QAction, QToolButton, QFileDialog,
+    QToolBar, QMenu, QToolButton, QFileDialog,
     QMessageBox, QInputDialog, QDialog, QDialogButtonBox,
     QFormLayout, QLineEdit, QTextEdit, QProgressBar,
     QStatusBar, QToolTip, QApplication, QScrollArea
@@ -31,10 +31,11 @@ from PyQt6.QtGui import (
     QPainter, QPen, QBrush, QColor, QFont, QCursor,
     QPixmap, QImage, QMouseEvent, QWheelEvent, QDragEnterEvent,
     QDropEvent, QDrag, QPainterPath, QLinearGradient,
-    QKeySequence, QIcon, QMouseEvent, QPaintEvent
+    QKeySequence, QIcon, QMouseEvent, QPaintEvent, QAction,
+    QContextMenuEvent
 )
 
-from ...core.base_component import BaseComponent, BaseContainer, BasePanel
+from ..components.base_component import BaseComponent, BaseContainer, BasePanel
 from ...core.timeline_engine import (
     TimelineEngine, TimelineSettings, Track, Clip, TrackType,
     ClipState, PlaybackState, ZoomLevel, TimeCode

@@ -838,4 +838,4 @@ class AIConfigPage(BasePage):
 
     def get_page_help_url(self) -> str:
         """获取页面帮助URL"""
-        return "https://github.com/your-repo/wiki/AI-Config-Help"
+        return "https://github.com/agions/wiki/AI-Config-Help"

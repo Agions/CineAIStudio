@@ -762,7 +762,7 @@ class QuickAIConfigWidget(QWidget):
                 self.logger.info(f"已打开本地文档: {doc_path}")
             else:
                 # 打开在线文档
-                webbrowser.open("https://github.com/your-repo/docs")
+                webbrowser.open("https://github.com/agions/docs")
                 self.logger.info("已打开在线文档")
 
         except Exception as e:

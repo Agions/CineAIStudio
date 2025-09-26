@@ -1,200 +1,133 @@
-# CineAIStudio v2.0 - 专业AI视频编辑器
+# CineAIStudio v2.0
 
-## 🎬 项目概述
+![CineAIStudio Logo](resources/icons/app_icon.png)
 
-CineAIStudio v2.0 是一个基于 PyQt6 构建的专业AI视频编辑器，采用现代化的双页面架构设计，集成了强大的AI功能和专业的视频编辑工具。
+专业的 AI 视频编辑器，支持多机位编辑、AI 增强、智能剪辑和云渲染。
 
-### 主要特色
+## 特性
 
-- 🤖 **AI驱动**: 集成多种AI功能，包括视频分析、字幕生成、配音制作等
-- 🎬 **专业编辑**: 提供多轨道时间线、特效系统、专业调色工具
-- 🎯 **双页面架构**: 视频编辑页面 + AI对话页面，操作更加直观
-- 🌟 **现代化UI**: 基于Material Design 3的现代化界面设计
-- ⚡ **高性能**: GPU加速渲染，支持4K视频编辑
-- 🔄 **剪映兼容**: 完美支持剪映项目格式导入导出
+- **AI 视频增强**：自动画质提升、降噪、智能剪辑
+- **多机位编辑**：同步多摄像机源、自动切换、实时预览
+- **专业时间线**：多轨道编辑、特效应用、精确控制
+- **国产 AI 集成**：支持文心一言、星火、Qwen 等模型
+- **云渲染支持**：分布式渲染、高性能导出
+- **专业导出**：支持 ProRes、H.265、多格式预设
 
-## 🏗️ 项目架构
+## 安装
 
-### 核心架构
+### 使用 Poetry (推荐)
 
-```
-CineAIStudio v2.0/
-├── app/                          # 应用程序核心
-│   ├── core/                     # 核心模块
-│   │   ├── application.py        # 应用程序核心
-│   │   ├── service_container.py  # 服务容器（依赖注入）
-│   │   ├── event_bus.py         # 事件总线
-│   │   ├── config_manager.py    # 配置管理
-│   │   └── logger.py           # 日志系统
-│   ├── ui/                       # 用户界面
-│   │   ├── main/               # 主窗口模块
-│   │   │   ├── main_window.py   # 主窗口
-│   │   │   ├── components/      # 主窗口组件
-│   │   │   ├── layouts/        # 布局组件
-│   │   │   └── pages/          # 页面组件
-│   │   ├── common/             # 公共UI组件
-│   │   │   └── widgets/        # 可复用组件
-│   │   └── theme/             # 主题系统
-│   ├── services/                # 业务服务
-│   ├── models/                  # 数据模型
-│   ├── config/                  # 配置文件
-│   └── utils/                   # 工具模块
-├── tests/                        # 测试文件
-├── docs/                         # 文档
-└── main.py                      # 程序入口
+```bash
+git clone https://github.com/agions/cineai-studio.git
+cd cineai-studio
+poetry install
+poetry run cineai-studio
 ```
 
-### 设计模式
+### 使用 venv
 
-- **依赖注入**: 使用ServiceContainer实现依赖注入
-- **观察者模式**: 通过EventBus实现组件间通信
-- **工厂模式**: 组件创建使用工厂模式
-- **策略模式**: 主题切换和AI服务切换
+```bash
+git clone https://github.com/agions/cineai-studio.git
+cd cineai-studio
+python3 -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+# .venv\Scripts\activate  # Windows
+pip install -e .[dev]
+python main.py
+```
 
-### 技术栈
+### 依赖
 
-- **前端框架**: PyQt6
-- **架构模式**: MVC + 分层架构
-- **设计模式**: 依赖注入、观察者、工厂、策略
-- **日志系统**: Python logging + 自定义Logger
-- **配置管理**: QSettings + JSON
-- **错误处理**: 统一错误处理和报告
+- Python 3.12+
+- PyQt6 for UI
+- OpenCV for video processing
+- FFmpeg for media handling
+- NumPy, Pillow for image processing
 
-## 🚀 快速开始
+## 快速开始
 
-### 环境要求
+1. **启动应用**
 
-- Python 3.8+
-- PyQt6
-- 其他依赖见 requirements.txt
-
-### 安装步骤
-
-1. **克隆项目**
    ```bash
-   git clone <repository-url>
-   cd CineAIStudio/v2.0
+   poetry run cineai-studio
    ```
 
-2. **安装依赖**
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. **导入媒体**
 
-3. **运行程序**
-   ```bash
-   python main.py
-   ```
+   - 点击"导入"按钮选择视频文件
+   - 支持 MP4, AVI, MOV, MKV 等格式
 
-### 使用说明
+3. **AI 增强**
 
-1. **启动程序**: 运行 main.py 启动应用程序
-2. **页面切换**: 使用导航栏或快捷键 Ctrl+1/Ctrl+2 切换页面
-3. **视频编辑**: 在视频编辑页面进行专业视频编辑
-4. **AI对话**: 在AI对话页面与AI助手交互
+   - 选择视频后点击"AI 增强"
+   - 选择"画质增强"或"智能剪辑"
 
-## 🎯 主要功能
+4. **多机位编辑**
 
-### 视频编辑页面
-- 📁 **媒体库管理**: 管理视频、音频、图片等媒体文件
-- 🎬 **视频预览**: 实时视频预览和播放控制
-- ⏱️ **时间线编辑**: 多轨道时间线编辑
-- ✨ **特效系统**: 丰富的视频特效和转场
-- ⚙️ **属性面板**: 视频参数调整和属性设置
+   - 导入多个摄像机角度视频
+   - 使用"同步"工具对齐时间线
+   - 在时间线中切换角度
 
-### AI对话页面
-- 🤖 **AI助手**: 智能对话和问题解答
-- 💡 **智能建议**: 根据上下文提供操作建议
-- 📝 **对话历史**: 保存和管理对话记录
-- ⚙️ **AI设置**: 配置AI服务和参数
+5. **导出**
+   - 点击"导出"选择格式和质量
+   - 支持本地导出和云渲染
 
-### AI功能集成
-- 🎯 **视频分析**: AI分析视频内容和场景
-- 🎤 **字幕生成**: 自动生成视频字幕
-- 🗣️ **配音制作**: AI语音合成和配音
-- 🎨 **画质增强**: AI增强视频画质
-- ⚡ **智能剪辑**: AI高能片段提取和混剪
+## 功能模块
 
-## 🔧 开发指南
+### AI 服务集成
 
-### 项目结构说明
+- 文心一言 (Baidu)
+- 星火大模型 (iFlytek)
+- Qwen (Alibaba)
+- GLM (Zhipu AI)
+- 支持 API 密钥安全存储
 
-#### 核心模块
-- **Application**: 应用程序生命周期管理
-- **ServiceContainer**: 依赖注入容器
-- **EventBus**: 事件总线系统
-- **ConfigManager**: 配置管理器
-- **Logger**: 统一日志系统
+### 视频处理引擎
 
-#### UI组件
-- **MainWindow**: 主窗口，实现双页面架构
-- **BasePage**: 页面基类，统一页面生命周期
-- **NavigationBar**: 导航栏组件
-- **StatusBar**: 状态栏组件
-- **ThemeManager**: 主题管理器
+- FFmpeg 集成
+- GPU 加速支持
+- 实时预览和处理
+- 多格式支持
 
-### 添加新功能
+### UI 组件
 
-1. **创建页面**: 继承 BasePage 类
-2. **注册服务**: 在 ServiceContainer 中注册
-3. **添加导航**: 在 NavigationBar 中添加导航项
-4. **连接事件**: 通过 EventBus 连接组件间事件
+- PyQt6 现代界面
+- 拖拽时间线编辑
+- 实时属性调整
+- 暗色主题支持
 
-### 自定义主题
+## 架构
 
-1. **修改主题配置**: 在 ConfigManager 中修改主题设置
-2. **扩展主题样式**: 在 ThemeManager 中添加新的样式
-3. **应用主题**: 调用 ThemeManager.apply_theme()
+详见 [docs/architecture.md](docs/architecture.md)
 
-## 📝 开发日志
+## API 文档
 
-### 第一阶段完成内容
-- ✅ 修复了现有代码的QShortcut导入错误
-- ✅ 建立了新的项目目录结构
-- ✅ 实现了核心架构组件
-- ✅ 创建了双页面架构的UI框架
-- ✅ 实现了基础的主题管理系统
-- ✅ 建立了统一的事件系统
-- ✅ 实现了依赖注入容器
-- ✅ 创建了基础的UI组件
+详见 [docs/api.md](docs/api.md)
 
-### 下阶段计划
-- 🔄 完善视频编辑功能组件
-- 🔄 集成真实的AI服务
-- 🔄 实现项目管理功能
-- 🔄 添加文件导入导出功能
-- 🔄 完善错误处理和日志系统
-- 🔄 添加单元测试
-- 🔄 性能优化和内存管理
+## 贡献指南
 
-## 🤝 贡献指南
+1. Fork 仓库
+2. 创建功能分支 `git checkout -b feature/amazing-feature`
+3. 提交更改 `git commit -m 'Add some AmazingFeature'`
+4. 推送分支 `git push origin feature/amazing-feature`
+5. 创建 Pull Request
 
-欢迎提交Issue和Pull Request来帮助改进项目。
+### 代码规范
 
-### 开发规范
-- 遵循PEP 8代码风格
-- 使用类型提示
-- 编写文档字符串
-- 添加单元测试
+- 使用 Black 格式化
+- 类型提示
+- 编写单元测试
+- 更新文档
 
-### 提交规范
-- feat: 新功能
-- fix: 修复bug
-- docs: 文档更新
-- style: 代码格式化
-- refactor: 代码重构
-- test: 测试相关
-- chore: 构建或辅助工具变动
+## 许可证
 
-## 📄 许可证
+MIT License - 详见 LICENSE 文件
 
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+## 联系
 
-## 🙏 致谢
-
-感谢所有为CineAIStudio项目做出贡献的开发者和用户。
+- Email: team@cineaistudio.com
+- GitHub Issues: [Issues](https://github.com/agions/cineai-studio/issues)
 
 ---
 
-**CineAIStudio Team**
-*让视频编辑更智能，让创作更简单*
+_Copyright © 2025 CineAIStudio Team_

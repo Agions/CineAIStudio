@@ -101,8 +101,8 @@ class BezierControlPoint:
 @dataclass
 class BezierKeyframe(Keyframe):
     """贝塞尔关键帧"""
-    control_point_in: BezierControlPoint
-    control_point_out: BezierControlPoint
+    control_point_in: BezierControlPoint = field(default_factory=lambda: BezierControlPoint(0.0, 0.0))
+    control_point_out: BezierControlPoint = field(default_factory=lambda: BezierControlPoint(1.0, 1.0))
 
 
 @dataclass

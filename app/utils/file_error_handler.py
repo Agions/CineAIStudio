@@ -8,6 +8,7 @@ CineAIStudio v2.0 文件操作错误处理模块
 
 import os
 import shutil
+from enum import Enum
 import json
 import zipfile
 import tempfile
@@ -44,6 +45,14 @@ class FileOperationType(Enum):
     RENAME = "rename"
     COMPRESS = "compress"
     DECOMPRESS = "decompress"
+
+
+class FileOperationError(Exception):
+    """文件操作错误"""
+    def __init__(self, message: str, operation: str = None, file_path: str = None):
+        super().__init__(message)
+        self.operation = operation
+        self.file_path = file_path
 
 
 class FileErrorHandler(ErrorHandler):

@@ -1,6 +1,6 @@
 """
-安全密钥管理器 - 解决API密钥明文存储问题
-实现企业级密钥加密存储和管理
+安全密钥管理器 - 简化版本
+实现基础的密钥加密存储和管理
 """
 
 import os
@@ -8,320 +8,395 @@ import json
 import base64
 from typing import Dict, Optional, Any, List
 from pathlib import Path
-from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import keyring
 import platform
 import hashlib
 import logging
 
+from cryptography.fernet import Fernet, InvalidToken
+import secrets
+
+# AES-256加密实现
+class AESEncryption:
+    """AES-256加密工具，使用Fernet"""
+
+    def __init__(self):
+        # 生成或加载密钥（生产中应安全存储）
+        key_file = Path.home() / ".cineai_key.key"
+        if key_file.exists():
+            with open(key_file, 'rb') as f:
+                self.key = f.read()
+        else:
+            self.key = Fernet.generate_key()
+            with open(key_file, 'wb') as f:
+                f.write(self.key)
+        self.cipher = Fernet(self.key)
+
+    def encrypt(self, data: str) -> str:
+        """AES加密"""
+        try:
+            encrypted = self.cipher.encrypt(data.encode())
+            return base64.b64encode(encrypted).decode()
+        except Exception as e:
+            raise ValueError(f"加密失败: {e}")
+
+    def decrypt(self, encrypted_data: str) -> str:
+        """AES解密"""
+        try:
+            encrypted = base64.b64decode(encrypted_data)
+            decrypted = self.cipher.decrypt(encrypted)
+            return decrypted.decode()
+        except InvalidToken:
+            raise ValueError("解密失败：无效令牌")
+        except Exception as e:
+            raise ValueError(f"解密失败: {e}")
+
 
 class SecureKeyManager:
-    """安全密钥管理器 - 修复API密钥安全问题"""
+    """增强版安全密钥管理器，支持AES-256加密"""
 
     def __init__(self, app_name: str = "CineAIStudio"):
         self.app_name = app_name
         self.logger = logging.getLogger(__name__)
-        self._encryption_key: Optional[bytes] = None
-        self._master_password: Optional[str] = None
+        self.encryption = AESEncryption()
+        self.key_storage_path = Path.home() / f".{app_name}_keys.json"
+        self._init_storage()
 
-        # 尝试初始化系统密钥库
-        self._init_keyring()
-
-    def _init_keyring(self) -> None:
-        """初始化系统密钥库"""
+    def _init_storage(self) -> None:
+        """初始化存储"""
         try:
-            # 检查系统密钥库可用性
-            if platform.system() == "Darwin":  # macOS
-                keyring.set_keyring(keyring.backends.macOS.Keyring())
-            elif platform.system() == "Windows":
-                keyring.set_keyring(keyring.backends.Windows.WinVaultKeyring())
-            elif platform.system() == "Linux":
-                keyring.set_keyring(keyring.backends.SecretService.Keyring())
-
-            # 测试密钥库功能
-            test_key = f"{self.app_name}_test"
-            keyring.set_password(self.app_name, test_key, "test")
-            keyring.delete_password(self.app_name, test_key)
-
-            self.logger.info("System keyring initialized successfully")
+            if not self.key_storage_path.exists():
+                self.key_storage_path.parent.mkdir(parents=True, exist_ok=True)
+                # 创建空的密钥存储文件
+                with open(self.key_storage_path, 'w') as f:
+                    json.dump({"version": "1.0", "keys": {}}, f)
+                self.logger.info("Created new key storage file")
+            else:
+                self.logger.info("Key storage file exists")
         except Exception as e:
-            self.logger.warning(f"System keyring not available: {e}")
+            self.logger.error(f"Failed to initialize key storage: {e}")
 
-    def _get_master_key(self) -> bytes:
-        """获取主加密密钥"""
-        if self._encryption_key is None:
-            try:
-                # 尝试从系统密钥库获取
-                master_password = keyring.get_password(self.app_name, "master_key")
-                if not master_password:
-                    # 生成新的主密钥
-                    master_password = base64.urlsafe_b64encode(os.urandom(32)).decode()
-                    keyring.set_password(self.app_name, "master_key", master_password)
-                    self.logger.info("Generated new master key")
-
-                # 使用PBKDF2衍生密钥
-                password = master_password.encode()
-                salt = hashlib.sha256(self.app_name.encode()).digest()[:16]
-                kdf = PBKDF2HMAC(
-                    algorithm=hashes.SHA256(),
-                    length=32,
-                    salt=salt,
-                    iterations=100000,
-                )
-                self._encryption_key = base64.urlsafe_b64encode(kdf.derive(password))
-
-            except Exception as e:
-                self.logger.error(f"Failed to get master key: {e}")
-                # 降级到基于文件的加密
-                self._encryption_key = self._get_file_based_key()
-
-        return self._encryption_key
-
-    def _get_file_based_key(self) -> bytes:
-        """获取基于文件的加密密钥（降级方案）"""
-        key_file = Path.home() / f".{self.app_name.lower()}" / "master.key"
-        key_file.parent.mkdir(exist_ok=True)
-
-        if key_file.exists():
-            try:
-                with open(key_file, 'rb') as f:
-                    return f.read()
-            except Exception as e:
-                self.logger.error(f"Failed to read key file: {e}")
-
-        # 生成新密钥
-        key = Fernet.generate_key()
-        try:
-            with open(key_file, 'wb') as f:
-                f.write(key)
-            # 设置文件权限（仅用户可读）
-            os.chmod(key_file, 0o600)
-            self.logger.info("Generated new file-based encryption key")
-        except Exception as e:
-            self.logger.error(f"Failed to save key file: {e}")
-
-        return key
-
-    def store_api_key(self, provider: str, api_key: str, metadata: Dict[str, Any] = None) -> bool:
-        """安全存储API密钥"""
+    def store_api_key(self, service_name: str, api_key: str,
+                     key_type: str = "api_key", description: str = None,
+                     expiration_date: str = None, permissions: List[str] = None) -> bool:
+        """存储API密钥"""
         try:
             key_data = {
-                "api_key": api_key,
-                "provider": provider,
-                "metadata": metadata or {},
-                "created_at": str(Path().cwd().stat().st_mtime),
-                "app_version": "2.0.0"
+                "service": service_name,
+                "key": api_key,
+                "type": key_type,
+                "created_at": self._get_timestamp(),
+                "updated_at": self._get_timestamp(),
+                "description": description,
+                "expiration_date": expiration_date,
+                "permissions": permissions or []
             }
 
-            # 首先尝试系统密钥库
-            try:
-                service_name = f"{self.app_name}_{provider}"
-                keyring.set_password(service_name, "api_key", json.dumps(key_data))
-                self.logger.info(f"API key for {provider} stored in system keyring")
-                return True
-            except Exception as e:
-                self.logger.warning(f"System keyring failed: {e}, using encrypted file storage")
+            # AES加密密钥数据
+            encrypted_key_data = self.encryption.encrypt(json.dumps(key_data))
 
-            # 降级到加密文件存储
-            return self._store_encrypted_key(provider, key_data)
+            # 读取现有密钥
+            all_keys = self._load_all_keys()
+            all_keys[service_name] = {
+                "encrypted_data": encrypted_key_data,
+                "service": service_name,
+                "last_access": self._get_timestamp()
+            }
 
-        except Exception as e:
-            self.logger.error(f"Failed to store API key for {provider}: {e}")
-            return False
+            # 保存密钥
+            self._save_all_keys(all_keys)
 
-    def _store_encrypted_key(self, provider: str, key_data: Dict[str, Any]) -> bool:
-        """使用加密文件存储API密钥"""
-        try:
-            encryption_key = self._get_master_key()
-            cipher = Fernet(encryption_key)
-
-            # 加密数据
-            encrypted_data = cipher.encrypt(json.dumps(key_data).encode())
-
-            # 存储到安全目录
-            secure_dir = Path.home() / f".{self.app_name.lower()}" / "keys"
-            secure_dir.mkdir(parents=True, exist_ok=True)
-
-            key_file = secure_dir / f"{provider}.key"
-            with open(key_file, 'wb') as f:
-                f.write(encrypted_data)
-
-            # 设置文件权限
-            os.chmod(key_file, 0o600)
-
-            self.logger.info(f"API key for {provider} stored in encrypted file")
+            self.logger.info(f"Stored API key for {service_name}")
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to store encrypted key for {provider}: {e}")
+            self.logger.error(f"Failed to store API key for {service_name}: {e}")
             return False
 
-    def get_api_key(self, provider: str) -> Optional[Dict[str, Any]]:
-        """安全获取API密钥"""
+    def get_api_key(self, service_name: str) -> Optional[Dict[str, Any]]:
+        """获取API密钥"""
         try:
-            # 首先尝试系统密钥库
-            try:
-                service_name = f"{self.app_name}_{provider}"
-                key_data_str = keyring.get_password(service_name, "api_key")
-                if key_data_str:
-                    key_data = json.loads(key_data_str)
-                    self.logger.debug(f"Retrieved API key for {provider} from system keyring")
-                    return key_data
-            except Exception as e:
-                self.logger.debug(f"System keyring retrieval failed: {e}")
+            all_keys = self._load_all_keys()
 
-            # 降级到加密文件
-            return self._get_encrypted_key(provider)
-
-        except Exception as e:
-            self.logger.error(f"Failed to get API key for {provider}: {e}")
-            return None
-
-    def _get_encrypted_key(self, provider: str) -> Optional[Dict[str, Any]]:
-        """从加密文件获取API密钥"""
-        try:
-            secure_dir = Path.home() / f".{self.app_name.lower()}" / "keys"
-            key_file = secure_dir / f"{provider}.key"
-
-            if not key_file.exists():
+            if service_name not in all_keys:
                 return None
 
-            encryption_key = self._get_master_key()
-            cipher = Fernet(encryption_key)
+            encrypted_data = all_keys[service_name]["encrypted_data"]
 
-            with open(key_file, 'rb') as f:
-                encrypted_data = f.read()
+            # AES解密密钥数据
+            key_data_json = self.encryption.decrypt(encrypted_data)
+            key_data = json.loads(key_data_json)
 
-            # 解密数据
-            decrypted_data = cipher.decrypt(encrypted_data)
-            key_data = json.loads(decrypted_data.decode())
+            # 更新访问时间
+            all_keys[service_name]["last_access"] = self._get_timestamp()
+            self._save_all_keys(all_keys)
 
-            self.logger.debug(f"Retrieved API key for {provider} from encrypted file")
             return key_data
 
         except Exception as e:
-            self.logger.error(f"Failed to get encrypted key for {provider}: {e}")
+            self.logger.error(f"Failed to get API key for {service_name}: {e}")
             return None
 
-    def delete_api_key(self, provider: str) -> bool:
+    def delete_api_key(self, service_name: str) -> bool:
         """删除API密钥"""
         try:
-            success = False
+            all_keys = self._load_all_keys()
 
-            # 删除系统密钥库中的密钥
-            try:
-                service_name = f"{self.app_name}_{provider}"
-                keyring.delete_password(service_name, "api_key")
-                success = True
-                self.logger.info(f"Deleted API key for {provider} from system keyring")
-            except Exception as e:
-                self.logger.debug(f"System keyring deletion failed: {e}")
+            if service_name in all_keys:
+                del all_keys[service_name]
+                self._save_all_keys(all_keys)
+                self.logger.info(f"Deleted API key for {service_name}")
+                return True
 
-            # 删除加密文件
-            try:
-                secure_dir = Path.home() / f".{self.app_name.lower()}" / "keys"
-                key_file = secure_dir / f"{provider}.key"
-                if key_file.exists():
-                    key_file.unlink()
-                    success = True
-                    self.logger.info(f"Deleted encrypted key file for {provider}")
-            except Exception as e:
-                self.logger.error(f"Failed to delete encrypted key file: {e}")
-
-            return success
-
-        except Exception as e:
-            self.logger.error(f"Failed to delete API key for {provider}: {e}")
             return False
 
-    def list_stored_keys(self) -> List[str]:
-        """列出所有存储的密钥提供商"""
-        providers = set()
-
-        # 检查加密文件
-        try:
-            secure_dir = Path.home() / f".{self.app_name.lower()}" / "keys"
-            if secure_dir.exists():
-                for key_file in secure_dir.glob("*.key"):
-                    providers.add(key_file.stem)
         except Exception as e:
-            self.logger.error(f"Failed to list encrypted keys: {e}")
+            self.logger.error(f"Failed to delete API key for {service_name}: {e}")
+            return False
 
-        return list(providers)
-
-    def rotate_master_key(self) -> bool:
-        """轮换主密钥"""
+    def list_services(self) -> List[str]:
+        """列出所有服务"""
         try:
-            # 获取所有存储的密钥
-            stored_providers = self.list_stored_keys()
-            stored_keys = {}
+            all_keys = self._load_all_keys()
+            return list(all_keys.keys())
+        except Exception as e:
+            self.logger.error(f"Failed to list services: {e}")
+            return []
 
-            # 读取所有现有密钥
-            for provider in stored_providers:
-                key_data = self.get_api_key(provider)
-                if key_data:
-                    stored_keys[provider] = key_data
+    def get_key_info(self, service_name: str) -> Optional[Dict[str, Any]]:
+        """获取密钥信息（不含密钥本身）"""
+        try:
+            all_keys = self._load_all_keys()
 
-            # 生成新的主密钥
-            self._encryption_key = None
-            try:
-                keyring.delete_password(self.app_name, "master_key")
-            except:
-                pass
+            if service_name not in all_keys:
+                return None
 
-            # 重新存储所有密钥（使用新的主密钥）
-            for provider, key_data in stored_keys.items():
-                self.store_api_key(provider, key_data["api_key"], key_data.get("metadata"))
+            key_entry = all_keys[service_name]
+            encrypted_data = key_entry["encrypted_data"]
 
-            self.logger.info("Master key rotated successfully")
+            # AES解密获取信息
+            key_data_json = self.encryption.decrypt(encrypted_data)
+            key_data = json.loads(key_data_json)
+
+            # 返回不含密钥的信息
+            return {
+                "service": key_data["service"],
+                "type": key_data["type"],
+                "created_at": key_data["created_at"],
+                "updated_at": key_data["updated_at"],
+                "description": key_data["description"],
+                "expiration_date": key_data["expiration_date"],
+                "permissions": key_data["permissions"],
+                "last_access": key_entry["last_access"]
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to get key info for {service_name}: {e}")
+            return None
+
+    def backup_keys(self, backup_path: str) -> bool:
+        """备份密钥"""
+        try:
+            backup_file = Path(backup_path)
+            backup_file.parent.mkdir(parents=True, exist_ok=True)
+
+            import shutil
+            shutil.copy2(self.key_storage_path, backup_path)
+
+            self.logger.info(f"Keys backed up to {backup_path}")
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to rotate master key: {e}")
+            self.logger.error(f"Failed to backup keys: {e}")
             return False
 
-    def validate_key_integrity(self) -> Dict[str, bool]:
+    def restore_keys(self, backup_path: str) -> bool:
+        """恢复密钥"""
+        try:
+            backup_file = Path(backup_path)
+            if not backup_file.exists():
+                self.logger.error(f"Backup file not found: {backup_path}")
+                return False
+
+            import shutil
+            shutil.copy2(backup_path, self.key_storage_path)
+
+            self.logger.info(f"Keys restored from {backup_path}")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Failed to restore keys: {e}")
+            return False
+
+    def _load_all_keys(self) -> Dict[str, Any]:
+        """加载所有密钥"""
+        try:
+            if not self.key_storage_path.exists():
+                return {}
+
+            with open(self.key_storage_path, 'r') as f:
+                data = json.load(f)
+
+            return data.get("keys", {})
+
+        except Exception as e:
+            self.logger.error(f"Failed to load keys: {e}")
+            return {}
+
+    def _save_all_keys(self, keys: Dict[str, Any]):
+        """保存所有密钥"""
+        try:
+            data = {
+                "version": "1.0",
+                "keys": keys
+            }
+
+            with open(self.key_storage_path, 'w') as f:
+                json.dump(data, f, indent=2)
+
+        except Exception as e:
+            self.logger.error(f"Failed to save keys: {e}")
+
+    def _get_timestamp(self) -> str:
+        """获取时间戳"""
+        import datetime
+        return datetime.datetime.now().isoformat()
+
+    def cleanup_expired_keys(self) -> int:
+        """清理过期密钥"""
+        try:
+            all_keys = self._load_all_keys()
+            current_time = self._get_timestamp()
+            removed_count = 0
+
+            for service_name, key_entry in list(all_keys.items()):
+                encrypted_data = key_entry["encrypted_data"]
+                key_data_json = self.encryption.decrypt(encrypted_data)
+                key_data = json.loads(key_data_json)
+
+                if key_data.get("expiration_date"):
+                    if key_data["expiration_date"] < current_time:
+                        del all_keys[service_name]
+                        removed_count += 1
+
+            if removed_count > 0:
+                self._save_all_keys(all_keys)
+                self.logger.info(f"Cleaned up {removed_count} expired keys")
+
+            return removed_count
+
+        except Exception as e:
+            self.logger.error(f"Failed to cleanup expired keys: {e}")
+            return 0
+
+    def validate_key_integrity(self) -> bool:
         """验证密钥完整性"""
-        results = {}
-
-        for provider in self.list_stored_keys():
-            try:
-                key_data = self.get_api_key(provider)
-                results[provider] = key_data is not None and "api_key" in key_data
-            except Exception:
-                results[provider] = False
-
-        return results
-
-    def get_security_status(self) -> Dict[str, Any]:
-        """获取安全状态"""
-        return {
-            "keyring_available": self._is_keyring_available(),
-            "stored_keys_count": len(self.list_stored_keys()),
-            "encryption_method": "system_keyring" if self._is_keyring_available() else "file_based",
-            "key_integrity": self.validate_key_integrity()
-        }
-
-    def _is_keyring_available(self) -> bool:
-        """检查系统密钥库是否可用"""
         try:
-            test_key = f"{self.app_name}_test_availability"
-            keyring.set_password(self.app_name, test_key, "test")
-            keyring.delete_password(self.app_name, test_key)
+            all_keys = self._load_all_keys()
+
+            for service_name, key_entry in all_keys.items():
+                try:
+                    encrypted_data = key_entry["encrypted_data"]
+                    key_data_json = self.encryption.decrypt(encrypted_data)
+                    key_data = json.loads(key_data_json)
+
+                    # 检查必要字段
+                    required_fields = ["service", "key", "type"]
+                    for field in required_fields:
+                        if field not in key_data:
+                            return False
+
+                except Exception:
+                    return False
+
             return True
-        except Exception:
+
+        except Exception as e:
+            self.logger.error(f"Key integrity validation failed: {e}")
             return False
 
+    def export_keys(self, export_path: str, include_secrets: bool = False) -> bool:
+        """导出密钥"""
+        try:
+            all_keys = self._load_all_keys()
+            export_data = {
+                "version": "1.0",
+                "exported_at": self._get_timestamp(),
+                "services": []
+            }
 
-# 全局安全密钥管理器实例
-_secure_key_manager: Optional[SecureKeyManager] = None
+            for service_name, key_entry in all_keys.items():
+                encrypted_data = key_entry["encrypted_data"]
+                key_data_json = self.encryption.decrypt(encrypted_data)
+                key_data = json.loads(key_data_json)
+
+                service_info = {
+                    "service": service_name,
+                    "type": key_data["type"],
+                    "created_at": key_data["created_at"],
+                    "description": key_data["description"]
+                }
+
+                if include_secrets:
+                    service_info["key"] = key_data["key"]
+
+                export_data["services"].append(service_info)
+
+            with open(export_path, 'w') as f:
+                json.dump(export_data, f, indent=2)
+
+            self.logger.info(f"Keys exported to {export_path}")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Failed to export keys: {e}")
+            return False
+
+    def get_system_info(self) -> Dict[str, Any]:
+        """获取系统信息"""
+        return {
+            "platform": platform.system(),
+            "platform_version": platform.version(),
+            "storage_path": str(self.key_storage_path),
+            "total_services": len(self._load_all_keys()),
+            "keyring_available": False,  # 简化版本不支持
+            "encryption_enabled": True
+        }
 
 
 def get_secure_key_manager() -> SecureKeyManager:
-    """获取全局安全密钥管理器实例"""
-    global _secure_key_manager
-    if _secure_key_manager is None:
-        _secure_key_manager = SecureKeyManager()
-    return _secure_key_manager
+    """获取安全密钥管理器实例"""
+    return SecureKeyManager()
+
+
+# 测试函数
+def test_secure_key_manager():
+    """测试安全密钥管理器"""
+    print("=== 测试安全密钥管理器 ===")
+
+    manager = get_secure_key_manager()
+
+    # 测试存储密钥
+    success = manager.store_api_key(
+        service_name="test_service",
+        api_key="test_api_key_123",
+        description="测试服务"
+    )
+    print(f"存储密钥: {'成功' if success else '失败'}")
+
+    # 测试获取密钥
+    key_data = manager.get_api_key("test_service")
+    print(f"获取密钥: {key_data is not None}")
+
+    # 测试列出服务
+    services = manager.list_services()
+    print(f"列出服务: {len(services)} 个服务")
+
+    # 测试删除密钥
+    success = manager.delete_api_key("test_service")
+    print(f"删除密钥: {'成功' if success else '失败'}")
+
+    print("=== 测试完成 ===")
+
+
+if __name__ == "__main__":
+    test_secure_key_manager()

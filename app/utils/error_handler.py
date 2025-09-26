@@ -181,22 +181,22 @@ class ErrorHandler(QObject):
         # 根据严重程度选择日志级别
         if error_info.severity == ErrorSeverity.CRITICAL:
             if error_info.exception:
-                self.logger.critical(log_message, exc_info=True)
+                self.logger.critical(f"{log_message}\n{error_info.exception}")
             else:
                 self.logger.critical(log_message)
         elif error_info.severity == ErrorSeverity.HIGH:
             if error_info.exception:
-                self.logger.error(log_message, exc_info=True)
+                self.logger.error(f"{log_message}\n{error_info.exception}")
             else:
                 self.logger.error(log_message)
         elif error_info.severity == ErrorSeverity.MEDIUM:
             if error_info.exception:
-                self.logger.warning(log_message, exc_info=True)
+                self.logger.warning(f"{log_message}\n{error_info.exception}")
             else:
                 self.logger.warning(log_message)
         else:
             if error_info.exception:
-                self.logger.info(log_message, exc_info=True)
+                self.logger.info(f"{log_message}\n{error_info.exception}")
             else:
                 self.logger.info(log_message)
 

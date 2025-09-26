@@ -21,8 +21,9 @@ from PyQt6.QtGui import (
     QPainterPath
 )
 
-from ...core.logger import get_logger
+from ...core.logger import get_logger, Logger
 from ...core.icon_manager import IconManager
+from ...core.event_system import EventBus
 from ...utils.ui_error_handler import (
     get_ui_error_handler, UIErrorInfo, UIErrorType, UIErrorSeverity,
     ui_error_handler_decorator, ErrorContext as UIErrorContext
