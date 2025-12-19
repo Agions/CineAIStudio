@@ -1,0 +1,767 @@
+/**
+ * macOS 设计系统 - 栅格与布局系统
+ *
+ * 设计理念:
+ * - 基于 8px 网格系统的间距规范
+ * - 弹性布局 (Flexbox) 为基础
+ * - 响应式断点设计
+ * - 层级清晰的 Z-index 管理
+ *
+ * 核心组件:
+ * 1. 侧边栏 (Sidebar) - 导航与工具
+ * 2. 主内容区 (Main Content) - 页面主体
+ * 3. 顶部栏 (Top Bar) - 标题与操作
+ * 4. 页面容器 (Page Layout) - 标准化结构
+ *
+ * @category: Layout & Grid
+ * @order: 3
+ * @author: Senior Full Stack Engineer
+ */
+
+/* ========================================
+ * CSS Grid 系统定义
+ * ======================================== */
+
+:root {
+  /* 容器尺寸 */
+  --container-xs: 480px;
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-xxl: 1440px;
+
+  /* 栅格列 */
+  --grid-columns: 12;
+
+  /* 最大内容宽度 */
+  --content-max-width: 1200px;
+
+  /* 边距系统 */
+  --page-padding: var(--space-6); /* 32px */
+  --page-padding-mobile: var(--space-4); /* 16px */
+}
+
+/* ========================================
+ * 主要布局结构 (App Shell)
+ * ======================================== */
+
+/* 应用根容器 */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--macos-background-base);
+}
+
+/* 应用主容器 (侧边栏 + 主内容) */
+.app-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - var(--statusbar-height));
+}
+
+/* ========================================
+ * 侧边栏系统 (Navigation Sidebar)
+ * ======================================== */
+
+/* 侧边栏基础样式 */
+.sidebar {
+  /* 布局 */
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0; /* 防止压缩 */
+
+  /* 尺寸 */
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+
+  /* 外观 */
+  background: var(--macos-background-surface);
+  border-right: 1px solid var(--macos-border-light);
+
+  /* 滚动 */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* 现代化效果 */
+  backdrop-filter: blur(20px);
+}
+
+/* 侧边栏头部 */
+.sidebar-header {
+  /* 布局 */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  /* 尺寸 */
+  height: var(--header-height);
+  padding: 0 var(--space-4);
+
+  /* 外观 */
+  border-bottom: 1px solid var(--macos-divider);
+  background: rgba(30, 30, 30, 0.5); /* 轻微透明 */
+}
+
+/* 应用图标 */
+.app-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background: var(--macos-accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+/* 应用标题 */
+.app-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--macos-text-primary);
+  white-space: nowrap;
+}
+
+/* 侧边栏内容区域 */
+.sidebar-content {
+  flex: 1;
+  padding: var(--space-3) var(--space-2);
+  overflow-y: auto;
+}
+
+/* 侧边栏底部 */
+.sidebar-footer {
+  padding: var(--space-2);
+  border-top: 1px solid var(--macos-divider);
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ========================================
+ * 主内容区域 (Main Content Area)
+ * ======================================== */
+
+.main-content {
+  /* 布局 */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  background: var(--macos-background-base);
+}
+
+/* 顶部栏目 (Header) */
+.top-bar {
+  /* 布局 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* 尺寸 */
+  height: var(--header-height);
+  padding: 0 var(--space-5);
+
+  /* 外观 */
+  background: rgba(30, 30, 30, 0.8);
+  border-bottom: 1px solid var(--macos-divider);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+
+  /* 层级 */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* 页面标题区域 */
+.page-title-area {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.page-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--macos-text-primary);
+}
+
+.page-subtitle {
+  font-size: var(--text-sm);
+  color: var(--macos-text-secondary);
+}
+
+/* 页面操作区域 */
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* 页面主体内容 */
+.page-content {
+  /* 布局 */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  /* 内容管理 */
+  overflow-y: auto;
+  overflow-x: auto;
+
+  /* 间距 */
+  padding: var(--space-5);
+
+  /* 滚动行为 */
+  scroll-behavior: smooth;
+}
+
+/* 内容最大宽度限制 */
+.content-wrapper {
+  max-width: var(--content-max-width);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ========================================
+ * 页面布局模式 (Page Layout Patterns)
+ * ======================================== */
+
+/* 1. 单列布局 (默认) */
+.layout-single {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 2. 双列布局 (Sidebar + Content) */
+.layout-double {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* 3. 三列布局 (Left Sidebar + Center + Right Panel) */
+.layout-triple {
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  gap: var(--space-4);
+}
+
+/* 4. 等分网格 (Cards Grid) */
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+/* 5. 工具栏布局 (Toolbar Layout) */
+.layout-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--macos-divider);
+  background: var(--macos-background-secondary);
+}
+
+/* ========================================
+ * 面板系统 (Panels)
+ * ======================================== */
+
+/* 基础面板 */
+.panel {
+  background: var(--macos-background-secondary);
+  border: 1px solid var(--macos-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* 可交互面板 */
+.panel-interactive {
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.panel-interactive:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--macos-shadow-md);
+  border-color: var(--macos-border-strong);
+}
+
+/* 面板头部 */
+.panel-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--macos-divider);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 面板内容 */
+.panel-body {
+  padding: var(--space-4);
+}
+
+/* 面板底部 */
+.panel-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--macos-divider);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* ========================================
+ * 分割器系统 (Splitters)
+ * ======================================== */
+
+/* 自定义分割器 */
+.custom-splitter {
+  background: var(--macos-divider);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.custom-splitter.vertical {
+  width: 1px;
+  cursor: col-resize;
+}
+
+.custom-splitter.horizontal {
+  height: 1px;
+  cursor: row-resize;
+}
+
+.custom-splitter:hover,
+.custom-splitter:active {
+  background: var(--macos-accent-blue);
+}
+
+/* 分割器容器 */
+.split-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.split-container.vertical {
+  flex-direction: row;
+}
+
+.split-container.horizontal {
+  flex-direction: column;
+}
+
+/* 分割区域 */
+.split-pane {
+  flex: 1;
+  overflow: hidden;
+  min-width: 200px; /* 防止过小 */
+}
+
+/* ========================================
+ * 网格系统 (Grid System)
+ * ======================================== */
+
+/* 12 列栅格 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-4);
+}
+
+/* 列工具类 */
+.col-1 { grid-column: span 1; }
+.col-2 { grid-column: span 2; }
+.col-3 { grid-column: span 3; }
+.col-4 { grid-column: span 4; }
+.col-5 { grid-column: span 5; }
+.col-6 { grid-column: span 6; }
+.col-7 { grid-column: span 7; }
+.col-8 { grid-column: span 8; }
+.col-9 { grid-column: span 9; }
+.col-10 { grid-column: span 10; }
+.col-11 { grid-column: span 11; }
+.col-12 { grid-column: span 12; }
+
+/* 偏移 */
+.col-offset-1 { margin-left: 8.333%; }
+.col-offset-2 { margin-left: 16.666%; }
+.col-offset-3 { margin-left: 25%; }
+.col-offset-4 { margin-left: 33.333%; }
+
+/* ========================================
+ * 布局工具类 (Utility Classes)
+ * ======================================== */
+
+/* 弹性容器 */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+
+/* 主轴对齐 */
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+
+/* 交叉轴对齐 */
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.items-stretch { align-items: stretch; }
+
+/* 间距 */
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-5 { gap: var(--space-5); }
+.gap-6 { gap: var(--space-6); }
+
+/* 边距 */
+.p-0 { padding: 0; }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+
+.m-0 { margin: 0; }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-5 { margin: var(--space-5); }
+
+/* 方向性间距 */
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.mx-4 { margin-left: var(--space-4); margin-right: var(--space-4); }
+.my-4 { margin-top: var(--space-4); margin-bottom: var(--space-4); }
+
+/* 自动边距 */
+.ml-auto { margin-left: auto; }
+.mr-auto { margin-right: auto; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* 伸缩 */
+.flex-1 { flex: 1; }
+.flex-auto { flex: 0 1 auto; }
+.flex-none { flex: none; }
+
+/* 包装 */
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+
+/* 隐藏/显示 */
+.hidden { display: none !important; }
+.visible { visibility: visible; }
+.invisible { visibility: hidden; }
+
+/* 溢出 */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-scroll { overflow: scroll; }
+
+/* 定位 */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/* Z-index 系统 */
+.z-0 { z-index: 0; }
+.z-10 { z-index: 10; }      /* 卡片/面板 */
+.z-20 { z-index: 20; }      /* 工具栏 */
+.z-30 { z-index: 30; }      /* 下拉菜单 */
+.z-40 { z-index: 40; }      /* 浮动按钮 */
+.z-50 { z-index: 50; }      /* Toast 通知 */
+.z-100 { z-index: 100; }    /* 导航栏/顶部栏 */
+.z-200 { z-index: 200; }    /* 模态框 */
+.z-300 { z-index: 300; }    /* 大模态框 */
+.z-400 { z-index: 400; }    /* 侧滑面板 */
+.z-500 { z-index: 500; }    /* 全屏遮罩 */
+
+/* ========================================
+ * 响应式断点 (Responsive)
+ * ======================================== */
+
+/* 移动设备 (小于 768px) */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px; /* 移动端隐藏侧边栏 */
+    --page-padding: var(--page-padding-mobile);
+  }
+
+  /* 移动端侧边栏隐藏 */
+  .sidebar {
+    display: none;
+  }
+
+  /* 移动端主内容全宽 */
+  .main-content {
+    width: 100%;
+  }
+
+  /* 移动端简化顶部栏 */
+  .top-bar {
+    padding: 0 var(--space-3);
+  }
+
+  .page-title {
+    font-size: var(--text-xl);
+  }
+
+  /* 移动端单列布局 */
+  .layout-double,
+  .layout-triple {
+    grid-template-columns: 1fr;
+  }
+
+  /* 移动端网格调整 */
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 移动端按钮文本简化 */
+  .page-actions button span {
+    display: none; /* 隐藏按钮文字 */
+  }
+  .page-actions button::after {
+    content: attr(title); /* 仅显示标题 */
+  }
+}
+
+/* 平板设备 (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+
+  .layout-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+/* 桌面设备 (大于 1024px) */
+@media (min-width: 1025px) {
+  /* 默认样式 */
+}
+
+/* 大屏幕 (大于 1440px) */
+@media (min-width: 1441px) {
+  .content-wrapper {
+    max-width: 1400px;
+  }
+
+  .layout-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+/* ========================================
+ * 布局状态 (Layout States)
+ * ======================================== */
+
+/* 加载状态布局 */
+.loading-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* 空状态布局 */
+.empty-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  padding: var(--space-6);
+}
+
+/* 错误状态布局 */
+.error-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background: rgba(255, 69, 58, 0.05);
+  border: 1px solid var(--macos-error);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+}
+
+/* ========================================
+ * 滚动容器 (Scroll Containers)
+ * ======================================== */
+
+/* 自定义滚动容器 */
+.scroll-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* 无滚动条但可滚动 */
+.scroll-hidden {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* 平滑滚动 */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* 边缘指示器 (可选) */
+.scroll-indicator {
+  position: relative;
+}
+
+.scroll-indicator::before,
+.scroll-indicator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.scroll-indicator::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.3), transparent);
+}
+
+.scroll-indicator::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(0,0,0,0.3), transparent);
+}
+
+/* ========================================
+ * 无障碍布局 (Accessibility Layout)
+ * ======================================== */
+
+/* 跳过链接 */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: var(--space-4);
+  background: var(--macos-accent-blue);
+  color: white;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  z-index: 1000;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+/* 焦点管理 */
+:focus-visible {
+  outline: 2px solid var(--macos-accent-blue);
+  outline-offset: 2px;
+}
+
+/* 高对比度支持 */
+@media (prefers-contrast: high) {
+  .panel,
+  .card,
+  .sidebar {
+    border-width: 2px;
+  }
+}
+
+/* ========================================
+ * 性能优化 (Layout Optimizations)
+ * ======================================== */
+
+/* 重绘优化 */
+.will-change-layout {
+  will-change: transform, layout;
+  transform: translateZ(0);
+}
+
+/* 内容可见性优化 (现代浏览器) */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 300px; /* 预估高度 */
+}
+
+/* 防止布局偏移 */
+.stable-layout {
+  min-height: 100px; /* 预留空间 */
+}
+
+/* ========================================
+ * 混合布局示例 (Layout Examples)
+ * ======================================== */
+
+/*
+ * 常见布局模版:
+ *
+ * 1. Dashboard Layout:
+ *    <div class="app-shell">
+ *      <div class="sidebar">...</div>
+ *      <div class="main-content">
+ *        <div class="top-bar">Header</div>
+ *        <div class="page-content">
+ *          <div class="layout-grid">...</div>
+ *        </div>
+ *      </div>
+ *    </div>
+ *
+ * 2. Detail View Layout:
+ *    <div class="layout-double">
+ *      <div class="panel">Menu</div>
+ *      <div class="panel">Content</div>
+ *    </div>
+ *
+ * 3. Editor Layout:
+ *    <div class="split-container vertical">
+ *      <div class="split-pane">Preview</div>
+ *      <div class="custom-splitter vertical"></div>
+ *      <div class="split-pane">Editor</div>
+ *    </div>
+ *
+ * 4. Form Layout:
+ *    <div class="layout-single">
+ *      <div class="panel">
+ *        <div class="panel-header">Form Title</div>
+ *        <div class="panel-body">
+ *          <div class="grid col-6">Input Field</div>
+ *        </div>
+ *      </div>
+ *    </div>
+ */

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio v2.0 应用程序核心类
+AI-EditX 应用程序核心类
 负责应用程序的生命周期管理、服务管理和状态控制
 """
 
@@ -57,7 +57,7 @@ class ErrorInfo:
 
 
 class Application(QObject):
-    """CineAIStudio v2.0 应用程序核心类"""
+    """AI-EditX 应用程序核心类"""
 
     # 信号定义
     state_changed = pyqtSignal(ApplicationState)        # 应用程序状态变化信号
@@ -77,8 +77,8 @@ class Application(QObject):
         self._state = ApplicationState.INITIALIZING
 
         # 服务容器
-        self._services: Dict[str, object] = {}
-        self._service_factories: Dict[str, Callable] = {}
+        from .service_container import ServiceContainer
+        self._service_container = ServiceContainer()
 
         # 事件系统
         self._event_handlers: Dict[str, List[Callable]] = {}
@@ -206,14 +206,17 @@ class Application(QObject):
 
     def get_service(self, service_type: type) -> Optional[object]:
         """获取指定类型的服务"""
-        for service in self._services.values():
-            if isinstance(service, service_type):
-                return service
-        return None
+        try:
+            return self._service_container.get(service_type)
+        except ValueError:
+            return None
 
     def get_service_by_name(self, service_name: str) -> Optional[object]:
         """获取指定名称的服务"""
-        return self._services.get(service_name)
+        try:
+            return self._service_container.get_by_name(service_name)
+        except ValueError:
+            return None
 
     def get_config(self) -> Any:
         """获取应用程序配置"""
@@ -229,41 +232,54 @@ class Application(QObject):
 
     def register_service(self, name: str, service: object) -> None:
         """注册服务"""
-        self._services[name] = service
+        # 注册到服务容器
+        self._service_container.register_by_name(name, service)
+        
+        # 同时按类型注册，方便按类型获取
+        service_type = type(service)
+        self._service_container.register(service_type, service)
+        
         self.service_registered.emit(name, service)
 
     def unregister_service(self, name: str) -> None:
         """注销服务"""
-        if name in self._services:
-            del self._services[name]
-            self.service_unregistered.emit(name)
+        # 从服务容器中移除服务
+        self._service_container.remove_by_name(name)
+        self.service_unregistered.emit(name)
 
-    def register_service_factory(self, name: str, factory: Callable) -> None:
-        """注册服务工厂"""
-        self._service_factories[name] = factory
+    def has_service(self, service_type: type) -> bool:
+        """检查指定类型的服务是否存在"""
+        return self._service_container.has(service_type)
+
+    def has_service_by_name(self, service_name: str) -> bool:
+        """检查指定名称的服务是否存在"""
+        return self._service_container.has_by_name(service_name)
 
     def subscribe(self, event_name: str, handler: Callable) -> None:
         """订阅事件"""
-        if event_name not in self._event_handlers:
-            self._event_handlers[event_name] = []
-        self._event_handlers[event_name].append(handler)
+        event_bus = self.get_service_by_name("event_bus")
+        if event_bus:
+            event_bus.subscribe(event_name, handler)
 
     def unsubscribe(self, event_name: str, handler: Callable) -> None:
         """取消订阅事件"""
-        if event_name in self._event_handlers:
-            try:
-                self._event_handlers[event_name].remove(handler)
-            except ValueError:
-                pass
+        event_bus = self.get_service_by_name("event_bus")
+        if event_bus:
+            event_bus.unsubscribe(event_name, handler)
 
     def publish(self, event_name: str, data: Any = None) -> None:
         """发布事件"""
-        if event_name in self._event_handlers:
-            for handler in self._event_handlers[event_name]:
-                try:
-                    handler(data)
-                except Exception as e:
-                    self.error_occurred.emit("EVENT_ERROR", f"Event handler error: {str(e)}")
+        event_bus = self.get_service_by_name("event_bus")
+        if event_bus:
+            event_bus.publish(event_name, data)
+        else:
+            # 回退到内部事件处理器（如果EventBus服务未初始化）
+            if event_name in self._event_handlers:
+                for handler in self._event_handlers[event_name]:
+                    try:
+                        handler(data)
+                    except Exception as e:
+                        self.error_occurred.emit("EVENT_ERROR", f"Event handler error: {str(e)}")
 
     def add_timer(self, name: str, interval: int, callback: Callable, single_shot: bool = False) -> QTimer:
         """添加定时器"""
@@ -294,7 +310,7 @@ class Application(QObject):
             from .logger import Logger
 
             # 创建日志服务
-            logger = Logger("CineAIStudio")
+            logger = Logger("AI-EditX")
             self.register_service("logger", logger)
 
             # 设置应用程序日志
@@ -327,31 +343,9 @@ class Application(QObject):
     def _init_event_bus(self) -> bool:
         """初始化事件总线"""
         try:
-            # 创建简单的事件总线
-            class EventBus:
-                def __init__(self):
-                    self._handlers = {}
+            from .event_bus import EventBus
 
-                def subscribe(self, event: str, handler: Callable):
-                    if event not in self._handlers:
-                        self._handlers[event] = []
-                    self._handlers[event].append(handler)
-
-                def unsubscribe(self, event: str, handler: Callable):
-                    if event in self._handlers:
-                        try:
-                            self._handlers[event].remove(handler)
-                        except ValueError:
-                            pass
-
-                def publish(self, event: str, data: Any = None):
-                    if event in self._handlers:
-                        for handler in self._handlers[event]:
-                            try:
-                                handler(data)
-                            except Exception as e:
-                                print(f"Event handler error: {e}")
-
+            # 使用外部EventBus类
             event_bus = EventBus()
             self.register_service("event_bus", event_bus)
 
@@ -400,8 +394,53 @@ class Application(QObject):
     def _init_services(self) -> bool:
         """初始化其他服务"""
         try:
-            # 这里可以初始化其他服务
-            # 例如：AI服务、文件服务、媒体服务等
+            # 初始化视频编辑服务
+            from ..services.video_service import VideoEditorService
+            from ..services.video_service import VideoAnalyzerService
+            from ..services.ai_service.ai_service_manager import AIServiceManager
+            from ..services.export_service.export_service import ExportService
+            
+            # 创建并注册视频编辑服务
+            video_editor_service = VideoEditorService()
+            video_editor_service.set_logger(self.logger)
+            self.register_service("video_editor", video_editor_service)
+            
+            # 创建并注册视频分析服务
+            video_analyzer_service = VideoAnalyzerService()
+            video_analyzer_service.set_logger(self.logger)
+            self.register_service("video_analyzer", video_analyzer_service)
+            
+            # 创建并注册AI服务管理器
+            ai_service_manager = AIServiceManager(self.logger)
+            self.register_service("ai_service_manager", ai_service_manager)
+            
+            # 创建并注册导出服务
+            export_service = ExportService()
+            self.register_service("export_service", export_service)
+            
+            # 初始化项目管理相关服务
+            from .project_manager import ProjectManager
+            from .project_template_manager import ProjectTemplateManager
+            from .project_settings_manager import ProjectSettingsManager
+            from .config_manager import ConfigManager
+            
+            # 创建配置管理器实例（如果不存在）
+            config_manager = self.get_service_by_name("config_manager")
+            if not config_manager:
+                config_manager = ConfigManager()
+                self.register_service("config_manager", config_manager)
+            
+            # 创建并注册项目管理器
+            project_manager = ProjectManager(config_manager)
+            self.register_service("project_manager", project_manager)
+            
+            # 创建并注册模板管理器
+            template_manager = ProjectTemplateManager(config_manager)
+            self.register_service("template_manager", template_manager)
+            
+            # 创建并注册设置管理器
+            settings_manager = ProjectSettingsManager(config_manager)
+            self.register_service("settings_manager", settings_manager)
 
             self.logger.info("服务初始化完成")
             return True
@@ -420,7 +459,7 @@ class Application(QObject):
         """加载配置"""
         try:
             # 从文件或注册表加载配置
-            settings = QSettings("CineAIStudio", "Application")
+            settings = QSettings("AI-EditX", "Application")
 
             # 加载应用程序配置
             self.logger.info("配置加载完成")
@@ -432,7 +471,7 @@ class Application(QObject):
         """保存配置"""
         try:
             # 保存配置到文件或注册表
-            settings = QSettings("CineAIStudio", "Application")
+            settings = QSettings("AI-EditX", "Application")
 
             self.logger.info("配置保存完成")
 
@@ -464,8 +503,7 @@ class Application(QObject):
     def _cleanup(self) -> None:
         """清理资源"""
         # 清理所有资源
-        self._services.clear()
-        self._service_factories.clear()
+        self._service_container.clear()
         self._event_handlers.clear()
         self._timers.clear()
         self._tasks.clear()

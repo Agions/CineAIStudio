@@ -1,11 +1,7 @@
-"""
-主窗口组件模块
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-from .navigation_bar import NavigationBar
-from .status_bar import StatusBar
-
-__all__ = [
-    'NavigationBar',
-    'StatusBar'
-]
+"""
+AI-EditX UI组件库
+提供统一的UI组件接口
+"""

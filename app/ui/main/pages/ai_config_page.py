@@ -38,9 +38,8 @@ from ...core.config_manager import ConfigManager
 from ...core.logger import Logger
 from ...core.icon_manager import get_icon
 from ...core.application import Application
-from ...services.ai_service_manager import AIServiceManager
-from ...services.base_ai_service import ModelStatus, ModelCapability
-from ...services.chinese_ai_services import ChineseAIServiceFactory
+from ...services.ai_service.ai_service_manager import AIServiceManager
+from ...services.ai_service.base_ai_service import ModelStatus, ModelCapability
 from ...utils.error_handler import handle_exception
 from .base_page import BasePage
 
@@ -428,14 +427,20 @@ class ServicePanel(QWidget):
     def _load_models(self):
         """加载模型"""
         try:
-            # 创建服务实例获取模型信息
-            service = ChineseAIServiceFactory.create_service(self.service_name)
-            if service:
-                models = service.get_available_models()
-                for model_id in models:
-                    model_info = service.get_model_info(model_id)
-                    if model_info:
-                        self._add_model_widget(model_id, model_info.__dict__)
+            # 使用AI服务管理器获取模型信息
+            parent = self.parent()
+            while parent:
+                if hasattr(parent, 'ai_service_manager'):
+                    ai_service_manager = parent.ai_service_manager
+                    if ai_service_manager:
+                        available_models = ai_service_manager.get_available_models()
+                        models = available_models.get(self.service_name, [])
+                        for model_id in models:
+                            model_info = ai_service_manager.get_model_info(self.service_name, model_id)
+                            if model_info:
+                                self._add_model_widget(model_id, model_info.__dict__)
+                    break
+                parent = parent.parent()
 
         except Exception as e:
             print(f"加载模型失败: {e}")
@@ -659,17 +664,29 @@ class AIConfigPage(BasePage):
     def _load_service_panels(self):
         """加载服务面板"""
         try:
-            services = ChineseAIServiceFactory.get_available_services()
+            # 使用mock服务作为默认服务
+            services = ["mock"]
+            service_info = {
+                "mock": {
+                    "name": "Mock AI Service",
+                    "description": "用于测试的模拟AI服务",
+                    "icon": "mock"
+                }
+            }
+            
             for service_name in services:
-                service_info = ChineseAIServiceFactory.get_service_info(service_name)
-                if service_info:
-                    panel = ServicePanel(service_name, service_info)
-                    panel.model_config_changed.connect(self._on_model_config_changed)
-                    panel.model_test_requested.connect(self._on_model_test_requested)
-                    panel.model_remove_requested.connect(self._on_model_remove_requested)
+                info = service_info.get(service_name, {
+                    "name": service_name,
+                    "description": f"{service_name} AI Service",
+                    "icon": service_name
+                })
+                panel = ServicePanel(service_name, info)
+                panel.model_config_changed.connect(self._on_model_config_changed)
+                panel.model_test_requested.connect(self._on_model_test_requested)
+                panel.model_remove_requested.connect(self._on_model_remove_requested)
 
-                    self.service_panels[service_name] = panel
-                    self.services_container.layout().addWidget(panel)
+                self.service_panels[service_name] = panel
+                self.services_container.layout().addWidget(panel)
 
             self._update_stats()
 

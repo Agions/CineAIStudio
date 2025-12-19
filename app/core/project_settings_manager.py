@@ -8,6 +8,7 @@
 
 import os
 import json
+from datetime import datetime
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass, field, asdict
 from enum import Enum
@@ -86,8 +87,8 @@ class ProjectSettingsManager(QObject):
         self.profiles: Dict[str, ProjectSettingsProfile] = {}
 
         # 设置文件路径
-        self.settings_file = os.path.expanduser("~/CineAIStudio/settings/project_settings.json")
-        self.profiles_file = os.path.expanduser("~/CineAIStudio/settings/profiles.json")
+        self.settings_file = os.path.expanduser("~/AI-EditX/settings/project_settings.json")
+        self.profiles_file = os.path.expanduser("~/AI-EditX/settings/profiles.json")
 
         # 初始化
         self._init_settings_definitions()

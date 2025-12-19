@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 图标管理器
+AI-EditX 图标管理器
 提供统一的图标加载和管理功能
 """
 

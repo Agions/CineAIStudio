@@ -2,11 +2,11 @@
 主题管理器 - 管理应用程序主题
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, QTimer
 from PyQt6.QtGui import QPalette, QColor
 
 from ...core.config_manager import ThemeConfig
@@ -28,6 +28,19 @@ class ThemeColors:
     warning: str = "#FF9800"
     success: str = "#4CAF50"
     info: str = "#2196F3"
+    accent: str = "#FF4081"
+    tertiary: str = "#9C27B0"
+    light: str = "#E3F2FD"
+    dark: str = "#0D47A1"
+
+
+class ThemePreset:
+    """主题预设"""
+    def __init__(self, name: str, mode: str, colors: ThemeColors):
+        self.name = name
+        self.mode = mode
+        self.colors = colors
+        self.stylesheet_path = f"{mode}_theme.qss"
 
 
 class ThemeManager(QObject):
@@ -35,6 +48,7 @@ class ThemeManager(QObject):
 
     # 信号定义
     theme_changed = pyqtSignal(str)  # 主题模式变更信号
+    theme_applied = pyqtSignal()  # 主题应用完成信号
 
     def __init__(self, theme_config: ThemeConfig):
         super().__init__()
@@ -42,9 +56,173 @@ class ThemeManager(QObject):
         self.theme_config = theme_config
         self.current_mode = theme_config.mode
         self.colors = ThemeColors()
-
+        self.theme_presets: List[ThemePreset] = []
+        
+        # 初始化主题预设
+        self._initialize_theme_presets()
+        
         # 更新颜色配置
         self._update_colors()
+
+    def _initialize_theme_presets(self) -> None:
+        """初始化主题预设"""
+        # 深色主题预设
+        dark_colors = ThemeColors(
+            primary="#2196F3",
+            secondary="#1976D2",
+            background="#1E1E1E",
+            surface="#2D2D2D",
+            card="#2D2D2D",
+            text="#FFFFFF",
+            text_secondary="#CCCCCC",
+            border="#404040",
+            divider="#555555",
+            error="#F44336",
+            warning="#FF9800",
+            success="#4CAF50",
+            info="#2196F3",
+            accent="#FF4081",
+            tertiary="#9C27B0",
+            light="#E3F2FD",
+            dark="#0D47A1"
+        )
+        
+        # 浅色主题预设
+        light_colors = ThemeColors(
+            primary="#2196F3",
+            secondary="#1976D2",
+            background="#FFFFFF",
+            surface="#F5F5F5",
+            card="#FFFFFF",
+            text="#000000",
+            text_secondary="#666666",
+            border="#E0E0E0",
+            divider="#EEEEEE",
+            error="#F44336",
+            warning="#FF9800",
+            success="#4CAF50",
+            info="#2196F3",
+            accent="#FF4081",
+            tertiary="#9C27B0",
+            light="#E3F2FD",
+            dark="#0D47A1"
+        )
+        
+        # 蓝调深色主题
+        blue_dark_colors = ThemeColors(
+            primary="#1976D2",
+            secondary="#1565C0",
+            background="#0F172A",
+            surface="#1E293B",
+            card="#1E293B",
+            text="#F1F5F9",
+            text_secondary="#94A3B8",
+            border="#334155",
+            divider="#475569",
+            error="#EF4444",
+            warning="#F59E0B",
+            success="#10B981",
+            info="#3B82F6",
+            accent="#EC4899",
+            tertiary="#8B5CF6",
+            light="#DBEAFE",
+            dark="#1E40AF"
+        )
+        
+        # 森林绿色主题
+        forest_colors = ThemeColors(
+            primary="#22C55E",
+            secondary="#16A34A",
+            background="#064E3B",
+            surface="#14532D",
+            card="#14532D",
+            text="#ECFDF5",
+            text_secondary="#99F6E4",
+            border="#16A34A",
+            divider="#15803D",
+            error="#EF4444",
+            warning="#F59E0B",
+            success="#22C55E",
+            info="#3B82F6",
+            accent="#8B5CF6",
+            tertiary="#EC4899",
+            light="#BBF7D0",
+            dark="#052E16"
+        )
+        
+        # 紫色主题
+        purple_colors = ThemeColors(
+            primary="#9C27B0",
+            secondary="#7B1FA2",
+            background="#121212",
+            surface="#1E1B1E",
+            card="#1E1B1E",
+            text="#FFFFFF",
+            text_secondary="#E0E0E0",
+            border="#4A148C",
+            divider="#311B92",
+            error="#F44336",
+            warning="#FFB300",
+            success="#66BB6A",
+            info="#2196F3",
+            accent="#EC407A",
+            tertiary="#5C6BC0",
+            light="#E1BEE7",
+            dark="#4A148C"
+        )
+        
+        # 橙色主题
+        orange_colors = ThemeColors(
+            primary="#FF5722",
+            secondary="#E64A19",
+            background="#263238",
+            surface="#37474F",
+            card="#37474F",
+            text="#FFFFFF",
+            text_secondary="#CFD8DC",
+            border="#546E7A",
+            divider="#455A64",
+            error="#F44336",
+            warning="#FFB74D",
+            success="#81C784",
+            info="#4FC3F7",
+            accent="#9575CD",
+            tertiary="#FF8A65",
+            light="#FFCCBC",
+            dark="#BF360C"
+        )
+        
+        # 添加主题预设
+        self.theme_presets = [
+            ThemePreset("深色主题", "dark", dark_colors),
+            ThemePreset("浅色主题", "light", light_colors),
+            ThemePreset("蓝调深色", "dark", blue_dark_colors),
+            ThemePreset("森林绿色", "dark", forest_colors),
+            ThemePreset("紫色主题", "dark", purple_colors),
+            ThemePreset("橙色主题", "dark", orange_colors)
+        ]
+
+    def get_available_themes(self) -> List[str]:
+        """获取可用主题列表"""
+        return [preset.name for preset in self.theme_presets]
+        
+    def get_theme_preset(self, theme_name: str) -> Optional[ThemePreset]:
+        """获取指定主题预设"""
+        for preset in self.theme_presets:
+            if preset.name == theme_name:
+                return preset
+        return None
+        
+    def apply_theme_by_name(self, theme_name: str) -> None:
+        """通过主题名称应用主题"""
+        preset = self.get_theme_preset(theme_name)
+        if preset:
+            self.set_theme_mode(preset.mode)
+            # 应用主题颜色
+            self.colors = preset.colors
+            self._apply_to_application()
+            self.theme_changed.emit(theme_name)
+            self.theme_applied.emit()
 
     def _update_colors(self) -> None:
         """更新颜色配置"""
@@ -56,7 +234,11 @@ class ThemeManager(QObject):
                 surface=self.theme_config.surface_color,
                 text=self.theme_config.text_color,
                 border="#404040",
-                divider="#555555"
+                divider="#555555",
+                accent="#FF4081",
+                tertiary="#9C27B0",
+                light="#E3F2FD",
+                dark="#0D47A1"
             )
         else:
             self.colors = ThemeColors(
@@ -68,7 +250,11 @@ class ThemeManager(QObject):
                 text="#000000",
                 text_secondary="#666666",
                 border="#E0E0E0",
-                divider="#EEEEEE"
+                divider="#EEEEEE",
+                accent="#FF4081",
+                tertiary="#9C27B0",
+                light="#E3F2FD",
+                dark="#0D47A1"
             )
 
     def set_theme_mode(self, mode: str) -> None:
@@ -77,6 +263,9 @@ class ThemeManager(QObject):
             self.current_mode = mode
             self._update_colors()
             self.theme_changed.emit(mode)
+            # 应用主题到整个应用
+            self._apply_to_application()
+            self.theme_applied.emit()
 
     def get_theme_mode(self) -> str:
         """获取主题模式"""
@@ -89,527 +278,49 @@ class ThemeManager(QObject):
 
     def get_stylesheet(self) -> str:
         """获取样式表"""
+        import os
+        stylesheet_path = ""
         if self.current_mode == "dark":
-            return self._get_dark_stylesheet()
+            # 使用外部深色主题样式表
+            stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "dark_theme.qss")
         else:
-            return self._get_light_stylesheet()
+            # 使用外部浅色主题样式表（如果存在）
+            stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "light_theme.qss")
+        
+        try:
+            with open(stylesheet_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except FileNotFoundError:
+            # 如果外部样式表不存在，使用默认样式
+            return self._get_default_stylesheet()
 
-    def _get_dark_stylesheet(self) -> str:
-        """获取深色主题样式表"""
-        return f"""
-        /* 全局样式 */
-        * {{
-            color: {self.colors.text};
-            background-color: transparent;
-        }}
-
-        /* 主窗口 */
-        QMainWindow {{
-            background-color: {self.colors.background};
-            color: {self.colors.text};
-        }}
-
-        /* 中央窗口部件 */
-        QWidget#central_widget {{
-            background-color: {self.colors.background};
-        }}
-
-        /* 按钮样式 */
-        QPushButton {{
-            background-color: {self.colors.primary};
+    def _get_default_stylesheet(self) -> str:
+        """获取默认样式表"""
+        return """/* 默认样式 */
+        QMainWindow {
+            background-color: #1E1E1E;
+            color: white;
+        }
+        QPushButton {
+            background-color: #2196F3;
             color: white;
             border: none;
             border-radius: 4px;
             padding: 8px 16px;
-            font-weight: bold;
-        }}
-
-        QPushButton:hover {{
-            background-color: {self.colors.secondary};
-        }}
-
-        QPushButton:pressed {{
-            background-color: {self.colors.secondary};
-        }}
-
-        QPushButton:disabled {{
-            background-color: {self.colors.border};
-            color: {self.colors.text_secondary};
-        }}
-
-        /* 输入框样式 */
-        QLineEdit, QTextEdit, QPlainTextEdit {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
+        }
+        QPushButton:hover {
+            background-color: #1976D2;
+        }
+        QLineEdit, QTextEdit {
+            background-color: #2D2D2D;
+            color: white;
+            border: 1px solid #404040;
             border-radius: 4px;
             padding: 8px;
-        }}
-
-        QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {{
-            border: 1px solid {self.colors.primary};
-        }}
-
-        /* 标签样式 */
-        QLabel {{
-            color: {self.colors.text};
-        }}
-
-        /* 菜单栏样式 */
-        QMenuBar {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border-bottom: 1px solid {self.colors.border};
-        }}
-
-        QMenuBar::item:selected {{
-            background-color: {self.colors.primary};
-        }}
-
-        /* 菜单样式 */
-        QMenu {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-        }}
-
-        QMenu::item:selected {{
-            background-color: {self.colors.primary};
-        }}
-
-        /* 工具栏样式 */
-        QToolBar {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            spacing: 4px;
-        }}
-
-        /* 状态栏样式 */
-        QStatusBar {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border-top: 1px solid {self.colors.border};
-        }}
-
-        /* 滚动条样式 */
-        QScrollBar:vertical {{
-            background-color: {self.colors.surface};
-            width: 12px;
-            border: none;
-        }}
-
-        QScrollBar::handle:vertical {{
-            background-color: {self.colors.border};
-            border-radius: 6px;
-            min-height: 20px;
-        }}
-
-        QScrollBar::handle:vertical:hover {{
-            background-color: {self.colors.primary};
-        }}
-
-        QScrollBar:horizontal {{
-            background-color: {self.colors.surface};
-            height: 12px;
-            border: none;
-        }}
-
-        QScrollBar::handle:horizontal {{
-            background-color: {self.colors.border};
-            border-radius: 6px;
-            min-width: 20px;
-        }}
-
-        QScrollBar::handle:horizontal:hover {{
-            background-color: {self.colors.primary};
-        }}
-
-        /* 分割器样式 */
-        QSplitter::handle {{
-            background-color: {self.colors.border};
-        }}
-
-        QSplitter::handle:horizontal {{
-            width: 2px;
-        }}
-
-        QSplitter::handle:vertical {{
-            height: 2px;
-        }}
-
-        /* 选项卡样式 */
-        QTabWidget::pane {{
-            border: 1px solid {self.colors.border};
-            background-color: {self.colors.background};
-        }}
-
-        QTabBar::tab {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            padding: 8px 16px;
-            border: 1px solid {self.colors.border};
-            margin-right: 2px;
-        }}
-
-        QTabBar::tab:selected {{
-            background-color: {self.colors.primary};
+        }
+        QLabel {
             color: white;
-        }}
-
-        /* 列表样式 */
-        QListWidget {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            outline: none;
-        }}
-
-        QListWidget::item {{
-            padding: 8px;
-            border-bottom: 1px solid {self.colors.divider};
-        }}
-
-        QListWidget::item:selected {{
-            background-color: {self.colors.primary};
-            color: white;
-        }}
-
-        /* 树形视图样式 */
-        QTreeWidget {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            outline: none;
-        }}
-
-        QTreeWidget::item:selected {{
-            background-color: {self.colors.primary};
-            color: white;
-        }}
-
-        /* 表格样式 */
-        QTableWidget {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            gridline-color: {self.colors.divider};
-            outline: none;
-        }}
-
-        QTableWidget::item:selected {{
-            background-color: {self.colors.primary};
-            color: white;
-        }}
-
-        QHeaderView::section {{
-            background-color: {self.colors.card};
-            color: {self.colors.text};
-            padding: 8px;
-            border: 1px solid {self.colors.border};
-            font-weight: bold;
-        }}
-
-        /* 进度条样式 */
-        QProgressBar {{
-            background-color: {self.colors.surface};
-            color: white;
-            border: 1px solid {self.colors.border};
-            border-radius: 4px;
-            text-align: center;
-        }}
-
-        QProgressBar::chunk {{
-            background-color: {self.colors.primary};
-            border-radius: 3px;
-        }}
-
-        /* 滑块样式 */
-        QSlider::groove:horizontal {{
-            background-color: {self.colors.border};
-            height: 6px;
-            border-radius: 3px;
-        }}
-
-        QSlider::handle:horizontal {{
-            background-color: {self.colors.primary};
-            border: 2px solid white;
-            border-radius: 8px;
-            width: 16px;
-            height: 16px;
-            margin: -5px 0;
-        }}
-
-        /* 复选框样式 */
-        QCheckBox {{
-            color: {self.colors.text};
-            spacing: 8px;
-        }}
-
-        QCheckBox::indicator {{
-            width: 18px;
-            height: 18px;
-            border: 2px solid {self.colors.border};
-            border-radius: 3px;
-            background-color: {self.colors.surface};
-        }}
-
-        QCheckBox::indicator:checked {{
-            background-color: {self.colors.primary};
-            border-color: {self.colors.primary};
-        }}
-
-        /* 单选按钮样式 */
-        QRadioButton {{
-            color: {self.colors.text};
-            spacing: 8px;
-        }}
-
-        QRadioButton::indicator {{
-            width: 18px;
-            height: 18px;
-            border: 2px solid {self.colors.border};
-            border-radius: 9px;
-            background-color: {self.colors.surface};
-        }}
-
-        QRadioButton::indicator:checked {{
-            background-color: {self.colors.primary};
-            border-color: {self.colors.primary};
-        }}
-
-        /* 组合框样式 */
-        QComboBox {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            border-radius: 4px;
-            padding: 6px;
-            min-width: 100px;
-        }}
-
-        QComboBox::drop-down {{
-            border: none;
-            width: 20px;
-        }}
-
-        QComboBox::down-arrow {{
-            image: none;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 5px solid {self.colors.text};
-        }}
-
-        /* 工具提示样式 */
-        QToolTip {{
-            background-color: {self.colors.card};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            padding: 4px;
-            border-radius: 4px;
-        }}
-
-        /* 对话框样式 */
-        QDialog {{
-            background-color: {self.colors.background};
-            color: {self.colors.text};
-        }}
-
-        QMessageBox {{
-            background-color: {self.colors.background};
-            color: {self.colors.text};
-        }}
-        """
-
-    def _get_light_stylesheet(self) -> str:
-        """获取浅色主题样式表"""
-        return f"""
-        /* 全局样式 */
-        * {{
-            color: {self.colors.text};
-            background-color: transparent;
-        }}
-
-        /* 主窗口 */
-        QMainWindow {{
-            background-color: {self.colors.background};
-            color: {self.colors.text};
-        }}
-
-        /* 中央窗口部件 */
-        QWidget#central_widget {{
-            background-color: {self.colors.background};
-        }}
-
-        /* 按钮样式 */
-        QPushButton {{
-            background-color: {self.colors.primary};
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            font-weight: bold;
-        }}
-
-        QPushButton:hover {{
-            background-color: {self.colors.secondary};
-        }}
-
-        QPushButton:pressed {{
-            background-color: {self.colors.secondary};
-        }}
-
-        QPushButton:disabled {{
-            background-color: {self.colors.border};
-            color: {self.colors.text_secondary};
-        }}
-
-        /* 输入框样式 */
-        QLineEdit, QTextEdit, QPlainTextEdit {{
-            background-color: white;
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            border-radius: 4px;
-            padding: 8px;
-        }}
-
-        QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {{
-            border: 1px solid {self.colors.primary};
-        }}
-
-        /* 标签样式 */
-        QLabel {{
-            color: {self.colors.text};
-        }}
-
-        /* 菜单栏样式 */
-        QMenuBar {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border-bottom: 1px solid {self.colors.border};
-        }}
-
-        QMenuBar::item:selected {{
-            background-color: {self.colors.primary};
-        }}
-
-        /* 菜单样式 */
-        QMenu {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-        }}
-
-        QMenu::item:selected {{
-            background-color: {self.colors.primary};
-        }}
-
-        /* 工具栏样式 */
-        QToolBar {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            spacing: 4px;
-        }}
-
-        /* 状态栏样式 */
-        QStatusBar {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            border-top: 1px solid {self.colors.border};
-        }}
-
-        /* 滚动条样式 */
-        QScrollBar:vertical {{
-            background-color: {self.colors.surface};
-            width: 12px;
-            border: none;
-        }}
-
-        QScrollBar::handle:vertical {{
-            background-color: {self.colors.border};
-            border-radius: 6px;
-            min-height: 20px;
-        }}
-
-        QScrollBar::handle:vertical:hover {{
-            background-color: {self.colors.primary};
-        }}
-
-        QScrollBar:horizontal {{
-            background-color: {self.colors.surface};
-            height: 12px;
-            border: none;
-        }}
-
-        QScrollBar::handle:horizontal {{
-            background-color: {self.colors.border};
-            border-radius: 6px;
-            min-width: 20px;
-        }}
-
-        QScrollBar::handle:horizontal:hover {{
-            background-color: {self.colors.primary};
-        }}
-
-        /* 分割器样式 */
-        QSplitter::handle {{
-            background-color: {self.colors.border};
-        }}
-
-        QSplitter::handle:horizontal {{
-            width: 2px;
-        }}
-
-        QSplitter::handle:vertical {{
-            height: 2px;
-        }}
-
-        /* 选项卡样式 */
-        QTabWidget::pane {{
-            border: 1px solid {self.colors.border};
-            background-color: {self.colors.background};
-        }}
-
-        QTabBar::tab {{
-            background-color: {self.colors.surface};
-            color: {self.colors.text};
-            padding: 8px 16px;
-            border: 1px solid {self.colors.border};
-            margin-right: 2px;
-        }}
-
-        QTabBar::tab:selected {{
-            background-color: {self.colors.primary};
-            color: white;
-        }}
-
-        /* 列表样式 */
-        QListWidget {{
-            background-color: white;
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            outline: none;
-        }}
-
-        QListWidget::item {{
-            padding: 8px;
-            border-bottom: 1px solid {self.colors.divider};
-        }}
-
-        QListWidget::item:selected {{
-            background-color: {self.colors.primary};
-            color: white;
-        }}
-
-        /* 工具提示样式 */
-        QToolTip {{
-            background-color: {self.colors.card};
-            color: {self.colors.text};
-            border: 1px solid {self.colors.border};
-            padding: 4px;
-            border-radius: 4px;
-        }}
+        }
         """
 
     def get_colors(self) -> ThemeColors:
@@ -624,3 +335,70 @@ class ThemeManager(QObject):
     def get_color(self, color_type: str) -> str:
         """获取主题颜色"""
         return getattr(self.colors, color_type, "#000000")
+
+    def _apply_to_application(self) -> None:
+        """将主题应用到整个应用程序"""
+        from PyQt6.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app:
+            # 获取样式表
+            stylesheet = self.get_stylesheet()
+            # 应用样式到整个应用
+            app.setStyleSheet(stylesheet)
+            # 应用到所有顶级窗口
+            for widget in app.allWidgets():
+                widget.setStyleSheet(stylesheet)
+        
+    def apply_theme_instantly(self, theme_name: str) -> None:
+        """立即应用主题，用于实时预览"""
+        preset = self.get_theme_preset(theme_name)
+        if preset:
+            # 保存当前主题状态
+            original_mode = self.current_mode
+            
+            # 保存当前颜色配置
+            original_colors = ThemeColors(
+                primary=self.colors.primary,
+                secondary=self.colors.secondary,
+                background=self.colors.background,
+                surface=self.colors.surface,
+                card=self.colors.card,
+                text=self.colors.text,
+                text_secondary=self.colors.text_secondary,
+                border=self.colors.border,
+                divider=self.colors.divider,
+                error=self.colors.error,
+                warning=self.colors.warning,
+                success=self.colors.success,
+                info=self.colors.info,
+                accent=self.colors.accent,
+                tertiary=self.colors.tertiary,
+                light=self.colors.light,
+                dark=self.colors.dark
+            )
+            
+            # 应用新主题
+            self.current_mode = preset.mode
+            self.colors = preset.colors
+            self._apply_to_application()
+            self.theme_changed.emit(theme_name)
+            self.theme_applied.emit()
+            
+            # 3秒后恢复原主题（仅用于预览）
+            QTimer.singleShot(3000, lambda: self._restore_theme(original_mode, original_colors))
+            
+    def _restore_theme(self, original_mode: str, original_colors: ThemeColors) -> None:
+        """恢复原始主题"""
+        self.current_mode = original_mode
+        self.colors = original_colors
+        self._apply_to_application()
+        self.theme_changed.emit(original_mode)
+        self.theme_applied.emit()
+        
+    def get_current_theme_info(self) -> Dict[str, Any]:
+        """获取当前主题信息"""
+        return {
+            "mode": self.current_mode,
+            "colors": self.colors.__dict__,
+            "available_themes": self.get_available_themes()
+        }

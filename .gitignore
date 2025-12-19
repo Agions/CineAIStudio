@@ -300,27 +300,38 @@ resources/styles/generated/
 *.bak
 *.backup
 *.old
-*.orig
 
 # Merge files
-*.orig
 *.rej
 *.patch
 
+# Additional Python project files
+.ruff_cache/
+.pylint.d/
 
-CLAUDE.md
-PRD.md
-CORE_REFACTOR_PLAN.md
-README_simplified.md
-REFACTOR_REPORT.md
-REFACTOR_SUMMARY.md
-UI_DESIGN_DOCUMENTATION.md
-VIDEO_PERFORMANCE_OPTIMIZATION.md
-VIDEO_PROCESSING_API.md
+# Build artifacts
+*.dylib
+*.dll
+*.a
+*.lib
 
-simplified_main.py
-test_simplified_version.py
-debug_simplified.py
-test_simplified_version.py
-test_ui_simple.py
-test_ui_system.py
+# Documentation build artifacts
+docs/build/
+
+# Package management
+*.whl
+*.tar.gz
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# CI/CD
+.github/workflows/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Local development
+.devcontainer/
+.trae

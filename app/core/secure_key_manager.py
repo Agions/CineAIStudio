@@ -20,7 +20,7 @@ import logging
 class SecureKeyManager:
     """安全密钥管理器 - 修复API密钥安全问题"""
 
-    def __init__(self, app_name: str = "CineAIStudio"):
+    def __init__(self, app_name: str = "AI-EditX"):
         self.app_name = app_name
         self.logger = logging.getLogger(__name__)
         self._encryption_key: Optional[bytes] = None
@@ -34,11 +34,33 @@ class SecureKeyManager:
         try:
             # 检查系统密钥库可用性
             if platform.system() == "Darwin":  # macOS
-                keyring.set_keyring(keyring.backends.macOS.Keyring())
+                # 使用安全的方式初始化macOS密钥库
+                try:
+                    from keyring.backends import macOS
+                    keyring.set_keyring(macOS.Keyring())
+                except (ImportError, AttributeError):
+                    # 尝试另一种方式
+                    try:
+                        from keyring.backends import OSX
+                        keyring.set_keyring(OSX.Keyring())
+                    except (ImportError, AttributeError):
+                        pass
             elif platform.system() == "Windows":
-                keyring.set_keyring(keyring.backends.Windows.WinVaultKeyring())
+                try:
+                    from keyring.backends import Windows
+                    keyring.set_keyring(Windows.WinVaultKeyring())
+                except (ImportError, AttributeError):
+                    pass
             elif platform.system() == "Linux":
-                keyring.set_keyring(keyring.backends.SecretService.Keyring())
+                try:
+                    from keyring.backends import SecretService
+                    keyring.set_keyring(SecretService.Keyring())
+                except (ImportError, AttributeError):
+                    try:
+                        from keyring.backends import Gnome
+                        keyring.set_keyring(Gnome.Keyring())
+                    except (ImportError, AttributeError):
+                        pass
 
             # 测试密钥库功能
             test_key = f"{self.app_name}_test"

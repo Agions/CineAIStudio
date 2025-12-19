@@ -2,363 +2,274 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio v2.0 首页
-应用程序主入口页面，提供快捷访问和状态概览
+AI-EditX 首页 - macOS 设计系统优化版
+使用标准化组件，零内联样式
 """
 
-import os
 from typing import Optional, Dict, Any
-
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
-    QPushButton, QFrame, QScrollArea, QSizePolicy, QSpacerItem,
-    QProgressBar, QGroupBox, QMessageBox, QSplitter
-)
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QSize
-from PyQt6.QtGui import QFont, QPixmap, QIcon
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QIcon
 
 from .base_page import BasePage
 from app.core.icon_manager import get_icon
-from app.utils.error_handler import handle_exception
-from app.ui.components.quick_ai_config import QuickAIConfigWidget
+from app.ui.common.macOS_components import (
+    MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
+    MacIconButton, MacTitleLabel, MacLabel, MacBadge, MacStatLabel,
+    MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
+    create_icon_text_row, create_status_badge_row
+)
+from app.ui.main.components.quick_ai_config import QuickAIConfigWidget
 
 
 class HomePage(BasePage):
-    """首页页面"""
+    """首页页面 - 使用 macOS 设计系统"""
 
     def __init__(self, application):
         super().__init__("home", "首页", application)
-
         self.logger = application.get_service(type(application.logger))
-        self.page_title = "首页"
-
-        # 初始化UI
-        self._init_ui()
-
-        # 定时刷新状态
         self._setup_refresh_timer()
 
-    def _init_ui(self):
-        """初始化用户界面"""
-        self.main_layout.setContentsMargins(30, 30, 30, 30)
-        self.main_layout.setSpacing(25)
+    def initialize(self) -> bool:
+        """初始化页面"""
+        try:
+            self.logger.info("初始化首页页面")
+            return True
+        except Exception as e:
+            self.logger.error(f"初始化首页失败: {e}")
+            return False
 
-        # 标题区域
-        title_widget = self._create_title_section()
-        self.main_layout.addWidget(title_widget)
+    def create_content(self) -> None:
+        """创建页面内容 - 使用标准化组件"""
+        # 设置页面边距和间距
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
 
-        # 欢迎区域
-        welcome_widget = self._create_welcome_section()
-        self.main_layout.addWidget(welcome_widget)
+        # 创建滚动容器
+        scroll_area = MacScrollArea()
+        scroll_content = QWidget()
+        scroll_content.setProperty("class", "page-content")
+        scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.setContentsMargins(32, 24, 32, 32)
+        scroll_layout.setSpacing(20)
 
-        # 使用分割器来更好地组织内容
-        content_splitter = QSplitter(Qt.Orientation.Vertical)
+        # 1. 页面工具栏
+        toolbar = MacPageToolbar("👋 欢迎使用 AI-EditX")
+        scroll_layout.addWidget(toolbar)
 
-        # 上部分：快捷操作和状态
-        top_widget = QWidget()
-        top_layout = QHBoxLayout(top_widget)
-        top_layout.setSpacing(20)
+        # 2. 欢迎卡片
+        welcome_card = self._create_welcome_card()
+        scroll_layout.addWidget(welcome_card)
 
-        # 快捷操作区域
-        quick_actions_widget = self._create_quick_actions_section()
-        top_layout.addWidget(quick_actions_widget, 1)  # 权重1
+        # 3. 内容区域网格（支持响应式）
+        content_grid = MacGrid(columns=2, gap=16)
 
-        # AI快捷配置区域
-        ai_config_widget = self._create_ai_config_section()
-        top_layout.addWidget(ai_config_widget, 1)  # 权重1
+        # 快捷操作卡片
+        quick_actions = self._create_quick_actions_card()
+        content_grid.add_widget(quick_actions)
 
-        content_splitter.addWidget(top_widget)
+        # AI 配置卡片
+        ai_config = self._create_ai_config_card()
+        content_grid.add_widget(ai_config)
 
-        # 中间部分：系统状态
-        status_widget = self._create_status_section()
-        content_splitter.addWidget(status_widget)
+        # 状态卡片
+        status_card = self._create_status_card()
+        content_grid.add_widget(status_card)
 
-        # 下部分：最近项目
-        recent_widget = self._create_recent_projects_section()
-        content_splitter.addWidget(recent_widget)
+        # 最近项目卡片
+        projects_card = self._create_recent_projects_card()
+        content_grid.add_widget(projects_card)
 
-        # 设置分割器比例
-        content_splitter.setSizes([300, 150, 150])
-        content_splitter.setCollapsible(0, False)
-        content_splitter.setCollapsible(1, True)
-        content_splitter.setCollapsible(2, True)
+        scroll_layout.addWidget(content_grid)
+        scroll_layout.addStretch()
 
-        self.main_layout.addWidget(content_splitter, 1)  # 主要内容区域，权重1
+        # 设置滚动内容
+        scroll_area.setWidget(scroll_content)
+        self.main_layout.addWidget(scroll_area)
 
-        # 添加弹性空间
-        self.main_layout.addStretch()
+    def _create_welcome_card(self) -> MacCard:
+        """创建欢迎卡片"""
+        card = MacElevatedCard()
 
-    def _create_title_section(self) -> QWidget:
-        """创建标题区域"""
-        widget = QFrame()
-        widget.setObjectName("titleSection")
-        layout = QVBoxLayout(widget)
+        # 标题行
+        title_row = create_icon_text_row("🌟", "欢迎使用 AI-EditX", "title-2xl")
+        card.layout().addWidget(title_row)
 
-        # 主标题
-        title_label = QLabel("CineAIStudio")
-        title_label.setObjectName("mainTitle")
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("""
-            QLabel#mainTitle {
-                font-size: 36px;
-                font-weight: bold;
-                color: #2196F3;
-                margin: 10px;
-            }
-        """)
-
-        # 副标题
-        subtitle_label = QLabel("专业的AI视频编辑器")
-        subtitle_label.setObjectName("subTitle")
-        subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle_label.setStyleSheet("""
-            QLabel#subTitle {
-                font-size: 18px;
-                color: #666;
-                margin: 5px;
-            }
-        """)
-
-        layout.addWidget(title_label)
-        layout.addWidget(subtitle_label)
-
-        return widget
-
-    def _create_welcome_section(self) -> QWidget:
-        """创建欢迎区域"""
-        widget = QFrame()
-        widget.setObjectName("welcomeSection")
-        widget.setFrameShape(QFrame.Shape.Box)
-        widget.setStyleSheet("""
-            QFrame#welcomeSection {
-                background-color: #f8f9fa;
-                border: 1px solid #e9ecef;
-                border-radius: 8px;
-            }
-        """)
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(20, 15, 20, 15)
-
-        # 欢迎文本
-        welcome_text = QLabel(
-            "欢迎使用 CineAIStudio v2.0！\n"
-            "这里您可以使用AI技术来增强您的视频编辑体验。"
+        # 欢迎文案
+        desc = MacLabel(
+            "这是一个专业的AI视频编辑器，集成了最新的人工智能技术。 workflows, 提供智能剪辑、画质增强、音频处理等功能。",
+            "text-base text-muted"
         )
-        welcome_text.setWordWrap(True)
-        welcome_text.setStyleSheet("""
-            QLabel {
-                font-size: 15px;
-                line-height: 1.6;
-                color: #333;
-                background: transparent;
-            }
-        """)
+        desc.setWordWrap(True)
+        card.layout().addWidget(desc)
 
-        layout.addWidget(welcome_text)
+        # 快速开始按钮
+        quick_start_layout = QHBoxLayout()
+        quick_start_layout.addStretch()
 
-        return widget
+        btn_new = MacPrimaryButton("✨ 新建项目")
+        btn_new.clicked.connect(self._on_new_project)
+        quick_start_layout.addWidget(btn_new)
 
-    def _create_quick_actions_section(self) -> QWidget:
-        """创建快捷操作区域"""
-        widget = QFrame()
-        widget.setObjectName("quickActionsSection")
-        widget.setStyleSheet("""
-            QFrame#quickActionsSection {
-                background-color: #ffffff;
-                border: 1px solid #e9ecef;
-                border-radius: 8px;
-            }
-        """)
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(20, 20, 20, 20)
+        btn_import = MacSecondaryButton("📁 导入素材")
+        btn_import.clicked.connect(self._on_open_project)
+        quick_start_layout.addWidget(btn_import)
+
+        quick_start_widget = QWidget()
+        quick_start_widget.setLayout(quick_start_layout)
+        card.layout().addWidget(quick_start_widget)
+
+        return card
+
+    def _create_quick_actions_card(self) -> MacCard:
+        """创建快捷操作卡片"""
+        card = MacCard()
+        card.setProperty("class", "card section-card")
 
         # 标题
-        title_label = QLabel("快捷操作")
-        title_label.setStyleSheet("font-size: 16px; font-weight: bold; margin: 10px 0;")
-        layout.addWidget(title_label)
+        title = MacTitleLabel("快捷操作", 5)
+        card.layout().addWidget(title)
 
         # 按钮网格
-        button_layout = QGridLayout()
-        button_layout.setSpacing(15)
-
         actions = [
-            ("新建项目", "new", self._on_new_project),
-            ("打开项目", "open", self._on_open_project),
-            ("AI视频增强", "ai_enhance", self._on_ai_enhance),
-            ("智能剪辑", "ai_magic", self._on_smart_cut),
-            ("设置", "settings", self._on_settings)
+            ("新建项目", "new", self._on_new_project, "✨", "primary"),
+            ("打开项目", "open", self._on_open_project, "📂", "secondary"),
+            ("AI增强", "ai_enhance", self._on_ai_enhance, "🤖", "primary"),
+            ("智能剪辑", "ai_magic", self._on_smart_cut, "✂️", "secondary"),
+            ("项目管理", "projects", self._on_projects, "📋", "secondary"),
+            ("设置", "settings", self._on_settings, "⚙️", "secondary"),
         ]
 
-        for i, (text, icon_name, handler) in enumerate(actions):
-            row = i // 3
-            col = i % 3
+        button_grid = QGridLayout()
+        button_grid.setSpacing(8)
+        button_grid.setContentsMargins(0, 8, 0, 0)
 
-            # 安全地获取图标
+        for i, (text, icon_name, handler, icon, variant) in enumerate(actions):
+            row = i // 2
+            col = i % 2
+
             try:
-                icon = get_icon(icon_name, 32)
-            except Exception:
-                icon = QIcon()
+                qicon = get_icon(icon_name, 24)
+            except:
+                qicon = QIcon()
 
-            btn = QPushButton(icon, text)
-            btn.setMinimumSize(140, 80)
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.setStyleSheet("""
-                QPushButton {
-                    background-color: #f8f9fa;
-                    color: #495057;
-                    border: 2px solid #e9ecef;
-                    border-radius: 8px;
-                    font-size: 13px;
-                    font-weight: 500;
-                    padding: 12px 8px;
-                    text-align: center;
-                }
-                QPushButton:hover {
-                    background-color: #e9ecef;
-                    border-color: #2196F3;
-                    color: #2196F3;
-                }
-                QPushButton:pressed {
-                    background-color: #2196F3;
-                    color: white;
-                    border-color: #2196F3;
-                }
-            """)
+            if variant == "primary":
+                btn = MacPrimaryButton(f"  {text}", qicon)
+            else:
+                btn = MacSecondaryButton(f"  {text}", qicon)
+
+            btn.setProperty("class", f"button button-{variant} action-btn")
+            btn.setMinimumHeight(36)
+            btn.setMinimumWidth(140)
             btn.clicked.connect(handler)
+            btn.setToolTip(actions[i][3])
 
-            button_layout.addWidget(btn, row, col)
+            button_grid.addWidget(btn, row, col)
 
-        self.main_layout.addLayout(button_layout)
+        card.layout().addLayout(button_grid)
+        return card
 
-        return widget
+    def _create_ai_config_card(self) -> MacCard:
+        """创建AI配置卡片"""
+        # 使用现有的 AI 配置组件，包装以符合新样式
+        card = MacCard()
 
-    def _create_ai_config_section(self) -> QWidget:
-        """创建AI快捷配置区域"""
-        widget = QFrame()
-        widget.setObjectName("aiConfigSection")
-        widget.setStyleSheet("""
-            QFrame#aiConfigSection {
-                background-color: #ffffff;
-                border: 1px solid #e9ecef;
-                border-radius: 8px;
-            }
-        """)
+        title = MacTitleLabel("⚡ AI 快捷配置", 5)
+        card.layout().addWidget(title)
 
-        # 创建快捷AI配置组件
+        # 包装现有组件
         self.ai_config_component = QuickAIConfigWidget(self)
+        self.ai_config_component.setProperty("class", "ai-config-wrapper")
 
-        return self.ai_config_component
+        card.layout().addWidget(self.ai_config_component)
+        return card
 
-    def _create_status_section(self) -> QWidget:
-        """创建状态概览区域"""
-        widget = QFrame()
-        widget.setObjectName("statusSection")
-        widget.setStyleSheet("""
-            QFrame#statusSection {
-                background-color: #ffffff;
-                border: 1px solid #e9ecef;
-                border-radius: 8px;
-            }
-        """)
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(20, 20, 20, 20)
+    def _create_status_card(self) -> MacCard:
+        """创建状态卡片"""
+        card = MacCard()
 
-        # 标题
-        title_label = QLabel("系统状态")
-        title_label.setStyleSheet("font-size: 16px; font-weight: bold; margin: 10px 0;")
-        layout.addWidget(title_label)
+        title = MacTitleLabel("📊 系统状态", 5)
+        card.layout().addWidget(title)
 
-        # 状态网格
-        status_layout = QGridLayout()
-        status_layout.setSpacing(10)
-
-        # 状态项
+        # 状态信息 - 使用统计标签
         status_items = [
-            ("AI服务", "正常", "#4CAF50"),
-            ("存储空间", "充足", "#4CAF50"),
-            ("内存使用", "正常", "#4CAF50"),
-            ("主题", "深色模式", "#2196F3")
+            ("AI服务", "🟢 在线", "success"),
+            ("存储空间", "💾 充足", "success"),
+            ("内存使用", "📊 正常", "primary"),
+            ("主题", "🌙 深色模式", "primary"),
         ]
 
-        for i, (label, value, color) in enumerate(status_items):
+        for label, value, style in status_items:
+            # 创建带徽章的行
+            row = QWidget()
+            row.setProperty("class", "stat-row")
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(0, 4, 0, 4)
+            row_layout.setSpacing(8)
+
             # 标签
             label_widget = QLabel(f"{label}:")
-            label_widget.setStyleSheet("font-weight: bold;")
-            status_layout.addWidget(label_widget, i, 0)
+            label_widget.setProperty("class", "text-secondary text-bold")
+            row_layout.addWidget(label_widget)
 
-            # 值
-            value_widget = QLabel(value)
-            value_widget.setStyleSheet(f"color: {color};")
-            status_layout.addWidget(value_widget, i, 1)
+            # 徽章或值
+            if style in ["success", "primary", "warning", "error"]:
+                badge_text = value.split(" ")[-1] if " " in value else value
+                badge = MacBadge(badge_text, style)
+                badge.setMinimumWidth(80)
+                row_layout.addWidget(badge)
+            else:
+                value_widget = QLabel(value)
+                value_widget.setProperty("class", "text-base")
+                row_layout.addWidget(value_widget)
 
-        self.main_layout.addLayout(status_layout)
+            row_layout.addStretch()
+            card.layout().addWidget(row)
 
-        return widget
+        return card
 
-    def _create_recent_projects_section(self) -> QWidget:
-        """创建最近项目区域"""
-        widget = QFrame()
-        widget.setObjectName("recentProjectsSection")
-        widget.setStyleSheet("""
-            QFrame#recentProjectsSection {
-                background-color: #ffffff;
-                border: 1px solid #e9ecef;
-                border-radius: 8px;
-            }
-        """)
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(20, 20, 20, 20)
+    def _create_recent_projects_card(self) -> MacCard:
+        """创建最近项目卡片"""
+        card = MacCard()
 
-        # 标题
-        title_label = QLabel("最近项目")
-        title_label.setStyleSheet("font-size: 16px; font-weight: bold; margin: 10px 0;")
-        layout.addWidget(title_label)
+        title = MacTitleLabel("📁 最近项目", 5)
+        card.layout().addWidget(title)
 
-        # 最近项目列表
         recent_projects = self._get_recent_projects()
 
         if recent_projects:
-            for project in recent_projects[:5]:  # 显示最近5个项目
-                project_btn = QPushButton(project)
-                project_btn.setStyleSheet("""
-                    QPushButton {
-                        text-align: left;
-                        padding: 8px;
-                        border: 1px solid #ddd;
-                        border-radius: 3px;
-                        background-color: white;
-                    }
-                    QPushButton:hover {
-                        background-color: #f5f5f5;
-                    }
-                """)
-                project_btn.clicked.connect(lambda checked, p=project: self._on_open_recent_project(p))
-                layout.addWidget(project_btn)
+            for project in recent_projects[:5]:
+                btn = MacSecondaryButton(f"📄 {project}")
+                btn.setProperty("class", "button secondary project-item")
+                btn.setMinimumHeight(32)
+                btn.clicked.connect(lambda checked, p=project: self._on_open_recent_project(p))
+                card.layout().addWidget(btn)
         else:
-            no_projects_label = QLabel("暂无最近项目")
-            no_projects_label.setStyleSheet("color: #666; font-style: italic; padding: 10px;")
-            layout.addWidget(no_projects_label)
+            empty = MacEmptyState(
+                icon="📭",
+                title="暂无项目",
+                description="开始创建您的第一个AI视频编辑项目吧！"
+            )
+            card.layout().addWidget(empty)
 
-        return widget
+        return card
 
     def _setup_refresh_timer(self):
         """设置定时刷新"""
         self.refresh_timer = QTimer(self)
         self.refresh_timer.timeout.connect(self._refresh_status)
-        self.refresh_timer.start(30000)  # 每30秒刷新一次
+        self.refresh_timer.start(30000)
 
     def _refresh_status(self):
-        """刷新状态信息"""
+        """刷新状态"""
         try:
-            # 这里可以添加状态刷新逻辑
             self.logger.debug("刷新状态信息")
         except Exception as e:
             self.logger.error(f"刷新状态失败: {e}")
 
     def _get_recent_projects(self) -> list:
-        """获取最近项目列表"""
+        """获取最近项目"""
         try:
-            # 从设置管理器获取最近项目
             config_manager = self.application.get_service_by_name("config_manager")
             if config_manager:
                 return config_manager.get_value("recent_files", [])
@@ -367,63 +278,58 @@ class HomePage(BasePage):
             self.logger.error(f"获取最近项目失败: {e}")
             return []
 
+    # 事件处理
     def _on_new_project(self):
-        """新建项目"""
-        try:
-            self.logger.info("新建项目")
-            # 切换到视频编辑页面
-            self.parent().switch_to_page("video_editor")
-        except Exception as e:
-            self.logger.error(f"新建项目失败: {e}")
+        self.logger.info("新建项目")
+        from ..main_window import PageType
+        main_window = self.window()
+        if hasattr(main_window, 'switch_to_page'):
+            main_window.switch_to_page(PageType.VIDEO_EDITOR)
 
     def _on_open_project(self):
-        """打开项目"""
-        try:
-            self.logger.info("打开项目")
-            # 这里应该显示文件选择对话框
-            QMessageBox.information(self, "打开项目", "打开项目功能正在开发中...")
-        except Exception as e:
-            self.logger.error(f"打开项目失败: {e}")
+        self.logger.info("打开项目")
+        from ..main_window import PageType
+        main_window = self.window()
+        if hasattr(main_window, 'switch_to_page'):
+            main_window.switch_to_page(PageType.VIDEO_EDITOR)
 
     def _on_ai_enhance(self):
-        """AI视频增强"""
-        try:
-            self.logger.info("AI视频增强")
-            # 切换到AI对话页面
-            self.parent().switch_to_page("ai_chat")
-        except Exception as e:
-            self.logger.error(f"AI增强失败: {e}")
+        self.logger.info("AI视频增强")
+        from ..main_window import PageType
+        main_window = self.window()
+        if hasattr(main_window, 'switch_to_page'):
+            main_window.switch_to_page(PageType.VIDEO_EDITOR)
 
     def _on_smart_cut(self):
-        """智能剪辑"""
-        try:
-            self.logger.info("智能剪辑")
-            QMessageBox.information(self, "智能剪辑", "智能剪辑功能正在开发中...")
-        except Exception as e:
-            self.logger.error(f"智能剪辑失败: {e}")
+        self.logger.info("智能剪辑")
+        from ..main_window import PageType
+        main_window = self.window()
+        if hasattr(main_window, 'switch_to_page'):
+            main_window.switch_to_page(PageType.VIDEO_EDITOR)
+
+    def _on_projects(self):
+        self.logger.info("打开项目管理")
+        from ..main_window import PageType
+        main_window = self.window()
+        if hasattr(main_window, 'switch_to_page'):
+            main_window.switch_to_page(PageType.PROJECTS)
 
     def _on_settings(self):
-        """打开设置"""
-        try:
-            self.logger.info("打开设置")
-            # 切换到设置页面
-            self.parent().switch_to_page("settings")
-        except Exception as e:
-            self.logger.error(f"打开设置失败: {e}")
+        self.logger.info("打开设置")
+        from ..main_window import PageType
+        main_window = self.window()
+        if hasattr(main_window, 'switch_to_page'):
+            main_window.switch_to_page(PageType.SETTINGS)
 
     def _on_open_recent_project(self, project_path: str):
-        """打开最近项目"""
-        try:
-            self.logger.info(f"打开最近项目: {project_path}")
-            # 这里应该加载项目文件
-            QMessageBox.information(self, "打开项目", f"正在打开项目: {project_path}")
-        except Exception as e:
-            self.logger.error(f"打开最近项目失败: {e}")
+        self.logger.info(f"打开最近项目: {project_path}")
+        # 模拟打开项目
+        from PyQt6.QtWidgets import QMessageBox
+        QMessageBox.information(self, "打开项目", f"正在打开项目: {project_path}")
 
     def refresh(self):
         """刷新页面"""
         self._refresh_status()
 
     def get_page_type(self) -> str:
-        """获取页面类型"""
         return "home"

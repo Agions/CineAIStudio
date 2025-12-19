@@ -1,0 +1,174 @@
+{
+  "timestamp": "2025-01-18T00:00:00Z",
+  "scan_coverage": {
+    "total_files": 58,
+    "scanned_files": 21,
+    "coverage_percentage": 36.2,
+    "ignored_files": 37
+  },
+  "modules": {
+    "root": {
+      "path": ".",
+      "type": "project_root",
+      "entry_files": ["main.py"],
+      "key_files": ["pyproject.toml", "requirements.txt", "README.md"],
+      "description": "AI-EditX专业AI视频编辑器项目根目录",
+      "scan_status": "completed"
+    },
+    "app": {
+      "path": "app",
+      "type": "package",
+      "entry_files": ["__init__.py", "application_launcher.py"],
+      "key_files": ["core/application.py", "config/config.py"],
+      "description": "应用程序核心包",
+      "scan_status": "completed"
+    },
+    "app/core": {
+      "path": "app/core",
+      "type": "module",
+      "entry_files": ["application.py", "service_container.py"],
+      "key_files": ["logger.py", "event_bus.py", "config_manager.py", "project_manager.py"],
+      "description": "核心服务模块",
+      "scan_status": "completed",
+      "coverage": {
+        "total": 15,
+        "scanned": 8,
+        "percentage": 53.3
+      }
+    },
+    "app/ui": {
+      "path": "app/ui",
+      "type": "module",
+      "entry_files": ["main/main_window.py"],
+      "key_files": ["common/widgets/", "main/components/", "main/pages/"],
+      "description": "用户界面模块",
+      "scan_status": "partial",
+      "coverage": {
+        "total": 24,
+        "scanned": 3,
+        "percentage": 12.5
+      }
+    },
+    "app/services": {
+      "path": "app/services",
+      "type": "module",
+      "entry_files": ["ai_service/ai_service_manager.py", "video_service/video_editor.py"],
+      "key_files": ["export_service/export_service.py", "ai_service/base_ai_service.py"],
+      "description": "业务服务模块",
+      "scan_status": "completed",
+      "coverage": {
+        "total": 10,
+        "scanned": 8,
+        "percentage": 80.0
+      }
+    },
+    "app/config": {
+      "path": "app/config",
+      "type": "module",
+      "entry_files": ["config.py"],
+      "key_files": [],
+      "description": "配置管理模块",
+      "scan_status": "completed"
+    },
+    "app/utils": {
+      "path": "app/utils",
+      "type": "module",
+      "entry_files": ["error_handler.py"],
+      "key_files": [],
+      "description": "工具类模块",
+      "scan_status": "partial"
+    },
+    "resources": {
+      "path": "resources",
+      "type": "resource",
+      "entry_files": [],
+      "key_files": ["styles/", "icons/"],
+      "description": "资源文件目录",
+      "scan_status": "ignored",
+      "reason": "Binary and resource files"
+    }
+  },
+  "gaps": {
+    "uncovered_modules": [
+      {
+        "path": "app/ui/common",
+        "reason": "UI组件目录未被完整扫描",
+        "priority": "medium"
+      },
+      {
+        "path": "app/ui/main/pages",
+        "reason": "页面实现细节未知",
+        "priority": "medium"
+      },
+      {
+        "path": "app/utils",
+        "reason": "工具函数实现未知",
+        "priority": "low"
+      },
+      {
+        "path": "docs",
+        "reason": "文档目录未扫描",
+        "priority": "low"
+      }
+    ],
+    "missing_tests": {
+      "description": "项目中未发现测试文件",
+      "count": 0,
+      "recommendation": "建议添加tests目录并实现单元测试"
+    },
+    "missing_documentation": {
+      "description": "API文档和架构文档不完善",
+      "coverage": "estimated < 30%",
+      "recommendation": "建议使用Sphinx生成API文档"
+    }
+  },
+  "ignore_patterns": [
+    "venv/**",
+    "__pycache__/**",
+    "*.pyc",
+    ".git/**",
+    "backup_*/**",
+    "*.log",
+    "*.tmp",
+    "*.mp4",
+    "*.avi",
+    "*.mov",
+    "*.jpg",
+    "*.png",
+    "*.qss"
+  ],
+  "truncated": false,
+  "scan_duration": {
+    "start": "2025-01-18T00:00:00Z",
+    "end": "2025-01-18T00:30:00Z",
+    "total_minutes": 30
+  },
+  "next_scan_priorities": [
+    "app/ui/common/widgets/",
+    "app/ui/main/pages/",
+    "app/utils/error_handler.py",
+    "app/core/event_bus.py",
+    "docs/"
+  ],
+  "technology_stack": {
+    "language": "Python",
+    "version": ">=3.12",
+    "ui_framework": "PyQt6",
+    "video_processing": "MoviePy, OpenCV",
+    "ai_integration": "Multiple AI Services",
+    "packaging": "setuptools",
+    "testing": "pytest (planned)"
+  },
+  "architecture_quality": {
+    "score": 7.2,
+    "max_score": 10,
+    "criteria": {
+      "modularity": 8.0,
+      "maintainability": 7.5,
+      "extensibility": 7.0,
+      "testability": 3.0,
+      "performance": 7.5,
+      "documentation": 5.0
+    }
+  }
+}

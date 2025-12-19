@@ -126,3 +126,37 @@ class ConfigManager:
         """更新设置（别名）"""
         self._config.update(settings)
         self.save()
+        self._notify_watchers()
+    
+    def _notify_watchers(self) -> None:
+        """通知配置变更监听器"""
+        if hasattr(self, '_watchers'):
+            for callback in self._watchers:
+                try:
+                    callback(self._config)
+                except Exception as e:
+                    # 捕获监听器异常，避免影响主程序
+                    print(f"配置监听器执行失败: {e}")
+    
+    def add_watcher(self, callback: callable) -> None:
+        """添加配置变更监听器
+        
+        Args:
+            callback: 回调函数，当配置变更时调用，接收当前配置作为参数
+        """
+        if not hasattr(self, '_watchers'):
+            self._watchers = []
+        if callback not in self._watchers:
+            self._watchers.append(callback)
+    
+    def remove_watcher(self, callback: callable) -> None:
+        """移除配置变更监听器
+        
+        Args:
+            callback: 要移除的回调函数
+        """
+        if hasattr(self, '_watchers'):
+            try:
+                self._watchers.remove(callback)
+            except ValueError:
+                pass

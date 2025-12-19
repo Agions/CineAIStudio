@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio v2.0 日志记录器模块
+AI-EditX 日志记录器模块
 提供日志记录和管理功能
 """
 
@@ -42,6 +42,11 @@ class Logger:
             )
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
+    
+    @classmethod
+    def get_logger(cls, name: str) -> 'Logger':
+        """获取日志记录器实例"""
+        return cls(name)
 
     def debug(self, message: str) -> None:
         """调试日志"""
@@ -105,7 +110,7 @@ def setup_logging(
             log_dir.mkdir(exist_ok=True)
 
             file_handler = logging.FileHandler(
-                log_dir / "cineaistudio.log",
+                log_dir / "AI-EditX.log",
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)

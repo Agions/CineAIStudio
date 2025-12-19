@@ -1,5 +1,6 @@
 """
 导航栏组件 - 负责页面切换和导航
+优化为纯 macOS 设计系统风格，移除所有内联样式
 """
 
 from typing import List, Optional
@@ -11,108 +12,75 @@ from PyQt6.QtWidgets import (
     QFrame, QSizePolicy, QSpacerItem
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QSize
-from PyQt6.QtGui import QFont, QColor, QPalette
-
-
-class NavigationButtonStyle:
-    """导航按钮样式"""
-
-    def __init__(self):
-        self.normal_bg = QColor(45, 45, 45)
-        self.hover_bg = QColor(60, 60, 60)
-        self.selected_bg = QColor(33, 150, 243)
-        self.normal_text = QColor(200, 200, 200)
-        self.hover_text = QColor(255, 255, 255)
-        self.selected_text = QColor(255, 255, 255)
-        self.border_radius = 8
-        self.padding = 12
-        self.font_size = 14
-        self.font_weight = QFont.Weight.Normal
 
 
 class NavigationButton(QPushButton):
-    """导航按钮"""
+    """导航按钮 - 使用 QSS 类名，支持 macOS 风格"""
 
-    def __init__(self, text: str, icon: str = "", style: NavigationButtonStyle = None):
+    def __init__(self, text: str, icon: str = ""):
         super().__init__()
-
         self.text = text
         self.icon = icon
-        self.style = style or NavigationButtonStyle()
         self.is_selected = False
 
         self._setup_ui()
         self._connect_signals()
 
     def _setup_ui(self) -> None:
-        """设置UI"""
+        """设置UI - 仅配置结构，样式由QSS管理"""
         # 设置文本
         if self.icon:
             self.setText(f"{self.icon} {self.text}")
         else:
             self.setText(self.text)
 
-        # 设置字体
-        font = QFont("Microsoft YaHei", self.style.font_size)
-        font.setWeight(self.style.font_weight)
-        self.setFont(font)
-
         # 设置大小策略
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.setFixedHeight(50)
+        self.setFixedHeight(32)  # macOS 导航项标准高度
 
-        # 设置初始样式
-        self._update_style()
+        # 应用 macOS 样式类
+        self.setProperty("class", "nav-item")
+
+        # 启用悬停检测
+        self.setAttribute(Qt.WA_Hover, True)
+
+        # 设置鼠标指针
+        self.setCursor(Qt.PointingHandCursor)
 
     def _connect_signals(self) -> None:
         """连接信号"""
         self.pressed.connect(self._on_pressed)
         self.released.connect(self._on_released)
 
-    def _update_style(self) -> None:
-        """更新样式"""
-        if self.is_selected:
-            bg_color = self.style.selected_bg
-            text_color = self.style.selected_text
-            font_weight = QFont.Weight.Bold
-        else:
-            bg_color = self.style.normal_bg
-            text_color = self.style.normal_text
-            font_weight = QFont.Weight.Normal
+    def _on_pressed(self) -> None:
+        """按下事件 - 视觉反馈"""
+        self.setProperty("pressed", True)
+        self.style().unpolish(self)
+        self.style().polish(self)
 
-        stylesheet = f"""
-            QPushButton {{
-                background-color: {bg_color.name()};
-                color: {text_color.name()};
-                border: none;
-                border-radius: {self.style.border_radius}px;
-                padding: {self.style.padding}px;
-                font-weight: {font_weight};
-            }}
-            QPushButton:hover {{
-                background-color: {self.style.hover_bg.name()};
-                color: {self.style.hover_text.name()};
-            }}
-            QPushButton:pressed {{
-                background-color: {self.style.selected_bg.name()};
-            }}
-        """
-
-        self.setStyleSheet(stylesheet)
+    def _on_released(self) -> None:
+        """释放事件 - 恢复状态"""
+        self.setProperty("pressed", False)
+        self.style().unpolish(self)
+        self.style().polish(self)
 
     def set_selected(self, selected: bool) -> None:
         """设置选中状态"""
         if self.is_selected != selected:
             self.is_selected = selected
-            self._update_style()
+            if selected:
+                self.setProperty("class", "nav-item active")
+                self.setCheckable(True)
+                self.setChecked(True)
+            else:
+                self.setProperty("class", "nav-item")
+                self.setCheckable(False)
+                self.setChecked(False)
 
-    def _on_pressed(self) -> None:
-        """按下事件"""
-        self._update_style()
-
-    def _on_released(self) -> None:
-        """释放事件"""
-        self._update_style()
+            # 刷新样式
+            self.style().unpolish(self)
+            self.style().polish(self)
+            self.update()
 
 
 @dataclass
@@ -126,15 +94,13 @@ class NavigationItem:
 
 
 class NavigationBar(QWidget):
-    """导航栏组件"""
+    """导航栏组件 - macOS 风格"""
 
     # 信号定义
     page_changed = pyqtSignal(str)  # 页面ID
 
-    def __init__(self, style: NavigationButtonStyle = None):
-        super().__init__()
-
-        self.style = style or NavigationButtonStyle()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.buttons = {}
         self.navigation_items = []
         self.current_page_id = None
@@ -143,23 +109,20 @@ class NavigationBar(QWidget):
         self._setup_layout()
 
     def _setup_ui(self) -> None:
-        """设置UI"""
-        # 设置窗口部件属性
-        self.setObjectName("navigation_bar")
+        """设置UI - macOS 样式"""
+        # 设置为导航栏样式
+        self.setProperty("class", "nav-sidebar")
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.setFixedHeight(60)
+        self.setFixedHeight(52)  # macOS 顶部栏标准高度
 
-        # 设置背景色
-        self.setAutoFillBackground(True)
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(30, 30, 30))
-        self.setPalette(palette)
+        # 启用样式背景
+        self.setAttribute(Qt.WA_StyledBackground, True)
 
     def _setup_layout(self) -> None:
         """设置布局"""
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(20, 10, 20, 10)
-        layout.setSpacing(15)
+        layout.setContentsMargins(16, 0, 16, 0)
+        layout.setSpacing(16)
 
         # 左侧：Logo和标题
         left_layout = self._create_left_section()
@@ -167,69 +130,47 @@ class NavigationBar(QWidget):
 
         # 中间：导航按钮
         self.navigation_layout = QHBoxLayout()
-        self.navigation_layout.setSpacing(10)
+        self.navigation_layout.setSpacing(4)
         layout.addLayout(self.navigation_layout)
         layout.addStretch()
 
-        # 右侧：用户信息
+        # 右侧：用户信息（简化）
         right_layout = self._create_right_section()
         layout.addLayout(right_layout)
 
     def _create_left_section(self) -> QHBoxLayout:
-        """创建左侧区域"""
+        """创建左侧区域 - 应用 macOS 样式"""
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
 
         # Logo
         logo_label = QLabel("🎬")
-        logo_label.setStyleSheet("font-size: 24px;")
+        logo_label.setProperty("class", "app-icon")
         layout.addWidget(logo_label)
 
         # 标题
-        title_label = QLabel("CineAIStudio")
-        title_label.setStyleSheet("""
-            QLabel {
-                color: #FFFFFF;
-                font-size: 18px;
-                font-weight: bold;
-            }
-        """)
+        title_label = QLabel("AI-EditX")
+        title_label.setProperty("class", "app-title")
         layout.addWidget(title_label)
 
         return layout
 
     def _create_right_section(self) -> QHBoxLayout:
-        """创建右侧区域"""
+        """创建右侧区域 - 移除内联样式"""
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
 
-        # 用户信息
+        # 用户信息标签
         user_label = QLabel("👤 用户")
-        user_label.setStyleSheet("""
-            QLabel {
-                color: #CCCCCC;
-                font-size: 14px;
-            }
-        """)
+        user_label.setProperty("class", "nav-user")
         layout.addWidget(user_label)
 
         # 设置按钮
         settings_btn = QPushButton("⚙️")
-        settings_btn.setFixedSize(30, 30)
-        settings_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #CCCCCC;
-                border: none;
-                border-radius: 15px;
-            }
-            QPushButton:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-                color: #FFFFFF;
-            }
-        """)
+        settings_btn.setFixedSize(28, 28)
+        settings_btn.setProperty("class", "nav-icon-button")
         settings_btn.setToolTip("设置")
         layout.addWidget(settings_btn)
 
@@ -239,8 +180,8 @@ class NavigationBar(QWidget):
         """添加导航项"""
         self.navigation_items.append(item)
 
-        # 创建导航按钮
-        button = NavigationButton(item.text, item.icon, self.style)
+        # 创建导航按钮 - 传递父级样式
+        button = NavigationButton(item.text, item.icon)
         button.setEnabled(item.enabled)
         if item.tooltip:
             button.setToolTip(item.tooltip)
@@ -306,37 +247,23 @@ class NavigationBar(QWidget):
         self.set_current_page(page_id)
         self.page_changed.emit(page_id)
 
-    def set_style(self, style: NavigationButtonStyle) -> None:
-        """设置按钮样式"""
-        self.style = style
-        for button in self.buttons.values():
-            button.style = style
-            button._update_style()
-
-    def update_theme(self, is_dark: bool = True) -> None:
-        """更新主题"""
-        if is_dark:
-            bg_color = QColor(30, 30, 30)
-            text_color = QColor(255, 255, 255)
-        else:
-            bg_color = QColor(245, 245, 245)
-            text_color = QColor(33, 33, 33)
-
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, bg_color)
-        self.setPalette(palette)
-
-        # 更新标题颜色
-        for i in range(self.layout().count()):
-            item = self.layout().itemAt(i)
-            if isinstance(item.widget(), QLabel) and item.widget().text() == "CineAIStudio":
-                item.widget().setStyleSheet(f"color: {text_color.name()}; font-size: 18px; font-weight: bold;")
-
 
 # 预定义的导航项
 def create_default_navigation_items() -> List[NavigationItem]:
     """创建默认导航项"""
     return [
+        NavigationItem(
+            id="home",
+            text="主页",
+            icon="🏠",
+            tooltip="返回首页"
+        ),
+        NavigationItem(
+            id="projects",
+            text="项目",
+            icon="📁",
+            tooltip="项目管理"
+        ),
         NavigationItem(
             id="video_editor",
             text="视频编辑",
@@ -348,14 +275,19 @@ def create_default_navigation_items() -> List[NavigationItem]:
             text="AI对话",
             icon="🤖",
             tooltip="AI助手对话"
+        ),
+        NavigationItem(
+            id="settings",
+            text="设置",
+            icon="⚙️",
+            tooltip="应用设置"
         )
     ]
 
 
-def create_navigation_bar(items: List[NavigationItem] = None,
-                         style: NavigationButtonStyle = None) -> NavigationBar:
+def create_navigation_bar(items: List[NavigationItem] = None) -> NavigationBar:
     """创建导航栏"""
-    nav_bar = NavigationBar(style)
+    nav_bar = NavigationBar()
 
     if items is None:
         items = create_default_navigation_items()

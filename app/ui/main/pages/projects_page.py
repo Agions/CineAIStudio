@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+#!#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 项目管理页面
-提供完整的项目管理功能界面
+AI-EditX 项目管理页面 - macOS 设计系统优化版
+使用标准化组件，零内联样式
 """
 
 import os
@@ -18,7 +18,7 @@ from PyQt6.QtWidgets import (
     QComboBox, QSpinBox, QDoubleSpinBox, QCheckBox, QGroupBox,
     QTabWidget, QTableWidget, QTableWidgetItem, QHeaderView,
     QInputDialog, QListWidget, QListWidgetItem, QToolButton,
-    QMenu, QAction, QDialogButtonBox, QFormLayout, QSlider
+    QMenu, QDialogButtonBox, QFormLayout, QSlider, QSpacerItem, QSizePolicy
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QSize, QPoint
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QColor, QBrush
@@ -31,9 +31,18 @@ from app.core.project_template_manager import ProjectTemplateManager, TemplateIn
 from app.core.project_settings_manager import ProjectSettingsManager
 from app.core.project_version_manager import ProjectVersionManager
 
+# 导入标准化 macOS 组件
+from app.ui.common.macOS_components import (
+    MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
+    MacDangerButton, MacIconButton, MacTitleLabel, MacLabel, MacBadge,
+    MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
+    MacSearchBox, MacButtonGroup,
+    create_icon_text_row, create_status_badge_row
+)
 
-class ProjectCard(QFrame):
-    """项目卡片组件"""
+
+class ProjectCard(MacCard):
+    """项目卡片组件 - 使用标准化 macOS 组件"""
 
     clicked = pyqtSignal(str)  # 项目点击信号
     edit_clicked = pyqtSignal(str)  # 编辑点击信号
@@ -43,107 +52,93 @@ class ProjectCard(QFrame):
     def __init__(self, project: Project, parent=None):
         super().__init__(parent)
         self.project = project
+        self.setProperty("class", "card project-card")
+        self.set_interactive(True)  # 设置为可交互卡片
+        self.setFixedSize(300, 200)
+
         self._setup_ui()
         self._update_display()
 
     def _setup_ui(self):
-        """设置UI"""
-        self.setObjectName("projectCard")
-        self.setFixedSize(300, 200)
-        self.setFrameStyle(QFrame.Shape.Box)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        """设置UI - 使用 QSS 类名，无内联样式"""
+        layout = self.layout()
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(15, 15, 15, 15)
-        layout.setSpacing(10)
-
-        # 项目名称
-        self.name_label = QLabel()
+        # 项目名称 (大标题)
+        self.name_label = MacLabel("", "card-title")
         self.name_label.setWordWrap(True)
-        self.name_label.setStyleSheet("font-size: 16px; font-weight: bold; color: #333;")
         layout.addWidget(self.name_label)
 
-        # 项目描述
-        self.desc_label = QLabel()
+        # 项目描述 (副标题)
+        self.desc_label = MacLabel("", "card-subtitle")
         self.desc_label.setWordWrap(True)
-        self.desc_label.setStyleSheet("font-size: 12px; color: #666;")
         layout.addWidget(self.desc_label)
 
-        # 项目信息
-        info_layout = QHBoxLayout()
-        self.type_label = QLabel()
-        self.type_label.setStyleSheet("font-size: 10px; color: #999; padding: 2px 6px; background: #f0f0f0; border-radius: 3px;")
-        info_layout.addWidget(self.type_label)
+        # 项目信息行
+        info_row = QWidget()
+        info_row.setProperty("class", "stat-row")
+        info_layout = QHBoxLayout(info_row)
+        info_layout.setContentsMargins(0, 0, 0, 0)
+        info_layout.setSpacing(8)
+
+        # 类型徽章
+        self.type_badge = MacBadge("", "neutral")
+        info_layout.addWidget(self.type_badge)
 
         info_layout.addStretch()
 
-        self.date_label = QLabel()
-        self.date_label.setStyleSheet("font-size: 10px; color: #999;")
+        # 日期标签
+        self.date_label = MacLabel("", "text-sm text-muted")
         info_layout.addWidget(self.date_label)
 
-        layout.addLayout(info_layout)
+        layout.addWidget(info_row)
 
-        # 操作按钮
-        button_layout = QHBoxLayout()
+        # 操作按钮行
+        button_row = QWidget()
+        button_row.setProperty("class", "icon-text-row")
+        button_layout = QHBoxLayout(button_row)
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.setSpacing(6)
 
-        self.edit_btn = QToolButton()
-        self.edit_btn.setIcon(get_icon("edit", 20))
+        # 编辑按钮
+        self.edit_btn = MacIconButton("✏️", 28)
         self.edit_btn.setToolTip("编辑项目")
         self.edit_btn.clicked.connect(lambda: self.edit_clicked.emit(self.project.id))
         button_layout.addWidget(self.edit_btn)
 
-        self.export_btn = QToolButton()
-        self.export_btn.setIcon(get_icon("export", 20))
+        # 导出按钮
+        self.export_btn = MacIconButton("📤", 28)
         self.export_btn.setToolTip("导出项目")
         self.export_btn.clicked.connect(lambda: self.export_clicked.emit(self.project.id))
         button_layout.addWidget(self.export_btn)
 
-        self.delete_btn = QToolButton()
-        self.delete_btn.setIcon(get_icon("delete", 20))
+        # 删除按钮（使用危险样式）
+        self.delete_btn = MacIconButton("🗑️", 28)
+        self.delete_btn.setProperty("class", "button icon-only danger")
         self.delete_btn.setToolTip("删除项目")
         self.delete_btn.clicked.connect(lambda: self.delete_clicked.emit(self.project.id))
         button_layout.addWidget(self.delete_btn)
 
-        layout.addLayout(button_layout)
-
-        # 设置样式
-        self.setStyleSheet("""
-            QFrame#projectCard {
-                background-color: white;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-            }
-            QFrame#projectCard:hover {
-                border-color: #2196F3;
-                background-color: #f8f9fa;
-            }
-            QToolButton {
-                border: none;
-                background: transparent;
-                padding: 5px;
-                border-radius: 4px;
-            }
-            QToolButton:hover {
-                background-color: #e0e0e0;
-            }
-        """)
+        button_layout.addStretch()
+        layout.addWidget(button_row)
 
     def _update_display(self):
         """更新显示"""
         self.name_label.setText(self.project.metadata.name)
         self.desc_label.setText(self.project.metadata.description or "无描述")
-        self.type_label.setText(self.project.metadata.project_type.value)
-        self.date_label.setText(self.project.metadata.modified_at.strftime("%Y-%m-%d"))
+        self.type_badge.setText(self.project.metadata.project_type.value)
+        self.date_label.setText(self.project.metadata.modified_at.strftime("%m-%d"))
 
     def mousePressEvent(self, event):
-        """鼠标点击事件"""
+        """鼠标点击事件 - 点击卡片本身触发"""
         if event.button() == Qt.MouseButton.LeftButton:
+            # 检查点击位置是否在操作按钮区域外
+            # 简单处理：点击卡片即触发
             self.clicked.emit(self.project.id)
         super().mousePressEvent(event)
 
 
-class TemplateCard(QFrame):
-    """模板卡片组件"""
+class TemplateCard(MacCard):
+    """模板卡片组件 - 使用标准化 macOS 组件"""
 
     selected = pyqtSignal(str)  # 模板选择信号
     preview_clicked = pyqtSignal(str)  # 预览点击信号
@@ -152,73 +147,68 @@ class TemplateCard(QFrame):
         super().__init__(parent)
         self.template = template
         self.is_selected = False
+        self.setProperty("class", "card template-card")
+        self.setFixedSize(220, 180)
+        self.set_interactive(True)
+
         self._setup_ui()
         self._update_display()
 
     def _setup_ui(self):
-        """设置UI"""
-        self.setObjectName("templateCard")
-        self.setFixedSize(200, 150)
-        self.setFrameStyle(QFrame.Shape.Box)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(8)
+        """设置UI - 使用 QSS 类名，无内联样式"""
+        self.layout().setSpacing(8)
+        self.layout().setContentsMargins(12, 12, 12, 12)
 
         # 模板名称
-        self.name_label = QLabel()
+        self.name_label = MacLabel("", "text-lg text-bold")
         self.name_label.setWordWrap(True)
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.name_label.setStyleSheet("font-size: 14px; font-weight: bold; color: #333;")
-        layout.addWidget(self.name_label)
+        self.layout().addWidget(self.name_label)
 
-        # 模板预览图
+        # 模板预览图容器
+        preview_container = QWidget()
+        preview_container.setProperty("class", "template-preview-container")
+        preview_layout = QVBoxLayout(preview_container)
+        preview_layout.setContentsMargins(0, 0, 0, 0)
+
         self.preview_label = QLabel()
-        self.preview_label.setFixedSize(120, 80)
+        self.preview_label.setFixedSize(160, 90)
         self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.preview_label.setStyleSheet("background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;")
-        layout.addWidget(self.preview_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.preview_label.setProperty("class", "template-preview")
+        preview_layout.addWidget(self.preview_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # 模板类别
-        self.category_label = QLabel()
-        self.category_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.category_label.setStyleSheet("font-size: 10px; color: #666; padding: 2px 6px; background: #e3f2fd; border-radius: 3px;")
-        layout.addWidget(self.category_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.layout().addWidget(preview_container)
 
-        # 设置样式
-        self.setStyleSheet("""
-            QFrame#templateCard {
-                background-color: white;
-                border: 2px solid #e0e0e0;
-                border-radius: 8px;
-            }
-            QFrame#templateCard:hover {
-                border-color: #2196F3;
-            }
-            QFrame#templateCard[selected=true] {
-                border-color: #4CAF50;
-                background-color: #f1f8e9;
-            }
-        """)
+        # 模板类别徽章
+        self.category_badge = MacBadge("", "primary")
+        self.category_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout().addWidget(self.category_badge, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def _update_display(self):
         """更新显示"""
         self.name_label.setText(self.template.name)
-        self.category_label.setText(self.template.category)
+        self.category_badge.setText(self.template.category)
 
         # 加载预览图
         if self.template.preview_image and os.path.exists(self.template.preview_image):
             pixmap = QPixmap(self.template.preview_image)
-            scaled_pixmap = pixmap.scaled(120, 80, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(160, 90, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             self.preview_label.setPixmap(scaled_pixmap)
+        else:
+            self.preview_label.setText("🖼️")
 
     def set_selected(self, selected: bool):
         """设置选中状态"""
         self.is_selected = selected
-        self.setProperty("selected", selected)
+        if selected:
+            self.setProperty("class", "card template-card template-selected")
+        else:
+            self.setProperty("class", "card template-card")
+
+        # 刷新样式
         self.style().unpolish(self)
         self.style().polish(self)
+        self.update()
 
     def mousePressEvent(self, event):
         """鼠标点击事件"""
@@ -229,83 +219,161 @@ class TemplateCard(QFrame):
 
 
 class CreateProjectDialog(QDialog):
-    """创建项目对话框"""
+    """创建项目对话框 - macOS 风格"""
 
     def __init__(self, template_manager: ProjectTemplateManager, parent=None):
         super().__init__(parent)
         self.template_manager = template_manager
         self.selected_template = None
+        self.setProperty("class", "modal-container")
         self._setup_ui()
         self._load_templates()
 
     def _setup_ui(self):
-        """设置UI"""
+        """设置UI - 使用标准化组件和 QSS 类"""
         self.setWindowTitle("创建新项目")
         self.setModal(True)
-        self.setFixedSize(600, 500)
+        self.setFixedSize(640, 560)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
+        # 主布局
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-        # 项目名称
-        name_layout = QHBoxLayout()
-        name_layout.addWidget(QLabel("项目名称:"))
+        # 模态头部
+        header = QWidget()
+        header.setProperty("class", "modal-header")
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(20, 16, 20, 16)
+
+        title = MacTitleLabel("✨ 创建新项目", 4)
+        header_layout.addWidget(title)
+        header_layout.addStretch()
+
+        # 关闭按钮
+        close_btn = MacIconButton("✖️", 28)
+        close_btn.setProperty("class", "modal-close")
+        close_btn.clicked.connect(self.reject)
+        header_layout.addWidget(close_btn)
+
+        main_layout.addWidget(header)
+
+        # 模态主体（带滚动）
+        scroll = MacScrollArea()
+        scroll.setProperty("class", "modal-body")
+        content = QWidget()
+        content.setProperty("class", "section-content")
+        content_layout = QVBoxLayout(content)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(16)
+
+        # 项目名称输入
+        name_card = MacCard()
+        name_card.setProperty("class", "card")
+        name_layout = QVBoxLayout(name_card.layout())
+        name_layout.setSpacing(8)
+
+        name_label = MacTitleLabel("项目名称", 6)
+        name_layout.addWidget(name_label)
+
         self.name_edit = QLineEdit()
         self.name_edit.setPlaceholderText("输入项目名称...")
+        self.name_edit.setProperty("class", "input")
+        self.name_edit.setMinimumHeight(32)
         name_layout.addWidget(self.name_edit)
-        layout.addLayout(name_layout)
+        content_layout.addWidget(name_card)
 
-        # 项目类型
-        type_layout = QHBoxLayout()
-        type_layout.addWidget(QLabel("项目类型:"))
+        # 项目类型选择
+        type_card = MacCard()
+        type_card.setProperty("class", "card")
+        type_layout = QVBoxLayout(type_card.layout())
+        type_layout.setSpacing(8)
+
+        type_label = MacTitleLabel("项目类型", 6)
+        type_layout.addWidget(type_label)
+
         self.type_combo = QComboBox()
+        self.type_combo.setProperty("class", "input")
         self.type_combo.addItems([pt.value for pt in ProjectType])
         type_layout.addWidget(self.type_combo)
-        layout.addLayout(type_layout)
+        content_layout.addWidget(type_card)
 
         # 项目描述
-        desc_label = QLabel("项目描述:")
-        layout.addWidget(desc_label)
+        desc_card = MacCard()
+        desc_card.setProperty("class", "card")
+        desc_layout = QVBoxLayout(desc_card.layout())
+        desc_layout.setSpacing(8)
+
+        desc_label = MacTitleLabel("项目描述", 6)
+        desc_layout.addWidget(desc_label)
+
         self.desc_edit = QTextEdit()
         self.desc_edit.setPlaceholderText("输入项目描述...")
-        self.desc_edit.setMaximumHeight(100)
-        layout.addWidget(self.desc_edit)
+        self.desc_edit.setProperty("class", "input")
+        self.desc_edit.setMinimumHeight(80)
+        desc_layout.addWidget(self.desc_edit)
+        content_layout.addWidget(desc_card)
 
-        # 模板选择
-        template_group = QGroupBox("选择模板")
-        template_layout = QVBoxLayout(template_group)
+        # 模板选择区域
+        template_card = MacElevatedCard()
+        template_card.setProperty("class", "card card-elevated")
+        template_layout = QVBoxLayout(template_card.layout())
+        template_layout.setSpacing(12)
 
-        # 搜索框
-        search_layout = QHBoxLayout()
-        self.search_edit = QLineEdit()
-        self.search_edit.setPlaceholderText("搜索模板...")
-        self.search_edit.textChanged.connect(self._filter_templates)
-        search_layout.addWidget(self.search_edit)
-        template_layout.addLayout(search_layout)
+        template_header = QWidget()
+        template_header.setProperty("class", "icon-text-row")
+        header_row = QHBoxLayout(template_header)
+        header_row.setContentsMargins(0, 0, 0, 0)
+        header_row.setSpacing(8)
+
+        template_title = MacTitleLabel("选择模板", 6)
+        header_row.addWidget(template_title)
+        header_row.addStretch()
+
+        template_layout.addWidget(template_header)
+
+        # 搜索框（使用 MacSearchBox）
+        self.search_box = MacSearchBox("搜索模板...")
+        self.search_box.searchRequested.connect(self._filter_templates)
+        template_layout.addWidget(self.search_box)
 
         # 模板滚动区域
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area = MacScrollArea()
+        self.scroll_area.setFixedHeight(220)
         self.scroll_widget = QWidget()
+        self.scroll_widget.setProperty("class", "section-content")
         self.templates_layout = QGridLayout(self.scroll_widget)
+        self.templates_layout.setSpacing(8)
+        self.templates_layout.setContentsMargins(4, 4, 4, 4)
         self.scroll_area.setWidget(self.scroll_widget)
         template_layout.addWidget(self.scroll_area)
 
-        layout.addWidget(template_group)
+        content_layout.addWidget(template_card)
 
-        # 按钮
-        button_layout = QHBoxLayout()
-        self.cancel_btn = QPushButton("取消")
+        content_layout.addStretch()
+        scroll.setWidget(content)
+        main_layout.addWidget(scroll, 1)
+
+        # 底部按钮区域
+        footer = QWidget()
+        footer.setProperty("class", "modal-footer")
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(20, 16, 20, 16)
+        footer_layout.setSpacing(8)
+
+        # 取消按钮
+        self.cancel_btn = MacSecondaryButton("取消")
         self.cancel_btn.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_btn)
+        footer_layout.addWidget(self.cancel_btn)
 
-        self.create_btn = QPushButton("创建")
+        footer_layout.addStretch()
+
+        # 创建按钮
+        self.create_btn = MacPrimaryButton("✨ 创建项目")
         self.create_btn.clicked.connect(self._create_project)
-        self.create_btn.setDefault(True)
-        button_layout.addWidget(self.create_btn)
+        footer_layout.addWidget(self.create_btn)
 
-        layout.addLayout(button_layout)
+        main_layout.addWidget(footer)
 
     def _load_templates(self):
         """加载模板"""
@@ -320,18 +388,18 @@ class CreateProjectDialog(QDialog):
             self.template_cards[template.id] = card
 
             col += 1
-            if col >= 3:
+            if col >= 2:  # 两列布局更合适
                 col = 0
                 row += 1
 
-    def _filter_templates(self):
+    def _filter_templates(self, search_query: str):
         """过滤模板"""
-        search_text = self.search_edit.text().lower()
+        search_text = search_query.lower()
         for template_id, card in self.template_cards.items():
             template = card.template
             matches = (search_text in template.name.lower() or
-                      search_text in template.description.lower() or
-                      search_text in template.category.lower())
+                       search_text in template.description.lower() or
+                       search_text in template.category.lower())
             card.setVisible(matches)
 
     def _on_template_selected(self, template_id: str):
@@ -368,27 +436,53 @@ class CreateProjectDialog(QDialog):
 
 
 class ProjectSettingsDialog(QDialog):
-    """项目设置对话框"""
+    """项目设置对话框 - macOS 风格"""
 
     def __init__(self, project: Project, settings_manager: ProjectSettingsManager, parent=None):
         super().__init__(parent)
         self.project = project
         self.settings_manager = settings_manager
+        self.setProperty("class", "modal-container")
         self._setup_ui()
         self._load_settings()
 
     def _setup_ui(self):
-        """设置UI"""
+        """设置UI - 使用标准化组件"""
         self.setWindowTitle("项目设置")
         self.setModal(True)
-        self.setFixedSize(800, 600)
+        self.setFixedSize(840, 640)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
+        # 主布局
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-        # 设置标签页
+        # 模态头部
+        header = QWidget()
+        header.setProperty("class", "modal-header")
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(20, 16, 20, 16)
+
+        title = MacTitleLabel("⚙️ 项目设置", 4)
+        header_layout.addWidget(title)
+        header_layout.addStretch()
+
+        close_btn = MacIconButton("✖️", 28)
+        close_btn.setProperty("class", "modal-close")
+        close_btn.clicked.connect(self.reject)
+        header_layout.addWidget(close_btn)
+
+        main_layout.addWidget(header)
+
+        # 模态主体
+        content = QWidget()
+        content.setProperty("class", "modal-body")
+        content_layout = QVBoxLayout(content)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+
+        # 设置标签页（使用 QTabWidget，但添加类名）
         self.tab_widget = QTabWidget()
+        self.tab_widget.setProperty("class", "settings-tabs")
 
         # 视频设置
         self.video_tab = self._create_video_tab()
@@ -406,131 +500,299 @@ class ProjectSettingsDialog(QDialog):
         self.ai_tab = self._create_ai_tab()
         self.tab_widget.addTab(self.ai_tab, "AI设置")
 
-        layout.addWidget(self.tab_widget)
+        content_layout.addWidget(self.tab_widget)
+        main_layout.addWidget(content, 1)
 
-        # 按钮
-        button_layout = QHBoxLayout()
-        self.reset_btn = QPushButton("重置")
+        # 底部按钮区域
+        footer = QWidget()
+        footer.setProperty("class", "modal-footer")
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(20, 16, 20, 16)
+        footer_layout.setSpacing(8)
+
+        # 重置按钮
+        self.reset_btn = MacSecondaryButton("🔄 重置")
         self.reset_btn.clicked.connect(self._reset_settings)
-        button_layout.addWidget(self.reset_btn)
+        footer_layout.addWidget(self.reset_btn)
 
-        button_layout.addStretch()
+        footer_layout.addStretch()
 
-        self.cancel_btn = QPushButton("取消")
+        # 取消按钮
+        self.cancel_btn = MacSecondaryButton("取消")
         self.cancel_btn.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_btn)
+        footer_layout.addWidget(self.cancel_btn)
 
-        self.save_btn = QPushButton("保存")
+        # 保存按钮
+        self.save_btn = MacPrimaryButton("💾 保存")
         self.save_btn.clicked.connect(self._save_settings)
-        self.save_btn.setDefault(True)
-        button_layout.addWidget(self.save_btn)
+        footer_layout.addWidget(self.save_btn)
 
-        layout.addLayout(button_layout)
+        main_layout.addWidget(footer)
 
     def _create_video_tab(self):
         """创建视频设置标签页"""
-        widget = QWidget()
-        layout = QFormLayout(widget)
+        widget = MacScrollArea()
+        widget.setProperty("class", "scroll-area")
+        content = QWidget()
+        content.setProperty("class", "section-content")
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
+
+        # 表单内容
+        form_card = MacCard()
+        form_layout = QVBoxLayout(form_card.layout())
+        form_layout.setSpacing(12)
 
         # 分辨率
         self.resolution_combo = QComboBox()
+        self.resolution_combo.setProperty("class", "input")
         self.resolution_combo.addItems(['3840x2160', '2560x1440', '1920x1080', '1280x720', '854x480'])
-        layout.addRow("分辨率:", self.resolution_combo)
+
+        res_row = QWidget()
+        res_row.setProperty("class", "stat-row")
+        res_row_layout = QHBoxLayout(res_row)
+        res_row_layout.setContentsMargins(0, 0, 0, 0)
+        res_row_layout.setSpacing(8)
+        res_row_layout.addWidget(MacLabel("分辨率:", "text-secondary text-bold"))
+        res_row_layout.addWidget(self.resolution_combo, 1)
+        form_layout.addWidget(res_row)
 
         # 帧率
         self.fps_spin = QSpinBox()
+        self.fps_spin.setProperty("class", "input")
         self.fps_spin.setRange(1, 120)
         self.fps_spin.setValue(30)
-        layout.addRow("帧率 (FPS):", self.fps_spin)
+
+        fps_row = QWidget()
+        fps_row.setProperty("class", "stat-row")
+        fps_row_layout = QHBoxLayout(fps_row)
+        fps_row_layout.setContentsMargins(0, 0, 0, 0)
+        fps_row_layout.setSpacing(8)
+        fps_row_layout.addWidget(MacLabel("帧率 (FPS):", "text-secondary text-bold"))
+        fps_row_layout.addWidget(self.fps_spin, 1)
+        form_layout.addWidget(fps_row)
 
         # 比特率
         self.bitrate_combo = QComboBox()
+        self.bitrate_combo.setProperty("class", "input")
         self.bitrate_combo.addItems(['4000k', '6000k', '8000k', '12000k', '16000k', '20000k'])
-        layout.addRow("比特率:", self.bitrate_combo)
+
+        bitrate_row = QWidget()
+        bitrate_row.setProperty("class", "stat-row")
+        bitrate_row_layout = QHBoxLayout(bitrate_row)
+        bitrate_row_layout.setContentsMargins(0, 0, 0, 0)
+        bitrate_row_layout.setSpacing(8)
+        bitrate_row_layout.addWidget(MacLabel("比特率:", "text-secondary text-bold"))
+        bitrate_row_layout.addWidget(self.bitrate_combo, 1)
+        form_layout.addWidget(bitrate_row)
 
         # 编码器
         self.codec_combo = QComboBox()
+        self.codec_combo.setProperty("class", "input")
         self.codec_combo.addItems(['h264', 'h265', 'vp9', 'av1'])
-        layout.addRow("编码器:", self.codec_combo)
 
+        codec_row = QWidget()
+        codec_row.setProperty("class", "stat-row")
+        codec_row_layout = QHBoxLayout(codec_row)
+        codec_row_layout.setContentsMargins(0, 0, 0, 0)
+        codec_row_layout.setSpacing(8)
+        codec_row_layout.addWidget(MacLabel("编码器:", "text-secondary text-bold"))
+        codec_row_layout.addWidget(self.codec_combo, 1)
+        form_layout.addWidget(codec_row)
+
+        layout.addWidget(form_card)
+        layout.addStretch()
+
+        widget.setWidget(content)
         return widget
 
     def _create_audio_tab(self):
         """创建音频设置标签页"""
-        widget = QWidget()
-        layout = QFormLayout(widget)
+        widget = MacScrollArea()
+        widget.setProperty("class", "scroll-area")
+        content = QWidget()
+        content.setProperty("class", "section-content")
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
+
+        form_card = MacCard()
+        form_layout = QVBoxLayout(form_card.layout())
+        form_layout.setSpacing(12)
 
         # 采样率
         self.samplerate_combo = QComboBox()
+        self.samplerate_combo.setProperty("class", "input")
         self.samplerate_combo.addItems(['22050', '44100', '48000', '96000'])
-        layout.addRow("采样率 (Hz):", self.samplerate_combo)
+
+        rate_row = QWidget()
+        rate_row.setProperty("class", "stat-row")
+        rate_row_layout = QHBoxLayout(rate_row)
+        rate_row_layout.setContentsMargins(0, 0, 0, 0)
+        rate_row_layout.setSpacing(8)
+        rate_row_layout.addWidget(MacLabel("采样率 (Hz):", "text-secondary text-bold"))
+        rate_row_layout.addWidget(self.samplerate_combo, 1)
+        form_layout.addWidget(rate_row)
 
         # 比特率
         self.audio_bitrate_combo = QComboBox()
+        self.audio_bitrate_combo.setProperty("class", "input")
         self.audio_bitrate_combo.addItems(['128k', '192k', '256k', '320k'])
-        layout.addRow("比特率:", self.audio_bitrate_combo)
+
+        audio_rate_row = QWidget()
+        audio_rate_row.setProperty("class", "stat-row")
+        audio_rate_row_layout = QHBoxLayout(audio_rate_row)
+        audio_rate_row_layout.setContentsMargins(0, 0, 0, 0)
+        audio_rate_row_layout.setSpacing(8)
+        audio_rate_row_layout.addWidget(MacLabel("比特率:", "text-secondary text-bold"))
+        audio_rate_row_layout.addWidget(self.audio_bitrate_combo, 1)
+        form_layout.addWidget(audio_rate_row)
 
         # 声道数
         self.channels_spin = QSpinBox()
+        self.channels_spin.setProperty("class", "input")
         self.channels_spin.setRange(1, 8)
         self.channels_spin.setValue(2)
-        layout.addRow("声道数:", self.channels_spin)
 
+        channels_row = QWidget()
+        channels_row.setProperty("class", "stat-row")
+        channels_row_layout = QHBoxLayout(channels_row)
+        channels_row_layout.setContentsMargins(0, 0, 0, 0)
+        channels_row_layout.setSpacing(8)
+        channels_row_layout.addWidget(MacLabel("声道数:", "text-secondary text-bold"))
+        channels_row_layout.addWidget(self.channels_spin, 1)
+        form_layout.addWidget(channels_row)
+
+        layout.addWidget(form_card)
+        layout.addStretch()
+
+        widget.setWidget(content)
         return widget
 
     def _create_autosave_tab(self):
         """创建自动保存设置标签页"""
-        widget = QWidget()
-        layout = QFormLayout(widget)
+        widget = MacScrollArea()
+        widget.setProperty("class", "scroll-area")
+        content = QWidget()
+        content.setProperty("class", "section-content")
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
+
+        form_card = MacCard()
+        form_layout = QVBoxLayout(form_card.layout())
+        form_layout.setSpacing(12)
 
         # 启用自动保存
         self.autosave_check = QCheckBox("启用自动保存")
-        layout.addRow("", self.autosave_check)
+        self.autosave_check.setProperty("class", "input")
+        form_layout.addWidget(self.autosave_check)
 
         # 自动保存间隔
         self.interval_spin = QSpinBox()
+        self.interval_spin.setProperty("class", "input")
         self.interval_spin.setRange(60, 3600)
         self.interval_spin.setValue(300)
         self.interval_spin.setSuffix(" 秒")
-        layout.addRow("自动保存间隔:", self.interval_spin)
+
+        interval_row = QWidget()
+        interval_row.setProperty("class", "stat-row")
+        interval_row_layout = QHBoxLayout(interval_row)
+        interval_row_layout.setContentsMargins(0, 0, 0, 0)
+        interval_row_layout.setSpacing(8)
+        interval_row_layout.addWidget(MacLabel("自动保存间隔:", "text-secondary text-bold"))
+        interval_row_layout.addWidget(self.interval_spin, 1)
+        form_layout.addWidget(interval_row)
 
         # 最大备份数
         self.max_backups_spin = QSpinBox()
+        self.max_backups_spin.setProperty("class", "input")
         self.max_backups_spin.setRange(1, 50)
         self.max_backups_spin.setValue(10)
-        layout.addRow("最大备份数:", self.max_backups_spin)
 
+        backups_row = QWidget()
+        backups_row.setProperty("class", "stat-row")
+        backups_row_layout = QHBoxLayout(backups_row)
+        backups_row_layout.setContentsMargins(0, 0, 0, 0)
+        backups_row_layout.setSpacing(8)
+        backups_row_layout.addWidget(MacLabel("最大备份数:", "text-secondary text-bold"))
+        backups_row_layout.addWidget(self.max_backups_spin, 1)
+        form_layout.addWidget(backups_row)
+
+        layout.addWidget(form_card)
+        layout.addStretch()
+
+        widget.setWidget(content)
         return widget
 
     def _create_ai_tab(self):
         """创建AI设置标签页"""
-        widget = QWidget()
-        layout = QFormLayout(widget)
+        widget = MacScrollArea()
+        widget.setProperty("class", "scroll-area")
+        content = QWidget()
+        content.setProperty("class", "section-content")
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
+
+        form_card = MacCard()
+        form_layout = QVBoxLayout(form_card.layout())
+        form_layout.setSpacing(12)
 
         # 默认模型
         self.model_combo = QComboBox()
+        self.model_combo.setProperty("class", "input")
         self.model_combo.addItems(['gpt-3.5-turbo', 'gpt-4', 'claude-3', 'gemini-pro'])
-        layout.addRow("默认模型:", self.model_combo)
+
+        model_row = QWidget()
+        model_row.setProperty("class", "stat-row")
+        model_row_layout = QHBoxLayout(model_row)
+        model_row_layout.setContentsMargins(0, 0, 0, 0)
+        model_row_layout.setSpacing(8)
+        model_row_layout.addWidget(MacLabel("默认模型:", "text-secondary text-bold"))
+        model_row_layout.addWidget(self.model_combo, 1)
+        form_layout.addWidget(model_row)
 
         # 最大令牌数
         self.max_tokens_spin = QSpinBox()
+        self.max_tokens_spin.setProperty("class", "input")
         self.max_tokens_spin.setRange(100, 8000)
         self.max_tokens_spin.setValue(2000)
-        layout.addRow("最大令牌数:", self.max_tokens_spin)
+
+        tokens_row = QWidget()
+        tokens_row.setProperty("class", "stat-row")
+        tokens_row_layout = QHBoxLayout(tokens_row)
+        tokens_row_layout.setContentsMargins(0, 0, 0, 0)
+        tokens_row_layout.setSpacing(8)
+        tokens_row_layout.addWidget(MacLabel("最大令牌数:", "text-secondary text-bold"))
+        tokens_row_layout.addWidget(self.max_tokens_spin, 1)
+        form_layout.addWidget(tokens_row)
 
         # 创造性程度
         self.temperature_slider = QSlider(Qt.Orientation.Horizontal)
         self.temperature_slider.setRange(0, 200)
         self.temperature_slider.setValue(70)
-        self.temperature_label = QLabel("0.7")
-        temp_layout = QHBoxLayout()
-        temp_layout.addWidget(self.temperature_slider)
-        temp_layout.addWidget(self.temperature_label)
+        self.temperature_label = MacLabel("0.7", "text-bold")
+
+        temp_row = QWidget()
+        temp_row.setProperty("class", "stat-row")
+        temp_row_layout = QHBoxLayout(temp_row)
+        temp_row_layout.setContentsMargins(0, 0, 0, 0)
+        temp_row_layout.setSpacing(8)
+        temp_row_layout.addWidget(MacLabel("创造性程度:", "text-secondary text-bold"))
+        temp_row_layout.addWidget(self.temperature_slider, 1)
+        temp_row_layout.addWidget(self.temperature_label)
+
         self.temperature_slider.valueChanged.connect(
             lambda v: self.temperature_label.setText(f"{v/100:.1f}")
         )
-        layout.addRow("创造性程度:", temp_layout)
+        form_layout.addWidget(temp_row)
 
+        layout.addWidget(form_card)
+        layout.addStretch()
+
+        widget.setWidget(content)
         return widget
 
     def _load_settings(self):
@@ -612,21 +874,48 @@ class ProjectsPage(BasePage):
         super().__init__("projects", "项目管理", application)
 
         # 初始化管理器
-        self.project_manager: ProjectManager = application.get_service_by_name("project_manager")
-        self.template_manager: ProjectTemplateManager = application.get_service_by_name("template_manager")
-        self.settings_manager: ProjectSettingsManager = application.get_service_by_name("settings_manager")
+        self.project_manager: Optional[ProjectManager] = application.get_service_by_name("project_manager")
+        self.template_manager: Optional[ProjectTemplateManager] = application.get_service_by_name("template_manager")
+        self.settings_manager: Optional[ProjectSettingsManager] = application.get_service_by_name("settings_manager")
 
         # 当前选中的项目
         self.selected_project_id: Optional[str] = None
 
-        # 初始化UI
-        self._init_ui()
+        # 检查服务状态
+        self._check_services()
 
-        # 加载项目数据
-        self._load_projects()
+    def initialize(self) -> bool:
+        """初始化页面"""
+        try:
+            self.logger.info("Initializing projects page")
 
-        # 定时刷新
-        self._setup_refresh_timer()
+            # 初始化UI
+            self._init_ui()
+
+            # 加载项目数据（添加检查，避免NoneType错误）
+            self._load_projects()
+
+            # 定时刷新
+            self._setup_refresh_timer()
+
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to initialize projects page: {e}")
+            return False
+
+    def create_content(self) -> None:
+        """创建页面内容"""
+        # 内容创建已在_init_ui中完成
+        pass
+
+    def _check_services(self):
+        """检查服务状态"""
+        if not self.project_manager:
+            self.logger.warning("项目管理器服务未找到")
+        if not self.template_manager:
+            self.logger.warning("模板管理器服务未找到")
+        if not self.settings_manager:
+            self.logger.warning("设置管理器服务未找到")
 
     def _init_ui(self):
         """初始化UI"""
@@ -656,236 +945,290 @@ class ProjectsPage(BasePage):
         self.main_layout.addWidget(content_splitter, 1)
 
     def _create_header_section(self) -> QWidget:
-        """创建标题区域"""
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        # 标题
-        title_label = QLabel("项目管理")
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #333;")
-        layout.addWidget(title_label)
-
-        layout.addStretch()
+        """创建标题区域 - 使用 MacPageToolbar"""
+        toolbar = MacPageToolbar("📁 项目管理")
 
         # 操作按钮
-        self.new_project_btn = QPushButton(get_icon("add", 20), "新建项目")
+        self.new_project_btn = MacPrimaryButton("✨ 新建项目")
         self.new_project_btn.clicked.connect(self._on_new_project)
-        layout.addWidget(self.new_project_btn)
+        toolbar.add_action(self.new_project_btn)
 
-        self.open_project_btn = QPushButton(get_icon("open", 20), "打开项目")
+        self.open_project_btn = MacSecondaryButton("📂 打开项目")
         self.open_project_btn.clicked.connect(self._on_open_project)
-        layout.addWidget(self.open_project_btn)
+        toolbar.add_action(self.open_project_btn)
 
-        self.import_project_btn = QPushButton(get_icon("import", 20), "导入项目")
+        self.import_project_btn = MacSecondaryButton("📥 导入项目")
         self.import_project_btn.clicked.connect(self._on_import_project)
-        layout.addWidget(self.import_project_btn)
+        toolbar.add_action(self.import_project_btn)
 
-        self.refresh_btn = QPushButton(get_icon("refresh", 20), "刷新")
+        self.refresh_btn = MacIconButton("🔄", 32)
+        self.refresh_btn.setToolTip("刷新")
         self.refresh_btn.clicked.connect(self._refresh_projects)
-        layout.addWidget(self.refresh_btn)
+        toolbar.add_action(self.refresh_btn)
 
-        return widget
+        return toolbar
 
     def _create_projects_section(self) -> QWidget:
-        """创建项目列表区域"""
-        widget = QFrame()
-        widget.setObjectName("projectsSection")
-        widget.setStyleSheet("""
-            QFrame#projectsSection {
-                background-color: white;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-            }
-        """)
+        """创建项目列表区域 - 使用标准化卡片布局"""
+        widget = MacElevatedCard()
+        widget.setProperty("class", "card section-card")
+        widget.layout().setSpacing(12)
 
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(15, 15, 15, 15)
-        layout.setSpacing(10)
+        # 搜索和过滤区域
+        filter_layout = QHBoxLayout()
+        filter_layout.setSpacing(8)
 
-        # 搜索和过滤
-        filter_widget = self._create_filter_section()
-        layout.addWidget(filter_widget)
+        # 搜索框（使用 MacSearchBox）
+        self.search_box = MacSearchBox("🔍 搜索项目...")
+        # MacSearchBox 的 searchRequested 信号会传回 query
+        # 但我们还有下拉过滤，所以统一用 _filter_projects
+        self.search_box.searchRequested.connect(lambda: self._filter_projects())
+        filter_layout.addWidget(self.search_box, 1)
 
-        # 项目网格
-        self.projects_scroll = QScrollArea()
-        self.projects_scroll.setWidgetResizable(True)
-        self.projects_widget = QWidget()
-        self.projects_layout = QGridLayout(self.projects_widget)
-        self.projects_scroll.setWidget(self.projects_widget)
-        layout.addWidget(self.projects_scroll, 1)
-
-        return widget
-
-    def _create_filter_section(self) -> QWidget:
-        """创建过滤区域"""
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        # 搜索框
-        self.search_edit = QLineEdit()
-        self.search_edit.setPlaceholderText("搜索项目...")
-        self.search_edit.textChanged.connect(self._filter_projects)
-        layout.addWidget(self.search_edit, 1)
-
-        # 类型过滤
+        # 按钮组用于类型和状态过滤
         self.type_filter = QComboBox()
+        self.type_filter.setProperty("class", "input")
+        self.type_filter.setMinimumWidth(120)
         self.type_filter.addItem("全部类型")
         for project_type in ProjectType:
             self.type_filter.addItem(project_type.value)
         self.type_filter.currentTextChanged.connect(self._filter_projects)
-        layout.addWidget(self.type_filter)
+        filter_layout.addWidget(self.type_filter)
 
-        # 状态过滤
         self.status_filter = QComboBox()
+        self.status_filter.setProperty("class", "input")
+        self.status_filter.setMinimumWidth(120)
         self.status_filter.addItem("全部状态")
         for status in ProjectStatus:
             self.status_filter.addItem(status.value)
         self.status_filter.currentTextChanged.connect(self._filter_projects)
-        layout.addWidget(self.status_filter)
+        filter_layout.addWidget(self.status_filter)
+
+        filter_container = QWidget()
+        filter_container.setLayout(filter_layout)
+        widget.layout().addWidget(filter_container)
+
+        # 项目网格（使用 MacScrollArea）
+        self.projects_scroll = MacScrollArea()
+        self.projects_widget = QWidget()
+        self.projects_widget.setProperty("class", "grid")
+        self.projects_layout = QGridLayout(self.projects_widget)
+        self.projects_layout.setSpacing(12)
+        self.projects_layout.setContentsMargins(0, 0, 0, 0)
+        self.projects_scroll.setWidget(self.projects_widget)
+        widget.layout().addWidget(self.projects_scroll, 1)
 
         return widget
 
-    def _create_project_details_section(self) -> QWidget:
-        """创建项目详情区域"""
-        widget = QFrame()
-        widget.setObjectName("detailsSection")
-        widget.setStyleSheet("""
-            QFrame#detailsSection {
-                background-color: white;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-            }
-        """)
+    def _filter_projects(self):
+        """过滤项目 - 响应搜索框和下拉框"""
+        # 获取搜索文本
+        search_text = ""
+        if hasattr(self, 'search_box') and self.search_box:
+            search_text = self.search_box.input.text().lower()
 
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(15, 15, 15, 15)
-        layout.setSpacing(15)
+        type_filter = self.type_filter.currentText()
+        status_filter = self.status_filter.currentText()
+
+        for project_id, card in self.project_cards.items():
+            project = card.project
+            matches = True
+
+            # 搜索过滤
+            if search_text:
+                matches = (search_text in project.metadata.name.lower() or
+                           search_text in project.metadata.description.lower())
+
+            # 类型过滤
+            if matches and type_filter != "全部类型":
+                matches = project.metadata.project_type.value == type_filter
+
+            # 状态过滤
+            if matches and status_filter != "全部状态":
+                matches = project.metadata.status.value == status_filter
+
+            card.setVisible(matches)
+
+    def _create_project_details_section(self) -> QWidget:
+        """创建项目详情区域 - 使用 MacCard 和标准化组件"""
+        widget = MacElevatedCard()
+        widget.setProperty("class", "card section-card")
+        widget.layout().setSpacing(12)
 
         # 详情标题
-        self.details_title = QLabel("项目详情")
-        self.details_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #333;")
-        layout.addWidget(self.details_title)
+        title_row = create_icon_text_row("📋", "项目详情", "title-2xl")
+        widget.layout().addWidget(title_row)
 
-        # 详情内容
+        # 详情内容 - 使用 StackedWidget
         self.details_stack = QStackedWidget()
 
         # 空状态页面
-        empty_widget = QWidget()
-        empty_layout = QVBoxLayout(empty_widget)
-        empty_layout.addStretch()
-        empty_label = QLabel("选择一个项目查看详情")
-        empty_label.setStyleSheet("font-size: 16px; color: #999; text-align: center;")
-        empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        empty_layout.addWidget(empty_label)
-        empty_layout.addStretch()
+        empty_widget = MacEmptyState(
+            icon="📭",
+            title="未选择项目",
+            description="请在左侧选择一个项目查看详情"
+        )
         self.details_stack.addWidget(empty_widget)
 
-        # 项目详情页面
+        # 项目详情页面（使用 MacScrollArea）
+        self.details_scroll = MacScrollArea()
         self.details_widget = self._create_project_details_content()
-        self.details_stack.addWidget(self.details_widget)
+        self.details_scroll.setWidget(self.details_widget)
+        self.details_stack.addWidget(self.details_scroll)
 
-        layout.addWidget(self.details_stack, 1)
+        widget.layout().addWidget(self.details_stack, 1)
 
         # 操作按钮
         self.details_buttons = self._create_details_buttons()
-        layout.addWidget(self.details_buttons)
+        widget.layout().addWidget(self.details_buttons)
 
         return widget
 
     def _create_project_details_content(self) -> QWidget:
-        """创建项目详情内容"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setSpacing(10)
+        """创建项目详情内容 - 使用标准化卡片"""
+        content = QWidget()
+        content.setProperty("class", "section-content")
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(24, 16, 24, 16)
+        layout.setSpacing(16)
 
-        # 基本信息
-        info_group = QGroupBox("基本信息")
-        info_layout = QFormLayout(info_group)
+        # 基本信息卡片
+        info_card = MacCard()
+        info_card.setProperty("class", "card")
+        info_card_layout = QVBoxLayout(info_card.layout())
+        info_card_layout.setSpacing(8)
 
-        self.detail_name = QLabel()
-        info_layout.addRow("项目名称:", self.detail_name)
+        info_title = MacTitleLabel("基本信息", 6)
+        info_card_layout.addWidget(info_title)
 
-        self.detail_type = QLabel()
-        info_layout.addRow("项目类型:", self.detail_type)
+        # 使用 stat-row 样式创建详情行
+        self.detail_name = MacLabel("", "text-base")
+        info_row_1 = create_status_badge_row([("项目名称", "", None)])  # 占位，稍后更新
+        # 更好的方式：直接创建
+        info_card_layout.addWidget(self._create_detail_row("项目名称:", self.detail_name))
 
-        self.detail_created = QLabel()
-        info_layout.addRow("创建时间:", self.detail_created)
+        self.detail_type = MacLabel("", "text-base")
+        info_card_layout.addWidget(self._create_detail_row("项目类型:", self.detail_type))
 
-        self.detail_modified = QLabel()
-        info_layout.addRow("修改时间:", self.detail_modified)
+        self.detail_created = MacLabel("", "text-base")
+        info_card_layout.addWidget(self._create_detail_row("创建时间:", self.detail_created))
 
-        self.detail_status = QLabel()
-        info_layout.addRow("状态:", self.detail_status)
+        self.detail_modified = MacLabel("", "text-base")
+        info_card_layout.addWidget(self._create_detail_row("修改时间:", self.detail_modified))
 
-        layout.addWidget(info_group)
+        self.detail_status = MacLabel("", "text-base")
+        info_card_layout.addWidget(self._create_detail_row("状态:", self.detail_status))
 
-        # 统计信息
-        stats_group = QGroupBox("统计信息")
-        stats_layout = QFormLayout(stats_group)
+        layout.addWidget(info_card)
 
-        self.detail_media_count = QLabel()
-        stats_layout.addRow("媒体文件数:", self.detail_media_count)
+        # 统计信息卡片
+        stats_card = MacCard()
+        stats_card.setProperty("class", "card")
+        stats_card_layout = QVBoxLayout(stats_card.layout())
+        stats_card_layout.setSpacing(8)
 
-        self.detail_duration = QLabel()
-        stats_layout.addRow("总时长:", self.detail_duration)
+        stats_title = MacTitleLabel("统计信息", 6)
+        stats_card_layout.addWidget(stats_title)
 
-        self.detail_size = QLabel()
-        stats_layout.addRow("项目大小:", self.detail_size)
+        self.detail_media_count = MacLabel("", "text-base")
+        stats_card_layout.addWidget(self._create_detail_row("媒体文件数:", self.detail_media_count))
 
-        layout.addWidget(stats_group)
+        self.detail_duration = MacLabel("", "text-base")
+        stats_card_layout.addWidget(self._create_detail_row("总时长:", self.detail_duration))
 
-        # 描述
-        desc_group = QGroupBox("描述")
-        desc_layout = QVBoxLayout(desc_group)
+        self.detail_size = MacLabel("", "text-base")
+        stats_card_layout.addWidget(self._create_detail_row("项目大小:", self.detail_size))
 
-        self.detail_description = QLabel()
+        layout.addWidget(stats_card)
+
+        # 描述卡片
+        desc_card = MacCard()
+        desc_card.setProperty("class", "card")
+        desc_card_layout = QVBoxLayout(desc_card.layout())
+        desc_card_layout.setSpacing(8)
+
+        desc_title = MacTitleLabel("描述", 6)
+        desc_card_layout.addWidget(desc_title)
+
+        self.detail_description = MacLabel("", "text-secondary")
         self.detail_description.setWordWrap(True)
-        self.detail_description.setStyleSheet("color: #666;")
-        desc_layout.addWidget(self.detail_description)
+        desc_card_layout.addWidget(self.detail_description)
 
-        layout.addWidget(desc_group)
+        layout.addWidget(desc_card)
 
         layout.addStretch()
 
-        return widget
+        return content
+
+    def _create_detail_row(self, label: str, value_label: MacLabel) -> QWidget:
+        """创建详情行"""
+        row = QWidget()
+        row.setProperty("class", "stat-row")
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(8)
+
+        label_widget = MacLabel(label, "text-secondary text-bold")
+        row_layout.addWidget(label_widget)
+        row_layout.addWidget(value_label, 1)
+
+        return row
 
     def _create_details_buttons(self) -> QWidget:
-        """创建详情区域按钮"""
+        """创建详情区域按钮 - 使用标准化按钮"""
         widget = QWidget()
         layout = QHBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
 
-        self.edit_project_btn = QPushButton(get_icon("edit", 16), "编辑")
+        self.edit_project_btn = MacSecondaryButton("✏️ 编辑")
         self.edit_project_btn.clicked.connect(self._on_edit_project)
         layout.addWidget(self.edit_project_btn)
 
-        self.settings_project_btn = QPushButton(get_icon("settings", 16), "设置")
+        self.settings_project_btn = MacSecondaryButton("⚙️ 设置")
         self.settings_project_btn.clicked.connect(self._on_project_settings)
         layout.addWidget(self.settings_project_btn)
 
-        self.export_project_btn = QPushButton(get_icon("export", 16), "导出")
+        self.export_project_btn = MacSecondaryButton("📤 导出")
         self.export_project_btn.clicked.connect(self._on_export_project)
         layout.addWidget(self.export_project_btn)
 
-        self.delete_project_btn = QPushButton(get_icon("delete", 16), "删除")
+        self.delete_project_btn = MacDangerButton("🗑️ 删除")
         self.delete_project_btn.clicked.connect(self._on_delete_project)
-        self.delete_project_btn.setStyleSheet("background-color: #f44336; color: white;")
         layout.addWidget(self.delete_project_btn)
+
+        layout.addStretch()
 
         return widget
 
     def _load_projects(self):
         """加载项目列表"""
         self.project_cards = {}
-        projects = self.project_manager.get_all_projects()
+
+        # 检查项目管理器是否可用
+        if not self.project_manager:
+            self.logger.warning("项目管理器不可用，无法加载项目")
+
+            # 显示空状态
+            self.projects_layout.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding), 0, 0)
+            return
+
+        try:
+            projects = self.project_manager.get_all_projects()
+        except Exception as e:
+            self.logger.error(f"获取项目列表失败: {e}")
+            return
 
         # 清空现有卡片
         for i in reversed(range(self.projects_layout.count())):
             child = self.projects_layout.itemAt(i).widget()
             if child:
                 child.deleteLater()
+            else:
+                # 移除非widget项（如QSpacerItem）
+                item = self.projects_layout.takeAt(i)
+                if item and hasattr(item, 'deleteLater'):
+                    item.deleteLater()
 
         # 添加项目卡片
         row, col = 0, 0
@@ -907,30 +1250,7 @@ class ProjectsPage(BasePage):
         # 添加拉伸空间
         self.projects_layout.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding), row, col)
 
-    def _filter_projects(self):
-        """过滤项目"""
-        search_text = self.search_edit.text().lower()
-        type_filter = self.type_filter.currentText()
-        status_filter = self.status_filter.currentText()
-
-        for project_id, card in self.project_cards.items():
-            project = card.project
-            matches = True
-
-            # 搜索过滤
-            if search_text:
-                matches = (search_text in project.metadata.name.lower() or
-                          search_text in project.metadata.description.lower())
-
-            # 类型过滤
-            if matches and type_filter != "全部类型":
-                matches = project.metadata.project_type.value == type_filter
-
-            # 状态过滤
-            if matches and status_filter != "全部状态":
-                matches = project.metadata.status.value == status_filter
-
-            card.setVisible(matches)
+    # _filter_projects 已在前面定义，支持 MacSearchBox
 
     def _on_project_selected(self, project_id: str):
         """项目选择"""
@@ -1008,7 +1328,7 @@ class ProjectsPage(BasePage):
     def _on_open_project(self):
         """打开项目"""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "打开项目", "", "CineAIStudio项目 (*.json)"
+            self, "打开项目", "", "AI-EditX项目 (*.json)"
         )
 
         if file_path:
@@ -1025,7 +1345,7 @@ class ProjectsPage(BasePage):
     def _on_import_project(self):
         """导入项目"""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "导入项目", "", "CineAIStudio项目包 (*.zip)"
+            self, "导入项目", "", "AI-EditX项目包 (*.zip)"
         )
 
         if file_path:
@@ -1070,7 +1390,7 @@ class ProjectsPage(BasePage):
 
         if project_id:
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "导出项目", "", "CineAIStudio项目包 (*.zip)"
+                self, "导出项目", "", "AI-EditX项目包 (*.zip)"
             )
 
             if file_path:

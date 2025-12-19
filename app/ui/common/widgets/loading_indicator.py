@@ -27,13 +27,8 @@ class LoadingIndicator(QWidget):
         self.setObjectName("loading_indicator")
         self.setFixedSize(200, 60)
 
-        # 设置样式
-        self.setStyleSheet("""
-            QWidget#loading_indicator {
-                background-color: rgba(0, 0, 0, 0.8);
-                border-radius: 8px;
-            }
-        """)
+        # 应用 macOS 样式
+        self.setProperty("class", "loading-indicator")
 
     def _create_layout(self) -> None:
         """创建布局"""
@@ -43,18 +38,13 @@ class LoadingIndicator(QWidget):
 
         # 加载动画标签
         self.animation_label = QLabel("⏳")
-        self.animation_label.setStyleSheet("font-size: 20px;")
+        self.animation_label.setProperty("class", "loading-animation")
         self.animation_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(self.animation_label)
 
         # 消息标签
         self.message_label = QLabel(self.message)
-        self.message_label.setStyleSheet("""
-            QLabel {
-                color: #FFFFFF;
-                font-size: 12px;
-            }
-        """)
+        self.message_label.setProperty("class", "loading-message")
         self.message_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         main_layout.addWidget(self.message_label)
 
@@ -96,24 +86,11 @@ class LoadingIndicator(QWidget):
             if hasattr(self, 'animation_timer'):
                 self.animation_timer.start(500)
 
-    def update_theme(self, is_dark: bool = True) -> None:
-        """更新主题"""
-        if is_dark:
-            bg_color = "rgba(0, 0, 0, 0.8)"
-            text_color = "#FFFFFF"
-        else:
-            bg_color = "rgba(255, 255, 255, 0.9)"
-            text_color = "#000000"
-
-        self.setStyleSheet(f"""
-            QWidget#loading_indicator {{
-                background-color: {bg_color};
-                border-radius: 8px;
-            }}
-            QLabel {{
-                color: {text_color};
-            }}
-        """)
+    def update_theme(self, theme_name: str = "dark") -> None:
+        """更新主题 - 使用 QSS 类名系统"""
+        self.setProperty("theme", theme_name)
+        self.style().unpolish(self)
+        self.style().polish(self)
 
     def closeEvent(self, event) -> None:
         """关闭事件"""

@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cineai-studio"
 version = "2.0.0"
-description = "CineAIStudio v2.0 - Professional Video Editing with AI Integration"
+description = "AI-EditX - Professional Video Editing with AI Integration"
 license = {text = "MIT"}
 authors = [
-    {name = "CineAIStudio Team", email = "team@cineaistudio.com"}
+    {name = "Agions", email = "agions@qq.com.com"}
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -71,22 +71,22 @@ python_functions = "test_*"
 
 [tool.mypy]
 python_version = "3.12"
-warn_return_any = True
-warn_unused_configs = True
-disallow_untyped_defs = True
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
 files = "**/*.py"
 exclude = [
     "build",
     "dist",
     "venv",
     ".venv",
-    "tests",
+    "tests"
 ]
 
 [[tool.mypy.overrides]]
 module = "PyQt6.*"
-ignore_missing_imports = True
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "psutil.*"
-ignore_missing_imports = True
+ignore_missing_imports = true

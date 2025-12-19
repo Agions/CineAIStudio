@@ -100,13 +100,7 @@ class BasePage(QWidget):
             return True
 
         except Exception as e:
-            if self.error_handler:
-                self.error_handler.handle_error(
-                    type(self.error_handler).UI if hasattr(type(self.error_handler), 'UI') else 'UI',
-                    f"Failed to load page '{self.title}': {str(e)}",
-                    severity=type(self.error_handler).HIGH if hasattr(type(self.error_handler), 'HIGH') else 'HIGH'
-                )
-            elif self.logger:
+            if self.logger:
                 self.logger.error(f"Failed to load page '{self.title}': {str(e)}")
             return False
 
@@ -220,15 +214,18 @@ class BasePage(QWidget):
     def emit_event(self, event_type: str, data: TypingAny = None) -> None:
         """发送事件"""
         if self.event_bus:
-            if hasattr(self.event_bus, 'publish'):
-                self.event_bus.publish(event_type, data)
-            elif hasattr(self.event_bus, 'emit'):
-                self.event_bus.emit(event_type, data)
+            # 使用emit方法，保持API一致性
+            self.event_bus.emit(event_type, data)
 
     def on_event(self, event_type: str, handler) -> None:
         """监听事件"""
         if self.event_bus and hasattr(self.event_bus, 'subscribe'):
             self.event_bus.subscribe(event_type, handler)
+
+    def off_event(self, event_type: str, handler) -> None:
+        """取消监听事件"""
+        if self.event_bus and hasattr(self.event_bus, 'unsubscribe'):
+            self.event_bus.unsubscribe(event_type, handler)
 
     def get_service(self, service_type: type):
         """获取服务"""
