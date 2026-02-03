@@ -1,4 +1,4 @@
-# 🎬 CineAIStudio - AI 视频创作工具
+# 🎬 CineAIStudio - AI 视频创作工具(未完成)
 
 > 打造爆款短视频，一键生成剪映草稿
 
@@ -6,12 +6,12 @@ CineAIStudio 是一款 **AI 驱动的视频创作客户端工具**，支持打�
 
 ## ✨ 核心功能
 
-| 功能 | 说明 | 
-|------|------|
-| 🎙️ **AI 视频解说** | 基于画面分析生成解说 + AI 配音 + 动态字幕 |
-| 🎵 **AI 视频混剪** | 多素材智能剪辑 + 节拍匹配 + 自动转场 |
-| 🎭 **AI 第一人称独白** | 画面情感分析 + 情感独白 + 电影字幕 |
-| 📦 **剪映草稿导出** | 完美适配剪映电脑版 |
+| 功能                   | 说明                                      |
+| ---------------------- | ----------------------------------------- |
+| 🎙️ **AI 视频解说**     | 基于画面分析生成解说 + AI 配音 + 动态字幕 |
+| 🎵 **AI 视频混剪**     | 多素材智能剪辑 + 节拍匹配 + 自动转场      |
+| 🎭 **AI 第一人称独白** | 画面情感分析 + 情感独白 + 电影字幕        |
+| 📦 **剪映草稿导出**    | 完美适配剪映电脑版                        |
 
 ### 🔍 画面分析能力
 
@@ -198,16 +198,16 @@ draft = maker.export_to_jianying(project, "/path/to/drafts")
 
 ## 🔧 技术栈
 
-| 组件 | 技术 |
-|------|------|
-| 画面分析 | OpenAI GPT-4o Vision |
-| 文案生成 | OpenAI GPT-4o / 本地 LLM |
-| AI 配音 | Edge TTS (免费) / OpenAI TTS |
-| 视频处理 | FFmpeg |
-| 场景检测 | FFmpeg Scene Detection |
-| 节拍检测 | librosa |
-| 转场效果 | FFmpeg xfade |
-| 打包工具 | PyInstaller |
+| 组件     | 技术                         |
+| -------- | ---------------------------- |
+| 画面分析 | OpenAI GPT-4o Vision         |
+| 文案生成 | OpenAI GPT-4o / 本地 LLM     |
+| AI 配音  | Edge TTS (免费) / OpenAI TTS |
+| 视频处理 | FFmpeg                       |
+| 场景检测 | FFmpeg Scene Detection       |
+| 节拍检测 | librosa                      |
+| 转场效果 | FFmpeg xfade                 |
+| 打包工具 | PyInstaller                  |
 
 ## 📋 系统要求
 
@@ -220,18 +220,21 @@ draft = maker.export_to_jianying(project, "/path/to/drafts")
 ## 🎨 支持的风格
 
 ### 解说风格
+
 - `EXPLAINER` - 说明型解说
 - `STORYTELLING` - 故事型解说
 - `COMMENTARY` - 评论型解说
 - `REVIEW` - 测评型解说
 
 ### 混剪风格
+
 - `FAST_PACED` - 快节奏
 - `CINEMATIC` - 电影感
 - `VLOG` - Vlog 风格
 - `HIGHLIGHT` - 高光集锦
 
 ### 独白风格
+
 - `MELANCHOLIC` - 惆怅/忧郁
 - `INSPIRATIONAL` - 励志/向上
 - `ROMANTIC` - 浪漫/温馨
