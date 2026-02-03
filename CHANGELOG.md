@@ -1,10 +1,10 @@
-# AI-EditX 版本发布记录
+# CineAIStudio 版本发布记录
 
 ## [3.0.0] - 2025-01-18
 
 ### 🚀 重大架构升级
 
-这是一个里程碑版本，AI-EditX 从基础视频编辑器升级为具备企业级特性的专业平台。
+这是一个里程碑版本，CineAIStudio 从基础视频编辑器升级为具备企业级特性的专业平台。
 
 ### 🏗️ 核心架构重构
 
@@ -411,7 +411,7 @@
    ```bash
    # 克隆项目
    git clone <repository-url>
-   cd AI-EditX
+   cd CineAIStudio
 
    # 安装依赖
    pip install -r requirements.txt
@@ -445,5 +445,5 @@
 
 ---
 
-**AI-EditX**
+**CineAIStudio**
 _让视频编辑更智能，让创作更简单_

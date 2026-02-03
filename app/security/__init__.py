@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 安全系统
+CineAIStudio 安全系统
 提供全面的安全保护和输入验证功能
 """
 

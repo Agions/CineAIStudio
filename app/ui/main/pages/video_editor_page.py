@@ -1,7 +1,7 @@
-\"\"\"
+"""
 视频编辑页面 - macOS 设计系统优化版
 重构为使用标准化组件，零内联样式
-\"\"\"
+"""
 
 import os
 from typing import Optional, Dict, Any, List
@@ -27,7 +27,7 @@ from app.ui.common.macOS_components import (
     MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
     MacDangerButton, MacIconButton, MacTitleLabel, MacLabel, MacBadge,
     MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
-    MacSearchBox, MacButtonGroup, MacSliderRow
+    MacSearchBox, MacButtonGroup
 )
 
 
@@ -824,18 +824,16 @@ class VideoEditorPage(BasePage):
     """视频编辑器页面 - macOS 设计系统"""
 
     def __init__(self, application):
-        super().__init__("video_editor", "视频编辑器", application)
-
         self.media_panel = None
         self.preview_panel = None
         self.properties_panel = None
         self.timeline_panel = None
-
         self.main_splitter = None
         self.center_splitter = None
-
         self.ai_service = MockAIService()
         self.current_video = None
+        
+        super().__init__("video_editor", "视频编辑器", application)
 
     def initialize(self) -> bool:
         """初始化页面"""

@@ -77,7 +77,7 @@ class WelcomePanel(QWidget):
         layout.addWidget(logo_label)
 
         # 标题
-        title_label = QLabel("欢迎使用 AI-EditX")
+        title_label = QLabel("欢迎使用 CineAIStudio")
         title_label.setProperty("class", "welcome-title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)

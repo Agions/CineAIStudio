@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 操作性能分析器
+CineAIStudio 操作性能分析器
 分析和监控各种操作的执行性能
 """
 

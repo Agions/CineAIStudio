@@ -49,7 +49,7 @@ class MockAIService(QObject):
         srt_content = """
 1
 00:00:00,000 --> 00:00:02,000
-欢迎使用AI-EditX
+欢迎使用CineAIStudio
 
 2
 00:00:02,000 --> 00:00:04,500

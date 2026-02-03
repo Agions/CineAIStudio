@@ -1,5 +1,5 @@
 """
-AI-EditX - 专业AI视频编辑器
+CineAIStudio - 专业AI视频编辑器
 主应用程序模块
 """
 

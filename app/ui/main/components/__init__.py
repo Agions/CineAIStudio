@@ -2,6 +2,6 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX UI组件库
+CineAIStudio UI组件库
 提供统一的UI组件接口
 """

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 插件注册表
+CineAIStudio 插件注册表
 管理插件的注册、发现和元数据
 """
 

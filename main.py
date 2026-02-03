@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 主程序入口
+CineAIStudio 主程序入口
 专业的AI视频编辑器
 """
 
@@ -58,31 +58,31 @@ def setup_logging() -> Logger:
     )
 
     # 获取主日志记录器
-    return Logger("AI-EditX")
+    return Logger("CineAIStudio")
 
 
 def main() -> int:
     """主程序入口函数"""
     try:
-        print("🎬 启动 AI-EditX...")
+        print("🎬 启动 CineAIStudio...")
 
         # 创建QApplication实例 - 必须在任何Qt组件之前创建
         qt_app = QApplication(sys.argv)
-        qt_app.setApplicationName("AI-EditX")
+        qt_app.setApplicationName("CineAIStudio")
         qt_app.setApplicationVersion("2.0.0")
         qt_app.setOrganizationName("Agions")
         qt_app.setStyle("Fusion")
 
         # 设置日志系统
         logger = setup_logging()
-        logger.info("=== AI-EditX 启动 ===")
+        logger.info("=== CineAIStudio 启动 ===")
 
         # 设置全局异常处理
         error_handler = setup_global_exception_handler(logger)
 
         # 创建应用程序配置
         config = create_application_config()
-        logger.info(f"应用程序配置: AI-EditX v{config.version}")
+        logger.info(f"应用程序配置: CineAIStudio v{config.version}")
 
         # 创建应用程序核心
         application = Application(config)
@@ -124,7 +124,7 @@ def main() -> int:
         return 1
 
     finally:
-        print("👋 AI-EditX 已退出")
+        print("👋 CineAIStudio 已退出")
 
 
 def show_splash_screen():
@@ -152,7 +152,7 @@ def show_splash_screen():
         # 绘制Logo
         logo_font = QFont("Arial", 48, QFont.Weight.Bold)
         painter.setFont(logo_font)
-        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "AI-EditX")
+        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "CineAIStudio")
 
         # 绘制版本信息
         version_font = QFont("Arial", 14)

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 日志记录器模块
+CineAIStudio 日志记录器模块
 提供日志记录和管理功能
 """
 
@@ -110,7 +110,7 @@ def setup_logging(
             log_dir.mkdir(exist_ok=True)
 
             file_handler = logging.FileHandler(
-                log_dir / "AI-EditX.log",
+                log_dir / "CineAIStudio.log",
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)

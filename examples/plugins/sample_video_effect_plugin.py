@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 示例视频效果插件
+CineAIStudio 示例视频效果插件
 演示如何创建一个简单的视频效果插件
 """
 
@@ -24,9 +24,9 @@ class SampleVideoEffectPlugin(VideoEffectPlugin):
             name="示例视频效果",
             version="1.0.0",
             description="提供基础视频效果的示例插件，包括亮度调节、对比度调节等",
-            author="AI-EditX Team",
-            email="support@aieditx.com",
-            website="https://aieditx.com",
+            author="CineAIStudio Team",
+            email="support@cineaistudio.com",
+            website="https://cineaistudio.com",
             plugin_type=PluginType.VIDEO_EFFECT,
             dependencies=[],
             min_app_version="1.0.0",

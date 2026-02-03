@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX GPU加速视频渲染器
+CineAIStudio GPU加速视频渲染器
 支持NVIDIA NVENC、AMD AMF、Intel QSV等硬件加速
 """
 

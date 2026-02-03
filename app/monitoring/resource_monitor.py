@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 资源监控器
+CineAIStudio 资源监控器
 监控系统资源使用情况
 """
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 服务配置
+CineAIStudio 服务配置
 定义系统服务的配置和依赖关系
 """
 
@@ -20,7 +20,7 @@ CORE_SERVICES = [
     ServiceDefinition(
         name="logger",
         service_type=Logger,
-        factory=lambda: Logger("AI-EditX"),
+        factory=lambda: Logger("CineAIStudio"),
         lifetime=ServiceLifetime.SINGLETON,
         auto_start=True,
         priority=-100  # 最高优先级，最先初始化

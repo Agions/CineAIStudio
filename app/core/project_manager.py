@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 项目管理器
+CineAIStudio 项目管理器
 提供完整的项目生命周期管理功能
 """
 
@@ -327,9 +327,9 @@ class ProjectManager(QObject):
         self.templates: Dict[str, Project] = {}
 
         # 项目目录
-        self.projects_dir = os.path.expanduser("~/AI-EditX/Projects")
-        self.templates_dir = os.path.expanduser("~/AI-EditX/Templates")
-        self.temp_dir = os.path.expanduser("~/AI-EditX/Temp")
+        self.projects_dir = os.path.expanduser("~/CineAIStudio/Projects")
+        self.templates_dir = os.path.expanduser("~/CineAIStudio/Templates")
+        self.temp_dir = os.path.expanduser("~/CineAIStudio/Temp")
 
         # 确保目录存在
         self._ensure_directories()

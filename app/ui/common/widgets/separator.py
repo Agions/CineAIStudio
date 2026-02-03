@@ -34,7 +34,7 @@ class Separator(QFrame):
             self.setProperty("class", f"separator-vertical {self.style}")
 
         # 启用样式支持
-        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
     def set_style(self, style: str) -> None:
         """设置样式类型"""

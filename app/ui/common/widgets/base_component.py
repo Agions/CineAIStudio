@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 基础UI组件
+CineAIStudio 基础UI组件
 提供统一的UI组件基类和通用功能
 """
 

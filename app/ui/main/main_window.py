@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 主窗口 - 设置版本
+CineAIStudio 主窗口 - 设置版本
 实现双页面架构：首页 + 设置页面
 """
 
@@ -44,12 +44,13 @@ class PageType(Enum):
     VIDEO_EDITOR = "video_editor"
     PROJECTS = "projects"
     AI_CHAT = "ai_chat"
+    AI_VIDEO_CREATOR = "ai_video_creator"  # AI 视频创作
 
 
 @dataclass
 class WindowConfig:
     """窗口配置"""
-    title: str = "AI-EditX"
+    title: str = "CineAIStudio"
     width: int = 1200
     height: int = 800
     min_width: int = 800
@@ -59,7 +60,7 @@ class WindowConfig:
 
 
 class MainWindow(QMainWindow):
-    """AI-EditX 主窗口 - 设置版本"""
+    """CineAIStudio 主窗口 - 设置版本"""
 
     # 信号定义
     page_changed = pyqtSignal(PageType)           # 页面切换信号
@@ -153,7 +154,7 @@ class MainWindow(QMainWindow):
         left_layout.setSpacing(0)
 
         # 应用标题
-        self.app_title = QLabel("AI-EditX")
+        self.app_title = QLabel("CineAIStudio")
         self.app_title.setObjectName("app_title")
         left_layout.addWidget(self.app_title)
 
@@ -182,11 +183,12 @@ class MainWindow(QMainWindow):
         self.home_btn = QPushButton(home_icon, "首页")
         self.projects_btn = QPushButton(projects_icon, "项目")
         self.editor_btn = QPushButton(video_icon, "视频编辑器")
+        self.ai_video_btn = QPushButton(video_icon, "🎬 AI创作")  # AI 视频创作
         self.ai_chat_btn = QPushButton(ai_chat_icon, "AI聊天")
         self.settings_btn = QPushButton(settings_icon, "设置")
 
         # 设置按钮通用样式和属性
-        self.nav_buttons = [self.home_btn, self.projects_btn, self.editor_btn, self.ai_chat_btn, self.settings_btn]
+        self.nav_buttons = [self.home_btn, self.projects_btn, self.editor_btn, self.ai_video_btn, self.ai_chat_btn, self.settings_btn]
         for btn in self.nav_buttons:
             btn.setObjectName("nav_button")
             btn.setCheckable(True)
@@ -197,6 +199,7 @@ class MainWindow(QMainWindow):
         self.home_btn.clicked.connect(lambda: self.switch_to_page(PageType.HOME))
         self.projects_btn.clicked.connect(lambda: self.switch_to_page(PageType.PROJECTS))
         self.editor_btn.clicked.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
+        self.ai_video_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_VIDEO_CREATOR))
         self.ai_chat_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_CHAT))
         self.settings_btn.clicked.connect(lambda: self.switch_to_page(PageType.SETTINGS))
 
@@ -215,6 +218,7 @@ class MainWindow(QMainWindow):
         
         # AI功能
         nav_layout.addWidget(QLabel("AI功能"))
+        nav_layout.addWidget(self.ai_video_btn)  # AI 视频创作
         nav_layout.addWidget(self.ai_chat_btn)
         
         # 添加分隔线
@@ -348,6 +352,7 @@ class MainWindow(QMainWindow):
                 "home": False,
                 "projects": False,
                 "video_editor": False,
+                "ai_video_creator": False,
                 "ai_chat": False,
                 "settings": False
             }
@@ -388,10 +393,11 @@ class MainWindow(QMainWindow):
             # 延迟导入以避免循环依赖
             self.logger.info("开始异步加载剩余页面...")
             
-            # 页面加载顺序：项目页面 → 视频编辑器页面 → AI聊天页面 → 设置页面
+            # 页面加载顺序：项目页面 → 视频编辑器页面 → AI视频创作页面 → AI聊天页面 → 设置页面
             pages_to_load = [
                 {"id": "projects", "name": "项目页面", "class": "ProjectsPage", "attribute": "projects_page"},
                 {"id": "video_editor", "name": "视频编辑器页面", "class": "VideoEditorPage", "attribute": "video_editor_page"},
+                {"id": "ai_video_creator", "name": "AI视频创作页面", "class": "AIVideoCreatorPage", "attribute": "ai_video_creator_page"},
                 {"id": "ai_chat", "name": "AI聊天页面", "class": "AIChatPage", "attribute": "ai_chat_page"},
                 {"id": "settings", "name": "设置页面", "class": "SettingsPage", "attribute": "settings_page"}
             ]
@@ -411,6 +417,8 @@ class MainWindow(QMainWindow):
                         from .pages.projects_page import ProjectsPage as PageClass
                     elif page_class == "VideoEditorPage":
                         from .pages.video_editor_page import VideoEditorPage as PageClass
+                    elif page_class == "AIVideoCreatorPage":
+                        from .pages.ai_video_creator_page import AIVideoCreatorPage as PageClass
                     elif page_class == "AIChatPage":
                         from .pages.ai_chat_page import AIChatPage as PageClass
                     elif page_class == "SettingsPage":
@@ -501,7 +509,7 @@ class MainWindow(QMainWindow):
         """加载设置，添加验证和默认值处理"""
         try:
             # 加载窗口设置
-            settings = QSettings("AI-EditX", "MainWindow")
+            settings = QSettings("CineAIStudio", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 恢复窗口位置和大小
@@ -551,7 +559,7 @@ class MainWindow(QMainWindow):
     def _save_settings(self):
         """保存设置，添加验证和异常处理"""
         try:
-            settings = QSettings("AI-EditX", "MainWindow")
+            settings = QSettings("CineAIStudio", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 保存窗口位置和大小
@@ -577,37 +585,33 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.logger.warning(f"保存窗口设置失败: {e}")
 
-    def _apply_theme(self):
-        """应用 macOS 设计系统主题"""
-        try:
-            # 使用新的 macOS 主题管理器
-            theme_name = "dark" if self.is_dark_theme else "light"
-            success = apply_macos_theme(self.application, theme_name)
-
-            if success:
-                # 更新图标主题
-                from ...core.icon_manager import set_icon_theme
-                set_icon_theme(theme_name)
-
-                self.theme_changed.emit(theme_name)
-                self.logger.info("macOS 设计系统应用成功")
-            else:
-                # 回退到无样式
-                self.setStyleSheet("")
-                self.logger.warning("macOS 主题应用失败，使用默认样式")
-
-        except Exception as e:
-            self.logger.error(f"应用主题失败: {e}")
-            self.setStyleSheet("")
-
     def _apply_style(self):
-        """应用样式表"""
+        """应用现代样式表"""
         try:
-            # 设置应用程序样式
-            QApplication.setStyle(self.window_config.style)
-
+            # 1. 设置应用程序基本样式
+            QApplication.setStyle("Fusion")
+            
+            # 2. 加载 QSS 文件
+            style_path = os.path.join(os.path.dirname(__file__), "../theme/modern.qss")
+            if os.path.exists(style_path):
+                with open(style_path, "r", encoding="utf-8") as f:
+                    qss = f.read()
+                    # 可以在这里做一些动态替换，比如基于配置的颜色
+                    self.setStyleSheet(qss)
+                self.logger.info(f"已加载样式表: {style_path}")
+            else:
+                self.logger.warning(f"样式表文件未找到: {style_path}")
+                
         except Exception as e:
             self.logger.error(f"应用样式失败: {e}")
+            
+    def _apply_theme(self):
+        """应用主题设置"""
+        # 调用 _apply_style 加载 QSS
+        self._apply_style()
+        # 发送信号通知子组件更新
+        theme_name = "dark" if self.is_dark_theme else "light"
+        self.theme_changed.emit(theme_name)
 
     def switch_to_page(self, page_type: PageType):
         """切换到指定页面"""
@@ -622,6 +626,8 @@ class MainWindow(QMainWindow):
                 target_page = self.projects_page
             elif page_type == PageType.VIDEO_EDITOR and hasattr(self, 'video_editor_page') and self.video_editor_page:
                 target_page = self.video_editor_page
+            elif page_type == PageType.AI_VIDEO_CREATOR and hasattr(self, 'ai_video_creator_page') and self.ai_video_creator_page:
+                target_page = self.ai_video_creator_page
             elif page_type == PageType.AI_CHAT and hasattr(self, 'ai_chat_page') and self.ai_chat_page:
                 target_page = self.ai_chat_page
             elif page_type == PageType.SETTINGS and hasattr(self, 'settings_page') and self.settings_page:
@@ -639,6 +645,11 @@ class MainWindow(QMainWindow):
                     from .pages.projects_page import ProjectsPage
                     target_page = ProjectsPage(self.application)
                     self.projects_page = target_page
+                    self.page_stack.addWidget(target_page)
+                elif page_type == PageType.AI_VIDEO_CREATOR:
+                    from .pages.ai_video_creator_page import AIVideoCreatorPage
+                    target_page = AIVideoCreatorPage(self.application)
+                    self.ai_video_creator_page = target_page
                     self.page_stack.addWidget(target_page)
                 elif page_type == PageType.AI_CHAT:
                     from .pages.ai_chat_page import AIChatPage
@@ -700,6 +711,7 @@ class MainWindow(QMainWindow):
                 PageType.HOME: "首页",
                 PageType.PROJECTS: "项目",
                 PageType.VIDEO_EDITOR: "视频编辑器",
+                PageType.AI_VIDEO_CREATOR: "AI 视频创作",
                 PageType.AI_CHAT: "AI聊天",
                 PageType.SETTINGS: "设置"
             }
@@ -743,6 +755,8 @@ class MainWindow(QMainWindow):
             self.projects_btn.setChecked(True)
         elif self.current_page == PageType.VIDEO_EDITOR:
             self.editor_btn.setChecked(True)
+        elif self.current_page == PageType.AI_VIDEO_CREATOR:
+            self.ai_video_btn.setChecked(True)
         elif self.current_page == PageType.AI_CHAT:
             self.ai_chat_btn.setChecked(True)
         elif self.current_page == PageType.SETTINGS:
@@ -860,7 +874,7 @@ class MainWindow(QMainWindow):
             reply = QMessageBox.question(
                 self,
                 "确认退出",
-                "确定要退出 AI-EditX 吗？",
+                "确定要退出 CineAIStudio 吗？",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )

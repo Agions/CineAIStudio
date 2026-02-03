@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 告警系统
+CineAIStudio 告警系统
 提供智能告警和通知功能
 """
 

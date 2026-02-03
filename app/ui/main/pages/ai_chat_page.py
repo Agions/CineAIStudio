@@ -1,7 +1,7 @@
-\"\"\"
+"""
 AI对话页面 - macOS 设计系统优化版
 重构为使用标准化组件，零内联样式
-\"\"\"
+"""
 
 from typing import Optional, Dict, Any, List
 import json
@@ -210,7 +210,7 @@ class AIChatPage(BasePage):
     """AI对话页面 - macOS 设计系统"""
 
     def __init__(self, application):
-        super().__init__(\"ai_chat\", \"AI对话\", application)
+        super().__init__("ai_chat", "AI对话", application)
 
         self.chat_history = None
         self.chat_input = None

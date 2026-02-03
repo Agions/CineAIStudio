@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 插件接口定义
+CineAIStudio 插件接口定义
 定义插件必须实现的标准接口
 """
 

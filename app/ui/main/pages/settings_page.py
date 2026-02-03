@@ -814,6 +814,13 @@ class SettingsPage(BasePage):
     """设置页面 - macOS 设计系统"""
 
     def __init__(self, application: Application):
+        # 初始化面板属性
+        self.ai_panel = None
+        self.chinese_ai_panel = None
+        self.path_panel = None
+        self.theme_panel = None
+        self.tab_widget = None
+        
         super().__init__("settings", "设置", application)
         self.application = application
         self.logger = application.get_service(Logger)
@@ -863,10 +870,14 @@ class SettingsPage(BasePage):
 
     def _connect_signals(self):
         """连接信号"""
-        self.ai_panel.config_changed.connect(self._on_config_changed)
-        self.chinese_ai_panel.config_changed.connect(self._on_config_changed)
-        self.path_panel.config_changed.connect(self._on_config_changed)
-        self.theme_panel.config_changed.connect(self._on_config_changed)
+        if self.ai_panel:
+            self.ai_panel.config_changed.connect(self._on_config_changed)
+        if self.chinese_ai_panel:
+            self.chinese_ai_panel.config_changed.connect(self._on_config_changed)
+        if self.path_panel:
+            self.path_panel.config_changed.connect(self._on_config_changed)
+        if self.theme_panel:
+            self.theme_panel.config_changed.connect(self._on_config_changed)
 
     def _on_config_changed(self, config_type: str, config_data: Any):
         """配置变更处理"""

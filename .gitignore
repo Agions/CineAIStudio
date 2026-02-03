@@ -335,3 +335,6 @@ Jenkinsfile
 # Local development
 .devcontainer/
 .trae
+.agents
+.gemini
+.agent

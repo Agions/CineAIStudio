@@ -1,8 +1,8 @@
-# AI-EditX 插件系统
+# CineAIStudio 插件系统
 
 ## 概述
 
-AI-EditX 插件系统是一个功能强大的扩展架构，允许开发者创建和集成自定义的视频编辑功能、效果、导出格式等。插件系统基于模块化设计，支持热加载、依赖管理和安全沙箱。
+CineAIStudio 插件系统是一个功能强大的扩展架构，允许开发者创建和集成自定义的视频编辑功能、效果、导出格式等。插件系统基于模块化设计，支持热加载、依赖管理和安全沙箱。
 
 ## 架构组件
 
@@ -304,7 +304,7 @@ class BrightnessPlugin(VideoEffectPlugin):
             name="亮度调节",
             version="1.0.0",
             description="调节视频亮度",
-            author="AI-EditX Team",
+            author="CineAIStudio Team",
             plugin_type=PluginType.VIDEO_EFFECT
         )
 
@@ -393,7 +393,7 @@ class BrightnessPlugin(VideoEffectPlugin):
 
 ## 社区和支持
 
-- 插件开发文档: https://docs.aieditx.com/plugins
+- 插件开发文档: https://docs.cineaistudio.com/plugins
 - 插件示例库: https://github.com/aieditx/plugin-examples
-- 开发者论坛: https://forum.aieditx.com
+- 开发者论坛: https://forum.cineaistudio.com
 - 问题报告: https://github.com/aieditx/issues

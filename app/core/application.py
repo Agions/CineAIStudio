@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 应用程序核心类
+CineAIStudio 应用程序核心类
 负责应用程序的生命周期管理、服务管理和状态控制
 """
 
@@ -57,7 +57,7 @@ class ErrorInfo:
 
 
 class Application(QObject):
-    """AI-EditX 应用程序核心类"""
+    """CineAIStudio 应用程序核心类"""
 
     # 信号定义
     state_changed = pyqtSignal(ApplicationState)        # 应用程序状态变化信号
@@ -141,7 +141,7 @@ class Application(QObject):
             self._set_state(ApplicationState.STARTING)
 
             # 启动所有服务
-            for service_name, service in self._services.items():
+            for service_name, service in self._service_container._services_by_name.items():
                 if hasattr(service, 'start'):
                     if not service.start():
                         self.error_occurred.emit("SERVICE_ERROR", f"Failed to start service: {service_name}")
@@ -170,7 +170,9 @@ class Application(QObject):
             self._stop_timers()
 
             # 停止所有服务
-            for service_name, service in reversed(list(self._services.items())):
+            # 使用列表副本进行反向迭代
+            services_list = list(self._service_container._services_by_name.items())
+            for service_name, service in reversed(services_list):
                 if hasattr(service, 'stop'):
                     try:
                         service.stop()
@@ -310,7 +312,7 @@ class Application(QObject):
             from .logger import Logger
 
             # 创建日志服务
-            logger = Logger("AI-EditX")
+            logger = Logger("CineAIStudio")
             self.register_service("logger", logger)
 
             # 设置应用程序日志
@@ -459,7 +461,7 @@ class Application(QObject):
         """加载配置"""
         try:
             # 从文件或注册表加载配置
-            settings = QSettings("AI-EditX", "Application")
+            settings = QSettings("CineAIStudio", "Application")
 
             # 加载应用程序配置
             self.logger.info("配置加载完成")
@@ -471,7 +473,7 @@ class Application(QObject):
         """保存配置"""
         try:
             # 保存配置到文件或注册表
-            settings = QSettings("AI-EditX", "Application")
+            settings = QSettings("CineAIStudio", "Application")
 
             self.logger.info("配置保存完成")
 

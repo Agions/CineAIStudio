@@ -1,6 +1,6 @@
 # 安全政策
 
-感谢您对 AI-EditX 项目安全的关注！我们致力于维护一个安全的视频编辑平台，保护用户数据和隐私。
+感谢您对 CineAIStudio 项目安全的关注！我们致力于维护一个安全的视频编辑平台，保护用户数据和隐私。
 
 ## 🔒 安全承诺
 
@@ -41,11 +41,11 @@
 我们鼓励安全研究人员和用户通过以下渠道报告安全问题：
 
 **首选渠道**：
-- 📧 邮箱：security@aieditx.com
+- 📧 邮箱：security@cineaistudio.com
 - 🔒 加密邮件：使用我们的 PGP 公钥加密（如需要）
 
 **备用渠道**：
-- [GitHub Security Advisory](https://github.com/agions/AI-EditX/security/advisories)
+- [GitHub Security Advisory](https://github.com/agions/CineAIStudio/security/advisories)
 - 私信 GitHub Maintainer
 
 ### 报告内容
@@ -154,8 +154,8 @@
 ## 📞 安全联系方式
 
 ### 安全团队
-- **安全负责人**: security@aieditx.com
-- **GitHub Security**: https://github.com/agions/AI-EditX/security
+- **安全负责人**: security@cineaistudio.com
+- **GitHub Security**: https://github.com/agions/CineAIStudio/security
 - **紧急安全热线**: +86-xxx-xxxx-xxxx
 
 ### 相关文档
@@ -188,7 +188,7 @@
 
 ## 🔄 持续改进
 
-我们承诺持续改进 AI-EditX 的安全性：
+我们承诺持续改进 CineAIStudio 的安全性：
 
 - **定期安全审计**: 每季度进行安全审计
 - **漏洞管理**: 建立完整的漏洞管理流程
@@ -200,4 +200,4 @@
 
 **保护用户安全是我们共同的责任！** 🛡️
 
-如果您发现任何安全问题，请立即联系我们。感谢您为 AI-EditX 安全做出的贡献！
+如果您发现任何安全问题，请立即联系我们。感谢您为 CineAIStudio 安全做出的贡献！

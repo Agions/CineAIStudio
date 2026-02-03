@@ -205,18 +205,223 @@ class VideoEditorService:
         return self.current_project
 
     def open_project(self, project_path: str) -> Optional[Project]:
-        """打开现有项目"""
-        # TODO: 实现项目打开逻辑
-        if self.logger:
-            self.logger.info(f"打开项目: {project_path}")
-        return None
+        """
+        打开现有项目
+        
+        Args:
+            project_path: 项目文件路径 (.json)
+            
+        Returns:
+            Project 对象，加载失败返回 None
+        """
+        import json
+        
+        try:
+            if not os.path.exists(project_path):
+                if self.logger:
+                    self.logger.error(f"项目文件不存在: {project_path}")
+                return None
+            
+            with open(project_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # 重建 MediaItem 对象
+            def parse_media_item(item_data: Dict[str, Any]) -> MediaItem:
+                return MediaItem(
+                    id=item_data.get('id', ''),
+                    file_path=item_data.get('file_path', ''),
+                    media_type=item_data.get('media_type', 'video'),
+                    duration=item_data.get('duration', 0.0),
+                    width=item_data.get('width', 1920),
+                    height=item_data.get('height', 1080),
+                    fps=item_data.get('fps', 30.0),
+                    audio_bitrate=item_data.get('audio_bitrate', '128k'),
+                    video_bitrate=item_data.get('video_bitrate', '8000k'),
+                    codec=item_data.get('codec', 'libx264'),
+                )
+            
+            # 重建 VideoClip 对象
+            video_clips = []
+            for clip_data in data.get('video_clips', []):
+                media_data = clip_data.get('media_item', {})
+                clip = VideoClip(
+                    id=clip_data.get('id', ''),
+                    media_item=parse_media_item(media_data),
+                    start_time=clip_data.get('start_time', 0.0),
+                    end_time=clip_data.get('end_time', 0.0),
+                    x=clip_data.get('x', 0),
+                    y=clip_data.get('y', 0),
+                    scale=clip_data.get('scale', 1.0),
+                    opacity=clip_data.get('opacity', 1.0),
+                    rotation=clip_data.get('rotation', 0.0),
+                    effects=clip_data.get('effects', []),
+                )
+                video_clips.append(clip)
+            
+            # 重建 AudioClip 对象
+            audio_clips = []
+            for clip_data in data.get('audio_clips', []):
+                media_data = clip_data.get('media_item', {})
+                clip = AudioClip(
+                    id=clip_data.get('id', ''),
+                    media_item=parse_media_item(media_data),
+                    start_time=clip_data.get('start_time', 0.0),
+                    end_time=clip_data.get('end_time', 0.0),
+                    volume=clip_data.get('volume', 1.0),
+                    fade_in=clip_data.get('fade_in', 0.0),
+                    fade_out=clip_data.get('fade_out', 0.0),
+                )
+                audio_clips.append(clip)
+            
+            # 重建 Transition 对象
+            transitions = []
+            for trans_data in data.get('transitions', []):
+                trans = Transition(
+                    id=trans_data.get('id', ''),
+                    type=trans_data.get('type', 'fade'),
+                    duration=trans_data.get('duration', 1.0),
+                    start_clip_id=trans_data.get('start_clip_id', ''),
+                    end_clip_id=trans_data.get('end_clip_id', ''),
+                    parameters=trans_data.get('parameters', {}),
+                )
+                transitions.append(trans)
+            
+            # 创建 Project 对象
+            self.current_project = Project(
+                id=data.get('id', ''),
+                name=data.get('name', '未命名项目'),
+                width=data.get('width', 1920),
+                height=data.get('height', 1080),
+                fps=data.get('fps', 30.0),
+                video_clips=video_clips,
+                audio_clips=audio_clips,
+                transitions=transitions,
+                duration=data.get('duration', 0.0),
+                enable_frame_caching=data.get('enable_frame_caching', True),
+                frame_cache_size=data.get('frame_cache_size', 1000),
+                preview_quality=data.get('preview_quality', 'medium'),
+                use_gpu_acceleration=data.get('use_gpu_acceleration', True),
+            )
+            
+            if self.logger:
+                self.logger.info(f"成功打开项目: {project_path}")
+                self.logger.info(f"项目名称: {self.current_project.name}, 视频片段: {len(video_clips)}, 音频片段: {len(audio_clips)}")
+            
+            return self.current_project
+            
+        except json.JSONDecodeError as e:
+            if self.logger:
+                self.logger.error(f"项目文件格式错误: {e}")
+            return None
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"打开项目失败: {e}")
+            return None
 
     def save_project(self, project: Project, project_path: str) -> bool:
-        """保存项目"""
-        # TODO: 实现项目保存逻辑
-        if self.logger:
-            self.logger.info(f"保存项目: {project.name} 到 {project_path}")
-        return True
+        """
+        保存项目到文件
+        
+        Args:
+            project: Project 对象
+            project_path: 保存路径 (.json)
+            
+        Returns:
+            保存成功返回 True
+        """
+        import json
+        from dataclasses import asdict
+        
+        try:
+            # 确保目录存在
+            os.makedirs(os.path.dirname(project_path), exist_ok=True)
+            
+            # 将 MediaItem 转换为字典
+            def media_item_to_dict(item: MediaItem) -> Dict[str, Any]:
+                return {
+                    'id': item.id,
+                    'file_path': item.file_path,
+                    'media_type': item.media_type,
+                    'duration': item.duration,
+                    'width': item.width,
+                    'height': item.height,
+                    'fps': item.fps,
+                    'audio_bitrate': item.audio_bitrate,
+                    'video_bitrate': item.video_bitrate,
+                    'codec': item.codec,
+                }
+            
+            # 将 VideoClip 转换为字典
+            def video_clip_to_dict(clip: VideoClip) -> Dict[str, Any]:
+                return {
+                    'id': clip.id,
+                    'media_item': media_item_to_dict(clip.media_item),
+                    'start_time': clip.start_time,
+                    'end_time': clip.end_time,
+                    'x': clip.x,
+                    'y': clip.y,
+                    'scale': clip.scale,
+                    'opacity': clip.opacity,
+                    'rotation': clip.rotation,
+                    'effects': clip.effects,
+                }
+            
+            # 将 AudioClip 转换为字典
+            def audio_clip_to_dict(clip: AudioClip) -> Dict[str, Any]:
+                return {
+                    'id': clip.id,
+                    'media_item': media_item_to_dict(clip.media_item),
+                    'start_time': clip.start_time,
+                    'end_time': clip.end_time,
+                    'volume': clip.volume,
+                    'fade_in': clip.fade_in,
+                    'fade_out': clip.fade_out,
+                }
+            
+            # 将 Transition 转换为字典
+            def transition_to_dict(trans: Transition) -> Dict[str, Any]:
+                return {
+                    'id': trans.id,
+                    'type': trans.type,
+                    'duration': trans.duration,
+                    'start_clip_id': trans.start_clip_id,
+                    'end_clip_id': trans.end_clip_id,
+                    'parameters': trans.parameters,
+                }
+            
+            # 构建项目数据
+            project_data = {
+                'id': project.id,
+                'name': project.name,
+                'width': project.width,
+                'height': project.height,
+                'fps': project.fps,
+                'video_clips': [video_clip_to_dict(c) for c in project.video_clips],
+                'audio_clips': [audio_clip_to_dict(c) for c in project.audio_clips],
+                'transitions': [transition_to_dict(t) for t in project.transitions],
+                'duration': project.duration,
+                'enable_frame_caching': project.enable_frame_caching,
+                'frame_cache_size': project.frame_cache_size,
+                'preview_quality': project.preview_quality,
+                'use_gpu_acceleration': project.use_gpu_acceleration,
+                # 添加元数据
+                '_version': '1.0',
+                '_created_by': 'CineAIStudio',
+            }
+            
+            # 写入文件
+            with open(project_path, 'w', encoding='utf-8') as f:
+                json.dump(project_data, f, ensure_ascii=False, indent=2)
+            
+            if self.logger:
+                self.logger.info(f"成功保存项目: {project.name} 到 {project_path}")
+            
+            return True
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"保存项目失败: {e}")
+            return False
 
     def import_media(self, file_path: str) -> Optional[MediaItem]:
         """导入媒体文件"""

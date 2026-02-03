@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cineai-studio"
 version = "2.0.0"
-description = "AI-EditX - Professional Video Editing with AI Integration"
+description = "CineAIStudio - Professional Video Editing with AI Integration"
 license = {text = "MIT"}
 authors = [
-    {name = "Agions", email = "agions@qq.com.com"}
+    {name = "Agions", email = "agions@qq.com"}
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

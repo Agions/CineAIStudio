@@ -2,7 +2,7 @@
 
 # 默认目标
 help:
-	@echo "AI-EditX 开发工具"
+	@echo "CineAIStudio 开发工具"
 	@echo ""
 	@echo "可用命令："
 	@echo "  install      - 安装项目依赖"
@@ -61,7 +61,7 @@ clean:
 # 构建应用
 build:
 	python -m PyInstaller \
-		--name="AI-EditX" \
+		--name="CineAIStudio" \
 		--windowed \
 		--onefile \
 		--add-data="resources:resources" \
@@ -190,7 +190,7 @@ verbose:
 
 # 版本信息
 version:
-	@python -c "import app; print(f'AI-EditX 版本: {app.__version__}')"
+	@python -c "import app; print(f'CineAIStudio 版本: {app.__version__}')"
 
 # 统计信息
 stats:

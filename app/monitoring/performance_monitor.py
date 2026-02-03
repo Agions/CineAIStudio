@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 性能监控器
+CineAIStudio 性能监控器
 提供全面的性能监控、分析和报告功能
 """
 

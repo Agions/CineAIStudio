@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-AI-EditX 导出系统
+CineAIStudio 导出系统
 提供完整的视频导出功能，包括剪映Draft文件生成、多格式导出、队列管理等
 """
 
@@ -367,7 +367,7 @@ class JianyingEngine(ExportEngine):
             "effects": config.effects,
             "text_overlays": config.text_overlays,
             "metadata": {
-                "created_by": "AI-EditX",
+                "created_by": "CineAIStudio",
                 "created_at": time.time()
             }
         }

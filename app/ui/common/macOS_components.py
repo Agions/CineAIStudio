@@ -34,10 +34,10 @@ class MacCard(QFrame):
         """设置为可交互卡片"""
         if interactive:
             self.setProperty("class", "card card-interactive")
-            self.setCursor(Qt.PointingHandCursor)
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
         else:
             self.setProperty("class", "card")
-            self.setCursor(Qt.ArrowCursor)
+            self.setCursor(Qt.CursorShape.ArrowCursor)
         self._refresh_style()
 
     def _refresh_style(self):
@@ -98,7 +98,7 @@ class MacButton(QPushButton):
             self.setIcon(icon)
 
         self.setProperty("class", "button")
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
         # 最小尺寸保证
         self.setMinimumHeight(28)
@@ -136,7 +136,7 @@ class MacIconButton(QPushButton):
         super().__init__(icon, parent)
         self.setProperty("class", "button icon-only")
         self.setFixedSize(size, size)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
 
 class MacButtonGroup(QWidget):
@@ -226,7 +226,7 @@ class MacBadge(QLabel):
     def __init__(self, text: str = "", style: str = "neutral", parent=None):
         super().__init__(text, parent)
         self.setProperty("class", f"badge badge-{style}")
-        self.setAlignment(Qt.AlignCenter)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setMinimumHeight(20)
         self.setMinimumWidth(60)
 
@@ -311,8 +311,8 @@ class MacScrollArea(QScrollArea):
         super().__init__(parent)
         self.setProperty("class", "scroll-area")
         self.setWidgetResizable(True)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setFrameShape(QFrame.Shape.NoFrame)
 
 
@@ -422,25 +422,25 @@ class MacEmptyState(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(12)
-        layout.setAlignment(Qt.AlignCenter)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # 图标
         self.icon_label = QLabel(icon)
         self.icon_label.setProperty("class", "empty-icon")
-        self.icon_label.setAlignment(Qt.AlignCenter)
+        self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.icon_label)
 
         # 标题
         self.title_label = QLabel(title)
         self.title_label.setProperty("class", "empty-title")
-        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.title_label)
 
         # 描述
         if description:
             self.desc_label = QLabel(description)
             self.desc_label.setProperty("class", "empty-description")
-            self.desc_label.setAlignment(Qt.AlignCenter)
+            self.desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.desc_label.setWordWrap(True)
             layout.addWidget(self.desc_label)
 
