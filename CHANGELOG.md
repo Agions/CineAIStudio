@@ -9,6 +9,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.0] (开发中)
+
+### 重大升级
+
+🎨 **全新现代化 UI 设计系统 v3.0**
+
+- **设计理念**
+  - 玻璃拟态设计语言
+  - 流畅的动画过渡
+  - 深色优先的专业风格
+  - 渐变美学 (科技蓝 → 渐变紫)
+
+- **核心组件**
+  - `ModernCard` - 半透明玻璃拟态卡片
+  - `StatCard` - 数据统计卡片
+  - `FeatureCard` - 功能展示卡片
+  - `ModernButton` - 现代按钮组件
+    - 5 种样式 (default, primary, secondary, danger, ghost)
+    - 3 种尺寸 (small, medium, large)
+    - 渐变背景效果
+  - `IconButton` - 图标按钮
+  - `ToggleButton` - 切换按钮
+  - `LoadingButton` - 加载状态按钮
+  - `ModernNavigationBar` - 现代侧边导航
+    - 可折叠设计
+    - 渐变激活状态
+    - 流畅切换动画
+  - `ModernTopBar` - 顶部栏
+  - `ModernStatusBar` - 状态栏
+  - `CardGrid` - 卡片网格布局
+
+- **设计系统**
+  - 完整的颜色系统 (15+ 种颜色变量)
+  - 标准化间距系统 (6 档)
+  - 圆角系统 (4 档)
+  - 阴影系统 (6 档)
+  - 字体系统 (3 种字体族, 4 种字重)
+  - 过渡动画系统
+
+- **样式表**
+  - 全新的 `modern_theme.qss`
+  - CSS 变量支持
+  - 1000+ 行精心设计的样式规则
+  - 覆盖所有 PyQt6 标准组件
+
+- **文档**
+  - `docs/MODERN_UI_GUIDE.md` - 完整升级指南
+  - 组件使用示例
+  - 迁移指南
+  - 最佳实践
+
+### Changed
+
+- 主窗口架构现代化
+- 主题系统升级
+
+---
+
 ## [2.2.0] (开发中)
 
 ### Added
