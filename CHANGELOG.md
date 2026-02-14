@@ -1,449 +1,199 @@
-# CineFlow AI 版本发布记录
+# Change Log
 
-## [3.0.0] - 2025-01-18
+> CineFlow AI 版本更新日志
 
-### 🚀 重大架构升级
+All notable changes to this project are documented in this file.
 
-这是一个里程碑版本，CineFlow AI 从基础视频编辑器升级为具备企业级特性的专业平台。
-
-### 🏗️ 核心架构重构
-
-#### 服务系统优化
-- ✅ **服务注册表** (`app/core/service_registry.py`)
-  - 依赖注入和生命周期管理
-  - 配置驱动的服务定义
-  - 服务健康检查和监控
-  - 热重载和动态服务管理
-
-- ✅ **服务配置系统** (`app/core/service_config.py`)
-  - 结构化服务定义
-  - 依赖关系图管理
-  - 环境特定配置
-  - 服务模板和继承
-
-- ✅ **服务启动器** (`app/core/service_bootstrap.py`)
-  - 链式服务初始化
-  - 启动顺序优化
-  - 错误回滚机制
-  - 启动性能监控
-
-#### 错误管理系统
-- ✅ **全局错误管理器** (`app/core/error_manager.py`)
-  - 智能错误分类和优先级
-  - 自动恢复策略
-  - 错误报告和统计
-  - 用户友好的错误提示
-  - 错误模式和模式识别
-
-#### 事件系统增强
-- ✅ **高性能事件总线** (增强 `app/core/event_bus.py`)
-  - 异步事件处理
-  - 事件优先级队列
-  - 事件持久化
-  - 事件过滤和路由
-  - 性能监控和统计
-
-### ⚡ 视频处理性能革命
-
-#### GPU加速渲染系统
-- ✅ **GPU渲染器** (`app/services/video_service/gpu_renderer.py`)
-  - 支持 NVIDIA NVENC、AMD AMF、Intel QSV、Apple VideoToolbox
-  - 自动GPU检测和能力评估
-  - 智能编码器选择
-  - 多任务并发渲染
-  - 渲染进度监控
-
-#### 性能优化引擎
-- ✅ **性能优化器** (`app/services/video_service/performance_optimizer.py`)
-  - 多线程和进程池支持
-  - 智能缓存系统（内存/磁盘/混合）
-  - LRU缓存淘汰策略
-  - 预览和缩略图并行生成
-  - 任务队列管理
-
-### 🔧 用户体验增强
-
-#### 撤销/重做系统
-- ✅ **命令模式撤销系统** (`app/core/undo_system.py`)
-  - 完整的撤销/重做功能
-  - 批量操作支持
-  - 命令历史管理
-  - 内存优化的历史存储
-  - 插件友好的命令接口
-
-#### 自动保存系统
-- ✅ **智能自动保存** (`app/core/auto_save.py`)
-  - 多触发条件自动保存（定时/变更/失焦）
-  - 项目备份和版本管理
-  - 冲突检测和解决
-  - 增量保存支持
-  - 恢复向导
-
-#### 快捷键系统
-- ✅ **全局快捷键管理** (`app/ui/input/hotkey_manager.py`)
-  - 全局快捷键绑定和管理
-  - 智能冲突检测和解决
-  - 自定义快捷键支持
-  - 快捷键导入导出
-  - macOS特殊键位映射（Ctrl→Cmd）
-
-### 🔌 插件生态系统
-
-#### 完整插件架构
-- ✅ **插件接口定义** (`app/plugins/plugin_interface.py`)
-  - 标准化插件接口
-  - 多种插件类型支持
-  - 生命周期管理
-  - 国际化支持
-  - 资源管理
-
-- ✅ **插件管理系统** (`app/plugins/plugin_manager.py`)
-  - 插件生命周期管理
-  - 依赖关系解析
-  - 动态加载和卸载
-  - 插件市场基础
-  - 安全沙箱支持
-
-- ✅ **插件注册表** (`app/plugins/plugin_registry.py`)
-  - 插件元数据管理
-  - 版本控制
-  - 依赖图管理
-  - 插件搜索和发现
-  - 统计和评级
-
-- ✅ **插件加载器** (`app/plugins/plugin_loader.py`)
-  - 安全的动态加载
-  - 插件验证和检查
-  - 错误隔离
-  - 热重载支持
-  - 资源管理
-
-#### 示例插件
-- ✅ **视频效果插件示例** (`examples/plugins/sample_video_effect_plugin.py`)
-  - 亮度/对比度调节
-  - 怀旧滤镜效果
-  - 淡入淡出转场
-  - GPU加速支持
-  - 实时预览
-
-### 📊 性能监控系统
-
-#### 全面监控体系
-- ✅ **指标收集器** (`app/monitoring/metrics_collector.py`)
-  - 计数器、瞬时值、直方图、计时器
-  - 系统指标自动收集
-  - GPU指标监控
-  - 自定义指标支持
-  - 实时指标回调
-
-- ✅ **性能监控器** (`app/monitoring/performance_monitor.py`)
-  - 实时性能监控
-  - 性能级别评估
-  - 瓶颈自动识别
-  - 优化建议生成
-  - 性能报告导出
-
-- ✅ **资源监控器** (`app/monitoring/resource_monitor.py`)
-  - CPU、内存、磁盘、网络监控
-  - GPU使用率监控
-  - 资源使用历史
-  - 阈值告警
-  - 资源使用分析
-
-- ✅ **操作性能分析器** (`app/monitoring/operation_profiler.py`)
-  - 操作执行时间分析
-  - 慢操作识别
-  - 操作统计和报告
-  - 装饰器和上下文管理器
-  - 操作历史追踪
-
-- ✅ **智能告警系统** (`app/monitoring/alert_system.py`)
-  - 灵活的告警规则
-  - 多级告警（INFO/WARNING/ERROR/CRITICAL）
-  - 告警抑制和确认
-  - 多渠道通知（邮件/Webhook/Slack）
-  - 告警历史和统计
-
-### 🔒 安全性增强
-
-#### 输入验证系统
-- ✅ **全面输入验证器** (`app/security/input_validator.py`)
-  - 多种验证级别（基础/严格/偏执）
-  - 预定义验证模式
-  - XSS、SQL注入、路径遍历防护
-  - HTML内容安全处理
-  - CSRF保护和令牌验证
-
-#### 密码和认证安全
-- ✅ 密码哈希（PBKDF2）
-- ✅ 密码强度验证
-- ✅ API密钥格式验证
-- ✅ 会话令牌管理
-- ✅ 输入清理和编码
-
-### 🧪 测试框架
-
-#### 完整测试基础设施
-- ✅ **pytest配置** (`tests/conftest.py`)
-  - 应用程序和核心服务fixtures
-  - 测试数据库和临时目录
-  - Mock和patch支持
-  - 覆盖率报告配置
-
-- ✅ **单元测试** (`tests/test_core/test_application.py`)
-  - 应用程序生命周期测试
-  - 服务管理测试
-  - 事件系统测试
-  - 错误处理测试
-
-### 📚 文档和指南
-
-#### 完整文档体系
-- ✅ **模块文档** (每个模块的 `CLAUDE.md`)
-  - 架构说明
-  - API文档
-  - 使用指南
-  - 最佳实践
-
-- ✅ **插件开发指南** (`app/plugins/README.md`)
-  - 插件开发教程
-  - API参考
-  - 示例代码
-  - 部署指南
-
-- ✅ **项目改进总结** (`PROJECT_IMPROVEMENT_SUMMARY.md`)
-  - 完整的改进报告
-  - 技术亮点分析
-  - 性能指标对比
-  - 未来规划
-
-### 🎯 性能提升
-
-#### 处理性能
-- **渲染速度**: GPU加速提升3-10倍
-- **内存使用**: 智能缓存减少50%内存占用
-- **启动时间**: 懒加载减少40%启动时间
-- **响应时间**: UI响应<100ms
-
-#### 稳定性提升
-- **错误恢复**: 95%的错误可自动恢复
-- **崩溃率**: 降低到0.1%以下
-- **内存泄漏**: 完全消除已知内存泄漏
-- **数据安全**: 自动保存和备份机制
-
-### 🔧 开发体验
-
-#### 代码质量
-- **测试覆盖率**: 85%+单元测试，70%+集成测试
-- **代码规范**: 100% PEP 8合规
-- **类型注解**: 90%+代码有类型注解
-- **文档覆盖**: 95%+函数有文档字符串
-
-#### 开发工具
-- 完整的开发环境配置
-- 自动化测试流水线
-- 代码质量检查
-- 性能分析工具
-
-### 📦 依赖更新
-
-#### 新增核心依赖
-- `psutil`: 系统资源监控
-- `bleach`: HTML清理（可选）
-- `pytest`: 测试框架
-- `pynvml`: NVIDIA GPU监控（可选）
-
-#### 优化现有依赖
-- PyQt6版本优化
-- MoviePy集成改进
-- 第三方库安全更新
-
-### 🐛 修复的问题
-
-#### 架构问题
-- ✅ 服务依赖循环检测和解决
-- ✅ 内存泄漏修复
-- ✅ 线程安全问题修复
-- ✅ 资源清理优化
-
-#### 功能问题
-- ✅ 插件加载失败问题
-- ✅ 快捷键冲突问题
-- ✅ 自动保存稳定性问题
-- ✅ GPU检测兼容性问题
-
-#### 性能问题
-- ✅ 大文件处理性能问题
-- ✅ UI响应延迟问题
-- ✅ 内存占用过高问题
-- ✅ 渲染卡顿问题
-
-### 🔮 新功能预告（v3.1.0）
-
-#### 待完成功能
-- [ ] 访问控制系统
-- [ ] 加密管理器
-- [ ] 审计日志系统
-- [ ] 分布式渲染
-- [ ] 实时协作
-- [ ] Web版本支持
-
-### 🤝 贡献者
-
-- Agions (项目负责人和架构师)
-- AI助手 (核心开发和技术实现)
-
-### 📄 许可证
-
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [2.1.0] - 2025-12-17
+## [2.0.0-rc.1] - 2026-02-14
 
-### ⚡ 性能优化
+### Added
 
-- ✅ 修复并完善了分片渲染实现，支持长视频并行处理
-- ✅ 实现智能缓存管理，根据视频时长和分辨率动态调整缓存大小
-- ✅ 增强了帧缓存机制，避免重复渲染已处理的帧
-- ✅ 4K 视频预览优化，自动降低预览分辨率，提高流畅度
-- ✅ 针对 2K 视频，根据预览质量动态调整分辨率
-- ✅ 启用硬件加速预览，提高视频播放流畅度
-- ✅ 优化了预览缓存管理，定期清理旧缓存
-- ✅ 完善系统性能检测，支持 NVIDIA、AMD、Intel 和 Apple Silicon GPU 检测
-- ✅ 优化 GPU 加速支持，根据不同 GPU 类型选择合适的编码器
-- ✅ 针对 4K 视频自动使用 H.265 编码，提高压缩效率
+#### Core Features
+- 🎯 **版本统一系统** - 单一来源版本管理 (pyproject.toml)
+  - `app/utils/version.py` - 版本管理模块
+  - `scripts/check_version.py` - 版本一致性检查工具
 
-### 🎨 界面优化
+- 🤖 **国产 LLM 集成** - 支持多个国产大模型
+  - **通义千问 Qwen 3** (qwen-plus, qwen3-max, qwen-flash, qwq-plus)
+  - **Kimi 2.5** (moonshot-v1-8k, moonshot-v1-32k)
+  - **智谱 GLM-5** (glm-5, glm-5-flash)
+  - **百度文心 ERNIE 4.5**
+  - **OpenAI** (保留兼容)
 
-- ✅ 改进了欢迎区域设计，采用渐变色背景和阴影效果
-- ✅ 优化了快捷操作区域，采用现代化卡片设计和按钮样式
-- ✅ 为所有快捷操作按钮添加了工具提示，提高用户体验
-- ✅ 新增了"项目管理"快捷按钮，方便快速访问项目管理页面
-- ✅ 优化了 AI 配置组件的状态刷新机制
-- ✅ 改进了状态卡片设计，添加了悬停效果和动画
+- 🎮 **LLM 管理器** - 自动切换失败提供商
+  - 健康检查机制
+  - 批量请求支持
+  - 配置驱动的提供商管理
 
-### 🐛 修复的问题
+- 🧪 **测试框架**
+  - pytest 测试框架
+  - 单元测试覆盖 (Version, LLM providers, ScriptGenerator)
+  - 集成测试支持
 
-- ✅ 修复了 QuickAIConfigWidget 组件中缺失的 webbrowser 模块导入
-- ✅ 修复了状态刷新方法中的潜在问题，确保组件稳定性
-- ✅ 完善了.gitignore 文件，添加了更多常见 Python 项目忽略规则
-- ✅ 修复了相对导入问题
+#### Documentation
+- 📖 **安装指南** (`INSTALL.md`)
+  - 完整的安装步骤
+  - API 配置指南
+  - 故障排查
 
-### 📋 已知问题
+- 📦 **技术栈文档** (`TECH-STACK.md`)
+  - 字幕渲染技术 (PyQt6, OpenCV, FFmpeg)
+  - 特效实现说明
+  - 代码示例
 
-- 某些 QSS 样式属性在 Qt 中不被支持，可能会显示警告信息
-- 4K 视频编辑时性能仍有提升空间
+- 👨‍💻 **开发者指南** (`DEVELOPER.md`)
+  - 开发环境设置
+  - 测试运行
+  - 添加新 LLM 提供商步骤
 
-## [2.0.0] - 2025-12-12
+- 🗺️ **项目路线图** (`ROADMAP.md`)
+  - 版本规划 (v2.0.0 → v3.0.0)
+  - 功能详情
+  - 里程碑计划
 
-### 🎉 主要功能
+- 🔧 **故障排查手册** (`TROUBLESHOOT.md`)
+  - Windows dataclass 错误修复
+  - 常见问题解决
+  - 调试技巧
 
-#### 核心功能
+#### Configuration
+- `config/llm.yaml` - LLM 配置文件
+- `pytest.ini` - pytest 配置
 
-- ✅ 实现了基于 PyQt6 的专业视频编辑器界面
-- ✅ 双页面架构设计：视频编辑页面 + AI 对话页面
-- ✅ 现代化的 Material Design 3 界面风格
-- ✅ 完整的依赖注入和服务容器系统
-- ✅ 高效的事件总线通信机制
+#### Scripts
+- `scripts/check_version.py` - 版本检查
+- `scripts/check_dataclass.py` - dataclass 问题检查
 
-#### 视频编辑功能
+### Changed
 
-- ✅ 多轨道时间线编辑系统
-- ✅ 专业的视频预览面板
-- ✅ 实时预览优化
-  - 帧缓存机制
-  - 预览质量切换（低/中/高质量）
-  - 视频缩略图自动生成
-- ✅ 转场效果系统
-- ✅ 音频处理功能
-- ✅ 支持多种视频格式导入
+#### Renamed
+- 项目名称从 **CineAIStudio** 重命名为 **CineFlow AI**
 
-#### AI 功能
+#### Updated
+- `ScriptGenerator` - 支持使用 LLMManager
+- `README.md` - 更新为 CineFlow AI 名称
+- `requirements.txt` - 更新依赖配置
 
-- ✅ Mock AI 服务集成（用于测试）
-- ✅ 视频分析功能
-- ✅ 配音生成功能（支持多种风格）
-- ✅ 字幕生成功能
-- ✅ AI 服务管理器（支持多种提供商）
+### Fixed
 
-#### 导出功能
+#### GitHub Issues
+- ✅ **Issue #13** - 特效字幕技术栈询问
+  - 创建 `TECH-STACK.md` 详细说明技术栈
 
-- ✅ 剪映格式兼容导出
-- ✅ 支持剪映项目格式导入导出
-- ✅ 导出质量设置
-- ✅ 导出进度监控
+- ✅ **Issue #12** - 功能不可用，需要配置 API
+  - 创建 `INSTALL.md` 提供配置指南
 
-#### 安全功能
+- ✅ **Issue #11** - 安装验证问题
+  - 创建 `INSTALL.md` 提供验证步骤
 
-- ✅ 安全密钥管理系统
-- ✅ 系统密钥库集成（支持 macOS、Windows、Linux）
-- ✅ API 密钥加密存储
-- ✅ 密钥轮换和完整性验证
+- ✅ **Issue #9** - README 克隆地址错误
+  - 更新 `README.md` 中的克隆地址
 
-### 🐛 修复的问题
+- ✅ **Issue #10** - Windows dataclass 错误
+  - **v2.0.0-rc.1 已修复**
+  - 创建 `TROUBLESHOOT.md` 提供修复方案
+  - 添加 `check_dataclass.py` 检查工具
 
-- ✅ 修复了系统密钥库初始化错误
-- ✅ 修复了 Mock AI 服务的语法错误
-- ✅ 修复了相对导入问题
-- ✅ 修复了页面功能无法查看的问题
-- ✅ 修复了 MoviePy 导入错误
-- ✅ 优化了应用程序启动速度
-- ✅ 改进了错误处理机制
+### Technical Details
 
-### 📋 已知问题
+#### Architecture Changes
+```
+Previous (OpenAI Only):
+  ScriptGenerator → OpenAI API
 
-- 某些 AI 功能需要真实的 API 密钥才能正常工作
-- 4K 视频编辑时性能可能受到限制
-- 部分特殊视频格式可能不被支持
-- 系统密钥库在某些环境下可能不可用
+New (Multi-Provider):
+  ScriptGenerator → LLMManager → Qwen/Kimi/GLM5
+                           ↓
+                     (Auto-switch on failure)
+```
 
-### 🚀 安装说明
+#### Version Management
+```
+Before: 1.5.0 / 2.0.0 / 3.0.0 (confusing)
+After:  v2.0.0-rc.1 (unified)
+Single Source: pyproject.toml
+```
 
-1. **环境要求**
+### Breaking Changes
 
-   - Python 3.12+
-   - PyQt6 6.6.0+
-   - 其他依赖见 requirements.txt
-
-2. **安装步骤**
-
-   ```bash
-   # 克隆项目
-   git clone <repository-url>
-   cd CineFlow AI
-
-   # 安装依赖
-   pip install -r requirements.txt
-
-   # 运行程序
-   python main.py
-   ```
-
-3. **开发环境安装**
-   ```bash
-   pip install -r requirements.txt[dev]
-   ```
-
-### 🤝 贡献者
-
-- Agions (项目负责人)
-- 其他贡献者（持续更新中）
-
-### 📄 许可证
-
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
-
-## [1.0.0] - 2025-10-01
-
-### 📋 初始版本
-
-- 项目架构设计
-- 核心组件实现
-- 基础 UI 框架
-- 事件系统和依赖注入
+None (backward compatible)
 
 ---
 
-**CineFlow AI**
-_让视频编辑更智能，让创作更简单_
+## [1.5.0] - 2025-11-01
+
+### Added
+- AI 视频解说功能
+- AI 视频混剪功能
+- AI 第一人称独白功能
+- 剪映草稿导出
+
+### Known Issues
+- 版本混乱 (multiple versions in different files)
+- 仅支持 OpenAI API
+- 缺少单元测试
+
+---
+
+## [Unreleased]
+
+### Planned for v2.0.0
+- [ ] 集成测试覆盖率 >70%
+- [ ] 性能优化
+- [ ] 更新 CHANGELOG.md
+- [ ] 发布说明
+
+### Planned for v2.1.0
+- [ ] 本地 LLM 支持 (Ollama)
+- [ ] 本地 TTS (PyTorch TTS)
+- [ ] 离线模式支持
+
+### Planned for v2.2.0
+- [ ] 更多语音风格 (10+ 种)
+- [ ] 语音调节 (语速、音调)
+- [ ] 多语言支持
+
+### Planned for v2.3.0
+- [ ] 更多字幕特效
+- [ ] 动态文本动画
+- [ ] 自动字幕编辑
+
+### Planned for v3.0.0
+- [ ] 多用户协作
+- [ ] 云端同步
+- [ ] 项目模板库
+- [ ] 插件系统
+
+---
+
+## Version History
+
+| Version | Date | Status |
+|---------|------|--------|
+| 3.0.0 | 2026-06-15 | 🗓️ 计划中 |
+| 2.3.0 | 2026-05-10 | 🗓️ 计划中 |
+| 2.2.0 | 2026-04-10 | 🗓️ 计划中 |
+| 2.1.0 | 2026-03-10 | 🗓️ 计划中 |
+| 2.0.0-rc.1 | 2026-02-14 | ✅ 发布 |
+| 2.0.0 | 2026-02-20 | 🏃 开发中 |
+| 1.5.0 | 2025-11-01 | 📜 历史版本 |
+
+---
+
+**当前版本**: v2.0.0-rc.1
+**下个版本**: v2.0.0 正式版 (预计 2026-02-20)
+
+---
+
+## Contributing
+
+欢迎贡献！请参考 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
+
+## License
+
+MIT License
