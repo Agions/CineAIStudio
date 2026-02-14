@@ -26,7 +26,7 @@ class SampleVideoEffectPlugin(VideoEffectPlugin):
             description="提供基础视频效果的示例插件，包括亮度调节、对比度调节等",
             author="CineAIStudio Team",
             email="support@agions.qq.com",
-            website="https://agions.qq.com",
+            website="https://cineaistudio.com",
             plugin_type=PluginType.VIDEO_EFFECT,
             dependencies=[],
             min_app_version="1.0.0",
