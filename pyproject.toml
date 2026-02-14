@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cineai-studio"
+name = "cineflow-ai"
 version = "2.0.0"
-description = "CineAIStudio - Professional Video Editing with AI Integration"
+description = "CineFlow AI - Professional Video Creation with AI"
 license = {text = "MIT"}
 authors = [
     {name = "Agions", email = "agions@qq.com"}
@@ -50,7 +50,7 @@ dev = [
 ]
 
 [project.scripts]
-cineai-studio = "app.main:main"
+cineflow-ai = "app.main:main"
 
 [tool.setuptools]
 packages = ["app"]

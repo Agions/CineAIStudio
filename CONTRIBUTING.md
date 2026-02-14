@@ -1,11 +1,11 @@
 # 贡献指南
 
-感谢您对 CineAIStudio 项目的关注！我们欢迎各种形式的贡献，包括但不限于代码、文档、测试、问题和建议。
+感谢您对 CineFlow AI 项目的关注！我们欢迎各种形式的贡献，包括但不限于代码、文档、测试、问题和建议。
 
 ## 🤝 贡献方式
 
 ### 报告问题
-- 使用 [GitHub Issues](https://github.com/agions/CineAIStudio/issues) 报告 bug
+- 使用 [GitHub Issues](https://github.com/agions/CineFlow AI/issues) 报告 bug
 - 提供详细的重现步骤和系统信息
 - 包含相关的日志文件和截图
 
@@ -36,8 +36,8 @@
 
 ### 克隆项目
 ```bash
-git clone https://github.com/agions/CineAIStudio.git
-cd CineAIStudio
+git clone https://github.com/agions/CineFlow AI.git
+cd CineFlow AI
 ```
 
 ### 设置开发环境
@@ -105,7 +105,7 @@ def example_function(param1: str, param2: int) -> bool:
 
 ## 🔌 插件开发
 
-CineAIStudio v3.0 支持插件开发。如果您想为项目贡献插件：
+CineFlow AI v3.0 支持插件开发。如果您想为项目贡献插件：
 
 1. 阅读 [插件开发指南](app/plugins/README.md)
 2. 查看 [示例插件](examples/plugins/)
@@ -210,7 +210,7 @@ tests/
 **环境信息**
 - 操作系统：
 - Python 版本：
-- CineAIStudio 版本：
+- CineFlow AI 版本：
 - 相关硬件信息：
 
 **附加信息**
@@ -259,7 +259,7 @@ tests/
 
 - 项目维护者：[Agions](https://github.com/agions)
 - 邮箱：support@cineaistudio.com
-- 讨论区：[GitHub Discussions](https://github.com/agions/CineAIStudio/discussions)
+- 讨论区：[GitHub Discussions](https://github.com/agions/CineFlow AI/discussions)
 
 ## 📄 行为准则
 
@@ -286,7 +286,7 @@ tests/
 
 ## 🎉 致谢
 
-感谢所有为 CineAIStudio 项目做出贡献的开发者、用户和支持者！
+感谢所有为 CineFlow AI 项目做出贡献的开发者、用户和支持者！
 
 ---
 

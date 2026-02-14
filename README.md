@@ -1,8 +1,8 @@
-# 🎬 CineAIStudio - AI 视频创作工具(未完成)
+# 🎬 CineFlow AI - AI 视频创作工具(未完成)
 
 > 打造爆款短视频，一键生成剪映草稿
 
-CineAIStudio 是一款 **AI 驱动的视频创作客户端工具**，支持打包为 macOS (.app/.dmg) 和 Windows (.exe) 安装程序。
+CineFlow AI 是一款 **AI 驱动的视频创作客户端工具**，支持打包为 macOS (.app/.dmg) 和 Windows (.exe) 安装程序。
 
 ## ✨ 核心功能
 
@@ -77,12 +77,12 @@ python build/build_app.py --dmg
 python build/build_app.py
 ```
 
-输出位置: `dist/CineAIStudio.app` 或 `dist/CineAIStudio.exe`
+输出位置: `dist/CineFlow AI.app` 或 `dist/CineFlow AI.exe`
 
 ## 📁 项目结构
 
 ```
-CineAIStudio/
+CineFlow AI/
 ├── app/
 │   ├── main.py                      # 主程序入口
 │   └── services/
