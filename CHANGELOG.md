@@ -32,15 +32,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 📝 **示例和文档**
   - `examples/vision_analysis.py` - 8 个完整示例
   - `examples/quick_vision.py` - 快速开始
-  - 更新 `config/llm.yaml` - 添加 VL 配置
+
+#### 本地模型支持 (Ollama)
+
+- 🏠 **Ollama 集成** - 本地运行开源 LLM
+  - `app/services/ai/providers/ollama.py` - Ollama 提供商
+  - 支持国产模型 (qwen2.5, qwen2.5-coder)
+  - 支持开源模型 (llama3.2, mistral, codellama)
+  - 模型列表、健康检查、自动下载
+
+- 🔧 **Ollama 功能**
+  - 模型管理 (列出、下载、检查可用性)
+  - 离线推理支持
+  - 零费用运行
+  - 完全隐私保护
+
+- 📚 **示例和测试**
+  - `examples/local_models.py` - 8 个本地模型示例
+  - `tests/test_ollama_provider.py` - 完整单元测试
 
 - 🔄 **LLM 管理器增强**
-  - 新增 `QWEN_VL` 提供商类型
-  - 自动初始化 VL 服务
+  - 新增 `QWEN_VL` 和 `OLLAMA` 提供商类型
+  - 自动初始化本地模型 (服务可用时)
 
 ### Changed
 
-- 配置文件结构: 新增 `VL` 配置节
+- 配置文件结构: 新增 `VL` 和 `ollama` 配置节
 
 ---
 
