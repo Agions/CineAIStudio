@@ -19,6 +19,7 @@ from .providers.qwen import QwenProvider
 from .providers.kimi import KimiProvider
 from .providers.glm5 import GLM5Provider
 from .providers.qwen_vl import QwenVLProvider
+from .providers.ollama import OllamaProvider
 
 
 def _safe_import():
@@ -37,6 +38,7 @@ class ProviderType(Enum):
     KIMI = "kimi"
     GLM5 = "glm5"
     OPENAI = "openai"
+    OLLAMA = "ollama"
     LOCAL = "local"
 
 
@@ -108,6 +110,19 @@ class LLMManager:
                     api_key=api_key,
                     base_url=qwen_vl_config.get("base_url", ""),
                 )
+
+        # Ollama 本地模型
+        ollama_config = llm_config.get("ollama", {})
+        if ollama_config.get("enabled", False):
+            ollama_provider = OllamaProvider(
+                api_key="",
+                base_url=ollama_config.get("base_url", "http://localhost:11434"),
+            )
+            # 检查 Ollama 服务是否可用
+            if ollama_provider.health_check():
+                self.providers[ProviderType.OLLAMA] = ollama_provider
+            else:
+                print("⚠️  Ollama 服务不可用，跳过初始化")
 
         # 设置默认提供商
         default_name = llm_config.get("default_provider", "qwen")

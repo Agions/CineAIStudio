@@ -41,6 +41,14 @@ LLM:
     max_tokens: 2000
     temperature: 0.7
 
+  # Ollama 本地模型
+  ollama:
+    enabled: false
+    base_url: "http://localhost:11434"
+    model: "qwen2.5"  # 默认模型
+    max_tokens: 2000
+    temperature: 0.7
+
 # 视觉分析 (Visual Language)
 VL:
   # 是否启用视觉分析
