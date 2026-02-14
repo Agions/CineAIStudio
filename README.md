@@ -229,6 +229,17 @@ draft = maker.export_to_jianying(project, "/path/to/drafts")
 - **硬盘空间**: 至少 500MB
 - **网络**: 需要网络连接 API（或使用本地模式）
 
+## 📚 文档
+
+| 文档 | 说明 |
+|------|------|
+| [**安装指南**](INSTALL.md) | 完整的安装、配置和故障排查指南 |
+| [**技术栈说明**](TECH-STACK.md) | 字幕渲染、特效实现的技术详解 |
+| [**开发者指南**](DEVELOPER.md) | 开发环境、测试、Git 工作流 |
+| [**故障排查**](TROUBLESHOOT.md) | 常见问题和解决方法 |
+| [**更新日志**](CHANGELOG.md) | 版本更新记录和 Breaking Changes |
+| [**项目路线图**](ROADMAP.md) | v2.0.0-rc.1 → v3.0.0 开发计划 |
+
 ## 🎨 支持的风格
 
 ### 解说风格
