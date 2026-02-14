@@ -9,6 +9,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.0] (开发中)
+
+### Added
+
+#### 语音增强功能 (TTS v2.2.0)
+
+- 🎙️ **阿里云 TTS 集成**
+  - `app/services/ai/providers/aliyun_tts.py` - 阿里云 TTS 提供商
+  - 支持 20+ 种声音风格和方言
+  - SSML 标记支持
+  - 多语言支持（中文、英文、方言）
+
+- 🎭 **扩展语音风格**
+  - 从 9 种扩展到 15+ 种风格
+  - 新增: 情感丰富、浪漫、喜悦、严肃、随意、兴奋、温柔、充满活力、神秘、幽默
+  - `VoiceStyle` 枚举全面升级
+
+- 🎛️ **精细参数控制**
+  - 语速: 0.5x - 2.0x
+  - 音调: 0.5x - 2.0x
+  - 音量: 0% - 100%
+  - 情感强度: 0.0 - 2.0
+
+- 🌏 **方言支持**
+  - 东北话 (小君)
+  - 四川话 (小峰)
+  - 粤语 (小新)
+
+- 😊 **情感语音合成**
+  - 开心 (happy)
+  - 悲伤 (sad)
+  - 愤怒 (angry)
+  - 恐惧 (fearful)
+  - 平静 (neutral)
+
+- 📚 **示例和文档**
+  - `examples/voice_enhancement.py` - 9 个完整示例
+  - 声音列表、风格演示、参数控制、批量生成
+
+- 🔄 **VoiceGenerator 增强**
+  - 新增 "aliyun" 提供商支持
+  - 环境变量配置支持
+
+### Changed
+
+- `VoiceStyle` 枚举扩展到 15+ 种风格
+- TTS 提供商支持列表更新
+
+---
+
 ## [2.1.0] (开发中)
 
 ### Added

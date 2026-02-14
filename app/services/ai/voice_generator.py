@@ -30,7 +30,7 @@ from abc import ABC, abstractmethod
 
 
 class VoiceStyle(Enum):
-    """配音风格"""
+    """配音风格 - v2.2.0 扩展版支持 15+ 种风格"""
     NARRATION = "narration"        # 旁白/解说
     CONVERSATIONAL = "conversational"  # 对话
     NEWSCAST = "newscast"          # 新闻播报
@@ -40,6 +40,17 @@ class VoiceStyle(Enum):
     FEARFUL = "fearful"            # 恐惧
     WHISPERING = "whispering"      # 耳语
     SHOUTING = "shouting"          # 大喊
+    # v2.2.0 新增
+    EMOTIONAL = "emotional"        # 情感丰富
+    ROMANTIC = "romantic"          # 浪漫
+    JOYFUL = "joyful"              # 喜悦
+    SERIOUS = "serious"            # 严肃
+    CASUAL = "casual"              # 随意
+    EXCITED = "excited"            # 兴奋
+    GENTLE = "gentle"              # 温柔
+    ENERGETIC = "energetic"        # 充满活力
+    MYSTERY = "mystery"            # 神秘
+    HUMOROUS = "humorous"          # 幽默
 
 
 class VoiceGender(Enum):
@@ -360,13 +371,13 @@ class VoiceGenerator:
     ):
         """
         初始化配音生成器
-        
+
         Args:
-            provider: 提供者 ("edge", "openai", "azure")
+            provider: 提供者 ("edge", "openai", "aliyun", "azure")
             api_key: API Key（某些提供者需要）
         """
         self.provider_name = provider
-        
+
         if provider == "edge":
             self._provider = EdgeTTSProvider()
         elif provider == "openai":
@@ -374,6 +385,17 @@ class VoiceGenerator:
             if not key:
                 raise ValueError("OpenAI TTS 需要 API Key")
             self._provider = OpenAITTSProvider(key)
+        elif provider == "aliyun":
+            # 阿里云 TTS 需要 appkey, access_key_id, access_key_secret
+            appkey = kwargs.get("appkey") or os.getenv("ALIYUN_NLS_APPKEY")
+            access_key_id = kwargs.get("access_key_id") or os.getenv("ALIYUN_ACCESS_KEY_ID")
+            access_key_secret = kwargs.get("access_key_secret") or os.getenv("ALIYUN_ACCESS_KEY_SECRET")
+
+            if not all([appkey, access_key_id, access_key_secret]):
+                raise ValueError("阿里云 TTS 需要配置 appkey, access_key_id, access_key_secret")
+
+            from .providers.aliyun_tts import AliyunTTSProvider
+            self._provider = AliyunTTSProvider(appkey, access_key_id, access_key_secret)
         else:
             raise ValueError(f"不支持的提供者: {provider}")
     
