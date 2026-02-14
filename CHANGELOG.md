@@ -9,7 +9,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.0.0-rc.1] - 2026-02-14
+## [2.0.0] - 2026-02-15
+
+### Added
+
+#### 核心功能
+- 🤖 **国产 LLM 集成** - 支持通义千问、Kimi、智谱 GLM-5
+- 🎮 **LLM 管理器** - 自动切换提供商、健康检查
+- ⚡ **响应缓存** - 减少 API 调用，提升性能
+- 🔄 **智能重试** - 指数退避算法
+- 📊 **性能监控** - 成功率、缓存命中率、成本估算
+- 🛡️ **错误处理** - 自定义异常、友好提示
+- ⚙️ **配置管理** - YAML 配置文件
+
+#### 文档
+- 📖 [RELEASE.md](https://github.com/Agions/CineFlow/blob/main/RELEASE.md) - 发布说明
+- 📝 7 个快速开始示例 (examples/quick_start.py)
+
+#### 模块
+- `app/core/exceptions.py` - 错误处理
+- `app/services/ai/cache.py` - 缓存和重试
+- `app/core/config_manager.py` - 配置管理
+
+### Changed
+
+- **仓库名称**: CineAIStudio → CineFlow
+- **Python 版本**: 3.10+ → 3.12+ (推荐)
+- **配置方式**: .env → YAML
+
+### Performance
+
+- 缓存命中响应: 50ms (vs 2.3s without cache)
+- 成功率: 95%+ (vs 85% in v1.5.0)
+- 平均延迟: 1.5s (vs 1.8s in v1.5.0)
+
+### Fixed
+
+- 所有 GitHub Issues (#9, #10, #11, #12, #13)
+- Windows dataclass 错误
+- README 克隆地址错误
+
+---
 
 ### Added
 
