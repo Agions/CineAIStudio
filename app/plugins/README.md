@@ -393,7 +393,7 @@ class BrightnessPlugin(VideoEffectPlugin):
 
 ## 社区和支持
 
-- 插件开发文档: https://docs.cineaistudio.com/plugins
+- 插件开发文档: https://docs.agions.qq.com/plugins
 - 插件示例库: https://github.com/aieditx/plugin-examples
-- 开发者论坛: https://forum.cineaistudio.com
+- 开发者论坛: https://forum.agions.qq.com
 - 问题报告: https://github.com/aieditx/issues
