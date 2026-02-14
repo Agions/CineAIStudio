@@ -25,6 +25,18 @@ CineFlow AI 是一款 **AI 驱动的视频创作客户端工具**，支持打包
 
 ## 🚀 快速开始
 
+### 0. 克隆仓库
+
+```bash
+# 使用 HTTPS（推荐）
+git clone https://github.com/Agions/CineAIStudio.git
+cd CineAIStudio
+
+# 或使用 SSH
+git clone git@github.com:Agions/CineAIStudio.git
+cd CineAIStudio
+```
+
 ### 1. 安装依赖
 
 ```bash
