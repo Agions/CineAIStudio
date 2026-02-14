@@ -2,161 +2,260 @@
 # -*- coding: utf-8 -*-
 
 """
-简单配置管理器
+CineFlow AI 配置管理器
+提供统一的配置管理接口
 """
 
-import json
-import os
+import yaml
 from typing import Dict, Any, Optional
 from pathlib import Path
+from dataclasses import dataclass, field, asdict
+from enum import Enum
+
+from app.core.exceptions import ConfigError
+
+
+class LLMProviderType(Enum):
+    """LLM 提供商类型"""
+    QWEN = "qwen"
+    KIMI = "kimi"
+    GLM5 = "glm5"
+    OPENAI = "openai"
+
+
+@dataclass
+class LLMConfig:
+    """LLM 配置"""
+    enabled: bool = False
+    api_key: str = ""
+    model: str = ""
+    base_url: Optional[str] = None
+    temperature: float = 0.7
+    max_tokens: int = 2000
+
+    def is_valid(self) -> bool:
+        """检查配置是否有效"""
+        if not self.enabled:
+            return False
+        if not self.api_key:
+            return False
+        if not self.model:
+            return False
+        return True
+
+
+@dataclass
+class CacheConfig:
+    """缓存配置"""
+    enabled: bool = True
+    max_size: int = 100
+    ttl: int = 3600  # 秒
+
+    def is_valid(self) -> bool:
+        """检查配置是否有效"""
+        return self.enabled and self.max_size > 0 and self.ttl > 0
+
+
+@dataclass
+class RetryConfig:
+    """重试配置"""
+    max_retries: int = 3
+    base_delay: float = 1.0
+    max_delay: float = 60.0
+    backoff_factor: float = 2.0
+
+    def is_valid(self) -> bool:
+        """检查配置是否有效"""
+        return (
+            self.max_retries > 0 and
+            self.base_delay > 0 and
+            self.max_delay > 0 and
+            self.backoff_factor > 0
+        )
+
+
+@dataclass
+class AppConfig:
+    """应用配置"""
+    llm_providers: Dict[str, LLMConfig] = field(default_factory=lambda: {
+        "qwen": LLMConfig(enabled=False, model="qwen-plus"),
+        "kimi": LLMConfig(enabled=False, model="moonshot-v1-8k"),
+        "glm5": LLMConfig(enabled=False, model="glm-5"),
+        "openai": LLMConfig(enabled=False, model="gpt-4"),
+    })
+    cache: CacheConfig = field(default_factory=CacheConfig)
+    retry: RetryConfig = field(default_factory=RetryConfig)
+    default_provider: str = "qwen"
+    log_level: str = "INFO"
+
+    def __post_init__(self):
+        """初始化后验证"""
+        if self.default_provider not in self.llm_providers:
+            self.default_provider = list(self.llm_providers.keys())[0]
 
 
 class ConfigManager:
-    """简化配置管理器"""
+    """配置管理器"""
 
-    def __init__(self, config_path: Optional[str] = None):
-        self.config_path = config_path or os.path.join(
-            os.path.expanduser("~"), ".cineai-studio", "config.json"
-        )
-        self._config: Dict[str, Any] = self._load_default_config()
-        self._ensure_config_dir()
-        self.load()
+    def __init__(self, config_dir: Optional[Path] = None):
+        """
+        初始化配置管理器
 
-    def _load_default_config(self) -> Dict[str, Any]:
-        """加载默认配置"""
-        return {
-            "window": {
-                "width": 1200,
-                "height": 800,
-                "x": 100,
-                "y": 100,
-                "maximized": False,
-                "fullscreen": False
-            },
-            "theme": {
-                "name": "dark_modern",
-                "mode": "dark",
-                "primary_color": "#2196F3",
-                "font_size": 12
-            },
-            "editor": {
-                "auto_save": True,
-                "auto_save_interval": 300,
-                "backup_enabled": True,
-                "recent_files": []
-            },
-            "ai": {
-                "default_model": "openai",
-                "max_tokens": 2000,
-                "temperature": 0.7
-            }
-        }
+        Args:
+            config_dir: 配置文件目录
+        """
+        if config_dir is None:
+            config_dir = Path(__file__).parent.parent.parent / "config"
 
-    def _ensure_config_dir(self) -> None:
-        """确保配置目录存在"""
-        config_dir = Path(self.config_path).parent
-        config_dir.mkdir(parents=True, exist_ok=True)
+        self.config_dir = Path(config_dir)
+        self.config_file = self.config_dir / "app_config.yaml"
+        self.llm_config_file = self.config_dir / "llm.yaml"
+        self._config: Optional[AppConfig] = None
 
-    def load(self) -> None:
+    def load_config(self) -> AppConfig:
         """加载配置"""
-        if os.path.exists(self.config_path):
-            try:
-                with open(self.config_path, 'r', encoding='utf-8') as f:
-                    loaded_config = json.load(f)
-                    self._config.update(loaded_config)
-            except (json.JSONDecodeError, IOError):
-                pass
+        if self._config is not None:
+            return self._config
 
-    def save(self) -> None:
-        """保存配置"""
+        # 加载 YAML 文件
+        if self.config_file.exists():
+            try:
+                with open(self.config_file, 'r', encoding='utf-8') as f:
+                    data = yaml.safe_load(f) or {}
+                self._config = self._parse_config(data)
+            except Exception as e:
+                raise ConfigError(f"配置文件加载失败: {e}")
+        else:
+            # 创建默认配置
+            self._config = AppConfig()
+            self.save_config()
+
+        return self._config
+
+    def _parse_config(self, data: Dict[str, Any]) -> AppConfig:
+        """解析配置数据"""
+        config = AppConfig()
+
+        # 解析 LLM 提供商配置
+        if "llm_providers" in data:
+            for provider_name, provider_data in data["llm_providers"].items():
+                if provider_name in config.llm_providers:
+                    llm_config = LLMConfig(**provider_data)
+                    config.llm_providers[provider_name] = llm_config
+
+        # 解析缓存配置
+        if "cache" in data:
+            config.cache = CacheConfig(**data["cache"])
+
+        # 解析重试配置
+        if "retry" in data:
+            config.retry = RetryConfig(**data["retry"])
+
+        # 解析其他配置
+        if "default_provider" in data:
+            config.default_provider = data["default_provider"]
+
+        if "log_level" in data:
+            config.log_level = data["log_level"]
+
+        return config
+
+    def save_config(self, config: Optional[AppConfig] = None) -> None:
+        """
+        保存配置
+
+        Args:
+            config: 配置对象，如果为 None 则保存当前配置
+        """
+        if config is None:
+            config = self.load_config()
+
         try:
-            with open(self.config_path, 'w', encoding='utf-8') as f:
-                json.dump(self._config, f, indent=2, ensure_ascii=False)
-        except IOError:
-            pass
+            # 转换为字典
+            data = asdict(config)
 
-    def get(self, key: str, default: Any = None) -> Any:
-        """获取配置值"""
-        keys = key.split('.')
-        value = self._config
-        for k in keys:
-            if isinstance(value, dict) and k in value:
-                value = value[k]
-            else:
-                return default
-        return value
+            # 保存到文件
+            self.config_dir.mkdir(parents=True, exist_ok=True)
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                yaml.dump(data, f, allow_unicode=True, default_flow_style=False)
 
-    def get_value(self, key: str, default: Any = None) -> Any:
-        """获取配置值（别名）"""
-        return self.get(key, default)
+        except Exception as e:
+            raise ConfigError(f"配置文件保存失败: {e}")
 
-    def set(self, key: str, value: Any) -> None:
-        """设置配置值"""
-        keys = key.split('.')
-        config = self._config
-        for k in keys[:-1]:
-            if k not in config:
-                config[k] = {}
-            config = config[k]
-        config[keys[-1]] = value
+    def get_llm_config(self, provider: str) -> Optional[LLMConfig]:
+        """获取 LLM 提供商配置"""
+        config = self.load_config()
+        return config.llm_providers.get(provider)
 
-    def get_all(self) -> Dict[str, Any]:
-        """获取所有配置"""
-        return self._config.copy()
+    def set_llm_config(self, provider: str, llm_config: LLMConfig) -> None:
+        """设置 LLM 提供商配置"""
+        config = self.load_config()
+        config.llm_providers[provider] = llm_config
+        self.save_config(config)
 
-    def reset(self) -> None:
+    def get_cache_config(self) -> CacheConfig:
+        """获取缓存配置"""
+        config = self.load_config()
+        return config.cache
+
+    def set_cache_config(self, cache_config: CacheConfig) -> None:
+        """设置缓存配置"""
+        config = self.load_config()
+        config.cache = cache_config
+        self.save_config(config)
+
+    def get_retry_config(self) -> RetryConfig:
+        """获取重试配置"""
+        config = self.load_config()
+        return config.retry
+
+    def set_retry_config(self, retry_config: RetryConfig) -> None:
+        """设置重试配置"""
+        config = self.load_config()
+        config.retry = retry_config
+        self.save_config(config)
+
+    def set_default_provider(self, provider: str) -> None:
+        """设置默认提供商"""
+        config = self.load_config()
+        if provider in config.llm_providers:
+            config.default_provider = provider
+            self.save_config(config)
+        else:
+            raise ConfigError(f"未知的提供商: {provider}")
+
+    def reset_config(self) -> None:
         """重置为默认配置"""
-        self._config = self._load_default_config()
-        self.save()
+        self._config = AppConfig()
+        self.save_config()
 
-    def set_value(self, key: str, value: Any) -> None:
-        """设置配置值（别名）"""
-        self.set(key, value)
+    def export_config(self) -> Dict[str, Any]:
+        """导出配置为字典"""
+        config = self.load_config()
+        return asdict(config)
 
-    def add_watcher(self, callback) -> None:
-        """添加配置变更监听器（简化版）"""
-        # 简化实现，不实现真正的监听功能
-        pass
+    def import_config(self, data: Dict[str, Any]) -> None:
+        """从字典导入配置"""
+        try:
+            config = self._parse_config(data)
+            self._config = config
+            self.save_config(config)
+        except Exception as e:
+            raise ConfigError(f"配置导入失败: {e}")
 
-    def get_settings(self) -> Dict[str, Any]:
-        """获取所有设置（别名）"""
-        return self.get_all()
 
-    def update_settings(self, settings: Dict[str, Any]) -> None:
-        """更新设置（别名）"""
-        self._config.update(settings)
-        self.save()
-        self._notify_watchers()
-    
-    def _notify_watchers(self) -> None:
-        """通知配置变更监听器"""
-        if hasattr(self, '_watchers'):
-            for callback in self._watchers:
-                try:
-                    callback(self._config)
-                except Exception as e:
-                    # 捕获监听器异常，避免影响主程序
-                    print(f"配置监听器执行失败: {e}")
-    
-    def add_watcher(self, callback: callable) -> None:
-        """添加配置变更监听器
-        
-        Args:
-            callback: 回调函数，当配置变更时调用，接收当前配置作为参数
-        """
-        if not hasattr(self, '_watchers'):
-            self._watchers = []
-        if callback not in self._watchers:
-            self._watchers.append(callback)
-    
-    def remove_watcher(self, callback: callable) -> None:
-        """移除配置变更监听器
-        
-        Args:
-            callback: 要移除的回调函数
-        """
-        if hasattr(self, '_watchers'):
-            try:
-                self._watchers.remove(callback)
-            except ValueError:
-                pass
+# 全局配置管理器实例
+_global_config_manager: Optional[ConfigManager] = None
+
+
+def get_config_manager() -> ConfigManager:
+    """获取全局配置管理器实例"""
+    global _global_config_manager
+    if _global_config_manager is None:
+        _global_config_manager = ConfigManager()
+    return _global_config_manager
+
+
+def get_config() -> AppConfig:
+    """快捷方法：获取应用配置"""
+    return get_config_manager().load_config()
