@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] (开发中)
+
+### Added
+
+#### 视觉分析功能 (国产 LLM 全覆盖)
+
+- 👁️ **千问 VL 集成** - 通义千问视觉-语言模型
+  - `app/services/ai/providers/qwen_vl.py` - VL 提供商
+  - `app/services/ai/vision_service.py` - 视觉分析服务
+  - 支持 `qwen-vl-plus` 和 `qwen-vl-max` 模型
+
+- 🎨 **视觉理解能力**
+  - 场景理解 - 详细描述图像内容、环境、氛围
+  - OCR 文字提取 - 识别字幕、标签、水印
+  - 标签生成 - 自动生成 10-15 个视觉标签
+  - 字幕建议 - 根据画面推荐台词
+  - 镜头分析 - 镜头类型、角度、构图
+  - 颜色分析 - 色调、饱和度、对比度分析
+  - 批量分析 - 并发处理多张图片
+
+- 📝 **示例和文档**
+  - `examples/vision_analysis.py` - 8 个完整示例
+  - `examples/quick_vision.py` - 快速开始
+  - 更新 `config/llm.yaml` - 添加 VL 配置
+
+- 🔄 **LLM 管理器增强**
+  - 新增 `QWEN_VL` 提供商类型
+  - 自动初始化 VL 服务
+
+### Changed
+
+- 配置文件结构: 新增 `VL` 配置节
+
+---
+
 ## [2.0.0] - 2026-02-15
 
 ### Added

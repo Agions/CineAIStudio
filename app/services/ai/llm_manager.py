@@ -18,6 +18,7 @@ from .base_LLM_provider import (
 from .providers.qwen import QwenProvider
 from .providers.kimi import KimiProvider
 from .providers.glm5 import GLM5Provider
+from .providers.qwen_vl import QwenVLProvider
 
 
 def _safe_import():
@@ -32,6 +33,7 @@ def _safe_import():
 class ProviderType(Enum):
     """提供商类型"""
     QWEN = "qwen"
+    QWEN_VL = "qwen_vl"
     KIMI = "kimi"
     GLM5 = "glm5"
     OPENAI = "openai"
@@ -94,6 +96,17 @@ class LLMManager:
                 self.providers[ProviderType.GLM5] = GLM5Provider(
                     api_key=api_key,
                     base_url=glm5_config.get("base_url", ""),
+                )
+
+        # 通义千问 VL (视觉-语言)
+        vl_config = self.config.get("VL", {})
+        qwen_vl_config = vl_config.get("qwen_vl", {})
+        if vl_config.get("enabled", False) and qwen_vl_config.get("enabled", False):
+            api_key = qwen_vl_config.get("api_key", "")
+            if api_key and api_key != "${QWEN_API_KEY}":
+                self.providers[ProviderType.QWEN_VL] = QwenVLProvider(
+                    api_key=api_key,
+                    base_url=qwen_vl_config.get("base_url", ""),
                 )
 
         # 设置默认提供商
