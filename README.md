@@ -29,11 +29,11 @@ CineFlow AI 是一款 **AI 驱动的视频创作客户端工具**，支持打包
 
 ```bash
 # 使用 HTTPS（推荐）
-git clone https://github.com/Agions/CineAIStudio.git
+git clone https://github.com/Agions/CineFlow.git
 cd CineAIStudio
 
 # 或使用 SSH
-git clone git@github.com:Agions/CineAIStudio.git
+git clone git@github.com:Agions/CineFlow.git
 cd CineAIStudio
 ```
 

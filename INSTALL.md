@@ -24,7 +24,7 @@
 
 ```bash
 # 使用 HTTPS
-git clone https://github.com/Agions/CineAIStudio.git
+git clone https://github.com/Agions/CineFlow.git
 cd CineAIStudio
 
 # 或使用 SSH
@@ -235,7 +235,7 @@ cineflow-ai
 
 - [快速上手指南](QUICKSTART.md)
 - [故障排查手册](TROUBLESHOOT.md)
-- [GitHub Issues](https://github.com/Agions/CineAIStudio/issues)
+- [GitHub Issues](https://github.com/Agions/CineFlow/issues)
 
 ---
 
