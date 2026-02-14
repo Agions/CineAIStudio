@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cineflow-ai"
-version = "2.0.0"
+version = "2.0.0-rc.1"
 description = "CineFlow AI - Professional Video Creation with AI"
 license = {text = "MIT"}
 authors = [

@@ -15,25 +15,27 @@ sys.path.insert(0, str(project_root))
 
 def main():
     """主函数"""
+    from app.utils.version import __version__
+
     print("=" * 50)
-    print("🎬 CineAIStudio - AI 视频创作工具")
+    print("🎬 CineFlow AI - AI 视频创作工具")
     print("=" * 50)
-    print("\n版本: 1.5.0")
-    print("作者: CineAIStudio Team")
+    print(f"\n版本: {__version__}")
+    print("作者: CineFlow AI Team")
     print()
-    
+
     # 检查依赖
     check_dependencies()
-    
+
     # 启动 GUI
     try:
         from app.ui.main.main_window import MainWindow
         from app.core.application import Application
         from PyQt6.QtWidgets import QApplication
-        
+
         qt_app = QApplication(sys.argv)
-        qt_app.setApplicationName("CineAIStudio")
-        qt_app.setApplicationVersion("1.5.0")
+        qt_app.setApplicationName("CineFlow AI")
+        qt_app.setApplicationVersion(str(__version__))
         
         # 初始化核心应用程序实例
         # 这里传入简单的配置字典作为示例，实际可从配置文件加载
