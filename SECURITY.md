@@ -41,7 +41,7 @@
 我们鼓励安全研究人员和用户通过以下渠道报告安全问题：
 
 **首选渠道**：
-- 📧 邮箱：security@agions.qq.com
+- 📧 邮箱：agions@qq.com
 - 🔒 加密邮件：使用我们的 PGP 公钥加密（如需要）
 
 **备用渠道**：
@@ -154,7 +154,7 @@
 ## 📞 安全联系方式
 
 ### 安全团队
-- **安全负责人**: security@agions.qq.com
+- **安全负责人**: agions@qq.com
 - **GitHub Security**: https://github.com/agions/CineFlow AI/security
 - **紧急安全热线**: +86-xxx-xxxx-xxxx
 

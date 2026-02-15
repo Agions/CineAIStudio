@@ -258,7 +258,7 @@ tests/
 ## 📞 联系方式
 
 - 项目维护者：[Agions](https://github.com/agions)
-- 邮箱：support@agions.qq.com
+- 邮箱：agions@qq.com
 - 讨论区：[GitHub Discussions](https://github.com/agions/CineFlow AI/discussions)
 
 ## 📄 行为准则
