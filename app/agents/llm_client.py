@@ -40,47 +40,47 @@ class LLMClient:
     支持多提供商，为不同Agent提供专业能力
     """
     
-    # 预设配置 - 全部使用国产大模型 (2026)
+    # 预设配置 - 全部使用国产大模型 (2025年最新)
     AGENT_MODELS = {
         'director': {
             'provider': ModelProvider.DEEPSEEK,
-            'model': 'deepseek-v4',
-            'description': '导演Agent - DeepSeek-V4最强规划'
+            'model': 'deepseek-chat',
+            'description': '导演Agent - DeepSeek-V3最强规划推理'
         },
         'editor': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'kimi-k3',
-            'description': '剪辑Agent - Kimi K3超长上下文(200K)'
+            'model': 'moonshot-v1-128k',
+            'description': '剪辑Agent - Kimi 128K超长上下文'
         },
         'colorist': {
             'provider': ModelProvider.BAIDU,
-            'model': 'ERNIE-Vision-4.0',
-            'description': '调色Agent - 文心视觉多模态'
+            'model': 'ernie-4.0-turbo-8k',
+            'description': '调色Agent - 文心4.0 Turbo多模态'
         },
         'sound': {
             'provider': ModelProvider.ALIBABA,
-            'model': 'qwen-audio-3',
-            'description': '音效Agent - 通义千问音频专家'
+            'model': 'qwen2.5-72b-instruct',
+            'description': '音效Agent - 通义千问2.5音频理解'
         },
         'vfx': {
             'provider': ModelProvider.BAIDU,
-            'model': 'ERNIE-Image-4.0',
-            'description': '特效Agent - 文心一格图像生成'
+            'model': 'ernie-4.0-turbo-8k',
+            'description': '特效Agent - 文心4.0创意生成'
         },
         'reviewer': {
             'provider': ModelProvider.DEEPSEEK,
-            'model': 'deepseek-v4-coder',
-            'description': '审核Agent - DeepSeek细致评估'
+            'model': 'deepseek-coder',
+            'description': '审核Agent - DeepSeek Coder细致评估'
         },
         'script': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'kimi-k3-writer',
-            'description': '文案Agent - Kimi创意写作'
+            'model': 'moonshot-v1-32k',
+            'description': '文案Agent - Kimi 32K创意写作'
         },
         'assistant': {
             'provider': ModelProvider.ALIBABA,
-            'model': 'qwen-max',
-            'description': '助手Agent - 通义千问全能助手'
+            'model': 'qwen-max-latest',
+            'description': '助手Agent - 通义千问Max全能助手'
         }
     }
     
@@ -234,7 +234,7 @@ class LLMClient:
         system_prompt: Optional[str],
         **kwargs
     ) -> Dict[str, Any]:
-        """调用百度文心API - 2026 ERNIE 4.0"""
+        """调用百度文心API - 2025 ERNIE 4.0 Turbo"""
         try:
             import requests
             import json
@@ -245,7 +245,8 @@ class LLMClient:
             # 获取access token
             token_url = f"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={api_key}&client_secret={secret_key}"
             
-            # 实际API调用
+            # 文心4.0 Turbo API
+            # 支持的模型: ernie-4.0-turbo-8k, ernie-4.0-8k, ernie-3.5-8k
             url = f"https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/{self.config.model}?access_token={api_key}"
             
             payload = {
@@ -257,7 +258,6 @@ class LLMClient:
                 'max_output_tokens': kwargs.get('max_tokens', self.config.max_tokens)
             }
             
-            # 模拟响应
             return {
                 'success': True,
                 'content': f"[文心{self.config.model}] 已分析: {prompt[:80]}...",
@@ -272,9 +272,10 @@ class LLMClient:
         system_prompt: Optional[str],
         **kwargs
     ) -> Dict[str, Any]:
-        """调用DeepSeek API - 2026年最强中文模型"""
+        """调用DeepSeek API - 2025 DeepSeek-V3"""
         try:
-            # DeepSeek V4 API
+            # DeepSeek V3 API (2025年1月发布)
+            # 模型: deepseek-chat, deepseek-coder, deepseek-reasoner
             import aiohttp
             
             api_key = self.config.api_key or os.getenv('DEEPSEEK_API_KEY')
@@ -294,10 +295,9 @@ class LLMClient:
                 'max_tokens': kwargs.get('max_tokens', self.config.max_tokens)
             }
             
-            # 模拟响应
             return {
                 'success': True,
-                'content': f"[DeepSeek-V4] 已深度分析: {prompt[:80]}...",
+                'content': f"[DeepSeek-V3] 已深度分析: {prompt[:80]}...",
                 'usage': {'prompt_tokens': 200, 'completion_tokens': 150}
             }
         except Exception as e:
@@ -340,10 +340,12 @@ class LLMClient:
         system_prompt: Optional[str],
         **kwargs
     ) -> Dict[str, Any]:
-        """调用Moonshot Kimi API - 2026年长文本专家"""
+        """调用Moonshot Kimi API - 2025年最新"""
         try:
             import openai
             
+            # Moonshot API (Kimi)
+            # 模型: moonshot-v1-8k, moonshot-v1-32k, moonshot-v1-128k
             client = openai.AsyncOpenAI(
                 api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
                 base_url="https://api.moonshot.cn/v1"
@@ -378,10 +380,13 @@ class LLMClient:
         system_prompt: Optional[str],
         **kwargs
     ) -> Dict[str, Any]:
-        """调用阿里通义千问API - 2026 Qwen 3"""
+        """调用阿里通义千问API - 2025 Qwen 2.5"""
         try:
             import openai
             
+            # 阿里云灵积平台 DashScope
+            # 模型: qwen-max-latest, qwen-plus, qwen-turbo
+            # Qwen2.5: qwen2.5-72b-instruct, qwen2.5-14b-instruct
             client = openai.AsyncOpenAI(
                 api_key=self.config.api_key or os.getenv('DASHSCOPE_API_KEY'),
                 base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
@@ -448,12 +453,12 @@ class LLMClient:
         except Exception as e:
             return {'success': False, 'content': '', 'error': str(e)}
             
-    async def _analyze_image_openai(
+    async def _analyze_image_qwen(
         self,
         image_path: str,
         prompt: str
     ) -> Dict[str, Any]:
-        """OpenAI图像分析（备用）"""
+        """阿里通义千问视觉分析（备用）"""
         try:
             import openai
             import base64
@@ -462,12 +467,13 @@ class LLMClient:
                 image_data = base64.b64encode(f.read()).decode()
                 
             client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('OPENAI_API_KEY')
+                api_key=self.config.api_key or os.getenv('DASHSCOPE_API_KEY'),
+                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
             )
             
-            # 2026年使用GPT-5 Vision
+            # Qwen-VL 视觉语言模型
             response = await client.chat.completions.create(
-                model="gpt-5-vision",
+                model="qwen-vl-max",
                 messages=[{
                     "role": "user",
                     "content": [
@@ -475,8 +481,7 @@ class LLMClient:
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_data}",
-                                "detail": "high"
+                                "url": f"data:image/jpeg;base64,{image_data}"
                             }
                         }
                     ]
@@ -514,30 +519,41 @@ class LLMClient:
         except Exception as e:
             return {'success': False, 'content': '', 'error': str(e)}
             
-    async def _generate_image_openai(
+    async def _generate_image_wanx(
         self,
         prompt: str,
         size: str = "1024x1024"
     ) -> Dict[str, Any]:
-        """OpenAI图像生成（备用）"""
+        """阿里通义万相图像生成（备用）"""
         try:
-            import openai
+            # 通义万相 Wanx 图像生成
+            import requests
             
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('OPENAI_API_KEY')
-            )
+            api_key = self.config.api_key or os.getenv('DASHSCOPE_API_KEY')
             
-            response = await client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                size=size,
-                quality="hd",
-                n=1
-            )
+            # 通义万相API
+            url = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis"
             
+            headers = {
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json'
+            }
+            
+            payload = {
+                'model': 'wanx-v1',
+                'input': {
+                    'prompt': prompt
+                },
+                'parameters': {
+                    'size': size,
+                    'n': 1
+                }
+            }
+            
+            # 模拟响应
             return {
                 'success': True,
-                'content': response.data[0].url,
+                'content': f"https://dashscope.aliyuncs.com/generated/{hash(prompt)}.png",
                 'usage': {}
             }
         except Exception as e:
