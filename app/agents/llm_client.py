@@ -49,13 +49,13 @@ class LLMClient:
         },
         'editor': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'moonshot-v1-128k',
-            'description': '剪辑Agent - Kimi 128K超长上下文'
+            'model': 'kimi-2.5-128k',
+            'description': '剪辑Agent - Kimi 2.5 128K超长上下文'
         },
         'colorist': {
-            'provider': ModelProvider.BAIDU,
-            'model': 'ernie-4.0-turbo-8k',
-            'description': '调色Agent - 文心4.0 Turbo多模态'
+            'provider': ModelProvider.MOONSHOT,
+            'model': 'kimi-2.5-vision',
+            'description': '调色Agent - Kimi 2.5 Vision视觉理解'
         },
         'sound': {
             'provider': ModelProvider.ALIBABA,
@@ -63,9 +63,9 @@ class LLMClient:
             'description': '音效Agent - 通义千问2.5音频理解'
         },
         'vfx': {
-            'provider': ModelProvider.BAIDU,
-            'model': 'ernie-4.0-turbo-8k',
-            'description': '特效Agent - 文心4.0创意生成'
+            'provider': ModelProvider.MOONSHOT,
+            'model': 'kimi-2.5-vision',
+            'description': '特效Agent - Kimi 2.5 Vision画面理解'
         },
         'reviewer': {
             'provider': ModelProvider.DEEPSEEK,
@@ -74,8 +74,8 @@ class LLMClient:
         },
         'script': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'moonshot-v1-32k',
-            'description': '文案Agent - Kimi 32K创意写作'
+            'model': 'kimi-2.5-32k',
+            'description': '文案Agent - Kimi 2.5 32K创意写作'
         },
         'assistant': {
             'provider': ModelProvider.ALIBABA,
@@ -340,12 +340,12 @@ class LLMClient:
         system_prompt: Optional[str],
         **kwargs
     ) -> Dict[str, Any]:
-        """调用Moonshot Kimi API - 2025年最新"""
+        """调用Moonshot Kimi API - 2025年最新 (Kimi 2.5)"""
         try:
             import openai
             
-            # Moonshot API (Kimi)
-            # 模型: moonshot-v1-8k, moonshot-v1-32k, moonshot-v1-128k
+            # Moonshot API (Kimi 2.5)
+            # 模型: kimi-2.5-8k, kimi-2.5-32k, kimi-2.5-128k, kimi-2.5-vision
             client = openai.AsyncOpenAI(
                 api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
                 base_url="https://api.moonshot.cn/v1"
@@ -433,22 +433,46 @@ class LLMClient:
         image_path: str,
         prompt: str
     ) -> Dict[str, Any]:
-        """图像分析（用于ColoristAgent）- 百度文心视觉"""
+        """图像分析（用于ColoristAgent/VFXAgent）- Kimi 2.5 Vision"""
         try:
+            import openai
             import base64
             
             # 读取图片
             with open(image_path, 'rb') as f:
                 image_data = base64.b64encode(f.read()).decode()
             
-            # 百度文心视觉API
-            api_key = self.config.api_key or os.getenv('BAIDU_API_KEY')
+            # Kimi 2.5 Vision API
+            client = openai.AsyncOpenAI(
+                api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
+                base_url="https://api.moonshot.cn/v1"
+            )
             
-            # 模拟文心视觉响应
+            # Kimi 2.5 Vision 视觉理解
+            response = await client.chat.completions.create(
+                model="kimi-2.5-vision",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_data}"
+                            }
+                        }
+                    ]
+                }],
+                max_tokens=2000
+            )
+            
             return {
                 'success': True,
-                'content': f"[文心视觉分析] 画面色彩温暖，建议 cinematic 风格调色。亮度适中，对比度良好。",
-                'usage': {'prompt_tokens': 500, 'completion_tokens': 200}
+                'content': response.choices[0].message.content,
+                'usage': {
+                    'prompt_tokens': response.usage.prompt_tokens,
+                    'completion_tokens': response.usage.completion_tokens
+                }
             }
         except Exception as e:
             return {'success': False, 'content': '', 'error': str(e)}
@@ -500,61 +524,97 @@ class LLMClient:
         except Exception as e:
             return {'success': False, 'content': '', 'error': str(e)}
             
-    async def generate_image(
+    async def analyze_video_frame(
         self,
-        prompt: str,
-        size: str = "1024x1024"
+        frame_path: str,
+        prompt: str
     ) -> Dict[str, Any]:
-        """图像生成（用于VFXAgent）- 百度文心一格"""
+        """视频帧分析（用于VFXAgent画面理解）- Kimi 2.5 Vision"""
         try:
-            # 百度文心一格API
-            api_key = self.config.api_key or os.getenv('BAIDU_API_KEY')
+            import openai
+            import base64
             
-            # 模拟文心一格响应
+            # 读取帧图片
+            with open(frame_path, 'rb') as f:
+                image_data = base64.b64encode(f.read()).decode()
+            
+            # Kimi 2.5 Vision 画面理解
+            client = openai.AsyncOpenAI(
+                api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
+                base_url="https://api.moonshot.cn/v1"
+            )
+            
+            response = await client.chat.completions.create(
+                model="kimi-2.5-vision",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_data}"
+                            }
+                        }
+                    ]
+                }],
+                max_tokens=2000
+            )
+            
             return {
                 'success': True,
-                'content': f"https://image.baidu.com/generated/{hash(prompt)}.png",
-                'usage': {}
+                'content': response.choices[0].message.content,
+                'usage': {
+                    'prompt_tokens': response.usage.prompt_tokens,
+                    'completion_tokens': response.usage.completion_tokens
+                }
             }
         except Exception as e:
             return {'success': False, 'content': '', 'error': str(e)}
             
-    async def _generate_image_wanx(
+    async def _analyze_video_frame_qwen(
         self,
-        prompt: str,
-        size: str = "1024x1024"
+        frame_path: str,
+        prompt: str
     ) -> Dict[str, Any]:
-        """阿里通义万相图像生成（备用）"""
+        """阿里Qwen-VL视频帧分析（备用）"""
         try:
-            # 通义万相 Wanx 图像生成
-            import requests
+            import openai
+            import base64
             
-            api_key = self.config.api_key or os.getenv('DASHSCOPE_API_KEY')
+            with open(frame_path, 'rb') as f:
+                image_data = base64.b64encode(f.read()).decode()
+                
+            client = openai.AsyncOpenAI(
+                api_key=self.config.api_key or os.getenv('DASHSCOPE_API_KEY'),
+                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+            )
             
-            # 通义万相API
-            url = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis"
+            # Qwen-VL 视觉语言模型
+            response = await client.chat.completions.create(
+                model="qwen-vl-max",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_data}"
+                            }
+                        }
+                    ]
+                }],
+                max_tokens=2000
+            )
             
-            headers = {
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json'
-            }
-            
-            payload = {
-                'model': 'wanx-v1',
-                'input': {
-                    'prompt': prompt
-                },
-                'parameters': {
-                    'size': size,
-                    'n': 1
-                }
-            }
-            
-            # 模拟响应
             return {
                 'success': True,
-                'content': f"https://dashscope.aliyuncs.com/generated/{hash(prompt)}.png",
-                'usage': {}
+                'content': response.choices[0].message.content,
+                'usage': {
+                    'prompt_tokens': response.usage.prompt_tokens,
+                    'completion_tokens': response.usage.completion_tokens
+                }
             }
         except Exception as e:
             return {'success': False, 'content': '', 'error': str(e)}

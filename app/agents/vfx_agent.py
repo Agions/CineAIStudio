@@ -139,25 +139,57 @@ class VFXAgent(BaseAgent):
         preset = self.VFX_PRESETS.get(preset_name, self.VFX_PRESETS['cinematic_intro'])
         return preset.get('effects', [])
         
+    async def _analyze_frame_for_effects(
+        self,
+        frame_path: str,
+        effect_type: str
+    ) -> Dict[str, Any]:
+        """分析视频帧推荐特效 - 使用Kimi 2.5 Vision画面理解"""
+        try:
+            prompt = f"""
+作为VFX特效师，分析这张视频帧画面，推荐适合的{effect_type}特效：
+
+请分析：
+1. 画面主体内容
+2. 光影特点
+3. 色彩风格
+4. 推荐的特效类型和参数
+
+以JSON格式返回：
+{{
+    "scene_description": "场景描述",
+    "lighting": "光影特点",
+    "color_style": "色彩风格",
+    "recommended_effects": [
+        {{"type": "特效类型", "intensity": 0.5, "reason": "推荐理由"}}
+    ]
+}}
+"""
+            
+            result = await self.llm.analyze_video_frame(frame_path, prompt)
+            
+            if result.get('success'):
+                import json
+                content = result['content']
+                if '```json' in content:
+                    content = content.split('```json')[1].split('```')[0]
+                elif '```' in content:
+                    content = content.split('```')[1].split('```')[0]
+                return json.loads(content.strip())
+            else:
+                return {'error': result.get('error', '分析失败')}
+                
+        except Exception as e:
+            return {'error': str(e)}
+            
     async def _generate_effects(self, effects_plan: List[Dict]) -> List[Dict]:
-        """生成特效 - 使用DALL-E生成素材"""
+        """生成特效 - 基于画面理解推荐特效参数"""
         generated = []
         
         for effect in effects_plan:
-            if effect.get('type') in ['particles', 'overlay', 'background']:
-                # 使用DALL-E生成特效素材
-                try:
-                    prompt = f"视频特效素材: {effect.get('description', 'abstract visual effect')}, "
-                    prompt += "透明背景, 高质量, 适合叠加到视频上"
-                    
-                    result = await self.llm.generate_image(prompt, size="1024x1024")
-                    
-                    if result.get('success'):
-                        effect['generated_asset_url'] = result['content']
-                        
-                except Exception as e:
-                    effect['generation_error'] = str(e)
-                    
+            # VFX现在使用画面理解而非图像生成
+            effect['generation_method'] = 'frame_analysis'
+            effect['note'] = '使用Kimi 2.5 Vision分析画面推荐特效参数'
             generated.append(effect)
             
         return generated
