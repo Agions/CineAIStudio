@@ -31,6 +31,14 @@ from .sound_agent import SoundAgent
 from .vfx_agent import VFXAgent
 from .reviewer_agent import ReviewerAgent
 from .llm_client import LLMClient
+from .task_scheduler import (
+    TaskScheduler,
+    TaskPriority,
+    TaskState,
+    TaskDependency,
+    ScheduledTask,
+    WorkflowDefinition
+)
 
 __all__ = [
     'AgentManager',
@@ -47,4 +55,10 @@ __all__ = [
     'VFXAgent',
     'ReviewerAgent',
     'LLMClient',
+    'TaskScheduler',
+    'TaskPriority',
+    'TaskState',
+    'TaskDependency',
+    'ScheduledTask',
+    'WorkflowDefinition',
 ]
