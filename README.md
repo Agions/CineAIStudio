@@ -1,8 +1,46 @@
-# 🎬 CineFlow AI - AI 视频创作工具(未完成)
+# 🎬 CineFlow v3.0 - 多Agent智能视频剪辑
 
-> 打造爆款短视频，一键生成剪映草稿
+> 专业Agent协同，一键生成剪映草稿 | 支持 Windows & macOS
 
-CineFlow AI 是一款 **AI 驱动的视频创作客户端工具**，支持打包为 macOS (.app/.dmg) 和 Windows (.exe) 安装程序。
+CineFlow 是一款基于 **多Agent协同** 的智能视频剪辑工具，6个专业Agent分工协作，为您打造高质量视频内容。
+
+[![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](./INSTALL.md#windows)
+[![macOS](https://img.shields.io/badge/macOS-000000?style=flat-square&logo=apple&logoColor=white)](./INSTALL.md#macos)
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white)](./requirements.txt)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
+
+## ✨ 核心特性
+
+### 🤖 多Agent专业协同
+
+| Agent | 职责 | 能力 |
+|-------|------|------|
+| 🎬 **Director** | 导演 | 项目规划、任务分配、质量把控 |
+| ✂️ **Editor** | 剪辑 | 粗剪精剪、转场节奏、结构优化 |
+| 🎨 **Colorist** | 调色 | 色彩分析、风格化、LUT匹配 |
+| 🎵 **Sound** | 音效 | 音频分析、配乐混音、AI配音 |
+| ✨ **VFX** | 特效 | 画面理解、特效生成、合成 |
+| 🔍 **Reviewer** | 审核 | 质量检查、问题反馈、优化建议 |
+
+### 💻 跨平台原生支持
+
+- **Windows** - `.exe` 安装程序，原生体验
+- **macOS** - `.app` / `.dmg` 安装包，M1/M2/Intel 全支持
+- **内置FFmpeg** - 无需额外安装，开箱即用
+
+### 🎬 三大创作模式
+
+| 模式 | 说明 | 适用场景 |
+|------|------|----------|
+| 🎙️ **AI解说** | 画面分析 → 解说文案 → AI配音 → 动态字幕 | 影视解说、知识分享 |
+| 🎵 **AI混剪** | 多素材智能剪辑 → 节拍匹配 → 自动转场 | 音乐MV、短视频 |
+| 🎭 **AI独白** | 画面情感分析 → 情感独白 → 电影字幕 | Vlog、情感短片 |
+
+### 🔗 剪映无缝对接
+
+- 一键导出剪映草稿
+- 完美保留剪辑信息
+- 支持剪映电脑版/专业版
 
 ## ✨ 核心功能
 
@@ -22,6 +60,15 @@ CineFlow AI 是一款 **AI 驱动的视频创作客户端工具**，支持打包
 3. **情感分析** - 分析画面情感氛围
 4. **文案生成** - 基于画面内容生成文案
 5. **配音匹配** - 根据情感选择合适的配音风格
+
+### 🧠 国产大模型支持
+
+| 功能 | 模型 | 提供商 |
+|------|------|--------|
+| 规划/推理 | DeepSeek-V3 | 深度求索 |
+| 长文本/视觉 | Kimi K2.5 | 月之暗面 |
+| 音频/多模态 | Qwen 2.5 | 阿里巴巴 |
+| 创意生成 | ERNIE 4.0 | 百度 |
 
 ## 🚀 快速开始
 
@@ -48,14 +95,24 @@ pip install -r requirements.txt
 # Windows: 下载 https://ffmpeg.org/download.html
 ```
 
-### 2. 配置 API（可选）
+### 2. 配置 API（推荐国产模型）
 
 ```bash
-# 用于画面分析和文案生成
-export OPENAI_API_KEY="your-api-key"
+# DeepSeek (深度求索)
+export DEEPSEEK_API_KEY="sk-..."
+
+# Moonshot (月之暗面) - Kimi
+export MOONSHOT_API_KEY="sk-..."
+
+# 阿里 (通义千问)
+export DASHSCOPE_API_KEY="sk-..."
+
+# 百度 (文心一言)
+export BAIDU_API_KEY="..."
+export BAIDU_SECRET_KEY="..."
 ```
 
-> 💡 如果没有 API Key，可以使用自定义文案，配音使用免费的 Edge TTS
+> 💡 支持国产大模型，数据更安全，中文理解更好
 
 ### 3. 运行
 
@@ -94,21 +151,47 @@ python build/build_app.py
 ## 📁 项目结构
 
 ```
-CineFlow AI/
+CineFlow/
 ├── app/
-│   ├── main.py                      # 主程序入口
-│   └── services/
-│       ├── ai/                      # AI 服务
-│       │   ├── scene_analyzer.py    # 场景分析
-│       │   ├── video_content_analyzer.py  # 画面深度分析 ✨
-│       │   ├── script_generator.py  # 文案生成
-│       │   └── voice_generator.py   # AI 配音
-│       │
-│       ├── video/                   # 视频制作
-│       │   ├── commentary_maker.py  # 解说视频
-│       │   ├── mashup_maker.py      # 混剪视频
-│       │   ├── monologue_maker.py   # 独白视频
-│       │   ├── transition_effects.py # 转场效果
+│   ├── agents/                      # 🤖 多Agent系统
+│   │   ├── base_agent.py            # Agent基类
+│   │   ├── agent_manager.py         # Agent管理器
+│   │   ├── director_agent.py        # 导演Agent
+│   │   ├── editor_agent.py          # 剪辑Agent
+│   │   ├── colorist_agent.py        # 调色Agent
+│   │   ├── sound_agent.py           # 音效Agent
+│   │   ├── vfx_agent.py             # 特效Agent
+│   │   ├── reviewer_agent.py        # 审核Agent
+│   │   └── llm_client.py            # 国产大模型客户端
+│   │
+│   ├── ui/                          # 🎨 React前端
+│   │   ├── src/
+│   │   │   ├── components/          # 组件
+│   │   │   ├── pages/               # 页面
+│   │   │   │   ├── Dashboard/       # 仪表盘
+│   │   │   │   ├── AgentMonitor/    # Agent监控
+│   │   │   │   ├── Creator/         # 创作向导
+│   │   │   │   └── Export/          # 导出中心
+│   │   │   └── stores/              # 状态管理
+│   │   └── package.json
+│   │
+│   ├── core/                        # 核心服务
+│   │   ├── video_processor.py       # 视频处理
+│   │   ├── audio_engine.py          # 音频引擎
+│   │   ├── draft_exporter.py        # 剪映导出
+│   │   └── project_manager.py       # 项目管理
+│   │
+│   └── main.py                      # 主入口
+│
+├── build/                           # 📦 打包配置
+│   ├── windows/                     # Windows打包
+│   └── macos/                       # macOS打包
+│
+├── resources/                       # 🎨 资源
+│   ├── ffmpeg/                      # 内置FFmpeg
+│   └── presets/                     # 预设配置
+│
+└── tests/                           # 🧪 测试
 │       │   └── parallel_processor.py # 并行处理
 │       │
 │       └── export/                  # 导出服务
@@ -210,35 +293,52 @@ draft = maker.export_to_jianying(project, "/path/to/drafts")
 
 ## 🔧 技术栈
 
-| 组件     | 技术                         |
-| -------- | ---------------------------- |
-| 画面分析 | OpenAI GPT-4o Vision         |
-| 文案生成 | OpenAI GPT-4o / 本地 LLM     |
-| AI 配音  | Edge TTS (免费) / OpenAI TTS |
-| 视频处理 | FFmpeg                       |
-| 场景检测 | FFmpeg Scene Detection       |
-| 节拍检测 | librosa                      |
-| 转场效果 | FFmpeg xfade                 |
-| 打包工具 | PyInstaller                  |
+### 多Agent系统
+| Agent | 模型 | 提供商 |
+|-------|------|--------|
+| Director | DeepSeek-V3 | 深度求索 |
+| Editor | Kimi K2.5 | 月之暗面 |
+| Colorist | Kimi K2.5 | 月之暗面 |
+| Sound | Qwen 2.5 | 阿里巴巴 |
+| VFX | Kimi K2.5 | 月之暗面 |
+| Reviewer | DeepSeek-Coder | 深度求索 |
+
+### 核心技术
+| 组件 | 技术 |
+|------|------|
+| 前端 | React + TypeScript + Electron |
+| 后端 | Python + FastAPI |
+| 视频处理 | FFmpeg |
+| 打包 | PyInstaller |
+| 跨平台 | Windows / macOS 原生支持 |
+| AI 配音 | Edge TTS (免费) / 阿里TTS |
+| 视频处理 | FFmpeg (内置) |
+| 场景检测 | FFmpeg Scene Detection |
+| 节拍检测 | librosa |
+| 转场效果 | FFmpeg xfade |
 
 ## 📋 系统要求
 
-- **操作系统**: macOS 10.15+ / Windows 10+
-- **Python**: 3.10+
-- **FFmpeg**: 必需（用于视频处理）
-- **硬盘空间**: 至少 500MB
-- **网络**: 需要网络连接 API（或使用本地模式）
+| 平台 | 最低版本 | 推荐配置 |
+|------|---------|---------|
+| **Windows** | Windows 10 | Windows 11 |
+| **macOS** | 10.15 (Catalina) | 13+ (Ventura) |
+| **Python** | 3.9 | 3.11 |
+| **内存** | 4GB | 8GB+ |
+| **硬盘** | 2GB | 10GB+ |
+| **网络** | 可选 | 推荐（用于AI功能）|
 
 ## 📚 文档
 
 | 文档 | 说明 |
 |------|------|
-| [**安装指南**](INSTALL.md) | 完整的安装、配置和故障排查指南 |
-| [**技术栈说明**](TECH-STACK.md) | 字幕渲染、特效实现的技术详解 |
+| [**项目规划**](PROJECT_PLAN_v3.md) | v3.0 多Agent系统完整规划 |
+| [**安装指南**](INSTALL.md) | Windows/macOS 安装配置 |
 | [**开发者指南**](DEVELOPER.md) | 开发环境、测试、Git 工作流 |
+| [**技术栈说明**](TECH-STACK.md) | 技术架构详解 |
 | [**故障排查**](TROUBLESHOOT.md) | 常见问题和解决方法 |
-| [**更新日志**](CHANGELOG.md) | 版本更新记录和 Breaking Changes |
-| [**项目路线图**](ROADMAP.md) | v2.0.0-rc.1 → v3.0.0 开发计划 |
+| [**更新日志**](CHANGELOG.md) | 版本更新记录 |
+| [**项目路线图**](ROADMAP.md) | 开发路线图 |
 
 ## 🎨 支持的风格
 
@@ -269,5 +369,6 @@ MIT License
 
 ---
 
-**版本**: v2.0.0-rc.1  
-**更新**: 2026-02-14
+**版本**: v3.0.0-beta  
+**更新**: 2025-01-20  
+**规划**: [PROJECT_PLAN_v3.md](./PROJECT_PLAN_v3.md)

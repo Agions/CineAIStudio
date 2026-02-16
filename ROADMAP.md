@@ -1,6 +1,21 @@
-# CineFlow AI 项目路线图
+# CineFlow 项目路线图
 
-> 从 v2.0.0-rc.1 到 v3.0.0 的完整开发计划
+> 多Agent智能视频剪辑系统 | 支持 Windows & macOS
+
+## 🎯 v3.0.0 规划 (2025 Q1)
+
+### 核心目标
+- 🤖 **多Agent协同** - 6个专业Agent分工协作
+- 💻 **跨平台支持** - Windows (.exe) + macOS (.app)
+- 🇨🇳 **国产大模型** - DeepSeek/Kimi/Qwen/ERNIE
+- 🎬 **剪映对接** - 一键导出草稿
+
+### 详细规划
+见 [PROJECT_PLAN_v3.md](./PROJECT_PLAN_v3.md)
+
+---
+
+## 历史版本
 
 ---
 
