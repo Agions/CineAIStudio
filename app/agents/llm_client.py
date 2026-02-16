@@ -41,6 +41,7 @@ class LLMClient:
     """
     
     # 预设配置 - 全部使用国产大模型 (2025年最新)
+    # Kimi K2.5 系列: https://platform.moonshot.cn/docs/guide/kimi-k2-5-model-best-practice
     AGENT_MODELS = {
         'director': {
             'provider': ModelProvider.DEEPSEEK,
@@ -49,13 +50,13 @@ class LLMClient:
         },
         'editor': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'kimi-2.5-128k',
-            'description': '剪辑Agent - Kimi 2.5 128K超长上下文'
+            'model': 'kimi-k2.5',
+            'description': '剪辑Agent - Kimi K2.5 标准版 (256K上下文)'
         },
         'colorist': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'kimi-2.5-vision',
-            'description': '调色Agent - Kimi 2.5 Vision视觉理解'
+            'model': 'kimi-k2.5',
+            'description': '调色Agent - Kimi K2.5 视觉理解'
         },
         'sound': {
             'provider': ModelProvider.ALIBABA,
@@ -64,8 +65,8 @@ class LLMClient:
         },
         'vfx': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'kimi-2.5-vision',
-            'description': '特效Agent - Kimi 2.5 Vision画面理解'
+            'model': 'kimi-k2.5',
+            'description': '特效Agent - Kimi K2.5 画面理解'
         },
         'reviewer': {
             'provider': ModelProvider.DEEPSEEK,
@@ -74,8 +75,8 @@ class LLMClient:
         },
         'script': {
             'provider': ModelProvider.MOONSHOT,
-            'model': 'kimi-2.5-32k',
-            'description': '文案Agent - Kimi 2.5 32K创意写作'
+            'model': 'kimi-k2.5',
+            'description': '文案Agent - Kimi K2.5 创意写作'
         },
         'assistant': {
             'provider': ModelProvider.ALIBABA,
@@ -340,12 +341,13 @@ class LLMClient:
         system_prompt: Optional[str],
         **kwargs
     ) -> Dict[str, Any]:
-        """调用Moonshot Kimi API - 2025年最新 (Kimi 2.5)"""
+        """调用Moonshot Kimi API - 2025年最新 (Kimi K2.5)"""
         try:
             import openai
             
-            # Moonshot API (Kimi 2.5)
-            # 模型: kimi-2.5-8k, kimi-2.5-32k, kimi-2.5-128k, kimi-2.5-vision
+            # Moonshot API (Kimi K2.5)
+            # 模型: kimi-k2.5 (标准版, 256K上下文)
+            # 文档: https://platform.moonshot.cn/docs/guide/kimi-k2-5-model-best-practice
             client = openai.AsyncOpenAI(
                 api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
                 base_url="https://api.moonshot.cn/v1"
@@ -433,7 +435,7 @@ class LLMClient:
         image_path: str,
         prompt: str
     ) -> Dict[str, Any]:
-        """图像分析（用于ColoristAgent/VFXAgent）- Kimi 2.5 Vision"""
+        """图像分析（用于ColoristAgent/VFXAgent）- Kimi K2.5"""
         try:
             import openai
             import base64
@@ -442,15 +444,15 @@ class LLMClient:
             with open(image_path, 'rb') as f:
                 image_data = base64.b64encode(f.read()).decode()
             
-            # Kimi 2.5 Vision API
+            # Kimi K2.5 支持视觉理解
+            # 文档: https://platform.moonshot.cn/docs/guide/kimi-k2-5-model-best-practice
             client = openai.AsyncOpenAI(
                 api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
                 base_url="https://api.moonshot.cn/v1"
             )
             
-            # Kimi 2.5 Vision 视觉理解
             response = await client.chat.completions.create(
-                model="kimi-2.5-vision",
+                model="kimi-k2.5",
                 messages=[{
                     "role": "user",
                     "content": [
@@ -529,7 +531,7 @@ class LLMClient:
         frame_path: str,
         prompt: str
     ) -> Dict[str, Any]:
-        """视频帧分析（用于VFXAgent画面理解）- Kimi 2.5 Vision"""
+        """视频帧分析（用于VFXAgent画面理解）- Kimi K2.5"""
         try:
             import openai
             import base64
@@ -538,14 +540,14 @@ class LLMClient:
             with open(frame_path, 'rb') as f:
                 image_data = base64.b64encode(f.read()).decode()
             
-            # Kimi 2.5 Vision 画面理解
+            # Kimi K2.5 支持视觉理解
             client = openai.AsyncOpenAI(
                 api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
                 base_url="https://api.moonshot.cn/v1"
             )
             
             response = await client.chat.completions.create(
-                model="kimi-2.5-vision",
+                model="kimi-k2.5",
                 messages=[{
                     "role": "user",
                     "content": [
