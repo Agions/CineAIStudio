@@ -1,453 +1,155 @@
-# Change Log
+# 更新日志
 
-> CineFlow AI 版本更新日志
+所有显著变更都将记录在此文件。
 
-All notable changes to this project are documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
-## [4.0.0] (开发中)
-
-### 重大升级
-
-🎬 **视频能力增强 v4.0**
-
-- **视频处理引擎**
-  - `video_service.py` - 核心 video processing 服务
-  - 帧提取 - 按间隔提取，支持进度回调
-  - 关键帧检测 - 基于场景变化的智能提取
-  - 场景检测 - 自动识别场景切换点
-  - 运动分析 - 分析整体运动强度和节奏
-  - 视频信息获取 - 分辨率、帧率、时长等
-  - 异步处理支持 - extract_frames_async, extract_key_frames_async
-
-👁️ **画面理解能力增强 v4.0**
-
-- **增强型视觉分析服务** (`enhanced_vision_service.py`)
-
-  **基础功能（保留）**:
-  - 场景理解
-  - OCR 文字提取
-  - 标签生成
-  - 字幕建议
-  - 镜头分析
-  - 颜色分析
-  - 批量分析
-
-  **新增高级功能**:
-  - 目标检测与识别
-  - 人物识别
-  - 面部表情识别
-  - 手势识别
-  - 动作识别
-  - 情感分析
-  - 社交线索分析
-  - 场景深度分析
-  - 空间关系分析
-  - 光照分析
-  - 构图评分
-  - 艺术风格分析
-  - 运动分析
-  - 综合分析
-
-- **示例代码**
-  - `enhanced_video_vision.py` - 10 个完整示例
-
-- **依赖**
-  - OpenCV2 (cv2) - 视频处理
-  - numpy - 数值计算
-  - httpx - 异步 HTTP 请求
-
----
-
-## [3.0.0] (开发中)
-
-### 重大升级
-
-🎨 **全新现代化 UI 设计系统 v3.0**
-
-- **设计理念**
-  - 玻璃拟态设计语言
-  - 流畅的动画过渡
-  - 深色优先的专业风格
-  - 渐变美学 (科技蓝 → 渐变紫)
-
-- **核心组件**
-  - `ModernCard` - 半透明玻璃拟态卡片
-  - `StatCard` - 数据统计卡片
-  - `FeatureCard` - 功能展示卡片
-  - `ModernButton` - 现代按钮组件
-    - 5 种样式 (default, primary, secondary, danger, ghost)
-    - 3 种尺寸 (small, medium, large)
-    - 渐变背景效果
-  - `IconButton` - 图标按钮
-  - `ToggleButton` - 切换按钮
-  - `LoadingButton` - 加载状态按钮
-  - `ModernNavigationBar` - 现代侧边导航
-    - 可折叠设计
-    - 渐变激活状态
-    - 流畅切换动画
-  - `ModernTopBar` - 顶部栏
-  - `ModernStatusBar` - 状态栏
-  - `CardGrid` - 卡片网格布局
-
-- **设计系统**
-  - 完整的颜色系统 (15+ 种颜色变量)
-  - 标准化间距系统 (6 档)
-  - 圆角系统 (4 档)
-  - 阴影系统 (6 档)
-  - 字体系统 (3 种字体族, 4 种字重)
-  - 过渡动画系统
-
-- **样式表**
-  - 全新的 `modern_theme.qss`
-  - CSS 变量支持
-  - 1000+ 行精心设计的样式规则
-  - 覆盖所有 PyQt6 标准组件
-
-- **文档**
-  - `docs/MODERN_UI_GUIDE.md` - 完整升级指南
-  - 组件使用示例
-  - 迁移指南
-  - 最佳实践
-
-### Changed
-
-- 主窗口架构现代化
-- 主题系统升级
-
----
-
-## [2.2.0] (开发中)
-
-### Added
-
-#### 语音增强功能 (TTS v2.2.0)
-
-- 🎙️ **阿里云 TTS 集成**
-  - `app/services/ai/providers/aliyun_tts.py` - 阿里云 TTS 提供商
-  - 支持 20+ 种声音风格和方言
-  - SSML 标记支持
-  - 多语言支持（中文、英文、方言）
-
-- 🎭 **扩展语音风格**
-  - 从 9 种扩展到 15+ 种风格
-  - 新增: 情感丰富、浪漫、喜悦、严肃、随意、兴奋、温柔、充满活力、神秘、幽默
-  - `VoiceStyle` 枚举全面升级
-
-- 🎛️ **精细参数控制**
-  - 语速: 0.5x - 2.0x
-  - 音调: 0.5x - 2.0x
-  - 音量: 0% - 100%
-  - 情感强度: 0.0 - 2.0
-
-- 🌏 **方言支持**
-  - 东北话 (小君)
-  - 四川话 (小峰)
-  - 粤语 (小新)
-
-- 😊 **情感语音合成**
-  - 开心 (happy)
-  - 悲伤 (sad)
-  - 愤怒 (angry)
-  - 恐惧 (fearful)
-  - 平静 (neutral)
-
-- 📚 **示例和文档**
-  - `examples/voice_enhancement.py` - 9 个完整示例
-  - 声音列表、风格演示、参数控制、批量生成
-
-- 🔄 **VoiceGenerator 增强**
-  - 新增 "aliyun" 提供商支持
-  - 环境变量配置支持
-
-### Changed
-
-- `VoiceStyle` 枚举扩展到 15+ 种风格
-- TTS 提供商支持列表更新
-
----
-
-## [2.1.0] (开发中)
-
-### Added
-
-#### 视觉分析功能 (国产 LLM 全覆盖)
-
-- 👁️ **千问 VL 集成** - 通义千问视觉-语言模型
-  - `app/services/ai/providers/qwen_vl.py` - VL 提供商
-  - `app/services/ai/vision_service.py` - 视觉分析服务
-  - 支持 `qwen-vl-plus` 和 `qwen-vl-max` 模型
-
-- 🎨 **视觉理解能力**
-  - 场景理解 - 详细描述图像内容、环境、氛围
-  - OCR 文字提取 - 识别字幕、标签、水印
-  - 标签生成 - 自动生成 10-15 个视觉标签
-  - 字幕建议 - 根据画面推荐台词
-  - 镜头分析 - 镜头类型、角度、构图
-  - 颜色分析 - 色调、饱和度、对比度分析
-  - 批量分析 - 并发处理多张图片
-
-- 📝 **示例和文档**
-  - `examples/vision_analysis.py` - 8 个完整示例
-  - `examples/quick_vision.py` - 快速开始
-
-#### 本地模型支持 (Ollama)
-
-- 🏠 **Ollama 集成** - 本地运行开源 LLM
-  - `app/services/ai/providers/ollama.py` - Ollama 提供商
-  - 支持国产模型 (qwen2.5, qwen2.5-coder)
-  - 支持开源模型 (llama3.2, mistral, codellama)
-  - 模型列表、健康检查、自动下载
-
-- 🔧 **Ollama 功能**
-  - 模型管理 (列出、下载、检查可用性)
-  - 离线推理支持
-  - 零费用运行
-  - 完全隐私保护
-
-- 📚 **示例和测试**
-  - `examples/local_models.py` - 8 个本地模型示例
-  - `tests/test_ollama_provider.py` - 完整单元测试
-
-- 🔄 **LLM 管理器增强**
-  - 新增 `QWEN_VL` 和 `OLLAMA` 提供商类型
-  - 自动初始化本地模型 (服务可用时)
-
-### Changed
-
-- 配置文件结构: 新增 `VL` 和 `ollama` 配置节
-
----
-
-## [2.0.0] - 2026-02-15
-
-### Added
-
-#### 核心功能
-- 🤖 **国产 LLM 集成** - 支持通义千问、Kimi、智谱 GLM-5
-- 🎮 **LLM 管理器** - 自动切换提供商、健康检查
-- ⚡ **响应缓存** - 减少 API 调用，提升性能
-- 🔄 **智能重试** - 指数退避算法
-- 📊 **性能监控** - 成功率、缓存命中率、成本估算
-- 🛡️ **错误处理** - 自定义异常、友好提示
-- ⚙️ **配置管理** - YAML 配置文件
-
-#### 文档
-- 📖 [RELEASE.md](https://github.com/Agions/CineFlow/blob/main/RELEASE.md) - 发布说明
-- 📝 7 个快速开始示例 (examples/quick_start.py)
-
-#### 模块
-- `app/core/exceptions.py` - 错误处理
-- `app/services/ai/cache.py` - 缓存和重试
-- `app/core/config_manager.py` - 配置管理
-
-### Changed
-
-- **仓库名称**: CineFlow → CineFlow
-- **Python 版本**: 3.10+ → 3.12+ (推荐)
-- **配置方式**: .env → YAML
-
-### Performance
-
-- 缓存命中响应: 50ms (vs 2.3s without cache)
-- 成功率: 95%+ (vs 85% in v1.5.0)
-- 平均延迟: 1.5s (vs 1.8s in v1.5.0)
-
-### Fixed
-
-- 所有 GitHub Issues (#9, #10, #11, #12, #13)
-- Windows dataclass 错误
-- README 克隆地址错误
-
----
-
-### Added
-
-#### Core Features
-- 🎯 **版本统一系统** - 单一来源版本管理 (pyproject.toml)
-  - `app/utils/version.py` - 版本管理模块
-  - `scripts/check_version.py` - 版本一致性检查工具
-
-- 🤖 **国产 LLM 集成** - 支持多个国产大模型
-  - **通义千问 Qwen 3** (qwen-plus, qwen3-max, qwen-flash, qwq-plus)
-  - **Kimi 2.5** (moonshot-v1-8k, moonshot-v1-32k)
-  - **智谱 GLM-5** (glm-5, glm-5-flash)
-  - **百度文心 ERNIE 4.5**
-  - **OpenAI** (保留兼容)
-
-- 🎮 **LLM 管理器** - 自动切换失败提供商
-  - 健康检查机制
-  - 批量请求支持
-  - 配置驱动的提供商管理
-
-- 🧪 **测试框架**
-  - pytest 测试框架
-  - 单元测试覆盖 (Version, LLM providers, ScriptGenerator)
-  - 集成测试支持
-
-#### Documentation
-- 📖 **安装指南** (`INSTALL.md`)
-  - 完整的安装步骤
-  - API 配置指南
-  - 故障排查
-
-- 📦 **技术栈文档** (`TECH-STACK.md`)
-  - 字幕渲染技术 (PyQt6, OpenCV, FFmpeg)
-  - 特效实现说明
-  - 代码示例
-
-- 👨‍💻 **开发者指南** (`DEVELOPER.md`)
-  - 开发环境设置
-  - 测试运行
-  - 添加新 LLM 提供商步骤
-
-- 🗺️ **项目路线图** (`ROADMAP.md`)
-  - 版本规划 (v2.0.0 → v3.0.0)
-  - 功能详情
-  - 里程碑计划
-
-- 🔧 **故障排查手册** (`TROUBLESHOOT.md`)
-  - Windows dataclass 错误修复
-  - 常见问题解决
-  - 调试技巧
-
-#### Configuration
-- `config/llm.yaml` - LLM 配置文件
-- `pytest.ini` - pytest 配置
-
-#### Scripts
-- `scripts/check_version.py` - 版本检查
-- `scripts/check_dataclass.py` - dataclass 问题检查
-
-### Changed
-
-#### Renamed
-- 项目名称从 **CineFlow** 重命名为 **CineFlow AI**
-
-#### Updated
-- `ScriptGenerator` - 支持使用 LLMManager
-- `README.md` - 更新为 CineFlow AI 名称
-- `requirements.txt` - 更新依赖配置
-
-### Fixed
-
-#### GitHub Issues
-- ✅ **Issue #13** - 特效字幕技术栈询问
-  - 创建 `TECH-STACK.md` 详细说明技术栈
-
-- ✅ **Issue #12** - 功能不可用，需要配置 API
-  - 创建 `INSTALL.md` 提供配置指南
-
-- ✅ **Issue #11** - 安装验证问题
-  - 创建 `INSTALL.md` 提供验证步骤
-
-- ✅ **Issue #9** - README 克隆地址错误
-  - 更新 `README.md` 中的克隆地址
-
-- ✅ **Issue #10** - Windows dataclass 错误
-  - **v2.0.0-rc.1 已修复**
-  - 创建 `TROUBLESHOOT.md` 提供修复方案
-  - 添加 `check_dataclass.py` 检查工具
-
-### Technical Details
-
-#### Architecture Changes
-```
-Previous (OpenAI Only):
-  ScriptGenerator → OpenAI API
-
-New (Multi-Provider):
-  ScriptGenerator → LLMManager → Qwen/Kimi/GLM5
-                           ↓
-                     (Auto-switch on failure)
-```
-
-#### Version Management
-```
-Before: 1.5.0 / 2.0.0 / 3.0.0 (confusing)
-After:  v2.0.0-rc.1 (unified)
-Single Source: pyproject.toml
-```
-
-### Breaking Changes
-
-None (backward compatible)
-
----
-
-## [1.5.0] - 2025-11-01
-
-### Added
-- AI 视频解说功能
-- AI 视频混剪功能
-- AI 第一人称独白功能
-- 剪映草稿导出
-
-### Known Issues
-- 版本混乱 (multiple versions in different files)
-- 仅支持 OpenAI API
-- 缺少单元测试
-
----
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 ## [Unreleased]
 
-### Planned for v2.0.0
-- [ ] 集成测试覆盖率 >70%
-- [ ] 性能优化
-- [ ] 更新 CHANGELOG.md
-- [ ] 发布说明
+## [3.0.0-beta3] - 2025-01-20
 
-### Planned for v2.1.0
-- [ ] 本地 LLM 支持 (Ollama)
-- [ ] 本地 TTS (PyTorch TTS)
-- [ ] 离线模式支持
+### ✨ 新增
 
-### Planned for v2.2.0
-- [ ] 更多语音风格 (10+ 种)
-- [ ] 语音调节 (语速、音调)
-- [ ] 多语言支持
+#### 多Agent系统
+- 6个专业Agent完整实现
+  - DirectorAgent - 项目规划、任务分配
+  - EditorAgent - 粗剪精剪、转场节奏
+  - ColoristAgent - 调色、LUT匹配
+  - SoundAgent - 音效、AI配音
+  - VFXAgent - 画面理解、特效生成
+  - ReviewerAgent - 质量审核
+- AgentManager - 任务调度、状态监控
+- Agent间消息通信机制
 
-### Planned for v2.3.0
-- [ ] 更多字幕特效
-- [ ] 动态文本动画
-- [ ] 自动字幕编辑
+#### 核心服务
+- VideoProcessor - FFmpeg视频处理
+  - 视频信息获取（带缓存）
+  - 格式转换、分辨率调整
+  - 视频剪辑、合并
+  - 关键帧提取
+  - 场景检测
+  - LUT调色
+  - 文字叠加
+  - 批量处理
+- AudioEngine - 音频处理
+  - 音频提取、合并
+  - TTS配音（Edge/阿里）
+  - 节拍检测
+  - 音频标准化
+  - 混音
+- DraftExporter - 剪映草稿导出
+  - Windows/macOS自动检测
+  - 素材管理
+  - 轨道信息
+  - 特效支持
+  - 字幕导出
+- ProjectManager - 项目管理
+  - 项目生命周期管理
+  - Agent结果跟踪
+  - 导入/导出
 
-### Planned for v3.0.0
-- [ ] 多用户协作
-- [ ] 云端同步
-- [ ] 项目模板库
-- [ ] 插件系统
+#### LLM客户端
+- 多模型统一接口
+- 支持4家国产大模型
+  - DeepSeek-V3
+  - Kimi K2.5
+  - Qwen 2.5
+  - ERNIE 4.0
+- HTTP连接池复用
+- 智能重试机制
+- 性能统计
+- 视觉分析支持
+
+#### UI界面
+- PyQt6主窗口
+- Agent监控中心
+  - 6个Agent状态卡片
+  - 实时状态刷新
+  - 任务队列显示
+- 项目管理页面
+  - 新建/导入项目
+  - 项目列表
+- 暗色主题
+- 异步初始化
+- 加载进度显示
+
+#### 跨平台打包
+- Windows打包脚本
+  - PyInstaller配置
+  - NSIS安装程序
+- macOS打包脚本
+  - 代码签名
+  - DMG生成
+
+### 🔧 优化
+
+#### 性能优化
+- LLM连接池复用
+- 视频信息缓存
+- 异步初始化
+- 进度回调支持
+
+#### 代码质量
+- 类型注解完善
+- 文档字符串补充
+- 异常处理增强
+- 日志记录规范
+- 样式系统分离
+
+### 🐛 修复
+- Kimi K2.5模型命名修正
+- VFXAgent从图像生成改为画面理解
+- 国产大模型数据更新为2025年正确版本
+
+### 📚 文档
+- 项目规划文档 (PROJECT_PLAN_v3.md)
+- 开发路线图 (ROADMAP.md)
+- 内存文件 (memory/2025-01-20.md)
+
+## [3.0.0-beta2] - 2025-01-20
+
+### ✨ 新增
+- PyQt6 UI实现
+  - Agent监控页面
+  - 项目管理页面
+  - 暗色主题
+
+## [3.0.0-beta1] - 2025-01-20
+
+### ✨ 新增
+- 核心功能实现
+  - 6个Agent
+  - 4个核心服务
+  - 跨平台打包脚本
+
+## [2.0.0-rc.1] - 2026-02-14
+
+### ✨ 新增
+- 项目重命名为 CineFlow AI
+- 版本统一系统
+- 国产 LLM 集成 (Qwen, Kimi, GLM-5)
+- LLM 管理器 (自动切换)
+- 单元测试框架
+- 安装指南文档
+- 技术栈文档
+
+### 🔧 优化
+- 性能优化
+- 错误处理增强
+
+## [1.0.0] - 2025-01-01
+
+### ✨ 新增
+- 初始版本发布
+- 基础视频处理功能
+- 简单UI界面
 
 ---
 
-## Version History
-
-| Version | Date | Status |
-|---------|------|--------|
-| 3.0.0 | 2026-06-15 | 🗓️ 计划中 |
-| 2.3.0 | 2026-05-10 | 🗓️ 计划中 |
-| 2.2.0 | 2026-04-10 | 🗓️ 计划中 |
-| 2.1.0 | 2026-03-10 | 🗓️ 计划中 |
-| 2.0.0-rc.1 | 2026-02-14 | ✅ 发布 |
-| 2.0.0 | 2026-02-20 | 🏃 开发中 |
-| 1.5.0 | 2025-11-01 | 📜 历史版本 |
-
----
-
-**当前版本**: v2.0.0-rc.1
-**下个版本**: v2.0.0 正式版 (预计 2026-02-20)
-
----
-
-## Contributing
-
-欢迎贡献！请参考 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
-
-## License
-
-MIT License
+[Unreleased]: https://github.com/Agions/CineFlow/compare/v3.0.0-beta3...HEAD
+[3.0.0-beta3]: https://github.com/Agions/CineFlow/compare/v3.0.0-beta2...v3.0.0-beta3
+[3.0.0-beta2]: https://github.com/Agions/CineFlow/compare/v3.0.0-beta1...v3.0.0-beta2
+[3.0.0-beta1]: https://github.com/Agions/CineFlow/compare/v2.0.0-rc.1...v3.0.0-beta1
+[2.0.0-rc.1]: https://github.com/Agions/CineFlow/compare/v1.0.0...v2.0.0-rc.1
+[1.0.0]: https://github.com/Agions/CineFlow/releases/tag/v1.0.0
