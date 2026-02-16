@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 服务容器 - 依赖注入容器
+CineFlow 服务容器 - 依赖注入容器
 支持按类型和名称注册获取服务
 """
 

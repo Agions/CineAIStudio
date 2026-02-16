@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 输入验证器
+CineFlow 输入验证器
 提供全面的输入验证和数据清理功能
 """
 

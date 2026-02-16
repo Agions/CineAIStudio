@@ -247,7 +247,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **仓库名称**: CineAIStudio → CineFlow
+- **仓库名称**: CineFlow → CineFlow
 - **Python 版本**: 3.10+ → 3.12+ (推荐)
 - **配置方式**: .env → YAML
 
@@ -326,7 +326,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 #### Renamed
-- 项目名称从 **CineAIStudio** 重命名为 **CineFlow AI**
+- 项目名称从 **CineFlow** 重命名为 **CineFlow AI**
 
 #### Updated
 - `ScriptGenerator` - 支持使用 LLMManager

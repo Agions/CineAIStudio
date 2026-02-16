@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 自动保存系统
+CineFlow 自动保存系统
 提供项目自动保存、恢复和备份功能
 """
 

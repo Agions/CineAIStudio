@@ -1,8 +1,8 @@
-# 🎬 CineAIStudio - AI 视频创作工具
+# 🎬 CineFlow - AI 视频创作工具
 
 > 打造爆款短视频，一键生成剪映草稿
 
-CineAIStudio 是一款 AI 驱动的视频创作工具，专注于**爆款短视频制作**，支持一键导出**剪映草稿**格式。
+CineFlow 是一款 AI 驱动的视频创作工具，专注于**爆款短视频制作**，支持一键导出**剪映草稿**格式。
 
 ## ✨ 核心功能
 
@@ -263,7 +263,7 @@ processor.print_stats()
 ## 📁 项目结构
 
 ```
-CineAIStudio/
+CineFlow/
 ├── app/
 │   └── services/
 │       ├── ai/                      # AI 服务

@@ -22,7 +22,7 @@ ValueError: mutable default <class 'PyQt6.QtGui.QColor'> for field background_co
 
 ```bash
 # 拉取最新代码
-cd CineAIStudio
+cd CineFlow
 git pull origin main
 
 # 删除旧环境

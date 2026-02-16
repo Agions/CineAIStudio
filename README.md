@@ -116,7 +116,7 @@ CineFlow AI/
 │           └── video_exporter.py    # 视频文件
 │
 ├── build/                           # 打包配置
-│   ├── cineaistudio.spec           # PyInstaller 配置
+│   ├── cineflow.spec           # PyInstaller 配置
 │   └── build_app.py                # 打包脚本
 │
 ├── examples/                        # 使用示例

@@ -406,7 +406,7 @@ class VideoEditorService:
                 'use_gpu_acceleration': project.use_gpu_acceleration,
                 # 添加元数据
                 '_version': '1.0',
-                '_created_by': 'CineAIStudio',
+                '_created_by': 'CineFlow',
             }
             
             # 写入文件

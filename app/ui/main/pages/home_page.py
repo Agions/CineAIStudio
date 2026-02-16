@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 首页 - macOS 设计系统优化版
+CineFlow 首页 - macOS 设计系统优化版
 使用标准化组件，零内联样式
 """
 
@@ -54,7 +54,7 @@ class HomePage(BasePage):
         scroll_layout.setSpacing(20)
 
         # 1. 页面工具栏
-        toolbar = MacPageToolbar("👋 欢迎使用 CineAIStudio")
+        toolbar = MacPageToolbar("👋 欢迎使用 CineFlow")
         scroll_layout.addWidget(toolbar)
 
         # 2. 欢迎卡片
@@ -92,7 +92,7 @@ class HomePage(BasePage):
         card = MacElevatedCard()
 
         # 标题行
-        title_row = create_icon_text_row("🌟", "欢迎使用 CineAIStudio", "title-2xl")
+        title_row = create_icon_text_row("🌟", "欢迎使用 CineFlow", "title-2xl")
         card.layout().addWidget(title_row)
 
         # 欢迎文案

@@ -83,7 +83,7 @@ start htmlcov/index.html # Windows
 ## 📐 代码结构
 
 ```
-CineAIStudio/
+CineFlow/
 ├── app/                    # 应用代码
 │   ├── core/              # 核心模块
 │   │   ├── models/        # 数据模型 (LLM, Script 等)

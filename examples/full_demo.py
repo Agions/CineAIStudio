@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CineAIStudio 完整功能演示
+CineFlow 完整功能演示
 
 此脚本演示如何使用真实视频素材创建 AI 视频内容。
 运行前请确保 test_assets 目录中有测试素材。
@@ -369,7 +369,7 @@ def demo_parallel():
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(
-        description="CineAIStudio 完整功能演示"
+        description="CineFlow 完整功能演示"
     )
     parser.add_argument(
         "mode",
@@ -392,7 +392,7 @@ def main():
     args = parser.parse_args()
     
     print("\n" + "=" * 60)
-    print("🎬 CineAIStudio - AI 视频创作工具 完整演示")
+    print("🎬 CineFlow - AI 视频创作工具 完整演示")
     print("=" * 60)
     
     # 设置环境

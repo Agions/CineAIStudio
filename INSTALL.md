@@ -25,11 +25,11 @@
 ```bash
 # 使用 HTTPS
 git clone https://github.com/Agions/CineFlow.git
-cd CineAIStudio
+cd CineFlow
 
 # 或使用 SSH
-git clone git@github.com:Agions/CineAIStudio.git
-cd CineAIStudio
+git clone git@github.com:Agions/CineFlow.git
+cd CineFlow
 ```
 
 ### 2. 创建虚拟环境（推荐）

@@ -130,7 +130,7 @@ python examples/quick_start.py
 
 ### 仓库名称
 
-- **v1.5.0**: https://github.com/Agions/CineAIStudio.git
+- **v1.5.0**: https://github.com/Agions/CineFlow.git
 - **v2.0.0**: https://github.com/Agions/CineFlow.git
 
 ---

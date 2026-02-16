@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 插件管理器
+CineFlow 插件管理器
 提供完整的插件系统管理功能
 """
 

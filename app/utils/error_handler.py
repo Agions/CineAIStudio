@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 错误处理模块
+CineFlow 错误处理模块
 提供全局异常处理和错误对话框功能
 """
 

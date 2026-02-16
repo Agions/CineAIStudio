@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 告警系统
+CineFlow 告警系统
 提供智能告警和通知功能
 """
 
