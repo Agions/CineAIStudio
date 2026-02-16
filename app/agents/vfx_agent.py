@@ -20,7 +20,9 @@ class VFXAgent(BaseAgent):
     4. 调色特效 - 滤镜、风格化
     5. 合成 - 多层合成、抠像
     
-    使用DALL-E 3生成特效素材
+    使用Kimi K2.5:
+    - 画面理解: 分析视频帧内容
+    - 特效生成: 基于理解生成特效参数和素材描述
     """
     
     # 特效预设
@@ -77,7 +79,7 @@ class VFXAgent(BaseAgent):
             capabilities=[AgentCapability.VFX]
         )
         
-        # 初始化LLM - VFX使用DALL-E 3生成素材
+        # 初始化LLM - VFX使用Kimi K2.5进行画面理解和特效生成
         self.init_llm('vfx')
         
     async def execute(self, task: Dict[str, Any]) -> AgentResult:
@@ -98,8 +100,12 @@ class VFXAgent(BaseAgent):
             self.report_progress(40, "设计特效方案...")
             effects_plan = self._design_effects(structure, preset_name)
             
-            self.report_progress(60, "生成特效...")
-            generated_effects = await self._generate_effects(effects_plan)
+            # 提取关键帧用于画面理解
+            self.report_progress(50, "提取关键帧...")
+            video_frames = await self._extract_keyframes(video_path, structure)
+            
+            self.report_progress(60, "画面理解+生成特效...")
+            generated_effects = await self._generate_effects(effects_plan, video_frames)
             
             self.report_progress(80, "合成特效...")
             composited = await self._composite_effects(video_path, generated_effects)
@@ -133,6 +139,27 @@ class VFXAgent(BaseAgent):
                 {'at': 55, 'type': 'scene_change'}
             ]
         }
+        
+    async def _extract_keyframes(self, video_path: str, structure: Dict) -> List[str]:
+        """
+        提取视频关键帧用于画面理解
+        
+        从每个场景中提取代表性帧，用于Kimi K2.5分析
+        """
+        keyframes = []
+        scenes = structure.get('scenes', [])
+        
+        for scene in scenes:
+            # 提取场景中间时刻的帧
+            start = scene.get('start', 0)
+            end = scene.get('end', 0)
+            mid_time = (start + end) / 2
+            
+            # 模拟帧路径 (实际应调用ffmpeg提取)
+            frame_path = f"/tmp/frames/{Path(video_path).stem}_frame_{int(mid_time)}.jpg"
+            keyframes.append(frame_path)
+            
+        return keyframes
         
     def _design_effects(self, structure: Dict, preset_name: str) -> List[Dict]:
         """设计特效方案"""
@@ -182,18 +209,138 @@ class VFXAgent(BaseAgent):
         except Exception as e:
             return {'error': str(e)}
             
-    async def _generate_effects(self, effects_plan: List[Dict]) -> List[Dict]:
-        """生成特效 - 基于画面理解推荐特效参数"""
+    async def _generate_effects(
+        self,
+        effects_plan: List[Dict],
+        video_frames: List[str] = None
+    ) -> List[Dict]:
+        """
+        生成特效 - 结合画面理解和AI生成
+        
+        1. 使用Kimi K2.5理解视频帧画面
+        2. 基于理解生成特效参数和素材描述
+        3. 生成特效配置文件
+        """
         generated = []
         
-        for effect in effects_plan:
-            # VFX现在使用画面理解而非图像生成
-            effect['generation_method'] = 'frame_analysis'
-            effect['note'] = '使用Kimi 2.5 Vision分析画面推荐特效参数'
+        for i, effect in enumerate(effects_plan):
+            # 如果有视频帧，先进行画面理解
+            if video_frames and i < len(video_frames):
+                frame_path = video_frames[i]
+                
+                # 1. 画面理解
+                analysis = await self._analyze_frame_for_effects(
+                    frame_path,
+                    effect.get('type', 'particles')
+                )
+                
+                # 2. 基于理解生成特效参数
+                effect['frame_analysis'] = analysis
+                effect['generated_params'] = await self._generate_effect_params(
+                    effect,
+                    analysis
+                )
+                
+                # 3. 生成特效素材描述 (用于后续渲染)
+                effect['asset_description'] = await self._generate_asset_description(
+                    effect,
+                    analysis
+                )
+                
+                effect['generation_method'] = 'ai_understanding'
+            else:
+                # 无画面时生成默认参数
+                effect['generated_params'] = self._get_default_params(effect)
+                effect['generation_method'] = 'default'
+            
             generated.append(effect)
             
         return generated
         
+    async def _generate_effect_params(
+        self,
+        effect: Dict,
+        frame_analysis: Dict
+    ) -> Dict[str, Any]:
+        """基于画面理解生成特效参数"""
+        effect_type = effect.get('type', 'particles')
+        
+        # 根据画面分析调整特效参数
+        params = {
+            'type': effect_type,
+            'intensity': 0.5,
+            'blend_mode': 'screen',
+            'duration': effect.get('duration', 1.0)
+        }
+        
+        # 根据画面光影调整
+        lighting = frame_analysis.get('lighting', '')
+        if '暗' in lighting or 'dark' in lighting.lower():
+            params['intensity'] = 0.7
+            params['glow'] = True
+        elif '亮' in lighting or 'bright' in lighting.lower():
+            params['intensity'] = 0.4
+            
+        # 根据色彩风格调整
+        color_style = frame_analysis.get('color_style', '')
+        if '暖' in color_style or 'warm' in color_style.lower():
+            params['color_temperature'] = 'warm'
+            params['tint'] = '#ffaa44'
+        elif '冷' in color_style or 'cool' in color_style.lower():
+            params['color_temperature'] = 'cool'
+            params['tint'] = '#44aaff'
+            
+        return params
+        
+    async def _generate_asset_description(
+        self,
+        effect: Dict,
+        frame_analysis: Dict
+    ) -> str:
+        """生成特效素材描述 (用于渲染引擎)"""
+        effect_type = effect.get('type', 'particles')
+        scene = frame_analysis.get('scene_description', '场景')
+        
+        descriptions = {
+            'particles': f"{scene}中的金色粒子效果，与画面光影融合",
+            'light_leak': f"{scene}边缘的自然光晕，模拟镜头漏光",
+            'lens_flare': f"{scene}中的镜头光斑，增强视觉冲击力",
+            'glow': f"{scene}主体的柔和发光效果",
+            'bokeh': f"{scene}背景的散景光斑，突出主体"
+        }
+        
+        return descriptions.get(effect_type, f"{scene}的特效素材")
+        
+    def _get_default_params(self, effect: Dict) -> Dict[str, Any]:
+        """获取默认特效参数"""
+        return {
+            'type': effect.get('type', 'particles'),
+            'intensity': 0.5,
+            'blend_mode': 'screen',
+            'duration': effect.get('duration', 1.0),
+            'color_temperature': 'neutral',
+            'note': '默认参数，未进行画面分析'
+        }
+        
     async def _composite_effects(self, video_path: str, effects: List[Dict]) -> List[Dict]:
-        """合成特效"""
-        return effects
+        """合成特效到视频"""
+        composited = []
+        
+        for effect in effects:
+            # 构建特效合成配置
+            composite_config = {
+                'effect_type': effect.get('type'),
+                'params': effect.get('generated_params', {}),
+                'asset_description': effect.get('asset_description', ''),
+                'frame_analysis': effect.get('frame_analysis', {}),
+                'timestamp': effect.get('timestamp', 0),
+                'duration': effect.get('duration', 1.0)
+            }
+            
+            # 模拟合成过程
+            composite_config['status'] = 'ready_to_render'
+            composite_config['render_engine'] = 'vfx_pipeline'
+            
+            composited.append(composite_config)
+            
+        return composited
