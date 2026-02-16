@@ -73,7 +73,7 @@ class SoundAgent(BaseAgent):
             capabilities=[AgentCapability.SOUND_DESIGN]
         )
         
-        # 初始化LLM - Sound使用百度ERNIE
+        # 初始化LLM - Sound使用Qwen 2.5
         self.init_llm('sound')
         
     async def execute(self, task: Dict[str, Any]) -> AgentResult:

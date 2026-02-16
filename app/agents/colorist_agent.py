@@ -85,7 +85,7 @@ class ColoristAgent(BaseAgent):
             capabilities=[AgentCapability.COLOR_GRADING]
         )
         
-        # 初始化LLM - Colorist使用GPT-4 Vision进行视觉分析
+        # 初始化LLM - Colorist使用Kimi K2.5进行视觉分析
         self.init_llm('colorist')
         
     async def execute(self, task: Dict[str, Any]) -> AgentResult:
@@ -190,7 +190,7 @@ class ColoristAgent(BaseAgent):
                 cv2.imwrite(frame_path, frame)
                 frame_paths.append(frame_path)
                 
-        # 使用GPT-4 Vision分析
+        # 使用Kimi K2.5进行视觉分析
         if frame_paths and self.llm:
             try:
                 vision_result = await self.llm.analyze_image(

@@ -23,13 +23,14 @@ CineFlow 多 Agent 协同剪辑系统
 """
 
 from .agent_manager import AgentManager, AgentTask, TaskStatus
-from .base_agent import BaseAgent, AgentState, AgentCapability
+from .base_agent import BaseAgent, AgentState, AgentCapability, AgentResult
 from .director_agent import DirectorAgent
 from .editor_agent import EditorAgent
 from .colorist_agent import ColoristAgent
 from .sound_agent import SoundAgent
 from .vfx_agent import VFXAgent
 from .reviewer_agent import ReviewerAgent
+from .llm_client import LLMClient
 
 __all__ = [
     'AgentManager',
@@ -38,10 +39,12 @@ __all__ = [
     'BaseAgent',
     'AgentState',
     'AgentCapability',
+    'AgentResult',
     'DirectorAgent',
     'EditorAgent',
     'ColoristAgent',
     'SoundAgent',
     'VFXAgent',
     'ReviewerAgent',
+    'LLMClient',
 ]

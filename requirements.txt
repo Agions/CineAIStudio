@@ -1,4 +1,5 @@
-# CineFlow AI 依赖包
+# CineFlow v3.0 依赖包
+# 多Agent智能视频剪辑系统
 
 ## 核心依赖
 PyQt6>=6.6.0
@@ -11,9 +12,14 @@ numpy>=1.26.0
 pillow>=10.1.0
 ffmpeg-python==0.2.0
 
+## 音频处理
+librosa>=0.10.1
+soundfile>=0.12.1
+
 ## 网络请求
 requests>=2.31.0
 httpx>=0.25.0
+aiohttp>=3.9.0
 
 ## 配置管理
 python-dotenv>=1.0.0
@@ -21,9 +27,19 @@ pyyaml>=6.0.1
 
 ## 系统工具
 psutil>=5.9.6
+pathlib>=1.0.1
 
-## LLM 相关
+## LLM 相关 (国产大模型)
 openai>=1.0.0
+dashscope>=1.14.0  # 阿里通义千问
+qianfan>=0.3.0     # 百度文心
+
+## TTS (语音合成)
+edge-tts>=6.1.0
+
+## 数据处理
+dataclasses>=0.6
+python-dateutil>=2.8.2
 
 ## 测试依赖（可选）
 # pytest>=7.4.0
