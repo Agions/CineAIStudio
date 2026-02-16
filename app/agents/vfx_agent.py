@@ -19,6 +19,8 @@ class VFXAgent(BaseAgent):
     3. 视觉特效 - 粒子、光效、模糊
     4. 调色特效 - 滤镜、风格化
     5. 合成 - 多层合成、抠像
+    
+    使用DALL-E 3生成特效素材
     """
     
     # 特效预设
@@ -74,6 +76,9 @@ class VFXAgent(BaseAgent):
             name="VFX Artist",
             capabilities=[AgentCapability.VFX]
         )
+        
+        # 初始化LLM - VFX使用DALL-E 3生成素材
+        self.init_llm('vfx')
         
     async def execute(self, task: Dict[str, Any]) -> AgentResult:
         """执行特效任务"""
@@ -135,8 +140,27 @@ class VFXAgent(BaseAgent):
         return preset.get('effects', [])
         
     async def _generate_effects(self, effects_plan: List[Dict]) -> List[Dict]:
-        """生成特效"""
-        return effects_plan
+        """生成特效 - 使用DALL-E生成素材"""
+        generated = []
+        
+        for effect in effects_plan:
+            if effect.get('type') in ['particles', 'overlay', 'background']:
+                # 使用DALL-E生成特效素材
+                try:
+                    prompt = f"视频特效素材: {effect.get('description', 'abstract visual effect')}, "
+                    prompt += "透明背景, 高质量, 适合叠加到视频上"
+                    
+                    result = await self.llm.generate_image(prompt, size="1024x1024")
+                    
+                    if result.get('success'):
+                        effect['generated_asset_url'] = result['content']
+                        
+                except Exception as e:
+                    effect['generation_error'] = str(e)
+                    
+            generated.append(effect)
+            
+        return generated
         
     async def _composite_effects(self, video_path: str, effects: List[Dict]) -> List[Dict]:
         """合成特效"""

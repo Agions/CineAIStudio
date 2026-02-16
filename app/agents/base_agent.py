@@ -12,6 +12,8 @@ import uuid
 import asyncio
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 
+from .llm_client import LLMClient, LLMConfig
+
 
 class AgentState(Enum):
     """Agent 状态"""
@@ -97,6 +99,10 @@ class BaseAgent(QObject, ABC):
             'messages_received': 0,
         }
         
+        # LLM客户端
+        self.llm: Optional[LLMClient] = None
+        self._llm_config: Optional[LLMConfig] = None
+        
         # 回调函数
         self._message_handler: Optional[Callable] = None
         self._progress_handler: Optional[Callable] = None
@@ -108,6 +114,46 @@ class BaseAgent(QObject, ABC):
     def set_progress_handler(self, handler: Callable):
         """设置进度处理器"""
         self._progress_handler = handler
+        
+    def init_llm(self, agent_type: str, config: LLMConfig = None):
+        """
+        初始化LLM客户端
+        
+        Args:
+            agent_type: Agent类型标识 (director/editor/colorist/sound/vfx/reviewer)
+            config: 可选的自定义配置
+        """
+        if config:
+            self._llm_config = config
+            self.llm = LLMClient(config)
+        else:
+            self.llm = LLMClient.for_agent(agent_type)
+            
+    async def call_llm(
+        self,
+        prompt: str,
+        system_prompt: str = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        调用大模型
+        
+        Args:
+            prompt: 提示词
+            system_prompt: 系统提示
+            **kwargs: 额外参数
+            
+        Returns:
+            LLM响应结果
+        """
+        if not self.llm:
+            return {
+                'success': False,
+                'content': '',
+                'error': 'LLM未初始化'
+            }
+            
+        return await self.llm.complete(prompt, system_prompt, **kwargs)
         
     def get_capabilities(self) -> List[AgentCapability]:
         """获取 Agent 能力列表"""

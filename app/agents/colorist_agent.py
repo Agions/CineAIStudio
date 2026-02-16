@@ -20,6 +20,8 @@ class ColoristAgent(BaseAgent):
     2. 风格调色 - 电影感、复古、清新等风格
     3. LUT应用 - 查找表调色
     4. 色彩分级 - 阴影、中间调、高光分别调整
+    
+    使用GPT-4 Vision进行智能色彩分析
     """
     
     # 预设风格
@@ -82,6 +84,9 @@ class ColoristAgent(BaseAgent):
             name="Colorist",
             capabilities=[AgentCapability.COLOR_GRADING]
         )
+        
+        # 初始化LLM - Colorist使用GPT-4 Vision进行视觉分析
+        self.init_llm('colorist')
         
     async def execute(self, task: Dict[str, Any]) -> AgentResult:
         """
@@ -157,7 +162,7 @@ class ColoristAgent(BaseAgent):
             )
             
     async def _analyze_colors(self, video_path: str) -> Dict[str, Any]:
-        """分析视频色彩"""
+        """分析视频色彩 - 结合GPT-4 Vision智能分析"""
         cap = cv2.VideoCapture(video_path)
         
         if not cap.isOpened():
@@ -172,6 +177,46 @@ class ColoristAgent(BaseAgent):
             'contrast': [],
             'saturation': [],
             'dominant_colors': []
+        }
+        
+        # 提取并分析关键帧
+        frame_paths = []
+        for frame_num in sample_frames[:3]:  # 前3帧用于视觉分析
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+            ret, frame = cap.read()
+            if ret:
+                # 保存帧用于LLM分析
+                frame_path = f"/tmp/color_frame_{frame_num}.jpg"
+                cv2.imwrite(frame_path, frame)
+                frame_paths.append(frame_path)
+                
+        # 使用GPT-4 Vision分析
+        if frame_paths and self.llm:
+            try:
+                vision_result = await self.llm.analyze_image(
+                    frame_paths[0],
+                    "分析这张视频帧的色彩特征：亮度、对比度、色温、饱和度。"
+                    "建议适合的风格调色（cinematic/vintage/fresh/dramatic/warm/cool）。"
+                    "以JSON格式返回分析结果。"
+                )
+                
+                if vision_result.get('success'):
+                    import json
+                    content = vision_result['content']
+                    # 尝试提取JSON
+                    try:
+                        if '```json' in content:
+                            content = content.split('```json')[1].split('```')[0]
+                        elif '```' in content:
+                            content = content.split('```')[1].split('```')[0]
+                        vision_analysis = json.loads(content.strip())
+                        color_stats['vision_analysis'] = vision_analysis
+                        color_stats['recommended_style'] = vision_analysis.get('recommended_style', 'cinematic')
+                    except:
+                        color_stats['vision_analysis'] = {'raw': content}
+                        
+            except Exception as e:
+                color_stats['vision_error'] = str(e)
         }
         
         for frame_idx in sample_frames:

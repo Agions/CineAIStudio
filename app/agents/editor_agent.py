@@ -26,6 +26,9 @@ class EditorAgent(BaseAgent):
             capabilities=[AgentCapability.EDITING]
         )
         
+        # 初始化LLM - Editor使用Claude进行长上下文分析
+        self.init_llm('editor')
+        
     async def execute(self, task: Dict[str, Any]) -> AgentResult:
         """
         执行剪辑任务
@@ -91,23 +94,73 @@ class EditorAgent(BaseAgent):
             )
             
     async def _analyze_video(self, video_path: str) -> Dict[str, Any]:
-        """分析视频内容"""
-        # 使用现有的视频分析服务
+        """分析视频内容 - 结合LLM智能分析"""
+        # 基础分析
         from ..services.ai.video_content_analyzer import VideoContentAnalyzer
         
         analyzer = VideoContentAnalyzer()
-        
-        # 提取关键帧
         keyframes = analyzer.extract_keyframes(video_path)
-        
-        # 分析场景
         scenes = analyzer.analyze_scenes(video_path)
         
+        # 使用LLM进行智能剪辑建议
+        scene_descriptions = []
+        for i, scene in enumerate(scenes[:10]):  # 前10个场景
+            scene_descriptions.append(
+                f"场景{i+1}: {scene.get('start', 0):.1f}s-{scene.get('end', 0):.1f}s, "
+                f"质量{scene.get('quality', 0.8):.2f}"
+            )
+        
+        prompt = f"""
+作为专业剪辑师，分析以下视频场景：
+
+视频信息：
+- 路径: {video_path}
+- 时长: {analyzer.get_duration(video_path):.1f}秒
+- 分辨率: {analyzer.get_resolution(video_path)}
+
+场景列表：
+{chr(10).join(scene_descriptions)}
+
+请提供：
+1. 哪些场景应该保留（给出场景编号）
+2. 建议的剪辑节奏
+3. 推荐的转场类型
+4. 潜在问题
+
+以JSON格式返回：
+{{
+    "keep_scenes": [1, 3, 5],
+    "pacing": "fast/medium/slow",
+    "transition_style": "cut/fade/dissolve",
+    "issues": ["问题描述"]
+}}
+"""
+        
+        try:
+            llm_result = await self.call_llm(
+                prompt=prompt,
+                system_prompt="你是专业视频剪辑师，擅长分析视频结构并给出剪辑建议。只返回JSON。"
+            )
+            
+            llm_suggestions = {}
+            if llm_result.get('success'):
+                import json
+                content = llm_result['content']
+                if '```json' in content:
+                    content = content.split('```json')[1].split('```')[0]
+                elif '```' in content:
+                    content = content.split('```')[1].split('```')[0]
+                llm_suggestions = json.loads(content.strip())
+                
+        except Exception:
+            llm_suggestions = {}
+            
         return {
             'keyframes': keyframes,
             'scenes': scenes,
             'duration': analyzer.get_duration(video_path),
-            'resolution': analyzer.get_resolution(video_path)
+            'resolution': analyzer.get_resolution(video_path),
+            'llm_suggestions': llm_suggestions
         }
         
     async def _rough_cut(

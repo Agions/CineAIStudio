@@ -67,6 +67,9 @@ class DirectorAgent(BaseAgent):
             ]
         )
         
+        # 初始化LLM - Director使用GPT-4进行规划
+        self.init_llm('director')
+        
         # 管理的 Agent
         self.agents: Dict[str, BaseAgent] = {}
         
@@ -167,8 +170,8 @@ class DirectorAgent(BaseAgent):
         
         self.report_progress(5, "制定剪辑计划...")
         
-        # 1. 分析项目需求
-        analysis = self._analyze_project(plan)
+        # 1. 分析项目需求（使用LLM）
+        analysis = await self._analyze_project(plan)
         
         # 2. 制定详细计划
         editing_plan = self._create_editing_plan(plan, analysis)
@@ -186,9 +189,9 @@ class DirectorAgent(BaseAgent):
         
         return result
         
-    def _analyze_project(self, plan: EditingPlan) -> Dict[str, Any]:
-        """分析项目需求"""
-        # 视频分析
+    async def _analyze_project(self, plan: EditingPlan) -> Dict[str, Any]:
+        """分析项目需求 - 使用LLM智能分析"""
+        # 基础分析
         analysis = {
             'duration': plan.target_duration,
             'style': plan.style,
@@ -197,25 +200,77 @@ class DirectorAgent(BaseAgent):
             'estimated_time': 0
         }
         
-        # 根据风格确定需要的 Agent
+        # 使用LLM进行智能分析
+        prompt = f"""
+分析以下视频剪辑项目需求：
+
+项目信息：
+- 名称: {plan.project_name}
+- 时长: {plan.target_duration}秒
+- 风格: {plan.style}
+- 视频路径: {plan.video_path}
+
+请分析：
+1. 项目复杂度 (low/medium/high)
+2. 需要哪些专业Agent (editor/colorist/sound/vfx/reviewer)
+3. 预估处理时间（秒）
+4. 关键注意事项
+
+以JSON格式返回：
+{{
+    "complexity": "medium",
+    "required_agents": ["editor", "colorist", "sound"],
+    "estimated_time": 180,
+    "notes": "注意事项"
+}}
+"""
+        
+        try:
+            llm_result = await self.call_llm(
+                prompt=prompt,
+                system_prompt="你是一个专业的视频制作导演，擅长分析项目需求并制定制作计划。只返回JSON格式。"
+            )
+            
+            if llm_result.get('success'):
+                import json
+                content = llm_result['content']
+                # 提取JSON
+                if '```json' in content:
+                    content = content.split('```json')[1].split('```')[0]
+                elif '```' in content:
+                    content = content.split('```')[1].split('```')[0]
+                    
+                llm_analysis = json.loads(content.strip())
+                
+                analysis['complexity'] = llm_analysis.get('complexity', 'medium')
+                analysis['required_agents'] = llm_analysis.get('required_agents', ['editor', 'sound'])
+                analysis['estimated_time'] = llm_analysis.get('estimated_time', 180)
+                analysis['llm_notes'] = llm_analysis.get('notes', '')
+            else:
+                # LLM失败使用默认规则
+                self._apply_default_rules(analysis, plan)
+                
+        except Exception as e:
+            # 异常时使用默认规则
+            self._apply_default_rules(analysis, plan)
+            analysis['llm_error'] = str(e)
+            
+        return analysis
+        
+    def _apply_default_rules(self, analysis: Dict, plan: EditingPlan):
+        """应用默认规则"""
         if plan.style in ['cinematic', 'professional']:
-            analysis['required_agents'] = [
-                'editor', 'colorist', 'sound', 'vfx'
-            ]
+            analysis['required_agents'] = ['editor', 'colorist', 'sound', 'vfx']
             analysis['complexity'] = 'high'
-            analysis['estimated_time'] = 300  # 5分钟
+            analysis['estimated_time'] = 300
         elif plan.style in ['vlog', 'simple']:
             analysis['required_agents'] = ['editor', 'sound']
             analysis['complexity'] = 'low'
-            analysis['estimated_time'] = 120  # 2分钟
+            analysis['estimated_time'] = 120
         else:
-            analysis['required_agents'] = [
-                'editor', 'colorist', 'sound'
-            ]
+            analysis['required_agents'] = ['editor', 'colorist', 'sound']
             analysis['complexity'] = 'medium'
-            analysis['estimated_time'] = 180  # 3分钟
-            
-        return analysis
+            analysis['estimated_time'] = 180
         
     def _create_editing_plan(
         self,

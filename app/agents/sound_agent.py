@@ -20,6 +20,8 @@ class SoundAgent(BaseAgent):
     3. 音效设计 - 添加环境音、音效
     4. 混音 - 多轨道混音
     5. 音乐匹配 - BGM自动匹配
+    
+    使用百度ERNIE进行音频理解和音效推荐
     """
     
     # 音效预设
@@ -70,6 +72,9 @@ class SoundAgent(BaseAgent):
             name="Sound Designer",
             capabilities=[AgentCapability.SOUND_DESIGN]
         )
+        
+        # 初始化LLM - Sound使用百度ERNIE
+        self.init_llm('sound')
         
     async def execute(self, task: Dict[str, Any]) -> AgentResult:
         """
@@ -154,7 +159,7 @@ class SoundAgent(BaseAgent):
         video_path: str,
         audio_tracks: List[Dict]
     ) -> Dict[str, Any]:
-        """分析音频"""
+        """分析音频 - 使用LLM智能分析"""
         analysis = {
             'video_path': video_path,
             'tracks': [],
@@ -164,7 +169,7 @@ class SoundAgent(BaseAgent):
             'recommendations': []
         }
         
-        # 分析每个音轨
+        # 基础分析
         for track in audio_tracks:
             track_analysis = {
                 'id': track.get('id'),
@@ -177,17 +182,53 @@ class SoundAgent(BaseAgent):
                 },
                 'issues': []
             }
-            
-            # 检测问题
-            if track_analysis['volume_stats']['peak'] > -3.0:
-                track_analysis['issues'].append('clipping')
-                analysis['recommendations'].append(f"轨道 {track['id']}: 存在削波，建议降低音量")
-                
-            if track_analysis['volume_stats']['rms'] < -30.0:
-                track_analysis['issues'].append('too_quiet')
-                analysis['recommendations'].append(f"轨道 {track['id']}: 音量过低，建议提升")
-                
             analysis['tracks'].append(track_analysis)
+            
+        # 使用LLM进行音效建议
+        track_info = []
+        for t in analysis['tracks']:
+            track_info.append(f"轨道{t['id']}: 类型={t['type']}, 时长={t['duration']}s")
+            
+        prompt = f"""
+作为专业音效师，分析以下音频项目：
+
+视频: {video_path}
+音轨:
+{chr(10).join(track_info)}
+
+请提供：
+1. 推荐的音效预设 (dialogue/cinematic/podcast/music_video)
+2. 需要处理的问题
+3. BGM风格建议
+4. 混音注意事项
+
+以JSON格式返回：
+{{
+    "recommended_preset": "dialogue",
+    "issues": ["削波", "噪音"],
+    "bgm_style": "轻快",
+    "mixing_notes": "注意事项"
+}}
+"""
+        
+        try:
+            llm_result = await self.call_llm(
+                prompt=prompt,
+                system_prompt="你是专业音效设计师，擅长音频分析和音效设计。只返回JSON。"
+            )
+            
+            if llm_result.get('success'):
+                import json
+                content = llm_result['content']
+                if '```json' in content:
+                    content = content.split('```json')[1].split('```')[0]
+                elif '```' in content:
+                    content = content.split('```')[1].split('```')[0]
+                llm_analysis = json.loads(content.strip())
+                analysis['llm_recommendations'] = llm_analysis
+                
+        except Exception as e:
+            analysis['llm_error'] = str(e)
             
         return analysis
         
