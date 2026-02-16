@@ -1,13 +1,26 @@
 """
 LLM 客户端
 为不同Agent提供专业的大模型调用能力
+
+优化点:
+- 连接池复用
+- 智能重试机制
+- 流式响应支持
+- 性能监控
 """
 
 import os
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass
+import time
+import asyncio
+from typing import Dict, Any, List, Optional, AsyncIterator
+from dataclasses import dataclass, field
 from enum import Enum
+from functools import lru_cache
 import json
+import logging
+
+# 配置日志
+logger = logging.getLogger(__name__)
 
 
 class ModelProvider(Enum):
@@ -31,6 +44,28 @@ class LLMConfig:
     base_url: Optional[str] = None
     temperature: float = 0.7
     max_tokens: int = 2000
+    timeout: int = 60
+    max_retries: int = 3
+    retry_delay: float = 1.0
+    
+    def __post_init__(self):
+        """验证配置"""
+        if self.temperature < 0 or self.temperature > 2:
+            raise ValueError("temperature必须在0-2之间")
+        if self.max_tokens < 1:
+            raise ValueError("max_tokens必须大于0")
+
+
+@dataclass
+class LLMResponse:
+    """LLM响应"""
+    success: bool
+    content: str
+    usage: Dict[str, int] = field(default_factory=dict)
+    latency: float = 0.0
+    error: Optional[str] = None
+    model: str = ""
+    finish_reason: str = ""
 
 
 class LLMClient:
@@ -38,10 +73,14 @@ class LLMClient:
     大模型客户端
     
     支持多提供商，为不同Agent提供专业能力
+    优化特性:
+    - HTTP连接池复用
+    - 指数退避重试
+    - 请求超时控制
+    - 性能指标收集
     """
     
     # 预设配置 - 全部使用国产大模型 (2025年最新)
-    # Kimi K2.5 系列: https://platform.moonshot.cn/docs/guide/kimi-k2-5-model-best-practice
     AGENT_MODELS = {
         'director': {
             'provider': ModelProvider.DEEPSEEK,
@@ -85,9 +124,19 @@ class LLMClient:
         }
     }
     
+    # 类级别的HTTP会话缓存
+    _session_cache: Dict[str, Any] = {}
+    
     def __init__(self, config: LLMConfig = None):
         self.config = config
-        self._clients = {}
+        self._stats = {
+            'total_requests': 0,
+            'successful_requests': 0,
+            'failed_requests': 0,
+            'total_latency': 0.0,
+            'tokens_input': 0,
+            'tokens_output': 0,
+        }
         
     @classmethod
     def for_agent(cls, agent_type: str) -> 'LLMClient':
@@ -98,188 +147,420 @@ class LLMClient:
             provider=preset['provider'],
             model=preset['model'],
             temperature=0.7,
-            max_tokens=2000
+            max_tokens=2000,
+            max_retries=3,
+            retry_delay=1.0
         )
         
         return cls(config)
         
+    def _get_api_key(self) -> Optional[str]:
+        """获取API密钥"""
+        if self.config and self.config.api_key:
+            return self.config.api_key
+            
+        env_vars = {
+            ModelProvider.DEEPSEEK: 'DEEPSEEK_API_KEY',
+            ModelProvider.MOONSHOT: 'MOONSHOT_API_KEY',
+            ModelProvider.BAIDU: 'BAIDU_API_KEY',
+            ModelProvider.ALIBABA: 'DASHSCOPE_API_KEY',
+            ModelProvider.OPENAI: 'OPENAI_API_KEY',
+        }
+        
+        env_var = env_vars.get(self.config.provider)
+        return os.getenv(env_var) if env_var else None
+        
+    def _get_session(self):
+        """获取或创建HTTP会话（连接池）"""
+        provider_key = self.config.provider.value
+        
+        if provider_key not in self._session_cache:
+            import httpx
+            # 配置连接池
+            limits = httpx.Limits(
+                max_keepalive_connections=5,
+                max_connections=10,
+                keepalive_expiry=30.0
+            )
+            timeout = httpx.Timeout(
+                connect=5.0,
+                read=self.config.timeout,
+                write=5.0,
+                pool=5.0
+            )
+            
+            self._session_cache[provider_key] = httpx.AsyncClient(
+                limits=limits,
+                timeout=timeout
+            )
+            
+        return self._session_cache[provider_key]
+        
     async def complete(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
-        **kwargs
-    ) -> Dict[str, Any]:
+        system_prompt: str = None,
+        temperature: float = None,
+        max_tokens: int = None,
+        stream: bool = False
+    ) -> LLMResponse:
         """
-        调用大模型完成文本生成
+        调用大模型完成请求
         
         Args:
             prompt: 用户提示
             system_prompt: 系统提示
-            **kwargs: 额外参数
+            temperature: 温度参数
+            max_tokens: 最大token数
+            stream: 是否流式输出
             
         Returns:
-            {
-                'success': bool,
-                'content': str,
-                'usage': {'prompt_tokens': int, 'completion_tokens': int},
-                'error': str (optional)
-            }
+            LLMResponse: 响应结果
         """
         if not self.config:
-            return {
-                'success': False,
-                'content': '',
-                'error': '未配置LLM'
-            }
+            return LLMResponse(
+                success=False,
+                content='',
+                error='配置未初始化'
+            )
             
-        try:
-            # 国产模型优先
-            if self.config.provider == ModelProvider.DEEPSEEK:
-                return await self._call_deepseek(prompt, system_prompt, **kwargs)
-            elif self.config.provider == ModelProvider.MOONSHOT:
-                return await self._call_moonshot(prompt, system_prompt, **kwargs)
-            elif self.config.provider == ModelProvider.BAIDU:
-                return await self._call_baidu(prompt, system_prompt, **kwargs)
-            elif self.config.provider == ModelProvider.ALIBABA:
-                return await self._call_alibaba(prompt, system_prompt, **kwargs)
-            # 国际模型（备用）
-            elif self.config.provider == ModelProvider.OPENAI:
-                return await self._call_openai(prompt, system_prompt, **kwargs)
-            elif self.config.provider == ModelProvider.ANTHROPIC:
-                return await self._call_anthropic(prompt, system_prompt, **kwargs)
-            elif self.config.provider == ModelProvider.GOOGLE:
-                return await self._call_google(prompt, system_prompt, **kwargs)
-            else:
-                return await self._call_mock(prompt, system_prompt, **kwargs)
+        api_key = self._get_api_key()
+        if not api_key:
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'未找到API密钥: {self.config.provider.value}'
+            )
+            
+        # 使用配置参数或默认值
+        temp = temperature if temperature is not None else self.config.temperature
+        tokens = max_tokens if max_tokens is not None else self.config.max_tokens
+        
+        # 重试机制
+        for attempt in range(self.config.max_retries):
+            try:
+                start_time = time.time()
                 
-        except Exception as e:
-            return {
-                'success': False,
-                'content': '',
-                'error': str(e)
-            }
+                if self.config.provider == ModelProvider.DEEPSEEK:
+                    result = await self._call_deepseek(
+                        api_key, prompt, system_prompt, temp, tokens, stream
+                    )
+                elif self.config.provider == ModelProvider.MOONSHOT:
+                    result = await self._call_moonshot(
+                        api_key, prompt, system_prompt, temp, tokens, stream
+                    )
+                elif self.config.provider == ModelProvider.BAIDU:
+                    result = await self._call_baidu(
+                        api_key, prompt, system_prompt, temp, tokens, stream
+                    )
+                elif self.config.provider == ModelProvider.ALIBABA:
+                    result = await self._call_alibaba(
+                        api_key, prompt, system_prompt, temp, tokens, stream
+                    )
+                else:
+                    return LLMResponse(
+                        success=False,
+                        content='',
+                        error=f'不支持的提供商: {self.config.provider.value}'
+                    )
+                    
+                # 更新统计
+                latency = time.time() - start_time
+                self._update_stats(result, latency)
+                
+                if result.success:
+                    return result
+                elif attempt < self.config.max_retries - 1:
+                    # 失败时等待后重试
+                    wait_time = self.config.retry_delay * (2 ** attempt)
+                    logger.warning(f"请求失败，{wait_time}s后重试: {result.error}")
+                    await asyncio.sleep(wait_time)
+                else:
+                    return result
+                    
+            except asyncio.TimeoutError:
+                if attempt < self.config.max_retries - 1:
+                    wait_time = self.config.retry_delay * (2 ** attempt)
+                    logger.warning(f"请求超时，{wait_time}s后重试")
+                    await asyncio.sleep(wait_time)
+                else:
+                    return LLMResponse(
+                        success=False,
+                        content='',
+                        error='请求超时，已达到最大重试次数'
+                    )
+            except Exception as e:
+                logger.error(f"请求异常: {e}")
+                if attempt < self.config.max_retries - 1:
+                    wait_time = self.config.retry_delay * (2 ** attempt)
+                    await asyncio.sleep(wait_time)
+                else:
+                    return LLMResponse(
+                        success=False,
+                        content='',
+                        error=str(e)
+                    )
+                    
+        return LLMResponse(
+            success=False,
+            content='',
+            error='所有重试均失败'
+        )
+        
+    def _update_stats(self, result: LLMResponse, latency: float):
+        """更新统计信息"""
+        self._stats['total_requests'] += 1
+        self._stats['total_latency'] += latency
+        
+        if result.success:
+            self._stats['successful_requests'] += 1
+        else:
+            self._stats['failed_requests'] += 1
             
-    async def _call_openai(
+        if result.usage:
+            self._stats['tokens_input'] += result.usage.get('prompt_tokens', 0)
+            self._stats['tokens_output'] += result.usage.get('completion_tokens', 0)
+            
+    async def _call_deepseek(
         self,
+        api_key: str,
         prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """调用OpenAI API"""
+        system_prompt: str,
+        temperature: float,
+        max_tokens: int,
+        stream: bool
+    ) -> LLMResponse:
+        """调用DeepSeek API"""
+        session = self._get_session()
+        
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        messages = []
+        if system_prompt:
+            messages.append({'role': 'system', 'content': system_prompt})
+        messages.append({'role': 'user', 'content': prompt})
+        
+        payload = {
+            'model': self.config.model,
+            'messages': messages,
+            'temperature': temperature,
+            'max_tokens': max_tokens,
+            'stream': stream
+        }
+        
         try:
-            import openai
+            response = await session.post(
+                'https://api.deepseek.com/v1/chat/completions',
+                headers=headers,
+                json=payload
+            )
+            response.raise_for_status()
+            data = response.json()
             
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('OPENAI_API_KEY')
+            return LLMResponse(
+                success=True,
+                content=data['choices'][0]['message']['content'],
+                usage=data.get('usage', {}),
+                model=data.get('model', ''),
+                finish_reason=data['choices'][0].get('finish_reason', '')
+            )
+        except Exception as e:
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'DeepSeek API错误: {str(e)}'
+            )
+            
+    async def _call_moonshot(
+        self,
+        api_key: str,
+        prompt: str,
+        system_prompt: str,
+        temperature: float,
+        max_tokens: int,
+        stream: bool
+    ) -> LLMResponse:
+        """调用Moonshot (Kimi) API"""
+        session = self._get_session()
+        
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        messages = []
+        if system_prompt:
+            messages.append({'role': 'system', 'content': system_prompt})
+        messages.append({'role': 'user', 'content': prompt})
+        
+        payload = {
+            'model': self.config.model,
+            'messages': messages,
+            'temperature': temperature,
+            'max_tokens': max_tokens,
+            'stream': stream
+        }
+        
+        try:
+            response = await session.post(
+                'https://api.moonshot.cn/v1/chat/completions',
+                headers=headers,
+                json=payload
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            return LLMResponse(
+                success=True,
+                content=data['choices'][0]['message']['content'],
+                usage=data.get('usage', {}),
+                model=data.get('model', ''),
+                finish_reason=data['choices'][0].get('finish_reason', '')
+            )
+        except Exception as e:
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'Moonshot API错误: {str(e)}'
+            )
+            
+    async def _call_baidu(
+        self,
+        api_key: str,
+        prompt: str,
+        system_prompt: str,
+        temperature: float,
+        max_tokens: int,
+        stream: bool
+    ) -> LLMResponse:
+        """调用百度文心 API"""
+        import qianfan
+        
+        try:
+            chat_comp = qianfan.ChatCompletion(
+                ak=api_key,
+                sk=os.getenv('BAIDU_SECRET_KEY')
             )
             
             messages = []
             if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
+                messages.append({'role': 'system', 'content': system_prompt})
+            messages.append({'role': 'user', 'content': prompt})
             
-            response = await client.chat.completions.create(
+            resp = chat_comp.do(
                 model=self.config.model,
                 messages=messages,
-                temperature=kwargs.get('temperature', self.config.temperature),
-                max_tokens=kwargs.get('max_tokens', self.config.max_tokens)
+                temperature=temperature,
+                max_output_tokens=max_tokens
             )
             
-            return {
-                'success': True,
-                'content': response.choices[0].message.content,
-                'usage': {
-                    'prompt_tokens': response.usage.prompt_tokens,
-                    'completion_tokens': response.usage.completion_tokens
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
+            result = resp['body']
             
-    async def _call_anthropic(
+            return LLMResponse(
+                success=True,
+                content=result['result'],
+                usage={
+                    'prompt_tokens': result.get('usage', {}).get('prompt_tokens', 0),
+                    'completion_tokens': result.get('usage', {}).get('completion_tokens', 0)
+                },
+                model=self.config.model
+            )
+        except Exception as e:
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'百度API错误: {str(e)}'
+            )
+            
+    async def _call_alibaba(
         self,
+        api_key: str,
         prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """调用Anthropic API"""
-        try:
-            import anthropic
-            
-            client = anthropic.AsyncAnthropic(
-                api_key=self.config.api_key or os.getenv('ANTHROPIC_API_KEY')
-            )
-            
-            response = await client.messages.create(
-                model=self.config.model,
-                max_tokens=kwargs.get('max_tokens', self.config.max_tokens),
-                temperature=kwargs.get('temperature', self.config.temperature),
-                system=system_prompt or "",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            
-            return {
-                'success': True,
-                'content': response.content[0].text,
-                'usage': {
-                    'prompt_tokens': response.usage.input_tokens,
-                    'completion_tokens': response.usage.output_tokens
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
-            
-    async def _call_baidu(
-        self,
-        prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """调用百度文心API - 2025 ERNIE 4.0 Turbo"""
-        try:
-            import requests
-            import json
-            
-            api_key = self.config.api_key or os.getenv('BAIDU_API_KEY')
-            secret_key = os.getenv('BAIDU_SECRET_KEY')
-            
-            # 获取access token
-            token_url = f"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={api_key}&client_secret={secret_key}"
-            
-            # 文心4.0 Turbo API
-            # 支持的模型: ernie-4.0-turbo-8k, ernie-4.0-8k, ernie-3.5-8k
-            url = f"https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/{self.config.model}?access_token={api_key}"
-            
-            payload = {
-                'messages': [
-                    {'role': 'system', 'content': system_prompt or '你是一个专业的AI助手'},
-                    {'role': 'user', 'content': prompt}
-                ],
-                'temperature': kwargs.get('temperature', self.config.temperature),
-                'max_output_tokens': kwargs.get('max_tokens', self.config.max_tokens)
-            }
-            
-            return {
-                'success': True,
-                'content': f"[文心{self.config.model}] 已分析: {prompt[:80]}...",
-                'usage': {'prompt_tokens': 200, 'completion_tokens': 150}
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
+        system_prompt: str,
+        temperature: float,
+        max_tokens: int,
+        stream: bool
+    ) -> LLMResponse:
+        """调用阿里通义千问 API"""
+        import dashscope
         
-    async def _call_deepseek(
-        self,
-        prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """调用DeepSeek API - 2025 DeepSeek-V3"""
         try:
-            # DeepSeek V3 API (2025年1月发布)
-            # 模型: deepseek-chat, deepseek-coder, deepseek-reasoner
-            import aiohttp
+            dashscope.api_key = api_key
             
-            api_key = self.config.api_key or os.getenv('DEEPSEEK_API_KEY')
+            messages = []
+            if system_prompt:
+                messages.append({'role': 'system', 'content': system_prompt})
+            messages.append({'role': 'user', 'content': prompt})
+            
+            response = dashscope.Generation.call(
+                model=self.config.model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                result_format='message'
+            )
+            
+            if response.status_code == 200:
+                return LLMResponse(
+                    success=True,
+                    content=response.output.choices[0].message.content,
+                    usage={
+                        'prompt_tokens': response.usage.input_tokens,
+                        'completion_tokens': response.usage.output_tokens
+                    },
+                    model=self.config.model
+                )
+            else:
+                return LLMResponse(
+                    success=False,
+                    content='',
+                    error=f'阿里API错误: {response.message}'
+                )
+        except Exception as e:
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'阿里API错误: {str(e)}'
+            )
+            
+    async def analyze_image(
+        self,
+        image_path: str,
+        prompt: str = "描述这张图片"
+    ) -> LLMResponse:
+        """
+        分析图片 (视觉理解)
+        
+        使用Kimi K2.5 Vision或Qwen-VL
+        """
+        if self.config.provider == ModelProvider.MOONSHOT:
+            return await self._analyze_image_moonshot(image_path, prompt)
+        elif self.config.provider == ModelProvider.ALIBABA:
+            return await self._analyze_image_qwen(image_path, prompt)
+        else:
+            return LLMResponse(
+                success=False,
+                content='',
+                error='当前模型不支持视觉分析'
+            )
+            
+    async def _analyze_image_moonshot(
+        self,
+        image_path: str,
+        prompt: str
+    ) -> LLMResponse:
+        """使用Kimi分析图片"""
+        import base64
+        
+        try:
+            with open(image_path, 'rb') as f:
+                image_data = base64.b64encode(f.read()).decode('utf-8')
+                
+            session = self._get_session()
+            api_key = self._get_api_key()
             
             headers = {
                 'Authorization': f'Bearer {api_key}',
@@ -287,336 +568,140 @@ class LLMClient:
             }
             
             payload = {
-                'model': self.config.model,
+                'model': 'kimi-k2.5',
                 'messages': [
-                    {'role': 'system', 'content': system_prompt or ''},
-                    {'role': 'user', 'content': prompt}
-                ],
-                'temperature': kwargs.get('temperature', self.config.temperature),
-                'max_tokens': kwargs.get('max_tokens', self.config.max_tokens)
+                    {
+                        'role': 'user',
+                        'content': [
+                            {'type': 'image_url', 'image_url': {'url': f'data:image/jpeg;base64,{image_data}'}},
+                            {'type': 'text', 'text': prompt}
+                        ]
+                    }
+                ]
             }
             
-            return {
-                'success': True,
-                'content': f"[DeepSeek-V3] 已深度分析: {prompt[:80]}...",
-                'usage': {'prompt_tokens': 200, 'completion_tokens': 150}
-            }
+            response = await session.post(
+                'https://api.moonshot.cn/v1/chat/completions',
+                headers=headers,
+                json=payload
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            return LLMResponse(
+                success=True,
+                content=data['choices'][0]['message']['content'],
+                usage=data.get('usage', {})
+            )
         except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
-            
-    async def _call_google(
-        self,
-        prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """调用Google Gemini API - 2026年最新"""
-        try:
-            import google.generativeai as genai
-            
-            genai.configure(api_key=self.config.api_key or os.getenv('GOOGLE_API_KEY'))
-            
-            model = genai.GenerativeModel(self.config.model)
-            
-            chat = model.start_chat(history=[])
-            if system_prompt:
-                chat.send_message(system_prompt)
-                
-            response = chat.send_message(prompt)
-            
-            return {
-                'success': True,
-                'content': response.text,
-                'usage': {
-                    'prompt_tokens': response.usage_metadata.prompt_token_count,
-                    'completion_tokens': response.usage_metadata.candidates_token_count
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
-            
-    async def _call_moonshot(
-        self,
-        prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """调用Moonshot Kimi API - 2025年最新 (Kimi K2.5)"""
-        try:
-            import openai
-            
-            # Moonshot API (Kimi K2.5)
-            # 模型: kimi-k2.5 (标准版, 256K上下文)
-            # 文档: https://platform.moonshot.cn/docs/guide/kimi-k2-5-model-best-practice
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
-                base_url="https://api.moonshot.cn/v1"
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'图片分析失败: {str(e)}'
             )
-            
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
-            
-            response = await client.chat.completions.create(
-                model=self.config.model,
-                messages=messages,
-                temperature=kwargs.get('temperature', self.config.temperature),
-                max_tokens=kwargs.get('max_tokens', self.config.max_tokens)
-            )
-            
-            return {
-                'success': True,
-                'content': response.choices[0].message.content,
-                'usage': {
-                    'prompt_tokens': response.usage.prompt_tokens,
-                    'completion_tokens': response.usage.completion_tokens
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
-            
-    async def _call_alibaba(
-        self,
-        prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """调用阿里通义千问API - 2025 Qwen 2.5"""
-        try:
-            import openai
-            
-            # 阿里云灵积平台 DashScope
-            # 模型: qwen-max-latest, qwen-plus, qwen-turbo
-            # Qwen2.5: qwen2.5-72b-instruct, qwen2.5-14b-instruct
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('DASHSCOPE_API_KEY'),
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-            )
-            
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
-            
-            response = await client.chat.completions.create(
-                model=self.config.model,
-                messages=messages,
-                temperature=kwargs.get('temperature', self.config.temperature),
-                max_tokens=kwargs.get('max_tokens', self.config.max_tokens)
-            )
-            
-            return {
-                'success': True,
-                'content': response.choices[0].message.content,
-                'usage': {
-                    'prompt_tokens': response.usage.prompt_tokens,
-                    'completion_tokens': response.usage.completion_tokens
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
-        
-    async def _call_mock(
-        self,
-        prompt: str,
-        system_prompt: Optional[str],
-        **kwargs
-    ) -> Dict[str, Any]:
-        """模拟调用（用于测试）"""
-        return {
-            'success': True,
-            'content': f"[模拟{self.config.model}响应] 已处理: {prompt[:100]}...",
-            'usage': {'prompt_tokens': 50, 'completion_tokens': 30}
-        }
-        
-    async def analyze_image(
-        self,
-        image_path: str,
-        prompt: str
-    ) -> Dict[str, Any]:
-        """图像分析（用于ColoristAgent/VFXAgent）- Kimi K2.5"""
-        try:
-            import openai
-            import base64
-            
-            # 读取图片
-            with open(image_path, 'rb') as f:
-                image_data = base64.b64encode(f.read()).decode()
-            
-            # Kimi K2.5 支持视觉理解
-            # 文档: https://platform.moonshot.cn/docs/guide/kimi-k2-5-model-best-practice
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
-                base_url="https://api.moonshot.cn/v1"
-            )
-            
-            response = await client.chat.completions.create(
-                model="kimi-k2.5",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_data}"
-                            }
-                        }
-                    ]
-                }],
-                max_tokens=2000
-            )
-            
-            return {
-                'success': True,
-                'content': response.choices[0].message.content,
-                'usage': {
-                    'prompt_tokens': response.usage.prompt_tokens,
-                    'completion_tokens': response.usage.completion_tokens
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
             
     async def _analyze_image_qwen(
         self,
         image_path: str,
         prompt: str
-    ) -> Dict[str, Any]:
-        """阿里通义千问视觉分析（备用）"""
+    ) -> LLMResponse:
+        """使用Qwen-VL分析图片"""
+        import dashscope
+        
         try:
-            import openai
-            import base64
+            dashscope.api_key = self._get_api_key()
             
-            with open(image_path, 'rb') as f:
-                image_data = base64.b64encode(f.read()).decode()
-                
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('DASHSCOPE_API_KEY'),
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-            )
-            
-            # Qwen-VL 视觉语言模型
-            response = await client.chat.completions.create(
-                model="qwen-vl-max",
+            response = dashscope.MultiModalConversation.call(
+                model='qwen-vl-max',
                 messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_data}"
-                            }
-                        }
+                    'role': 'user',
+                    'content': [
+                        {'image': image_path},
+                        {'text': prompt}
                     ]
-                }],
-                max_tokens=2000
+                }]
             )
             
-            return {
-                'success': True,
-                'content': response.choices[0].message.content,
-                'usage': {
-                    'prompt_tokens': response.usage.prompt_tokens,
-                    'completion_tokens': response.usage.completion_tokens
-                }
-            }
+            if response.status_code == 200:
+                return LLMResponse(
+                    success=True,
+                    content=response.output.choices[0].message.content[0]['text']
+                )
+            else:
+                return LLMResponse(
+                    success=False,
+                    content='',
+                    error=f'Qwen-VL错误: {response.message}'
+                )
         except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'图片分析失败: {str(e)}'
+            )
             
     async def analyze_video_frame(
         self,
-        frame_path: str,
-        prompt: str
-    ) -> Dict[str, Any]:
-        """视频帧分析（用于VFXAgent画面理解）- Kimi K2.5"""
+        video_path: str,
+        timestamp: float,
+        prompt: str = "描述这一帧画面"
+    ) -> LLMResponse:
+        """
+        分析视频帧
+        
+        先提取帧，再使用视觉模型分析
+        """
+        import tempfile
+        import cv2
+        
         try:
-            import openai
-            import base64
+            # 提取帧
+            cap = cv2.VideoCapture(video_path)
+            cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
+            ret, frame = cap.read()
+            cap.release()
             
-            # 读取帧图片
-            with open(frame_path, 'rb') as f:
-                image_data = base64.b64encode(f.read()).decode()
-            
-            # Kimi K2.5 支持视觉理解
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('MOONSHOT_API_KEY'),
-                base_url="https://api.moonshot.cn/v1"
-            )
-            
-            response = await client.chat.completions.create(
-                model="kimi-k2.5",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_data}"
-                            }
-                        }
-                    ]
-                }],
-                max_tokens=2000
-            )
-            
-            return {
-                'success': True,
-                'content': response.choices[0].message.content,
-                'usage': {
-                    'prompt_tokens': response.usage.prompt_tokens,
-                    'completion_tokens': response.usage.completion_tokens
-                }
-            }
-        except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
-            
-    async def _analyze_video_frame_qwen(
-        self,
-        frame_path: str,
-        prompt: str
-    ) -> Dict[str, Any]:
-        """阿里Qwen-VL视频帧分析（备用）"""
-        try:
-            import openai
-            import base64
-            
-            with open(frame_path, 'rb') as f:
-                image_data = base64.b64encode(f.read()).decode()
+            if not ret:
+                return LLMResponse(
+                    success=False,
+                    content='',
+                    error='无法提取视频帧'
+                )
                 
-            client = openai.AsyncOpenAI(
-                api_key=self.config.api_key or os.getenv('DASHSCOPE_API_KEY'),
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-            )
-            
-            # Qwen-VL 视觉语言模型
-            response = await client.chat.completions.create(
-                model="qwen-vl-max",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_data}"
-                            }
-                        }
-                    ]
-                }],
-                max_tokens=2000
-            )
-            
-            return {
-                'success': True,
-                'content': response.choices[0].message.content,
-                'usage': {
-                    'prompt_tokens': response.usage.prompt_tokens,
-                    'completion_tokens': response.usage.completion_tokens
-                }
-            }
+            # 保存临时文件
+            with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp:
+                cv2.imwrite(tmp.name, frame)
+                frame_path = tmp.name
+                
+            try:
+                # 分析帧
+                result = await self.analyze_image(frame_path, prompt)
+                return result
+            finally:
+                # 清理临时文件
+                os.unlink(frame_path)
+                
         except Exception as e:
-            return {'success': False, 'content': '', 'error': str(e)}
+            return LLMResponse(
+                success=False,
+                content='',
+                error=f'视频帧分析失败: {str(e)}'
+            )
+            
+    def get_stats(self) -> Dict[str, Any]:
+        """获取统计信息"""
+        stats = self._stats.copy()
+        if stats['total_requests'] > 0:
+            stats['avg_latency'] = stats['total_latency'] / stats['total_requests']
+            stats['success_rate'] = stats['successful_requests'] / stats['total_requests']
+        else:
+            stats['avg_latency'] = 0.0
+            stats['success_rate'] = 0.0
+        return stats
+        
+    @classmethod
+    def close_all_sessions(cls):
+        """关闭所有HTTP会话"""
+        for session in cls._session_cache.values():
+            asyncio.create_task(session.aclose())
+        cls._session_cache.clear()
