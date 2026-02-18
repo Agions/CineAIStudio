@@ -18,6 +18,9 @@ from .base_LLM_provider import (
 from .providers.qwen import QwenProvider
 from .providers.kimi import KimiProvider
 from .providers.glm5 import GLM5Provider
+from .providers.claude import ClaudeProvider
+from .providers.gemini import GeminiProvider
+from .providers.local import LocalProvider
 
 
 def _safe_import():
@@ -34,6 +37,8 @@ class ProviderType(Enum):
     QWEN = "qwen"
     KIMI = "kimi"
     GLM5 = "glm5"
+    CLAUDE = "claude"
+    GEMINI = "gemini"
     OPENAI = "openai"
     LOCAL = "local"
 
@@ -95,6 +100,35 @@ class LLMManager:
                     api_key=api_key,
                     base_url=glm5_config.get("base_url", ""),
                 )
+
+        # Claude
+        claude_config = llm_config.get("claude", {})
+        if claude_config.get("enabled", False):
+            api_key = claude_config.get("api_key", "")
+            if api_key and api_key != "${CLAUDE_API_KEY}":
+                self.providers[ProviderType.CLAUDE] = ClaudeProvider(
+                    api_key=api_key,
+                    base_url=claude_config.get("base_url", "https://api.anthropic.com"),
+                )
+
+        # Gemini
+        gemini_config = llm_config.get("gemini", {})
+        if gemini_config.get("enabled", False):
+            api_key = gemini_config.get("api_key", "")
+            if api_key and api_key != "${GEMINI_API_KEY}":
+                self.providers[ProviderType.GEMINI] = GeminiProvider(
+                    api_key=api_key,
+                    base_url=gemini_config.get("base_url", "https://generativelanguage.googleapis.com"),
+                )
+
+        # 本地模型
+        local_config = llm_config.get("local", {})
+        if local_config.get("enabled", False):
+            self.providers[ProviderType.LOCAL] = LocalProvider(
+                api_key=local_config.get("api_key", ""),
+                base_url=local_config.get("base_url", "http://localhost:11434"),
+                backend=local_config.get("backend", "ollama"),
+            )
 
         # 设置默认提供商
         default_name = llm_config.get("default_provider", "qwen")
