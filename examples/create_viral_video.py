@@ -1,6 +1,6 @@
 """
 Viral Video Creator - 爆款视频创建示例
-演示如何使用 CineAIStudio 的爆款视频工具链
+演示如何使用 CineFlow AI 的爆款视频工具链
 
 工作流程:
 1. 静音检测与移除 -> 保持紧凑节奏
@@ -244,7 +244,7 @@ def demo_caption_generation():
 
 
 if __name__ == '__main__':
-    print("🎬 CineAIStudio - 爆款视频创建工具")
+    print("🎬 CineFlow AI - 爆款视频创建工具")
     print("=" * 60)
     print()
     

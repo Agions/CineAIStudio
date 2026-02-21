@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 主窗口 - 设置版本
+CineFlow AI 主窗口 - 设置版本
 实现双页面架构：首页 + 设置页面
 """
 
@@ -50,7 +50,7 @@ class PageType(Enum):
 @dataclass
 class WindowConfig:
     """窗口配置"""
-    title: str = "CineAIStudio"
+    title: str = "CineFlow AI"
     width: int = 1200
     height: int = 800
     min_width: int = 800
@@ -60,7 +60,7 @@ class WindowConfig:
 
 
 class MainWindow(QMainWindow):
-    """CineAIStudio 主窗口 - 设置版本"""
+    """CineFlow AI 主窗口 - 设置版本"""
 
     # 信号定义
     page_changed = pyqtSignal(PageType)           # 页面切换信号
@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
         left_layout.setSpacing(0)
 
         # 应用标题
-        self.app_title = QLabel("CineAIStudio")
+        self.app_title = QLabel("CineFlow AI")
         self.app_title.setObjectName("app_title")
         left_layout.addWidget(self.app_title)
 
@@ -179,16 +179,18 @@ class MainWindow(QMainWindow):
             ai_chat_icon = QIcon()
             projects_icon = QIcon()
 
-        # 创建导航按钮
-        self.home_btn = QPushButton(home_icon, "首页")
-        self.projects_btn = QPushButton(projects_icon, "项目")
-        self.editor_btn = QPushButton(video_icon, "视频编辑器")
-        self.ai_video_btn = QPushButton(video_icon, "🎬 AI创作")  # AI 视频创作
-        self.ai_chat_btn = QPushButton(ai_chat_icon, "AI聊天")
-        self.settings_btn = QPushButton(settings_icon, "设置")
+        # 创建导航按钮（只保留 2 个核心入口）
+        self.home_btn = QPushButton(home_icon, "  首页")
+        self.settings_btn = QPushButton(settings_icon, "  设置")
+
+        # 隐藏页面引用（通过代码跳转，不在导航显示）
+        self.projects_btn = QPushButton()
+        self.editor_btn = QPushButton()
+        self.ai_video_btn = QPushButton()
+        self.ai_chat_btn = QPushButton()
 
         # 设置按钮通用样式和属性
-        self.nav_buttons = [self.home_btn, self.projects_btn, self.editor_btn, self.ai_video_btn, self.ai_chat_btn, self.settings_btn]
+        self.nav_buttons = [self.home_btn, self.settings_btn]
         for btn in self.nav_buttons:
             btn.setObjectName("nav_button")
             btn.setCheckable(True)
@@ -197,34 +199,19 @@ class MainWindow(QMainWindow):
 
         # 连接按钮信号
         self.home_btn.clicked.connect(lambda: self.switch_to_page(PageType.HOME))
-        self.projects_btn.clicked.connect(lambda: self.switch_to_page(PageType.PROJECTS))
-        self.editor_btn.clicked.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
-        self.ai_video_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_VIDEO_CREATOR))
-        self.ai_chat_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_CHAT))
         self.settings_btn.clicked.connect(lambda: self.switch_to_page(PageType.SETTINGS))
+        self.projects_btn.clicked.connect(lambda: self.switch_to_page(PageType.PROJECTS))
+        self.ai_video_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_VIDEO_CREATOR))
+        self.editor_btn.clicked.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
+        self.ai_chat_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_CHAT))
 
-        # 添加分隔线
-        from ..common.widgets.separator import HSeparator
-        
-        # 添加按钮到导航布局，分组排列
-        # 主要功能
-        nav_layout.addWidget(QLabel("主要功能"))
+        # 添加按钮到导航布局
+        # 导航按钮（极简：首页 + 设置）
         nav_layout.addWidget(self.home_btn)
-        nav_layout.addWidget(self.projects_btn)
-        nav_layout.addWidget(self.editor_btn)
-        
-        # 添加分隔线
-        nav_layout.addWidget(HSeparator())
-        
-        # AI功能
-        nav_layout.addWidget(QLabel("AI功能"))
-        nav_layout.addWidget(self.ai_video_btn)  # AI 视频创作
-        nav_layout.addWidget(self.ai_chat_btn)
-        
-        # 添加分隔线
-        nav_layout.addWidget(HSeparator())
-        
-        # 设置
+
+        nav_layout.addStretch()
+
+        # 设置放底部
         nav_layout.addWidget(self.settings_btn)
         
         nav_layout.addStretch()
@@ -509,7 +496,7 @@ class MainWindow(QMainWindow):
         """加载设置，添加验证和默认值处理"""
         try:
             # 加载窗口设置
-            settings = QSettings("CineAIStudio", "MainWindow")
+            settings = QSettings("CineFlow AI", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 恢复窗口位置和大小
@@ -559,7 +546,7 @@ class MainWindow(QMainWindow):
     def _save_settings(self):
         """保存设置，添加验证和异常处理"""
         try:
-            settings = QSettings("CineAIStudio", "MainWindow")
+            settings = QSettings("CineFlow AI", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 保存窗口位置和大小
@@ -874,7 +861,7 @@ class MainWindow(QMainWindow):
             reply = QMessageBox.question(
                 self,
                 "确认退出",
-                "确定要退出 CineAIStudio 吗？",
+                "确定要退出 CineFlow AI 吗？",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )

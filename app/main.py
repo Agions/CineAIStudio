@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CineAIStudio 主程序入口
+CineFlow AI 主程序入口
 专业的AI视频编辑器
 """
 
@@ -21,7 +21,7 @@ def main():
     print("🎬 CineFlow AI - AI 视频创作工具")
     print("=" * 50)
     print(f"\n版本: {__version__}")
-    print("作者: CineFlow AI Team")
+    print("作者: Agions")
     print()
 
     # 检查依赖
@@ -97,7 +97,7 @@ def check_dependencies():
 
 def run_cli_mode():
     """命令行模式"""
-    print("CineAIStudio 命令行模式")
+    print("CineFlow AI 命令行模式")
     print("-" * 30)
     print("可用功能:")
     print("  1. AI 视频解说")

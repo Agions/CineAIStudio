@@ -2,907 +2,372 @@
 # -*- coding: utf-8 -*-
 
 """
-设置页面 - macOS 设计系统优化版
-重构为使用标准化组件，零内联样式
+CineFlow AI 设置页面
+简洁实用，包含：API Key 配置、路径设置、快捷跳转
 """
 
 import os
-from typing import Optional, Dict, Any, List
+import sys
+import subprocess
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QTabWidget,
-    QLineEdit, QComboBox, QSpinBox, QCheckBox, QLabel,
-    QFileDialog, QMessageBox
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
+    QPushButton, QFrame, QScrollArea, QFileDialog, QMessageBox,
+    QSizePolicy, QSpacerItem
 )
 from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QFont, QCursor
 
-from app.core.application import Application
-from app.core.logger import Logger
-from app.core.icon_manager import get_icon
 from .base_page import BasePage
 
-# 导入标准化 macOS 组件
-from app.ui.common.macOS_components import (
-    MacCard, MacPrimaryButton, MacSecondaryButton, MacDangerButton,
-    MacIconButton, MacTitleLabel, MacLabel, MacBadge,
-    MacPageToolbar, MacScrollArea, MacEmptyState
-)
 
+class SettingRow(QFrame):
+    """单行设置项"""
 
-class ConfigRow(QWidget):
-    """配置行组件 - 带标签和输入控件"""
-
-    def __init__(self, label: str, input_widget, parent=None):
+    def __init__(self, label: str, description: str = "", parent=None):
         super().__init__(parent)
-        self.setProperty("class", "config-row")
+        self.setStyleSheet("""
+            QFrame { background: transparent; padding: 8px 0; }
+        """)
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 8, 12, 8)
-        layout.setSpacing(8)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 8, 0, 8)
+        layout.setSpacing(4)
 
         # 标签
-        label_widget = MacLabel(label, "text-sm text-bold")
-        layout.addWidget(label_widget)
+        lbl = QLabel(label)
+        lbl.setFont(QFont("", 14, QFont.Weight.Bold))
+        lbl.setStyleSheet("color: #DDD;")
+        layout.addWidget(lbl)
 
-        # 输入控件
-        layout.addWidget(input_widget, 1)
+        # 描述
+        if description:
+            desc = QLabel(description)
+            desc.setStyleSheet("color: #777; font-size: 12px;")
+            desc.setWordWrap(True)
+            layout.addWidget(desc)
 
-        # 如果是 Combo 或 SpinBox，设置样式
-        if isinstance(input_widget, (QComboBox, QSpinBox)):
-            input_widget.setProperty("class", "input config-input")
-
-
-class GroupCard(MacCard):
-    """分组卡片容器"""
-
-    def __init__(self, title: str, parent=None):
-        super().__init__(parent)
-        self.setProperty("class", "card group-card")
-
-        self.title = MacTitleLabel(title, 6)
-        self.layout().addWidget(self.title)
-
-        self.content_layout = QVBoxLayout()
+        # 内容区（子类填充）
+        self.content_layout = QHBoxLayout()
+        self.content_layout.setContentsMargins(0, 4, 0, 0)
         self.content_layout.setSpacing(8)
-        self.layout().addLayout(self.content_layout)
-
-    def add_row(self, label: str, widget):
-        """添加配置行"""
-        row = ConfigRow(label, widget)
-        self.content_layout.addWidget(row)
-
-
-class AIConfigPanel(QWidget):
-    """AI配置面板 - macOS 设计系统"""
-
-    config_changed = pyqtSignal(str, object)
-
-    def __init__(self, application: Application):
-        super().__init__()
-        self.application = application
-        self.logger = application.get_service(Logger)
-        self.config_manager = application.get_service_by_name("config_manager")
-
-        self.setProperty("class", "panel config-panel")
-        self._init_ui()
-        self._load_settings()
-
-    def _init_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        # 滚动区域
-        scroll = MacScrollArea()
-        scroll.setProperty("class", "scroll-area config-scroll")
-
-        content = QWidget()
-        content.setProperty("class", "section-content")
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(20, 20, 20, 20)
-        content_layout.setSpacing(16)
-
-        # 模型配置
-        model_group = GroupCard("模型配置")
-
-        self.model_type_combo = QComboBox()
-        self.model_type_combo.addItems(["GPT-4", "GPT-3.5", "Claude", "Gemini", "本地模型"])
-        model_group.add_row("模型类型:", self.model_type_combo)
-
-        self.api_key_edit = QLineEdit()
-        self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.api_key_edit.setPlaceholderText("输入API密钥")
-        model_group.add_row("API密钥:", self.api_key_edit)
-
-        self.model_path_edit = QLineEdit()
-        self.model_path_edit.setPlaceholderText("本地模型路径")
-        model_layout = QHBoxLayout()
-        model_layout.addWidget(self.model_path_edit, 1)
-        browse_btn = MacSecondaryButton("浏览")
-        browse_btn.clicked.connect(self._browse_model_path)
-        model_layout.addWidget(browse_btn)
-
-        # 手动添加为内嵌布局
-        row = QWidget()
-        row.setProperty("class", "config-row")
-        row_layout = QHBoxLayout(row)
-        row_layout.setContentsMargins(12, 8, 12, 8)
-        row_layout.setSpacing(8)
-        row_layout.addWidget(MacLabel("模型路径:", "text-sm text-bold"))
-        row_layout.addLayout(model_layout)
-        model_group.content_layout.addWidget(row)
-
-        content_layout.addWidget(model_group)
-
-        # 功能配置
-        feature_group = GroupCard("功能配置")
-
-        self.ai_enabled_check = QCheckBox("启用AI功能")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.ai_enabled_check))
-
-        self.auto_subtitle_check = QCheckBox("自动字幕")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.auto_subtitle_check))
-
-        self.smart_editing_check = QCheckBox("智能剪辑")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.smart_editing_check))
-
-        self.scene_detection_check = QCheckBox("场景检测")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.scene_detection_check))
-
-        content_layout.addWidget(feature_group)
-
-        # 性能配置
-        perf_group = GroupCard("性能配置")
-
-        self.batch_size_spin = QSpinBox()
-        self.batch_size_spin.setRange(1, 32)
-        self.batch_size_spin.setValue(8)
-        perf_group.add_row("批处理大小:", self.batch_size_spin)
-
-        self.precision_combo = QComboBox()
-        self.precision_combo.addItems(["FP32", "FP16", "INT8"])
-        self.precision_combo.setCurrentText("FP16")
-        perf_group.add_row("推理精度:", self.precision_combo)
-
-        self.gpu_memory_spin = QSpinBox()
-        self.gpu_memory_spin.setRange(1, 32)
-        self.gpu_memory_spin.setValue(8)
-        perf_group.add_row("GPU内存(GB):", self.gpu_memory_spin)
-
-        content_layout.addWidget(perf_group)
-
-        # 按钮区域
-        btn_group = MacCard()
-        btn_group.setProperty("class", "card action-group")
-        btn_layout = QHBoxLayout(btn_group.layout())
-        btn_layout.setContentsMargins(12, 12, 12, 12)
-
-        btn_layout.addStretch()
-
-        apply_btn = MacPrimaryButton("应用")
-        apply_btn.clicked.connect(self._apply_settings)
-        btn_layout.addWidget(apply_btn)
-
-        reset_btn = MacSecondaryButton("重置")
-        reset_btn.clicked.connect(self._reset_settings)
-        btn_layout.addWidget(reset_btn)
-
-        content_layout.addWidget(btn_group)
-        content_layout.addStretch()
-
-        scroll.setWidget(content)
-        layout.addWidget(scroll)
-
-    def _create_checkbox(self, checkbox):
-        """创建带样式的复选框容器"""
-        container = QWidget()
-        container.setProperty("class", "checkbox-row")
-        layout = QHBoxLayout(container)
-        layout.setContentsMargins(12, 8, 12, 8)
-
-        checkbox.setProperty("class", "checkbox")
-        layout.addWidget(checkbox)
-
-        return container
-
-    def _browse_model_path(self):
-        """浏览模型路径"""
-        path = QFileDialog.getExistingDirectory(self, "选择模型路径", os.path.expanduser("~"))
-        if path:
-            self.model_path_edit.setText(path)
-
-    def _load_settings(self):
-        """加载设置"""
-        try:
-            settings = self.config_manager.get_settings()
-            ai_config = settings.get("ai_config", {})
-
-            self.model_type_combo.setCurrentText(ai_config.get("model_type", "GPT-4"))
-            self.api_key_edit.setText(ai_config.get("api_key", ""))
-            self.model_path_edit.setText(ai_config.get("model_path", ""))
-
-            self.ai_enabled_check.setChecked(ai_config.get("enabled", True))
-            self.auto_subtitle_check.setChecked(ai_config.get("auto_subtitle", True))
-            self.smart_editing_check.setChecked(ai_config.get("smart_editing", True))
-            self.scene_detection_check.setChecked(ai_config.get("scene_detection", True))
-
-            perf_config = ai_config.get("performance", {})
-            self.batch_size_spin.setValue(perf_config.get("batch_size", 8))
-            self.precision_combo.setCurrentText(perf_config.get("precision", "FP16"))
-            self.gpu_memory_spin.setValue(perf_config.get("gpu_memory_limit", 8))
-
-        except Exception as e:
-            self.logger.error(f"加载AI配置失败: {e}")
-
-    def _apply_settings(self):
-        """应用设置"""
-        try:
-            settings = self.config_manager.get_settings()
-            ai_config = settings.get("ai_config", {})
-
-            ai_config.update({
-                "model_type": self.model_type_combo.currentText(),
-                "api_key": self.api_key_edit.text(),
-                "model_path": self.model_path_edit.text(),
-                "enabled": self.ai_enabled_check.isChecked(),
-                "auto_subtitle": self.auto_subtitle_check.isChecked(),
-                "smart_editing": self.smart_editing_check.isChecked(),
-                "scene_detection": self.scene_detection_check.isChecked(),
-                "performance": {
-                    "batch_size": self.batch_size_spin.value(),
-                    "precision": self.precision_combo.currentText(),
-                    "gpu_memory_limit": self.gpu_memory_spin.value()
-                }
-            })
-
-            settings["ai_config"] = ai_config
-            self.config_manager.update_settings(settings)
-
-            self.config_changed.emit("ai_config", ai_config)
-            QMessageBox.information(self, "成功", "AI配置已保存")
-
-        except Exception as e:
-            self.logger.error(f"应用AI配置失败: {e}")
-            QMessageBox.critical(self, "错误", f"保存配置失败: {e}")
-
-    def _reset_settings(self):
-        """重置设置"""
-        reply = QMessageBox.question(
-            self, "确认重置", "确定要重置AI配置为默认值吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.model_type_combo.setCurrentText("GPT-4")
-            self.api_key_edit.setText("")
-            self.model_path_edit.setText("")
-            self.ai_enabled_check.setChecked(True)
-            self.auto_subtitle_check.setChecked(True)
-            self.smart_editing_check.setChecked(True)
-            self.scene_detection_check.setChecked(True)
-            self.batch_size_spin.setValue(8)
-            self.precision_combo.setCurrentText("FP16")
-            self.gpu_memory_spin.setValue(8)
-            self._apply_settings()
-
-
-class ChineseAIConfigPanel(QWidget):
-    """国产AI配置面板 - macOS 设计系统"""
-
-    config_changed = pyqtSignal(str, object)
-
-    def __init__(self, application: Application):
-        super().__init__()
-        self.application = application
-        self.logger = application.get_service(Logger)
-        self.config_manager = application.get_service_by_name("config_manager")
-
-        self.setProperty("class", "panel config-panel")
-        self._init_ui()
-        self._load_settings()
-
-    def _init_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        scroll = MacScrollArea()
-        scroll.setProperty("class", "scroll-area config-scroll")
-
-        content = QWidget()
-        content.setProperty("class", "section-content")
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(20, 20, 20, 20)
-        content_layout.setSpacing(16)
-
-        # 模型选择
-        model_group = GroupCard("国产AI模型")
-
-        self.model_type_combo = QComboBox()
-        self.model_type_combo.addItems([
-            "文心一言(ERNIE)", "通义千问(Qwen)", "智谱清言(ChatGLM)",
-            "讯飞星火", "百川大模型", "月之暗面(LLaMA)", "其他国产模型"
-        ])
-        model_group.add_row("模型类型:", self.model_type_combo)
-
-        self.api_key_edit = QLineEdit()
-        self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.api_key_edit.setPlaceholderText("输入API密钥")
-        model_group.add_row("API密钥:", self.api_key_edit)
-
-        self.api_endpoint_edit = QLineEdit()
-        self.api_endpoint_edit.setPlaceholderText("https://api.example.com/v1/chat/completions")
-        model_group.add_row("API端点:", self.api_endpoint_edit)
-
-        content_layout.addWidget(model_group)
-
-        # 功能开关
-        feature_group = GroupCard("功能开关")
-
-        self.ernie_enabled_check = QCheckBox("启用文心一言")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.ernie_enabled_check))
-
-        self.qwen_enabled_check = QCheckBox("启用通义千问")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.qwen_enabled_check))
-
-        self.chatglm_enabled_check = QCheckBox("启用智谱清言")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.chatglm_enabled_check))
-
-        self.xunfei_enabled_check = QCheckBox("启用讯飞星火")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.xunfei_enabled_check))
-
-        self.baichuan_enabled_check = QCheckBox("启用百川大模型")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.baichuan_enabled_check))
-
-        self.llama_enabled_check = QCheckBox("启用月之暗面")
-        feature_group.content_layout.addWidget(self._create_checkbox(self.llama_enabled_check))
-
-        content_layout.addWidget(feature_group)
-
-        # 性能配置
-        perf_group = GroupCard("性能配置")
-
-        self.batch_size_spin = QSpinBox()
-        self.batch_size_spin.setRange(1, 32)
-        self.batch_size_spin.setValue(4)
-        perf_group.add_row("批处理大小:", self.batch_size_spin)
-
-        self.precision_combo = QComboBox()
-        self.precision_combo.addItems(["FP32", "FP16", "INT8"])
-        self.precision_combo.setCurrentText("FP16")
-        perf_group.add_row("推理精度:", self.precision_combo)
-
-        self.gpu_memory_spin = QSpinBox()
-        self.gpu_memory_spin.setRange(1, 32)
-        self.gpu_memory_spin.setValue(4)
-        perf_group.add_row("GPU内存(GB):", self.gpu_memory_spin)
-
-        content_layout.addWidget(perf_group)
-
-        # 按钮
-        btn_group = MacCard()
-        btn_group.setProperty("class", "card action-group")
-        btn_layout = QHBoxLayout(btn_group.layout())
-        btn_layout.setContentsMargins(12, 12, 12, 12)
-
-        test_btn = MacSecondaryButton("测试连接")
-        btn_layout.addWidget(test_btn)
-        btn_layout.addStretch()
-
-        apply_btn = MacPrimaryButton("应用")
-        apply_btn.clicked.connect(self._apply_settings)
-        btn_layout.addWidget(apply_btn)
-
-        reset_btn = MacSecondaryButton("重置")
-        reset_btn.clicked.connect(self._reset_settings)
-        btn_layout.addWidget(reset_btn)
-
-        content_layout.addWidget(btn_group)
-        content_layout.addStretch()
-
-        scroll.setWidget(content)
-        layout.addWidget(scroll)
-
-    def _create_checkbox(self, checkbox):
-        widget = QWidget()
-        widget.setProperty("class", "checkbox-row")
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(12, 8, 12, 8)
-        checkbox.setProperty("class", "checkbox")
-        layout.addWidget(checkbox)
-        return widget
-
-    def _load_settings(self):
-        try:
-            settings = self.config_manager.get_settings()
-            config = settings.get("chinese_ai_config", {})
-
-            self.model_type_combo.setCurrentText(config.get("model_type", "文心一言(ERNIE)"))
-            self.api_key_edit.setText(config.get("api_key", ""))
-            self.api_endpoint_edit.setText(config.get("api_endpoint", ""))
-
-            enabled = config.get("enabled_models", [])
-            self.ernie_enabled_check.setChecked("ernie" in enabled)
-            self.qwen_enabled_check.setChecked("qwen" in enabled)
-            self.chatglm_enabled_check.setChecked("chatglm" in enabled)
-            self.xunfei_enabled_check.setChecked("xunfei" in enabled)
-            self.baichuan_enabled_check.setChecked("baichuan" in enabled)
-            self.llama_enabled_check.setChecked("llama" in enabled)
-
-            perf = config.get("performance", {})
-            self.batch_size_spin.setValue(perf.get("batch_size", 4))
-            self.precision_combo.setCurrentText(perf.get("precision", "FP16"))
-            self.gpu_memory_spin.setValue(perf.get("gpu_memory_limit", 4))
-
-        except Exception as e:
-            self.logger.error(f"加载国产AI配置失败: {e}")
-
-    def _apply_settings(self):
-        try:
-            settings = self.config_manager.get_settings()
-            config = settings.get("chinese_ai_config", {})
-
-            enabled_models = []
-            if self.ernie_enabled_check.isChecked(): enabled_models.append("ernie")
-            if self.qwen_enabled_check.isChecked(): enabled_models.append("qwen")
-            if self.chatglm_enabled_check.isChecked(): enabled_models.append("chatglm")
-            if self.xunfei_enabled_check.isChecked(): enabled_models.append("xunfei")
-            if self.baichuan_enabled_check.isChecked(): enabled_models.append("baichuan")
-            if self.llama_enabled_check.isChecked(): enabled_models.append("llama")
-
-            config.update({
-                "model_type": self.model_type_combo.currentText(),
-                "api_key": self.api_key_edit.text(),
-                "api_endpoint": self.api_endpoint_edit.text(),
-                "enabled_models": enabled_models,
-                "performance": {
-                    "batch_size": self.batch_size_spin.value(),
-                    "precision": self.precision_combo.currentText(),
-                    "gpu_memory_limit": self.gpu_memory_spin.value()
-                }
-            })
-
-            settings["chinese_ai_config"] = config
-            self.config_manager.update_settings(settings)
-
-            self.config_changed.emit("chinese_ai_config", config)
-            QMessageBox.information(self, "成功", "国产AI配置已保存")
-
-        except Exception as e:
-            self.logger.error(f"应用国产AI配置失败: {e}")
-            QMessageBox.critical(self, "错误", f"保存配置失败: {e}")
-
-    def _reset_settings(self):
-        reply = QMessageBox.question(
-            self, "确认重置", "确定要重置国产AI配置为默认值吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.model_type_combo.setCurrentText("文心一言(ERNIE)")
-            self.api_key_edit.setText("")
-            self.api_endpoint_edit.setText("")
-            self.ernie_enabled_check.setChecked(True)
-            self.qwen_enabled_check.setChecked(False)
-            self.chatglm_enabled_check.setChecked(False)
-            self.xunfei_enabled_check.setChecked(False)
-            self.baichuan_enabled_check.setChecked(False)
-            self.llama_enabled_check.setChecked(False)
-            self.batch_size_spin.setValue(4)
-            self.precision_combo.setCurrentText("FP16")
-            self.gpu_memory_spin.setValue(4)
-            self._apply_settings()
-
-    def refresh(self):
-        self._load_settings()
-
-
-class PathConfigPanel(QWidget):
-    """路径配置面板 - macOS 设计系统"""
-
-    config_changed = pyqtSignal(str, object)
-
-    def __init__(self, application: Application):
-        super().__init__()
-        self.application = application
-        self.logger = application.get_service(Logger)
-        self.config_manager = application.get_service_by_name("config_manager")
-
-        self.setProperty("class", "panel config-panel")
-        self._init_ui()
-        self._load_settings()
-
-    def _init_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        scroll = MacScrollArea()
-        scroll.setProperty("class", "scroll-area config-scroll")
-
-        content = QWidget()
-        content.setProperty("class", "section-content")
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(20, 20, 20, 20)
-        content_layout.setSpacing(16)
-
-        # 工作路径
-        work_group = GroupCard("工作路径")
-
-        self.project_path_edit = self._create_path_input(work_group, "项目默认路径:")
-        self.media_path_edit = self._create_path_input(work_group, "媒体文件路径:")
-        self.temp_path_edit = self._create_path_input(work_group, "临时文件路径:")
-        self.export_path_edit = self._create_path_input(work_group, "导出路径:")
-
-        content_layout.addWidget(work_group)
-
-        # AI模型路径
-        ai_group = GroupCard("AI模型路径")
-
-        self.ai_model_path_edit = self._create_path_input(ai_group, "模型存储路径:")
-        self.ai_cache_path_edit = self._create_path_input(ai_group, "缓存路径:")
-
-        content_layout.addWidget(ai_group)
-
-        # 按钮
-        btn_group = MacCard()
-        btn_group.setProperty("class", "card action-group")
-        btn_layout = QHBoxLayout(btn_group.layout())
-        btn_layout.setContentsMargins(12, 12, 12, 12)
-
-        verify_btn = MacSecondaryButton("验证路径")
-        verify_btn.clicked.connect(self._verify_paths)
-        btn_layout.addWidget(verify_btn)
-
-        apply_btn = MacPrimaryButton("应用")
-        apply_btn.clicked.connect(self._apply_settings)
-        btn_layout.addStretch()
-        btn_layout.addWidget(apply_btn)
-
-        content_layout.addWidget(btn_group)
-        content_layout.addStretch()
-
-        scroll.setWidget(content)
-        layout.addWidget(scroll)
-
-    def _create_path_input(self, group, label):
-        """创建路径输入行"""
-        edit = QLineEdit()
-        edit.setPlaceholderText("请选择路径...")
-
-        row = QWidget()
-        row.setProperty("class", "config-row")
-        layout = QHBoxLayout(row)
-        layout.setContentsMargins(12, 8, 12, 8)
-        layout.setSpacing(8)
-
-        layout.addWidget(MacLabel(label, "text-sm text-bold"))
-        layout.addWidget(edit, 1)
-
-        browse_btn = MacSecondaryButton("浏览")
-        browse_btn.clicked.connect(lambda: self._browse_path(edit))
-        layout.addWidget(browse_btn)
-
-        group.content_layout.addWidget(row)
-        return edit
-
-    def _browse_path(self, edit):
-        path = QFileDialog.getExistingDirectory(self, "选择路径", edit.text() or os.path.expanduser("~"))
-        if path:
-            edit.setText(path)
-
-    def _verify_paths(self):
-        """验证路径"""
-        try:
-            paths = {
-                "项目路径": self.project_path_edit.text(),
-                "媒体路径": self.media_path_edit.text(),
-                "临时路径": self.temp_path_edit.text(),
-                "导出路径": self.export_path_edit.text(),
-                "模型路径": self.ai_model_path_edit.text(),
-                "缓存路径": self.ai_cache_path_edit.text()
+        layout.addLayout(self.content_layout)
+
+
+class SettingCard(QFrame):
+    """设置卡片"""
+
+    def __init__(self, title: str, icon: str = "", parent=None):
+        super().__init__(parent)
+        self.setStyleSheet("""
+            QFrame#settingCard {
+                background: #1E1E1E;
+                border: 1px solid #333;
+                border-radius: 10px;
+                padding: 20px;
             }
+        """)
+        self.setObjectName("settingCard")
 
-            results = ["验证结果:"]
-            for name, path in paths.items():
-                if not path:
-                    results.append(f"❌ {name}: 未设置")
-                elif not os.path.exists(path):
-                    results.append(f"❌ {name}: 不存在")
-                else:
-                    results.append(f"✅ {name}: 正常")
+        self._layout = QVBoxLayout(self)
+        self._layout.setContentsMargins(20, 16, 20, 16)
+        self._layout.setSpacing(4)
 
-            QMessageBox.information(self, "路径验证", "\n".join(results))
+        # 标题
+        title_label = QLabel(f"{icon}  {title}" if icon else title)
+        title_label.setFont(QFont("", 16, QFont.Weight.Bold))
+        title_label.setStyleSheet("color: #FFF;")
+        self._layout.addWidget(title_label)
 
-        except Exception as e:
-            self.logger.error(f"验证路径失败: {e}")
+        # 分隔线
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setStyleSheet("color: #333;")
+        self._layout.addWidget(line)
 
-    def _load_settings(self):
-        try:
-            settings = self.config_manager.get_settings()
-            config = settings.get("path_config", {})
-
-            self.project_path_edit.setText(config.get("project_path", ""))
-            self.media_path_edit.setText(config.get("media_path", ""))
-            self.temp_path_edit.setText(config.get("temp_path", ""))
-            self.export_path_edit.setText(config.get("export_path", ""))
-            self.ai_model_path_edit.setText(config.get("ai_model_path", ""))
-            self.ai_cache_path_edit.setText(config.get("ai_cache_path", ""))
-
-        except Exception as e:
-            self.logger.error(f"加载路径配置失败: {e}")
-
-    def _apply_settings(self):
-        try:
-            settings = self.config_manager.get_settings()
-            config = settings.get("path_config", {})
-
-            config.update({
-                "project_path": self.project_path_edit.text(),
-                "media_path": self.media_path_edit.text(),
-                "temp_path": self.temp_path_edit.text(),
-                "export_path": self.export_path_edit.text(),
-                "ai_model_path": self.ai_model_path_edit.text(),
-                "ai_cache_path": self.ai_cache_path_edit.text()
-            })
-
-            settings["path_config"] = config
-            self.config_manager.update_settings(settings)
-
-            self.config_changed.emit("path_config", config)
-            QMessageBox.information(self, "成功", "路径配置已保存")
-
-        except Exception as e:
-            self.logger.error(f"应用路径配置失败: {e}")
-            QMessageBox.critical(self, "错误", f"保存配置失败: {e}")
+    def add_widget(self, widget):
+        self._layout.addWidget(widget)
 
 
-class ThemeConfigPanel(QWidget):
-    """主题配置面板 - macOS 设计系统"""
-
-    config_changed = pyqtSignal(str, object)
-
-    def __init__(self, application: Application):
-        super().__init__()
-        self.application = application
-        self.logger = application.get_service(Logger)
-        self.config_manager = application.get_service_by_name("config_manager")
-
-        self.setProperty("class", "panel config-panel")
-        self._init_ui()
-        self._load_settings()
-
-    def _init_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        scroll = MacScrollArea()
-        scroll.setProperty("class", "scroll-area config-scroll")
-
-        content = QWidget()
-        content.setProperty("class", "section-content")
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(20, 20, 20, 20)
-        content_layout.setSpacing(16)
-
-        # 主题选择
-        theme_group = GroupCard("主题选择")
-
-        self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["深色主题", "浅色主题", "蓝色主题", "绿色主题", "紫色主题"])
-        self.theme_combo.setCurrentText("深色主题")
-        theme_group.add_row("预设主题:", self.theme_combo)
-
-        content_layout.addWidget(theme_group)
-
-        # 界面配置
-        ui_group = GroupCard("界面配置")
-
-        self.font_combo = QComboBox()
-        self.font_combo.addItems(["Arial", "Microsoft YaHei", "SimSun", "Times New Roman"])
-        self.font_combo.setCurrentText("Arial")
-        ui_group.add_row("字体:", self.font_combo)
-
-        self.font_size_spin = QSpinBox()
-        self.font_size_spin.setRange(8, 24)
-        self.font_size_spin.setValue(12)
-        ui_group.add_row("字体大小:", self.font_size_spin)
-
-        self.scale_slider = QSpinBox()
-        self.scale_slider.setRange(50, 200)
-        self.scale_slider.setSuffix("%")
-        self.scale_slider.setValue(100)
-        ui_group.add_row("界面缩放:", self.scale_slider)
-
-        content_layout.addWidget(ui_group)
-
-        # 高级设置
-        advanced_group = GroupCard("高级设置")
-
-        self.animation_check = QCheckBox("启用界面动画")
-        advanced_group.content_layout.addWidget(self._create_checkbox(self.animation_check))
-
-        self.transparency_check = QCheckBox("启用透明效果")
-        advanced_group.content_layout.addWidget(self._create_checkbox(self.transparency_check))
-
-        self.glass_check = QCheckBox("启用毛玻璃效果")
-        advanced_group.content_layout.addWidget(self._create_checkbox(self.glass_check))
-
-        self.rounded_check = QCheckBox("启用圆角")
-        advanced_group.content_layout.addWidget(self._create_checkbox(self.rounded_check))
-
-        content_layout.addWidget(advanced_group)
-
-        # 按钮
-        btn_group = MacCard()
-        btn_group.setProperty("class", "card action-group")
-        btn_layout = QHBoxLayout(btn_group.layout())
-        btn_layout.setContentsMargins(12, 12, 12, 12)
-
-        apply_btn = MacPrimaryButton("应用")
-        apply_btn.clicked.connect(self._apply_settings)
-        btn_layout.addStretch()
-        btn_layout.addWidget(apply_btn)
-
-        content_layout.addWidget(btn_group)
-        content_layout.addStretch()
-
-        scroll.setWidget(content)
-        layout.addWidget(scroll)
-
-    def _create_checkbox(self, checkbox):
-        widget = QWidget()
-        widget.setProperty("class", "checkbox-row")
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(12, 8, 12, 8)
-        checkbox.setProperty("class", "checkbox")
-        layout.addWidget(checkbox)
-        return widget
-
-    def _load_settings(self):
-        try:
-            settings = self.config_manager.get_settings()
-            config = settings.get("theme_config", {})
-
-            self.theme_combo.setCurrentText(config.get("theme", "深色主题"))
-
-            ui = config.get("ui_settings", {})
-            self.font_combo.setCurrentText(ui.get("font", "Arial"))
-            self.font_size_spin.setValue(ui.get("font_size", 12))
-            self.scale_slider.setValue(ui.get("scale", 100))
-
-            advanced = config.get("advanced_settings", {})
-            self.animation_check.setChecked(advanced.get("animation", True))
-            self.transparency_check.setChecked(advanced.get("transparency", False))
-            self.glass_check.setChecked(advanced.get("glass", False))
-            self.rounded_check.setChecked(advanced.get("rounded", True))
-
-        except Exception as e:
-            self.logger.error(f"加载主题配置失败: {e}")
-
-    def _apply_settings(self):
-        try:
-            settings = self.config_manager.get_settings()
-            config = settings.get("theme_config", {})
-
-            config.update({
-                "theme": self.theme_combo.currentText(),
-                "ui_settings": {
-                    "font": self.font_combo.currentText(),
-                    "font_size": self.font_size_spin.value(),
-                    "scale": self.scale_slider.value()
-                },
-                "advanced_settings": {
-                    "animation": self.animation_check.isChecked(),
-                    "transparency": self.transparency_check.isChecked(),
-                    "glass": self.glass_check.isChecked(),
-                    "rounded": self.rounded_check.isChecked()
-                }
-            })
-
-            settings["theme_config"] = config
-            self.config_manager.update_settings(settings)
-
-            self.config_changed.emit("theme_config", config)
-            QMessageBox.information(self, "成功", "主题配置已保存")
-
-        except Exception as e:
-            self.logger.error(f"应用主题配置失败: {e}")
-            QMessageBox.critical(self, "错误", f"保存配置失败: {e}")
+def _find_jianying_drafts() -> str:
+    """自动查找剪映草稿目录"""
+    candidates = [
+        Path.home() / "Movies" / "JianyingPro" / "User Data" / "Projects" / "com.lveditor.draft",
+        Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft",
+        Path.home() / "Documents" / "JianyingPro" / "User Data" / "Projects",
+        # Windows
+        Path.home() / "AppData" / "Local" / "JianyingPro" / "User Data" / "Projects" / "com.lveditor.draft",
+        Path.home() / "AppData" / "Local" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft",
+    ]
+    for p in candidates:
+        if p.exists():
+            return str(p)
+    return str(Path.home() / "Movies" / "JianyingPro" / "User Data" / "Projects" / "com.lveditor.draft")
 
 
 class SettingsPage(BasePage):
-    """设置页面 - macOS 设计系统"""
+    """设置页面"""
 
-    def __init__(self, application: Application):
-        # 初始化面板属性
-        self.ai_panel = None
-        self.chinese_ai_panel = None
-        self.path_panel = None
-        self.theme_panel = None
-        self.tab_widget = None
-        
+    config_saved = pyqtSignal()
+
+    def __init__(self, application):
         super().__init__("settings", "设置", application)
-        self.application = application
-        self.logger = application.get_service(Logger)
-        self.config_manager = application.get_service_by_name("config_manager")
-        self.event_bus = application.get_service_by_name("event_bus")
+        self._inputs = {}  # type: Dict[str, QLineEdit]
 
     def initialize(self) -> bool:
         try:
-            self.log_info("Initializing settings page")
+            self.logger.info("[设置] Initializing settings page")
             return True
         except Exception as e:
-            self.handle_error(e, "initialize")
+            self.logger.error(f"初始化设置失败: {e}")
             return False
 
     def create_content(self) -> None:
-        """创建页面内容"""
-        layout = QVBoxLayout(self)
+        """创建设置页面内容"""
+        layout = self.main_layout
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        # 标题栏
-        header = MacPageToolbar("⚙️ 设置", [
-            ("🔄", "刷新", self.refresh),
-            ("💾", "保存所有", self._save_all),
-        ])
-        layout.addWidget(header)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setStyleSheet("QScrollArea { border: none; background: #121212; }")
 
-        # 标签页
-        self.tab_widget = QTabWidget()
-        self.tab_widget.setProperty("class", "settings-tabs")
+        content = QWidget()
+        content.setStyleSheet("background: #121212;")
+        content_layout = QVBoxLayout(content)
+        content_layout.setContentsMargins(48, 40, 48, 40)
+        content_layout.setSpacing(24)
 
-        # 创建面板
-        self.ai_panel = AIConfigPanel(self.application)
-        self.chinese_ai_panel = ChineseAIConfigPanel(self.application)
-        self.path_panel = PathConfigPanel(self.application)
-        self.theme_panel = ThemeConfigPanel(self.application)
+        # ── 标题 ──
+        title = QLabel("⚙️ 设置")
+        title.setFont(QFont("", 24, QFont.Weight.Bold))
+        title.setStyleSheet("color: #FFF;")
+        content_layout.addWidget(title)
 
-        # 连接信号
-        self._connect_signals()
+        # ── API Key 配置 ──
+        api_card = SettingCard("API 密钥", "🔑")
 
-        # 添加标签页
-        self.tab_widget.addTab(self.ai_panel, "AI配置")
-        self.tab_widget.addTab(self.chinese_ai_panel, "国产AI")
-        self.tab_widget.addTab(self.path_panel, "路径配置")
-        self.tab_widget.addTab(self.theme_panel, "主题管理")
+        api_keys = [
+            ("openai_key", "OpenAI API Key", "用于 GPT-4o 画面分析、Whisper 语音转字幕", "sk-..."),
+            ("qwen_key", "通义千问 API Key", "用于通义千问 VL 视觉分析", "sk-..."),
+            ("gemini_key", "Gemini API Key", "用于 Gemini 视频直传理解", "AIza..."),
+            ("kimi_key", "Kimi API Key", "月之暗面 Moonshot AI", "sk-..."),
+            ("glm_key", "智谱 GLM API Key", "智谱清言 GLM-5", "..."),
+        ]
 
-        layout.addWidget(self.tab_widget)
+        for key_id, name, desc, placeholder in api_keys:
+            row = SettingRow(name, desc)
+            inp = QLineEdit()
+            inp.setPlaceholderText(placeholder)
+            inp.setEchoMode(QLineEdit.EchoMode.Password)
+            inp.setStyleSheet("""
+                QLineEdit {
+                    background: #1A1A1A; border: 1px solid #333;
+                    border-radius: 6px; padding: 8px 12px;
+                    color: #DDD; font-size: 13px;
+                }
+                QLineEdit:focus { border-color: #2962FF; }
+            """)
+            inp.setMinimumWidth(300)
 
-    def _connect_signals(self):
-        """连接信号"""
-        if self.ai_panel:
-            self.ai_panel.config_changed.connect(self._on_config_changed)
-        if self.chinese_ai_panel:
-            self.chinese_ai_panel.config_changed.connect(self._on_config_changed)
-        if self.path_panel:
-            self.path_panel.config_changed.connect(self._on_config_changed)
-        if self.theme_panel:
-            self.theme_panel.config_changed.connect(self._on_config_changed)
+            # 加载已有值
+            env_map = {
+                "openai_key": "OPENAI_API_KEY",
+                "qwen_key": "QWEN_API_KEY",
+                "gemini_key": "GEMINI_API_KEY",
+                "kimi_key": "MOONSHOT_API_KEY",
+                "glm_key": "GLM_API_KEY",
+            }
+            env_val = os.getenv(env_map.get(key_id, ""), "")
+            if env_val:
+                inp.setText(env_val)
 
-    def _on_config_changed(self, config_type: str, config_data: Any):
-        """配置变更处理"""
-        self.logger.info(f"配置变更: {config_type}")
-        self.event_bus.emit("settings.changed", {"type": config_type, "data": config_data})
+            row.content_layout.addWidget(inp, 1)
 
-    def _save_all(self):
-        """保存所有配置"""
+            # 显示/隐藏按钮
+            toggle_btn = QPushButton("👁")
+            toggle_btn.setFixedSize(36, 36)
+            toggle_btn.setStyleSheet("QPushButton { background: #333; border-radius: 6px; } QPushButton:hover { background: #444; }")
+
+            def _make_toggle(input_field):
+                def _toggle():
+                    if input_field.echoMode() == QLineEdit.EchoMode.Password:
+                        input_field.setEchoMode(QLineEdit.EchoMode.Normal)
+                    else:
+                        input_field.setEchoMode(QLineEdit.EchoMode.Password)
+                return _toggle
+
+            toggle_btn.clicked.connect(_make_toggle(inp))
+            row.content_layout.addWidget(toggle_btn)
+
+            self._inputs[key_id] = inp
+            api_card.add_widget(row)
+
+        content_layout.addWidget(api_card)
+
+        # ── 路径配置 ──
+        path_card = SettingCard("路径设置", "📂")
+
+        # 1. 项目存储位置
+        default_project_dir = str(Path.home() / "CineFlow" / "Projects")
+        row1 = SettingRow("项目文件存储位置", "CineFlow 创建的项目文件保存位置")
+        self._inputs["project_dir"] = self._create_path_input(
+            row1, default_project_dir)
+        path_card.add_widget(row1)
+
+        # 2. 剪映草稿位置（自动检测）
+        jianying_dir = _find_jianying_drafts()
+        row2 = SettingRow("剪映草稿位置", "剪映/CapCut 草稿目录（已自动检测，可修改）")
+        self._inputs["jianying_dir"] = self._create_path_input(
+            row2, jianying_dir)
+        path_card.add_widget(row2)
+
+        content_layout.addWidget(path_card)
+
+        # ── 快捷跳转 ──
+        shortcut_card = SettingCard("快捷跳转", "🚀")
+
+        shortcuts = [
+            ("📂 打开项目目录", lambda: self._open_path(self._inputs["project_dir"].text())),
+            ("🎬 打开剪映草稿目录", lambda: self._open_path(self._inputs["jianying_dir"].text())),
+            ("📁 打开配置目录", lambda: self._open_path(
+                str(Path(__file__).parent.parent.parent.parent.parent / "config"))),
+            ("📄 查看日志", lambda: self._open_path(
+                str(Path.home() / "CineFlow" / "logs"))),
+        ]
+
+        for name, handler in shortcuts:
+            btn = QPushButton(name)
+            btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            btn.setStyleSheet("""
+                QPushButton {
+                    background: transparent; border: 1px solid #333;
+                    border-radius: 8px; padding: 10px 16px;
+                    color: #DDD; font-size: 14px; text-align: left;
+                }
+                QPushButton:hover { background: #252525; border-color: #2962FF; }
+            """)
+            btn.clicked.connect(handler)
+            shortcut_card.add_widget(btn)
+
+        content_layout.addWidget(shortcut_card)
+
+        # ── 保存按钮 ──
+        save_row = QHBoxLayout()
+        save_row.addStretch()
+
+        save_btn = QPushButton("💾 保存设置")
+        save_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        save_btn.setStyleSheet("""
+            QPushButton {
+                background: #2962FF; color: white;
+                border-radius: 8px; padding: 12px 32px;
+                font-size: 15px; font-weight: bold;
+            }
+            QPushButton:hover { background: #448AFF; }
+        """)
+        save_btn.clicked.connect(self._save_settings)
+        save_row.addWidget(save_btn)
+        content_layout.addLayout(save_row)
+
+        content_layout.addStretch()
+
+        scroll.setWidget(content)
+        layout.addWidget(scroll)
+
+    def _create_path_input(self, row: SettingRow, default: str) -> QLineEdit:
+        """创建路径输入框 + 浏览按钮"""
+        inp = QLineEdit(default)
+        inp.setStyleSheet("""
+            QLineEdit {
+                background: #1A1A1A; border: 1px solid #333;
+                border-radius: 6px; padding: 8px 12px;
+                color: #DDD; font-size: 13px;
+            }
+            QLineEdit:focus { border-color: #2962FF; }
+        """)
+        row.content_layout.addWidget(inp, 1)
+
+        browse_btn = QPushButton("浏览")
+        browse_btn.setStyleSheet("""
+            QPushButton {
+                background: #333; color: #DDD; border-radius: 6px;
+                padding: 8px 16px; font-size: 13px;
+            }
+            QPushButton:hover { background: #444; }
+        """)
+
+        def _browse():
+            path = QFileDialog.getExistingDirectory(self, "选择目录", inp.text())
+            if path:
+                inp.setText(path)
+
+        browse_btn.clicked.connect(_browse)
+        row.content_layout.addWidget(browse_btn)
+
+        return inp
+
+    def _save_settings(self):
+        """保存设置"""
+        config_manager = self.application.get_service_by_name("config_manager")
+
+        # 保存 API keys 到 .env
+        env_map = {
+            "openai_key": "OPENAI_API_KEY",
+            "qwen_key": "QWEN_API_KEY",
+            "gemini_key": "GEMINI_API_KEY",
+            "kimi_key": "MOONSHOT_API_KEY",
+            "glm_key": "GLM_API_KEY",
+        }
+
+        env_lines = []
+        for key_id, env_name in env_map.items():
+            inp = self._inputs.get(key_id)
+            if inp and inp.text().strip():
+                val = inp.text().strip()
+                env_lines.append(f"{env_name}={val}")
+                os.environ[env_name] = val
+
+        # 写入 .env
+        env_path = Path(__file__).parent.parent.parent.parent.parent / ".env"
         try:
-            self.ai_panel._apply_settings()
-            self.chinese_ai_panel._apply_settings()
-            self.path_panel._apply_settings()
-            self.theme_panel._apply_settings()
-            QMessageBox.information(self, "成功", "所有配置已保存")
+            env_path.write_text("\n".join(env_lines) + "\n", encoding="utf-8")
         except Exception as e:
-            self.logger.error(f"保存所有配置失败: {e}")
-            QMessageBox.critical(self, "错误", f"保存失败: {e}")
+            self.logger.error(f"保存 .env 失败: {e}")
 
-    def refresh(self):
-        """刷新配置"""
-        try:
-            self.ai_panel._load_settings()
-            self.chinese_ai_panel.refresh()
-            self.path_panel._load_settings()
-            self.theme_panel._load_settings()
-            self.update_status("配置已刷新")
-        except Exception as e:
-            self.logger.error(f"刷新配置失败: {e}")
+        # 保存路径设置
+        project_dir = self._inputs.get("project_dir")
+        jianying_dir = self._inputs.get("jianying_dir")
+
+        if config_manager:
+            if project_dir:
+                config_manager.set("project_dir", project_dir.text())
+                # 确保目录存在
+                Path(project_dir.text()).mkdir(parents=True, exist_ok=True)
+            if jianying_dir:
+                config_manager.set("jianying_draft_dir", jianying_dir.text())
+
+        QMessageBox.information(self, "保存成功", "设置已保存 ✅\nAPI Key 已写入 .env 文件")
+        self.config_saved.emit()
+
+    def _open_path(self, path: str):
+        """打开目录"""
+        p = Path(path)
+        if not p.exists():
+            p.mkdir(parents=True, exist_ok=True)
+
+        if sys.platform == "darwin":
+            subprocess.Popen(["open", str(p)])
+        elif sys.platform == "win32":
+            os.startfile(str(p))
+        else:
+            subprocess.Popen(["xdg-open", str(p)])
+
+    def on_activated(self) -> None:
+        pass
+
+    def on_deactivated(self) -> None:
+        pass

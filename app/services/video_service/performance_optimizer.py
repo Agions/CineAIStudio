@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 视频处理性能优化器
+CineFlow AI 视频处理性能优化器
 提供视频渲染、编码、解码的性能优化功能
 """
 

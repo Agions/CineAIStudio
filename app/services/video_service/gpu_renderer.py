@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio GPU加速视频渲染器
+CineFlow AI GPU加速视频渲染器
 支持NVIDIA NVENC、AMD AMF、Intel QSV等硬件加速
 """
 
 import os
+import sys
 import subprocess
 import json
 import time

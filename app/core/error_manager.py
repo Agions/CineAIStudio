@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 错误管理系统
+CineFlow AI 错误管理系统
 提供统一的错误处理、恢复机制和错误报告
 """
 

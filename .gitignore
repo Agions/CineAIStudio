@@ -34,7 +34,6 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -338,3 +337,7 @@ Jenkinsfile
 .agents
 .gemini
 .agent
+# 规划文档（禁止提交）
+UPGRADE_PLAN.md
+docs/planning/
+docs/dev/

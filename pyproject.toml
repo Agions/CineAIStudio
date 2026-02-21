@@ -21,12 +21,15 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Multimedia :: Video",
     "Topic :: Multimedia :: Video :: Non-Linear Editor",
 ]
 keywords = ["video", "editing", "AI", "multimedia", "PyQt6"]
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "PyQt6>=6.6.0",
     "PyQt6-Qt6>=6.6.0",
@@ -35,9 +38,14 @@ dependencies = [
     "numpy>=1.26.0",
     "pillow>=10.1.0",
     "requests>=2.31.0",
+    "httpx>=0.25.0",
     "ffmpeg-python==0.2.0",
     "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.1",
     "psutil>=5.9.6",
+    "cryptography>=41.0.0",
+    "keyring>=24.0.0",
+    "openai>=1.0.0",
 ]
 
 [project.optional-dependencies]
@@ -70,7 +78,7 @@ python_classes = "Test*"
 python_functions = "test_*"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

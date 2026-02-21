@@ -94,6 +94,7 @@ class GeneratedVoice:
     # 元数据
     sample_rate: int = 24000
     format: str = "mp3"
+    start_time: float = 0.0        # 片段起始时间（用于批量生成）
 
 
 class TTSProvider(ABC):
@@ -495,7 +496,7 @@ def demo_generate():
     
     # 生成配音
     text = """
-    欢迎来到 CineAIStudio！
+    欢迎来到 CineFlow AI！
     这是一款 AI 驱动的视频创作工具。
     让我们一起创作爆款视频吧！
     """

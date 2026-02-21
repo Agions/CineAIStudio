@@ -60,7 +60,7 @@ class TestGeneratedScript:
         assert script.content == "这是测试文案内容"
         assert script.style == ScriptStyle.COMMENTARY
         assert script.word_count == 8
-        assert script.estimation_duration == None  # 拼写错误测试
+        assert script.estimated_duration == 2.67
 
     def test_script_auto_word_count(self):
         """测试自动计算字数"""

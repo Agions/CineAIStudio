@@ -111,6 +111,44 @@ class ConfigManager:
         self.config_file = self.config_dir / "app_config.yaml"
         self.llm_config_file = self.config_dir / "llm.yaml"
         self._config: Optional[AppConfig] = None
+        self._extra: Dict[str, Any] = {}  # 扩展配置存储
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        通用配置读取（支持点号路径）
+
+        Args:
+            key: 配置键，如 "editor.recent_files"
+            default: 默认值
+        """
+        # 先查扩展存储
+        if key in self._extra:
+            return self._extra[key]
+
+        # 再查 AppConfig 属性
+        config = self.load_config()
+        parts = key.split(".")
+        obj = config
+        for part in parts:
+            if hasattr(obj, part):
+                obj = getattr(obj, part)
+            elif isinstance(obj, dict) and part in obj:
+                obj = obj[part]
+            else:
+                return default
+        return obj
+
+    def set(self, key: str, value: Any) -> None:
+        """设置扩展配置"""
+        self._extra[key] = value
+
+    def get_value(self, key: str, default: Any = None) -> Any:
+        """get 的别名，兼容旧代码"""
+        return self.get(key, default)
+
+    def set_value(self, key: str, value: Any) -> None:
+        """set 的别名，兼容旧代码"""
+        self.set(key, value)
 
     def load_config(self) -> AppConfig:
         """加载配置"""

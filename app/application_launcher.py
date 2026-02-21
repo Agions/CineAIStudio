@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 应用启动器
+CineFlow AI 应用启动器
 负责应用程序的启动、初始化和运行
 """
 
@@ -42,7 +42,7 @@ class SplashScreen(QSplashScreen):
         logo_font = QFont("Arial", 48, QFont.Weight.Bold)
         painter.setFont(logo_font)
         painter.drawText(splash_pixmap.rect(),
-                        int(Qt.AlignmentFlag.AlignCenter), "CineAIStudio")
+                        int(Qt.AlignmentFlag.AlignCenter), "CineFlow AI")
 
         # 绘制版本信息
         version_font = QFont("Arial", 14)
@@ -129,7 +129,7 @@ class ApplicationLauncher:
         """初始化日志系统"""
         try:
             # 创建日志管理器
-            self.logger = Logger("CineAIStudio")
+            self.logger = Logger("CineFlow AI")
 
             self.logger.info("初始化日志系统")
 
@@ -359,7 +359,7 @@ def main() -> int:
 
         # 创建Qt应用程序
         qt_app = QApplication(sys.argv)
-        qt_app.setApplicationName("CineAIStudio")
+        qt_app.setApplicationName("CineFlow AI")
         qt_app.setApplicationVersion("2.0.0")
         qt_app.setOrganizationName("Agions")
 

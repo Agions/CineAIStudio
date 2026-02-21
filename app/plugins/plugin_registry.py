@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 插件注册表
+CineFlow AI 插件注册表
 管理插件的注册、发现和元数据
 """
 

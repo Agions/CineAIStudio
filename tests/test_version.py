@@ -6,6 +6,7 @@
 """
 
 import pytest
+import sys
 from pathlib import Path
 
 # 添加项目路径

@@ -14,7 +14,7 @@ from app.services.ai.llm_manager import LLMManager
 from app.services.ai.providers.qwen import QwenProvider
 from app.services.ai.providers.kimi import KimiProvider
 from app.services.ai.providers.glm5 import GLM5Provider
-from app.core.models.llm_models import LLMRequest, LLMResponse
+from app.services.ai.base_LLM_provider import LLMRequest, LLMResponse
 
 
 class SkipIfNoAPIKey:

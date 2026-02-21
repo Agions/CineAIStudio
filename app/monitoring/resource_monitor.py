@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 资源监控器
+CineFlow AI 资源监控器
 监控系统资源使用情况
 """
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 事件总线模块
+CineFlow AI 事件总线模块
 提供事件发布/订阅功能
 """
 

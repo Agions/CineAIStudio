@@ -2,17 +2,30 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio 服务容器 - 依赖注入容器
-支持按类型和名称注册获取服务
+CineFlow AI 服务容器 - 简单依赖注入容器
+
+⚠️ 已弃用：推荐使用 service_registry.ServiceRegistry 替代。
+此容器仅为向后兼容保留，新代码请使用 ServiceRegistry。
+ServiceRegistry 支持：生命周期管理、依赖解析、健康检查、配置驱动等高级功能。
 """
+
+import warnings
 
 from typing import Dict, Type, Any, Optional
 
 
 class ServiceContainer:
-    """服务容器"""
+    """服务容器
+
+    ⚠️ 已弃用，请使用 ServiceRegistry。
+    """
 
     def __init__(self):
+        warnings.warn(
+            "ServiceContainer 已弃用，请迁移到 ServiceRegistry",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._services_by_type: Dict[Type, Any] = {}
         self._services_by_name: Dict[str, Any] = {}
 

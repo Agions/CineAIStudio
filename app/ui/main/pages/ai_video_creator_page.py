@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineAIStudio - AI 视频创作页面
+CineFlow AI - AI 视频创作页面
 提供三大核心功能的图形界面:
 - AI 视频解说
 - AI 视频混剪
@@ -248,6 +248,7 @@ class AIVideoCreatorPage(BasePage):
         super().__init__("ai_video_creator", "AI 视频创作", application)
         self.current_project = None
         self.worker_thread = None
+        self._imported_voice_path = None  # 外部导入的配音路径
         
     def initialize(self) -> bool:
         """初始化页面"""
@@ -322,24 +323,50 @@ class AIVideoCreatorPage(BasePage):
         left_layout.setContentsMargins(0, 0, 16, 0)
         left_layout.setSpacing(20)
         
-        # 1. 视频选择卡片
+        # 1. 视频选择卡片（支持多集素材）
         video_card = MacCard()
-        video_title = MacTitleLabel("源视频", 4)
+        video_title = MacTitleLabel("素材导入", 4)
         video_card.layout().addWidget(video_title)
-        
-        self.commentary_video_drop = VideoDropZone()
+
+        # 多集提示
+        multi_hint = QLabel("支持拖入多集素材，将按顺序处理")
+        multi_hint.setStyleSheet("color: #888; font-size: 12px;")
+        video_card.layout().addWidget(multi_hint)
+
+        self.commentary_video_drop = VideoDropZone(multiple=True)
         video_card.layout().addWidget(self.commentary_video_drop)
-        
-        # 视频预览 (默认隐藏应用最小高度防止堆叠)
+
+        # 素材列表（多集时显示）
+        self.commentary_file_list = QListWidget()
+        self.commentary_file_list.setProperty("class", "input")
+        self.commentary_file_list.setMaximumHeight(120)
+        self.commentary_file_list.setStyleSheet(
+            "QListWidget { background: #1A1A1A; border: 1px solid #333; border-radius: 6px; }"
+        )
+        self.commentary_file_list.hide()
+        video_card.layout().addWidget(self.commentary_file_list)
+
+        # 视频预览
         self.commentary_preview = VideoPreviewWidget()
-        self.commentary_preview.setMinimumHeight(200) 
+        self.commentary_preview.setMinimumHeight(200)
         self.commentary_preview.hide()
         video_card.layout().addWidget(self.commentary_preview)
-        
-        # 连接信号
-        self.commentary_video_drop.files_dropped.connect(
-            lambda files: self._show_video_preview(self.commentary_preview, files[0])
-        )
+
+        # 连接信号 — 多文件支持
+        def _on_commentary_files(files):
+            if len(files) == 1:
+                self.commentary_file_list.hide()
+                self._show_video_preview(self.commentary_preview, files[0])
+            else:
+                self.commentary_file_list.clear()
+                self.commentary_file_list.show()
+                for f in files:
+                    item = QListWidgetItem(f"📄 {Path(f).name}")
+                    item.setData(Qt.ItemDataRole.UserRole, f)
+                    self.commentary_file_list.addItem(item)
+                self._show_video_preview(self.commentary_preview, files[0])
+
+        self.commentary_video_drop.files_dropped.connect(_on_commentary_files)
         
         left_layout.addWidget(video_card)
         
@@ -350,7 +377,18 @@ class AIVideoCreatorPage(BasePage):
         
         settings_layout = QVBoxLayout()
         settings_layout.setSpacing(16)
-        
+
+        # AI 分析方式
+        self.commentary_analysis_mode = QComboBox()
+        self.commentary_analysis_mode.setProperty("class", "input")
+        self.commentary_analysis_mode.addItems([
+            "语音提取字幕 + 画面分析",
+            "OCR 提取字幕 + 画面分析",
+            "双模式（语音 + OCR 合并）",
+            "仅画面分析（无字幕提取）",
+        ])
+        settings_layout.addWidget(self._create_form_group("AI 分析方式", self.commentary_analysis_mode))
+
         # 主题
         self.commentary_topic = QLineEdit()
         self.commentary_topic.setPlaceholderText("例如：这只猫咪太可爱了")
@@ -369,6 +407,18 @@ class AIVideoCreatorPage(BasePage):
         ])
         settings_layout.addWidget(self._create_form_group("解说风格", self.commentary_style))
         
+        # 配音来源选择
+        self.commentary_voice_source = QComboBox()
+        self.commentary_voice_source.setProperty("class", "input")
+        self.commentary_voice_source.addItems(["AI 生成配音", "导入外部配音"])
+        settings_layout.addWidget(self._create_form_group("配音方式", self.commentary_voice_source))
+
+        # AI 配音设置容器
+        self.commentary_ai_voice_group = QWidget()
+        ai_voice_layout = QVBoxLayout(self.commentary_ai_voice_group)
+        ai_voice_layout.setContentsMargins(0, 0, 0, 0)
+        ai_voice_layout.setSpacing(12)
+
         # 声音
         self.commentary_voice = QComboBox()
         self.commentary_voice.setProperty("class", "input")
@@ -378,7 +428,38 @@ class AIVideoCreatorPage(BasePage):
             "晓墨 (女声，知性)",
             "云希 (男声，年轻)",
         ])
-        settings_layout.addWidget(self._create_form_group("配音声音", self.commentary_voice))
+        ai_voice_layout.addWidget(self._create_form_group("配音声音", self.commentary_voice))
+
+        settings_layout.addWidget(self.commentary_ai_voice_group)
+
+        # 外部配音导入容器（默认隐藏）
+        self.commentary_ext_voice_group = QWidget()
+        ext_voice_layout = QVBoxLayout(self.commentary_ext_voice_group)
+        ext_voice_layout.setContentsMargins(0, 0, 0, 0)
+        ext_voice_layout.setSpacing(8)
+
+        self.commentary_ext_voice_btn = QPushButton("📂 选择配音文件 (mp3/wav)")
+        self.commentary_ext_voice_btn.setProperty("class", "button button-secondary")
+        self.commentary_ext_voice_btn.clicked.connect(self._on_import_voice)
+        ext_voice_layout.addWidget(self.commentary_ext_voice_btn)
+
+        self.commentary_ext_voice_label = QLabel("未选择文件")
+        self.commentary_ext_voice_label.setStyleSheet("color: #888; font-size: 12px;")
+        ext_voice_layout.addWidget(self.commentary_ext_voice_label)
+
+        self.commentary_ext_voice_group.hide()
+        settings_layout.addWidget(self.commentary_ext_voice_group)
+
+        # 切换配音方式
+        def _toggle_voice_source(index):
+            if index == 0:  # AI 生成
+                self.commentary_ai_voice_group.show()
+                self.commentary_ext_voice_group.hide()
+            else:  # 外部导入
+                self.commentary_ai_voice_group.hide()
+                self.commentary_ext_voice_group.show()
+
+        self.commentary_voice_source.currentIndexChanged.connect(_toggle_voice_source)
         
         # 语速
         self.commentary_rate = QSlider(Qt.Orientation.Horizontal)
@@ -587,11 +668,15 @@ class AIVideoCreatorPage(BasePage):
         left_layout.setContentsMargins(0, 0, 16, 0)
         left_layout.setSpacing(20)
         
-        # 1. 视频卡片
+        # 1. 视频卡片（支持多集素材）
         video_card = MacCard()
-        video_card.layout().addWidget(MacTitleLabel("源视频", 4))
-        
-        self.monologue_video_drop = VideoDropZone()
+        video_card.layout().addWidget(MacTitleLabel("素材导入", 4))
+
+        multi_hint = QLabel("支持拖入多集素材")
+        multi_hint.setStyleSheet("color: #888; font-size: 12px;")
+        video_card.layout().addWidget(multi_hint)
+
+        self.monologue_video_drop = VideoDropZone(multiple=True)
         video_card.layout().addWidget(self.monologue_video_drop)
         
         # 视频预览 (独立实例)
@@ -708,7 +793,7 @@ class AIVideoCreatorPage(BasePage):
         # 输出目录
         layout.addWidget(QLabel("输出目录:"))
         self.output_dir = QLineEdit()
-        self.output_dir.setText(str(Path.home() / "Documents" / "CineAIStudio"))
+        self.output_dir.setText(str(Path.home() / "Documents" / "CineFlow AI"))
         self.output_dir.setMinimumWidth(200)
         layout.addWidget(self.output_dir)
         
@@ -974,6 +1059,18 @@ class AIVideoCreatorPage(BasePage):
             QMessageBox.warning(self, "提示", "请先生成或输入独白文案")
             return
         
+    def _on_import_voice(self):
+        """导入外部配音文件"""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "选择配音文件", "",
+            "音频文件 (*.mp3 *.wav *.m4a *.flac *.ogg *.aac);;所有文件 (*)"
+        )
+        if file_path:
+            self._imported_voice_path = file_path
+            name = Path(file_path).name
+            self.commentary_ext_voice_label.setText(f"✅ {name}")
+            self.commentary_ext_voice_label.setStyleSheet("color: #4CAF50; font-size: 12px;")
+
     def _show_video_preview(self, preview_widget: VideoPreviewWidget, file_path: str):
         """显示视频预览"""
         preview_widget.show()
@@ -1195,7 +1292,7 @@ class AIVideoCreatorPage(BasePage):
     def _show_help(self):
         """显示帮助"""
         help_text = """
-🎬 CineAIStudio 使用帮助
+🎬 CineFlow AI 使用帮助
 
 【AI 视频解说】
 1. 选择源视频文件
