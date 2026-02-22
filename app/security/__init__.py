@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 安全系统
+ClipFlow 安全系统
 提供全面的安全保护和输入验证功能
 """
 

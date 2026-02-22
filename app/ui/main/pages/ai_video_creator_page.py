@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI - AI 视频创作页面
+ClipFlow - AI 视频创作页面
 提供三大核心功能的图形界面:
 - AI 视频解说
 - AI 视频混剪
@@ -793,7 +793,7 @@ class AIVideoCreatorPage(BasePage):
         # 输出目录
         layout.addWidget(QLabel("输出目录:"))
         self.output_dir = QLineEdit()
-        self.output_dir.setText(str(Path.home() / "Documents" / "CineFlow AI"))
+        self.output_dir.setText(str(Path.home() / "Documents" / "ClipFlow"))
         self.output_dir.setMinimumWidth(200)
         layout.addWidget(self.output_dir)
         
@@ -1292,7 +1292,7 @@ class AIVideoCreatorPage(BasePage):
     def _show_help(self):
         """显示帮助"""
         help_text = """
-🎬 CineFlow AI 使用帮助
+🎬 ClipFlow 使用帮助
 
 【AI 视频解说】
 1. 选择源视频文件

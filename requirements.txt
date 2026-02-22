@@ -1,4 +1,4 @@
-# CineFlow AI 依赖包
+# ClipFlow 依赖包
 
 ## 核心依赖
 PyQt6>=6.6.0

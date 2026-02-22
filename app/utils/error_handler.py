@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 错误处理模块
+ClipFlow 错误处理模块
 提供全局异常处理和错误对话框功能
 """
 

@@ -1,1 +1,1 @@
-"""CineFlow AI 工具包"""
+"""ClipFlow 工具包"""

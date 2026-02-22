@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 服务容器 - 简单依赖注入容器
+ClipFlow 服务容器 - 简单依赖注入容器
 
 ⚠️ 已弃用：推荐使用 service_registry.ServiceRegistry 替代。
 此容器仅为向后兼容保留，新代码请使用 ServiceRegistry。

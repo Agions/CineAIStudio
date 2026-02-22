@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 插件加载器
+ClipFlow 插件加载器
 负责插件的动态加载、实例化和生命周期管理
 """
 

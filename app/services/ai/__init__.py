@@ -1,1 +1,1 @@
-"""CineFlow AI 服务包 - AI 服务模块"""
+"""ClipFlow 服务包 - AI 服务模块"""

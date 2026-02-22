@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 插件服务
+ClipFlow 插件服务
 将插件系统集成到核心服务中
 """
 

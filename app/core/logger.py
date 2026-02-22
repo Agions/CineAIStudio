@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 日志记录器模块
+ClipFlow 日志记录器模块
 提供日志记录和管理功能
 """
 
@@ -110,7 +110,7 @@ def setup_logging(
             log_dir.mkdir(exist_ok=True)
 
             file_handler = logging.FileHandler(
-                log_dir / "CineFlow AI.log",
+                log_dir / "ClipFlow.log",
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)

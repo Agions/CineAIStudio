@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 任务队列
+ClipFlow 任务队列
 管理视频处理、AI 调用等耗时任务，避免阻塞 UI
 """
 

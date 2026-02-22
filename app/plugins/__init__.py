@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 插件系统
+ClipFlow 插件系统
 提供插件管理、加载和扩展功能
 """
 

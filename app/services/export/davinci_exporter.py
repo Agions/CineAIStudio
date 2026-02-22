@@ -28,7 +28,7 @@ class DaVinciClip:
 @dataclass
 class DaVinciTimeline:
     """达芬奇时间线"""
-    name: str = "CineFlow Export"
+    name: str = "ClipFlow Export"
     fps: float = 30.0
     width: int = 1920
     height: int = 1080
@@ -109,7 +109,7 @@ class DaVinciExporter:
 
         # Library > Event > Project
         library = ET.SubElement(fcpxml, "library")
-        event = ET.SubElement(library, "event", name="CineFlow Export")
+        event = ET.SubElement(library, "event", name="ClipFlow Export")
         project = ET.SubElement(event, "project", name=timeline.name)
 
         # Sequence
@@ -235,7 +235,7 @@ class SubtitleExporter:
             path = path.with_suffix('.ass')
 
         header = f"""[Script Info]
-Title: CineFlow AI Export
+Title: ClipFlow Export
 ScriptType: v4.00+
 PlayResX: 1920
 PlayResY: 1080

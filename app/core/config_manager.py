@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 配置管理器
+ClipFlow 配置管理器
 提供统一的配置管理接口
 """
 

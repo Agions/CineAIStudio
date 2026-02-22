@@ -1,5 +1,5 @@
 """
-CineFlow AI 导出服务模块
+ClipFlow 导出服务模块
 
 提供视频项目的导出能力:
 - JianyingExporter: 剪映草稿导出

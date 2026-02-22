@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 撤销/重做系统
+ClipFlow 撤销/重做系统
 提供完整的撤销和重做功能支持
 """
 

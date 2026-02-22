@@ -329,7 +329,7 @@ class JianyingDraftGenerator:
                 "version": self.version,
                 "project_info": {
                     "name": project_name,
-                    "created_by": "CineFlow AI",
+                    "created_by": "ClipFlow",
                     "created_at": time.time(),
                     "modified_at": time.time()
                 },
@@ -522,24 +522,24 @@ class JianyingDraftGenerator:
 
 
 class ProjectToDraftMapper:
-    """CineFlow AI项目到剪映Draft的映射器"""
+    """ClipFlow项目到剪映Draft的映射器"""
 
     def __init__(self):
         self.logger = Logger.get_logger(__name__)
         self.generator = JianyingDraftGenerator()
 
     def map_project_to_draft(self, project, output_path: str, project_name: str = None) -> bool:
-        """将CineFlow AI项目映射为剪映Draft文件"""
+        """将ClipFlow项目映射为剪映Draft文件"""
         try:
             # 清空生成器数据
             self.generator.clear()
 
             # 如果没有提供项目名称，使用默认名称
             if not project_name:
-                project_name = f"CineFlow AI_Project_{int(time.time())}"
+                project_name = f"ClipFlow_Project_{int(time.time())}"
 
             # 1. 添加所有媒体项到剪映素材
-            material_map = {}  # CineFlow AI媒体ID到剪映素材ID的映射
+            material_map = {}  # ClipFlow媒体ID到剪映素材ID的映射
             for clip in project.video_clips + project.audio_clips:
                 media_item = clip.media_item
                 if media_item.id not in material_map:
@@ -619,7 +619,7 @@ class ProjectToDraftMapper:
         for effect in effects:
             effect_name = effect.get('name')
             if effect_name:
-                # 将CineFlow AI特效映射为剪映特效
+                # 将ClipFlow特效映射为剪映特效
                 self.generator.add_effect(
                     name=effect_name,
                     effect_type=self._map_effect_type(effect_name),
@@ -642,9 +642,9 @@ class ProjectToDraftMapper:
         return effect_type_map.get(effect_name, 'filter')
 
     def map_draft_to_project(self, draft_data: Dict[str, Any]) -> Dict[str, Any]:
-        """将剪映Draft映射为CineFlow AI项目数据（简化版）"""
+        """将剪映Draft映射为ClipFlow项目数据（简化版）"""
         try:
-            # 这里实现从剪映Draft到CineFlow AI项目的映射
+            # 这里实现从剪映Draft到ClipFlow项目的映射
             # 目前只返回基础项目信息，完整映射需要更复杂的逻辑
             project_data = {
                 "name": draft_data.get("project_info", {}).get("name", "Imported_Jianying_Project"),
@@ -802,7 +802,7 @@ class JianyingDraftParser:
             materials = self.get_materials(draft_data)
 
             with open(output_path, 'w', encoding='utf-8') as f:
-                f.write("# CineFlow AI EDL Export\n")
+                f.write("# ClipFlow EDL Export\n")
                 f.write(f"# Created: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
 
                 for track in tracks:

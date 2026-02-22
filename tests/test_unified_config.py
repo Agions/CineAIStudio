@@ -13,7 +13,7 @@ def test_unified_config_defaults():
     
     config = UnifiedConfig(project_root=Path(tempfile.mkdtemp())).load()
     
-    assert config.get("app.name") == "CineFlow AI"
+    assert config.get("app.name") == "ClipFlow"
     assert config.get("app.version") == "2.0.0-rc.1"
     assert config.get("LLM.default_provider") == "qwen"
     assert config.get("LLM.timeout") == 30
@@ -60,7 +60,7 @@ def test_unified_config_yaml_loading():
     assert config.get("LLM.default_provider") == "gemini"
     assert config.get("LLM.timeout") == 60
     # 默认值仍在
-    assert config.get("app.name") == "CineFlow AI"
+    assert config.get("app.name") == "ClipFlow"
 
 
 def test_unified_config_env_resolution():

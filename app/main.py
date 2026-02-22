@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CineFlow AI 主程序入口
+ClipFlow 主程序入口
 专业的AI视频编辑器
 """
 
@@ -18,7 +18,7 @@ def main():
     from app.utils.version import __version__
 
     print("=" * 50)
-    print("🎬 CineFlow AI - AI 视频创作工具")
+    print("🎬 ClipFlow - AI 视频创作工具")
     print("=" * 50)
     print(f"\n版本: {__version__}")
     print("作者: Agions")
@@ -34,7 +34,7 @@ def main():
         from PyQt6.QtWidgets import QApplication
 
         qt_app = QApplication(sys.argv)
-        qt_app.setApplicationName("CineFlow AI")
+        qt_app.setApplicationName("ClipFlow")
         qt_app.setApplicationVersion(str(__version__))
         
         # 初始化核心应用程序实例
@@ -97,7 +97,7 @@ def check_dependencies():
 
 def run_cli_mode():
     """命令行模式"""
-    print("CineFlow AI 命令行模式")
+    print("ClipFlow 命令行模式")
     print("-" * 30)
     print("可用功能:")
     print("  1. AI 视频解说")

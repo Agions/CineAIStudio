@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 自动保存系统
+ClipFlow 自动保存系统
 提供项目自动保存、恢复和备份功能
 """
 

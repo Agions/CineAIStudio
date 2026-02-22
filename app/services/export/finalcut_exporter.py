@@ -4,7 +4,7 @@
 """
 Final Cut Pro 项目导出器 (Final Cut Exporter)
 
-将 CineFlow 项目导出为 Final Cut Pro 项目文件 (.fcpxml)
+将 ClipFlow 项目导出为 Final Cut Pro 项目文件 (.fcpxml)
 
 Final Cut Pro 使用 FCPXML 格式，包含：
 - 项目设置
@@ -99,7 +99,7 @@ class FCPProject:
 class FCPEvent:
     """Final Cut 事件（素材库）"""
     id: str = field(default_factory=lambda: f"r{uuid.uuid4().hex[:8].upper()}")
-    name: str = "CineFlow Event"
+    name: str = "ClipFlow Event"
     assets: List[FCPAsset] = field(default_factory=list)
     projects: List[FCPProject] = field(default_factory=list)
 
@@ -108,7 +108,7 @@ class FCPEvent:
 class FCPLibrary:
     """Final Cut 资源库"""
     id: str = field(default_factory=lambda: f"r{uuid.uuid4().hex[:8].upper()}")
-    name: str = "CineFlow Library"
+    name: str = "ClipFlow Library"
     events: List[FCPEvent] = field(default_factory=list)
 
 

@@ -157,7 +157,7 @@ class OCRSubtitleExtractor:
     def _extract_frames(self, video_path: str, duration: float,
                         interval: float, max_frames: int) -> List[Tuple[float, str]]:
         """提取关键帧"""
-        tmpdir = tempfile.mkdtemp(prefix="cineflow_ocr_")
+        tmpdir = tempfile.mkdtemp(prefix="clipflow_ocr_")
         frames = []
         num = min(int(duration / interval) + 1, max_frames)
 
@@ -318,7 +318,7 @@ class SpeechSubtitleExtractor:
         if ext in ('.mp3', '.wav', '.m4a', '.flac', '.ogg', '.aac'):
             return video_path
 
-        output = tempfile.mktemp(suffix='.wav', prefix='cineflow_stt_')
+        output = tempfile.mktemp(suffix='.wav', prefix='clipflow_stt_')
         cmd = [
             'ffmpeg', '-y', '-i', video_path,
             '-vn', '-acodec', 'pcm_s16le',

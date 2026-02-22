@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 项目管理器
+ClipFlow 项目管理器
 提供完整的项目生命周期管理功能
 """
 
@@ -327,9 +327,9 @@ class ProjectManager(QObject):
         self.templates: Dict[str, Project] = {}
 
         # 项目目录
-        self.projects_dir = os.path.expanduser("~/CineFlow/Projects")
-        self.templates_dir = os.path.expanduser("~/CineFlow/Templates")
-        self.temp_dir = os.path.expanduser("~/CineFlow/Temp")
+        self.projects_dir = os.path.expanduser("~/ClipFlow/Projects")
+        self.templates_dir = os.path.expanduser("~/ClipFlow/Templates")
+        self.temp_dir = os.path.expanduser("~/ClipFlow/Temp")
 
         # 确保目录存在
         self._ensure_directories()

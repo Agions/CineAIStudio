@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 版本管理
+ClipFlow 版本管理
 从 pyproject.toml 读取版本信息
 """
 

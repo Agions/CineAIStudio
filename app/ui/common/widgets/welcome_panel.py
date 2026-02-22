@@ -77,7 +77,7 @@ class WelcomePanel(QWidget):
         layout.addWidget(logo_label)
 
         # 标题
-        title_label = QLabel("欢迎使用 CineFlow AI")
+        title_label = QLabel("欢迎使用 ClipFlow")
         title_label.setProperty("class", "welcome-title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)

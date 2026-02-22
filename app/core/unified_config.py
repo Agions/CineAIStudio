@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 统一配置加载器
+ClipFlow 统一配置加载器
 合并 YAML、.env、QSettings 等多源配置为单一接口
 """
 
@@ -75,7 +75,7 @@ class UnifiedConfig:
         self._config = {}  # type: Dict[str, Any]
         self._defaults = {
             "app": {
-                "name": "CineFlow AI",
+                "name": "ClipFlow",
                 "version": "2.0.0-rc.1",
                 "debug": False,
                 "language": "zh-CN",

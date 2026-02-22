@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 快速开始示例
-展示如何使用 CineFlow AI 的核心功能
+ClipFlow 快速开始示例
+展示如何使用 ClipFlow 的核心功能
 """
 
 import asyncio
@@ -226,7 +226,7 @@ def example_7_error_handling():
 async def main():
     """运行所有示例"""
     print("\n" + "="*50)
-    print("CineFlow AI 快速开始示例")
+    print("ClipFlow 快速开始示例")
     print("="*50)
 
     # 运行示例 (注意: 需要真实的 API 密钥才能完整运行)

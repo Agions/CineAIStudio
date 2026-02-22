@@ -126,9 +126,9 @@ class ProjectTemplateManager(QObject):
         self.logger = logging.getLogger(__name__)
 
         # 目录设置
-        self.templates_dir = Path.home() / "CineFlow AI" / "Templates"
+        self.templates_dir = Path.home() / "ClipFlow" / "Templates"
         self.builtin_templates_dir = Path(__file__).parent / "templates"
-        self.temp_dir = Path.home() / "CineFlow AI" / "Temp"
+        self.temp_dir = Path.home() / "ClipFlow" / "Temp"
 
         # 确保目录存在
         self._ensure_directories()

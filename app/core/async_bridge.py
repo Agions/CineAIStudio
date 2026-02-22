@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 异步桥接模块
+ClipFlow 异步桥接模块
 解决 PyQt6 同步 UI 与 async LLM Provider 之间的交互问题
 """
 

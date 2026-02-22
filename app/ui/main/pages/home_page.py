@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 首页 - 模板选择式设计
+ClipFlow 首页 - 模板选择式设计
 简洁、美观、以创作流程为核心
 """
 
@@ -208,7 +208,7 @@ class HomePage(BasePage):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
 
-        title = QLabel("🎬 CineFlow AI")
+        title = QLabel("🎬 ClipFlow")
         title.setFont(QFont("", 28, QFont.Weight.Bold))
         title.setStyleSheet("color: #FFFFFF;")
         layout.addWidget(title)

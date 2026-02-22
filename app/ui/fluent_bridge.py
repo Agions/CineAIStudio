@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI UI 基础设施
+ClipFlow UI 基础设施
 集成 PyQt6-Fluent-Widgets，提供统一的 UI 组件接口
 
 即使 Fluent Widgets 未安装也能降级运行（使用原生 PyQt6 组件）

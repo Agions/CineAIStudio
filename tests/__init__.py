@@ -1,1 +1,1 @@
-"""CineFlow AI 测试包"""
+"""ClipFlow 测试包"""

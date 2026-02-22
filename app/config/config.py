@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 应用程序配置模块
+ClipFlow 应用程序配置模块
 定义应用程序的各种配置类
 """
 
@@ -29,7 +29,7 @@ class ThemeConfig:
 @dataclass
 class WindowConfig:
     """窗口配置"""
-    title: str = "CineFlow AI"
+    title: str = "ClipFlow"
     width: int = 1200
     height: int = 800
     min_width: int = 800
@@ -187,7 +187,7 @@ class AppConfig:
         # 设置默认目录
         if not self.app_data_dir:
             import os
-            self.app_data_dir = os.path.join(os.path.expanduser("~"), ".CineFlow AI")
+            self.app_data_dir = os.path.join(os.path.expanduser("~"), ".ClipFlow")
 
         if not self.temp_dir:
             import os
@@ -203,11 +203,11 @@ class AppConfig:
 
         if not self.default_project_dir:
             import os
-            self.default_project_dir = os.path.join(os.path.expanduser("~"), "Documents", "CineFlow AI")
+            self.default_project_dir = os.path.join(os.path.expanduser("~"), "Documents", "ClipFlow")
 
         if not self.default_export_dir:
             import os
-            self.default_export_dir = os.path.join(os.path.expanduser("~"), "Videos", "CineFlow AI")
+            self.default_export_dir = os.path.join(os.path.expanduser("~"), "Videos", "ClipFlow")
 
         if not self.default_import_dir:
             import os

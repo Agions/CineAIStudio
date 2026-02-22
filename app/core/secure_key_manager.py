@@ -20,7 +20,7 @@ import logging
 class SecureKeyManager:
     """安全密钥管理器 - 修复API密钥安全问题"""
 
-    def __init__(self, app_name: str = "CineFlow AI"):
+    def __init__(self, app_name: str = "ClipFlow"):
         self.app_name = app_name
         self.logger = logging.getLogger(__name__)
         self._encryption_key: Optional[bytes] = None

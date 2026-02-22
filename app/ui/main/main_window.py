@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 主窗口 - 设置版本
+ClipFlow 主窗口 - 设置版本
 实现双页面架构：首页 + 设置页面
 """
 
@@ -50,7 +50,7 @@ class PageType(Enum):
 @dataclass
 class WindowConfig:
     """窗口配置"""
-    title: str = "CineFlow AI"
+    title: str = "ClipFlow"
     width: int = 1200
     height: int = 800
     min_width: int = 800
@@ -60,7 +60,7 @@ class WindowConfig:
 
 
 class MainWindow(QMainWindow):
-    """CineFlow AI 主窗口 - 设置版本"""
+    """ClipFlow 主窗口 - 设置版本"""
 
     # 信号定义
     page_changed = pyqtSignal(PageType)           # 页面切换信号
@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
         left_layout.setSpacing(0)
 
         # 应用标题
-        self.app_title = QLabel("CineFlow AI")
+        self.app_title = QLabel("ClipFlow")
         self.app_title.setObjectName("app_title")
         left_layout.addWidget(self.app_title)
 
@@ -179,18 +179,18 @@ class MainWindow(QMainWindow):
             ai_chat_icon = QIcon()
             projects_icon = QIcon()
 
-        # 创建导航按钮（只保留 2 个核心入口）
+        # 创建导航按钮（3 个核心入口：首页 / 项目管理 / 设置）
         self.home_btn = QPushButton(home_icon, "  首页")
+        self.projects_btn = QPushButton(projects_icon, "  项目管理")
         self.settings_btn = QPushButton(settings_icon, "  设置")
 
         # 隐藏页面引用（通过代码跳转，不在导航显示）
-        self.projects_btn = QPushButton()
         self.editor_btn = QPushButton()
         self.ai_video_btn = QPushButton()
         self.ai_chat_btn = QPushButton()
 
         # 设置按钮通用样式和属性
-        self.nav_buttons = [self.home_btn, self.settings_btn]
+        self.nav_buttons = [self.home_btn, self.projects_btn, self.settings_btn]
         for btn in self.nav_buttons:
             btn.setObjectName("nav_button")
             btn.setCheckable(True)
@@ -206,8 +206,9 @@ class MainWindow(QMainWindow):
         self.ai_chat_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_CHAT))
 
         # 添加按钮到导航布局
-        # 导航按钮（极简：首页 + 设置）
+        # 导航按钮（首页 + 项目管理 + 设置）
         nav_layout.addWidget(self.home_btn)
+        nav_layout.addWidget(self.projects_btn)
 
         nav_layout.addStretch()
 
@@ -496,7 +497,7 @@ class MainWindow(QMainWindow):
         """加载设置，添加验证和默认值处理"""
         try:
             # 加载窗口设置
-            settings = QSettings("CineFlow AI", "MainWindow")
+            settings = QSettings("ClipFlow", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 恢复窗口位置和大小
@@ -546,7 +547,7 @@ class MainWindow(QMainWindow):
     def _save_settings(self):
         """保存设置，添加验证和异常处理"""
         try:
-            settings = QSettings("CineFlow AI", "MainWindow")
+            settings = QSettings("ClipFlow", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 保存窗口位置和大小
@@ -861,7 +862,7 @@ class MainWindow(QMainWindow):
             reply = QMessageBox.question(
                 self,
                 "确认退出",
-                "确定要退出 CineFlow AI 吗？",
+                "确定要退出 ClipFlow 吗？",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )

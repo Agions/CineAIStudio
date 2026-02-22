@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 指标收集器
+ClipFlow 指标收集器
 收集应用程序的各种性能指标
 """
 

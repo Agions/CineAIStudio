@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 告警系统
+ClipFlow 告警系统
 提供智能告警和通知功能
 """
 

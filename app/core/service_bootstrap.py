@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 服务引导程序
+ClipFlow 服务引导程序
 简化服务系统的使用，提供高级API
 """
 

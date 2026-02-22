@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow AI 操作性能分析器
+ClipFlow 操作性能分析器
 分析和监控各种操作的执行性能
 """
 
