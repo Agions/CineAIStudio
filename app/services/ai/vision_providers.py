@@ -3,7 +3,7 @@
 
 """
 多模型视觉分析适配器
-支持 OpenAI GPT-5、Gemini Pro Vision、通义千问 VL 等多种 Vision 模型
+支持 OpenAI GPT-5、Gemini 3 Vision、通义千问 VL 等多种 Vision 模型
 """
 
 import os
@@ -145,7 +145,7 @@ class QwenVLProvider(VisionProvider):
 
 
 class GeminiVisionProvider(VisionProvider):
-    """Google Gemini Pro Vision"""
+    """Google Gemini 3 Vision"""
 
     def __init__(self, api_key: str, model: str = "gemini-2.0-flash"):
         self.api_key = api_key

@@ -142,7 +142,7 @@
 ### 画面理解
 
 - **视频级理解** — Gemini 视频直传 + 多帧连续分析
-- **多模型视觉分析** — GPT-5 / 千问 VL / Gemini Pro Vision，自动 fallback
+- **多模型视觉分析** — GPT-5 / 千问 VL / Gemini 3 Vision，自动 fallback
 - **叙事结构识别** — 故事线、角色、情感弧线、高潮标记
 
 ### 字幕提取
@@ -267,7 +267,7 @@ docs/                          # 文档
 | **音频分析** | librosa |
 | **AI 配音** | Edge TTS / OpenAI TTS |
 | **LLM 调度** | 自研多模型管理器（8 家提供商） |
-| **视觉 AI** | GPT-5 Vision / 千问 VL / Gemini Pro Vision |
+| **视觉 AI** | GPT-5 Vision / 千问 VL / Gemini 3 Vision |
 | **字幕提取** | Whisper + OCR |
 | **GPU 加速** | FFmpeg NVENC / VideoToolbox |
 | **代码规范** | flake8 + mypy + pylint |

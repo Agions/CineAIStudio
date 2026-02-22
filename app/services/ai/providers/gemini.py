@@ -3,7 +3,7 @@
 
 """
 Google Gemini 提供商
-支持 Gemini 2.0 Flash / Gemini 1.5 Pro / Gemini 1.5 Flash
+支持 Gemini 3 Flash / Gemini 3 Pro / Gemini 3 Flash
 """
 
 from typing import List, Dict, Any, Optional
@@ -24,28 +24,28 @@ class GeminiProvider(BaseLLMProvider):
     # 可用模型列表
     MODELS = {
         "gemini-2.0-flash": {
-            "name": "Gemini 2.0 Flash",
+            "name": "Gemini 3 Flash",
             "description": "最新版本，速度最快",
             "max_tokens": 8192,
             "context_length": 1000000,
             "vision": True,
         },
-        "gemini-1.5-pro": {
-            "name": "Gemini 1.5 Pro",
+        "gemini-3-pro": {
+            "name": "Gemini 3 Pro",
             "description": "最强性能，支持超长上下文",
             "max_tokens": 8192,
             "context_length": 2000000,
             "vision": True,
         },
-        "gemini-1.5-flash": {
-            "name": "Gemini 1.5 Flash",
+        "gemini-3-flash": {
+            "name": "Gemini 3 Flash",
             "description": "平衡性能和成本",
             "max_tokens": 8192,
             "context_length": 1000000,
             "vision": True,
         },
-        "gemini-1.5-flash-8b": {
-            "name": "Gemini 1.5 Flash-8B",
+        "gemini-3-flash-8b": {
+            "name": "Gemini 3 Flash-8B",
             "description": "轻量级模型，适合简单任务",
             "max_tokens": 8192,
             "context_length": 1000000,
