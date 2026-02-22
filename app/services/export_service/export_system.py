@@ -117,15 +117,15 @@ class ExportEngine:
 
     def export(self, task: ExportTask) -> bool:
         """执行导出任务"""
-        raise NotImplementedError
+        raise NotImplementedError("Subclasses must implement export()")
 
     def get_capabilities(self) -> List[ExportFormat]:
         """获取支持的格式"""
-        raise NotImplementedError
+        return []
 
     def validate_config(self, preset: ExportPreset) -> bool:
-        """验证配置"""
-        raise NotImplementedError
+        """验证配置（默认通过）"""
+        return preset is not None and preset.format is not None
 
 
 class FFmpegEngine(ExportEngine):
