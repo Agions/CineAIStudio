@@ -409,14 +409,6 @@ docs/
 
 ---
 
-## 📞 联系我们
-
-- **GitHub Issues**: [提交问题](https://github.com/Agions/cine-flow/issues)
-- **讨论区**: [参与讨论](https://github.com/Agions/cine-flow/discussions)
-- **邮件**: support@clipflow.ai
-- **官网**: https://clipflow.ai
-
----
 
 <p align="center">
   <strong>ClipFlow Desktop</strong> — 从画面理解到成片导出<br>
@@ -424,5 +416,5 @@ docs/
 </p>
 
 <p align="center">
-  Made with ❤️ by ClipFlow Team
+  Made with ❤️ by Agions
 </p>
