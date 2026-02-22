@@ -9,7 +9,7 @@ ClipFlow 首页 - 模板选择式设计
 from typing import Optional, Dict, Any, List
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
-    QFrame, QScrollArea, QSizePolicy, QSpacerItem
+    QFrame, QScrollArea, QSizePolicy, QSpacerItem, QPushButton
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QSize
 from PyQt6.QtGui import QFont, QCursor
@@ -18,7 +18,7 @@ from .base_page import BasePage
 
 
 class TemplateCard(QFrame):
-    """模板卡片"""
+    """模板卡片 - 精美设计"""
     clicked = pyqtSignal(str)  # template_id
 
     def __init__(self, template_id: str, icon: str, title: str,
@@ -26,33 +26,47 @@ class TemplateCard(QFrame):
         super().__init__(parent)
         self._template_id = template_id
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.setFixedSize(220, 180)
+        self.setFixedSize(240, 200)
         self.setObjectName("templateCard")
         self.setStyleSheet("""
             #templateCard {
-                background: #1E1E1E;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #1E1E1E, stop:1 #1A1A1A);
                 border: 1px solid #333;
-                border-radius: 12px;
-                padding: 20px;
+                border-radius: 14px;
             }
             #templateCard:hover {
-                background: #252525;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #252525, stop:1 #202020);
                 border-color: #2962FF;
+                border-width: 2px;
             }
         """)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 16)
-        layout.setSpacing(8)
+        layout.setContentsMargins(24, 24, 24, 20)
+        layout.setSpacing(12)
 
-        # 图标
+        # 图标容器 - 带背景
+        icon_container = QFrame()
+        icon_container.setFixedSize(64, 64)
+        icon_container.setStyleSheet("""
+            QFrame {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #2962FF, stop:1 #448AFF);
+                border-radius: 12px;
+            }
+        """)
+        icon_layout = QVBoxLayout(icon_container)
+        icon_layout.setContentsMargins(0, 0, 0, 0)
+        
         icon_label = QLabel(icon)
-        icon_label.setFont(QFont("", 36))
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout.addWidget(icon_label)
-
-        layout.addSpacerItem(QSpacerItem(0, 8, QSizePolicy.Policy.Minimum,
-                                          QSizePolicy.Policy.Fixed))
+        icon_label.setFont(QFont("", 32))
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_layout.addWidget(icon_label)
+        
+        layout.addWidget(icon_container)
+        layout.addSpacing(4)
 
         # 标题
         title_label = QLabel(title)
@@ -63,11 +77,17 @@ class TemplateCard(QFrame):
         # 描述
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
-        desc_label.setStyleSheet("color: #888;")
+        desc_label.setStyleSheet("color: #999; line-height: 1.4;")
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
 
         layout.addStretch()
+        
+        # 底部提示
+        hint_label = QLabel("点击开始 →")
+        hint_label.setFont(QFont("", 11))
+        hint_label.setStyleSheet("color: #666;")
+        layout.addWidget(hint_label)
 
     def mousePressEvent(self, event):
         self.clicked.emit(self._template_id)
@@ -75,43 +95,66 @@ class TemplateCard(QFrame):
 
 
 class RecentProjectItem(QFrame):
-    """最近项目条目"""
+    """最近项目条目 - 优化设计"""
     clicked = pyqtSignal(str)
 
     def __init__(self, name: str, path: str, date: str = "", parent=None):
         super().__init__(parent)
         self._path = path
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.setFixedHeight(48)
+        self.setFixedHeight(56)
         self.setStyleSheet("""
             QFrame {
-                background: transparent;
-                border-radius: 8px;
-                padding: 4px 12px;
+                background: #1A1A1A;
+                border: 1px solid #2A2A2A;
+                border-radius: 10px;
+                padding: 8px 16px;
             }
             QFrame:hover {
-                background: #1E1E1E;
+                background: #242424;
+                border-color: #2962FF;
             }
         """)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 4, 12, 4)
-        layout.setSpacing(12)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(16)
 
+        # 图标
         icon = QLabel("📄")
-        icon.setFont(QFont("", 16))
+        icon.setFont(QFont("", 20))
         layout.addWidget(icon)
 
+        # 项目信息
+        info_layout = QVBoxLayout()
+        info_layout.setSpacing(2)
+        
         name_label = QLabel(name)
-        name_label.setStyleSheet("color: #DDD; font-size: 14px;")
-        layout.addWidget(name_label)
-
+        name_label.setFont(QFont("", 14, QFont.Weight.Bold))
+        name_label.setStyleSheet("color: #FFFFFF;")
+        info_layout.addWidget(name_label)
+        
+        # 路径显示（简化）
+        from pathlib import Path
+        path_label = QLabel(str(Path(path).parent.name))
+        path_label.setStyleSheet("color: #666; font-size: 12px;")
+        info_layout.addWidget(path_label)
+        
+        layout.addLayout(info_layout)
         layout.addStretch()
 
+        # 日期标签
         if date:
             date_label = QLabel(date)
-            date_label.setStyleSheet("color: #666; font-size: 12px;")
+            date_label.setFont(QFont("", 12))
+            date_label.setStyleSheet("color: #888;")
             layout.addWidget(date_label)
+        
+        # 箭头图标
+        arrow = QLabel("→")
+        arrow.setFont(QFont("", 16))
+        arrow.setStyleSheet("color: #666;")
+        layout.addWidget(arrow)
 
     def mousePressEvent(self, event):
         self.clicked.emit(self._path)
@@ -202,21 +245,33 @@ class HomePage(BasePage):
         self.main_layout.addWidget(scroll)
 
     def _create_header(self) -> QWidget:
-        """标题区"""
+        """标题区 - 优化设计"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
+        layout.setSpacing(12)
 
-        title = QLabel("🎬 ClipFlow")
-        title.setFont(QFont("", 28, QFont.Weight.Bold))
-        title.setStyleSheet("color: #FFFFFF;")
+        # 主标题
+        title = QLabel("欢迎使用 ClipFlow")
+        title.setFont(QFont("", 32, QFont.Weight.Bold))
+        title.setStyleSheet("""
+            color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 #FFFFFF, stop:1 #CCCCCC);
+        """)
         layout.addWidget(title)
 
-        subtitle = QLabel("选一个模板，开始你的创作")
-        subtitle.setFont(QFont("", 16))
-        subtitle.setStyleSheet("color: #888;")
+        # 副标题
+        subtitle = QLabel("AI 驱动的专业视频创作工具")
+        subtitle.setFont(QFont("", 18))
+        subtitle.setStyleSheet("color: #999;")
         layout.addWidget(subtitle)
+        
+        # 分隔线
+        layout.addSpacing(8)
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 transparent, stop:0.5 #333, stop:1 transparent); max-height: 1px;")
+        layout.addWidget(separator)
 
         return widget
 
@@ -239,20 +294,34 @@ class HomePage(BasePage):
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
+        layout.setSpacing(12)
 
         header_row = QHBoxLayout()
         label = QLabel("最近项目")
-        label.setFont(QFont("", 14, QFont.Weight.Bold))
-        label.setStyleSheet("color: #888;")
+        label.setFont(QFont("", 16, QFont.Weight.Bold))
+        label.setStyleSheet("color: #FFFFFF;")
         header_row.addWidget(label)
         header_row.addStretch()
 
         # 查看全部按钮
-        view_all = QLabel("查看全部 →")
-        view_all.setStyleSheet("color: #2962FF; font-size: 13px;")
-        view_all.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        header_row.addWidget(view_all)
+        view_all_btn = QPushButton("查看全部 →")
+        view_all_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                color: #2962FF;
+                border: none;
+                font-size: 14px;
+                font-weight: 600;
+                padding: 4px 8px;
+            }
+            QPushButton:hover {
+                color: #448AFF;
+                text-decoration: underline;
+            }
+        """)
+        view_all_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        view_all_btn.clicked.connect(self._on_view_all_projects)
+        header_row.addWidget(view_all_btn)
         layout.addLayout(header_row)
 
         # 最近项目列表
@@ -263,10 +332,37 @@ class HomePage(BasePage):
                 item.clicked.connect(self._on_open_recent)
                 layout.addWidget(item)
         else:
-            empty = QLabel("还没有项目，选个模板开始吧 ✨")
-            empty.setStyleSheet("color: #555; font-size: 14px; padding: 20px 0;")
-            empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            layout.addWidget(empty)
+            # 空状态 - 更精美的设计
+            empty_container = QFrame()
+            empty_container.setStyleSheet("""
+                QFrame {
+                    background: #1A1A1A;
+                    border: 2px dashed #333;
+                    border-radius: 12px;
+                    padding: 40px;
+                }
+            """)
+            empty_layout = QVBoxLayout(empty_container)
+            empty_layout.setSpacing(12)
+            empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
+            empty_icon = QLabel("📂")
+            empty_icon.setFont(QFont("", 48))
+            empty_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            empty_layout.addWidget(empty_icon)
+            
+            empty_text = QLabel("还没有项目")
+            empty_text.setFont(QFont("", 16, QFont.Weight.Bold))
+            empty_text.setStyleSheet("color: #888;")
+            empty_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            empty_layout.addWidget(empty_text)
+            
+            empty_hint = QLabel("选择上方的模板开始创作吧 ✨")
+            empty_hint.setStyleSheet("color: #666; font-size: 14px;")
+            empty_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            empty_layout.addWidget(empty_hint)
+            
+            layout.addWidget(empty_container)
 
         return widget
 
@@ -301,10 +397,28 @@ class HomePage(BasePage):
 
     def _on_open_recent(self, path: str):
         """打开最近项目"""
+        self.logger.info(f"打开最近项目: {path}")
         self.project_opened.emit(path)
+        
+        # 切换到项目编辑页面
+        if hasattr(self, 'application'):
+            main_window = self.application.get_service_by_name("main_window")
+            if main_window and hasattr(main_window, 'switch_to_page'):
+                from app.ui.main.main_window import PageType
+                main_window.switch_to_page(PageType.VIDEO_EDITOR)
+    
+    def _on_view_all_projects(self):
+        """查看全部项目"""
+        self.logger.info("切换到项目管理页面")
+        if hasattr(self, 'application'):
+            main_window = self.application.get_service_by_name("main_window")
+            if main_window and hasattr(main_window, 'switch_to_page'):
+                from app.ui.main.main_window import PageType
+                main_window.switch_to_page(PageType.PROJECTS)
 
     def on_activated(self) -> None:
         """页面激活"""
+        # 刷新最近项目列表
         pass
 
     def on_deactivated(self) -> None:

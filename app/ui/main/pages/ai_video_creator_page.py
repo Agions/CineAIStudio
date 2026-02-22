@@ -943,36 +943,21 @@ class AIVideoCreatorPage(BasePage):
                 if result and hasattr(result, 'script_suggestion') and result.script_suggestion:
                     output_widget.setText(result.script_suggestion)
                 else:
-                    # 使用占位文案
-                    if mode == "commentary":
-                        output_widget.setText(self._generate_sample_commentary())
-                    else:
-                        output_widget.setText(self._generate_sample_monologue())
-                    
+                    # 提示用户手动输入
+                    placeholder = "AI 分析未返回结果，请手动输入文案。\n\n" if mode == "commentary" else "AI 分析未返回结果，请手动输入独白。\n\n"
+                    output_widget.setPlaceholderText(placeholder + output_widget.placeholderText())
+                    QMessageBox.information(self, "提示", "AI 分析完成，但未生成文案。请手动输入或调整设置后重试。")
             except Exception as e:
-                    # 使用占位文案
-                    if mode == "commentary":
-                        output_widget.setText(self._generate_sample_commentary())
-                    else:
-                        output_widget.setText(self._generate_sample_monologue())
-                    
-            except Exception as e:
-                if mode == "commentary":
-                    output_widget.setText(self._generate_sample_commentary())
-                else:
-                    output_widget.setText(self._generate_sample_monologue())
+                placeholder = "分析出错，请手动输入文案。\n\n" if mode == "commentary" else "分析出错，请手动输入独白。\n\n"
+                output_widget.setPlaceholderText(placeholder + output_widget.placeholderText())
+                QMessageBox.warning(self, "错误", f"处理分析结果时出错: {e}\n\n请手动输入文案。")
         
         def on_error(error: str):
             self.progress_bar.setVisible(False)
             self.status_label.setText("分析失败")
             
-            # 使用占位文案
-            if mode == "commentary":
-                output_widget.setText(self._generate_sample_commentary())
-            else:
-                output_widget.setText(self._generate_sample_monologue())
-            
-            QMessageBox.warning(self, "分析失败", f"视频分析失败: {error}\n\n已填充示例文案，您可以编辑后使用。")
+            # 提示用户手动输入
+            QMessageBox.warning(self, "分析失败", f"视频分析失败: {error}\n\n请手动输入文案或检查 API 配置。")
         
         # 启动线程
         self.worker_thread = WorkerThread(analyze)
@@ -980,43 +965,7 @@ class AIVideoCreatorPage(BasePage):
         self.worker_thread.error.connect(on_error)
         self.worker_thread.start()
     
-    def _generate_sample_commentary(self) -> str:
-        """生成示例解说文案"""
-        return """【解说文案】
 
-欢迎观看今天的视频。
-
-这段画面为我们展示了一个精彩的场景。
-让我们来仔细分析一下其中的细节。
-
-首先，我们可以看到...
-
-接下来，值得注意的是...
-
-最后，让我们总结一下今天内容的要点。
-感谢观看，别忘了点赞关注！
-
----
-提示：您可以基于视频内容修改上面的文案"""
-    
-    def _generate_sample_monologue(self) -> str:
-        """生成示例独白文案"""
-        return """【独白文案】
-
-有时候，我会停下脚步，看看身边的世界。
-
-那些匆匆而过的身影，
-那些转瞬即逝的瞬间，
-都在诉说着各自的故事。
-
-我常常想，
-生活的意义是什么？
-
-也许，
-答案就藏在每一个平凡的日子里。
-
----
-提示：您可以基于视频情感修改上面的独白"""
     
     def _start_creation(self):
         """开始创作"""

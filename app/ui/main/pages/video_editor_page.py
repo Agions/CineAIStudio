@@ -244,21 +244,8 @@ class MediaLibraryPanel(QWidget):
             self.add_media_files(files)
 
     def showEvent(self, event):
-        """显示事件 - 添加示例数据"""
+        """显示事件"""
         super().showEvent(event)
-        # 如果列表为空，添加一些示例
-        if self.video_list.count() == 0:
-            self._add_sample_data()
-
-    def _add_sample_data(self):
-        """添加示例数据"""
-        # 仅在演示时添加示例
-        sample_videos = ["示例视频_01.mp4", "示例视频_02.mp4", "测试视频.mp4"]
-        for name in sample_videos:
-            item = QListWidgetItem(name)
-            item.setIcon(get_icon("video", 32))
-            item.setToolTip(f"示例视频文件: {name}\n时长: 00:03:45\n分辨率: 1920x1080")
-            self.video_list.addItem(item)
 
 
 class PreviewPanel(QWidget):
