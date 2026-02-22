@@ -241,7 +241,7 @@ class ProjectSettingsManager(QObject):
                 description='默认使用的AI模型',
                 setting_type=SettingType.STRING,
                 default_value='gpt-3.5-turbo',
-                options=['gpt-3.5-turbo', 'gpt-4', 'claude-3', 'gemini-pro'],
+                options=['gpt-5', 'gpt-5-mini', 'claude-opus-4-6', 'gemini-3-pro'],
                 category='ai',
                 subcategory='models'
             ),

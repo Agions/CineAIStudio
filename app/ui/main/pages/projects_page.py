@@ -743,7 +743,7 @@ class ProjectSettingsDialog(QDialog):
         # 默认模型
         self.model_combo = QComboBox()
         self.model_combo.setProperty("class", "input")
-        self.model_combo.addItems(['gpt-3.5-turbo', 'gpt-4', 'claude-3', 'gemini-pro'])
+        self.model_combo.addItems(['gpt-5', 'gpt-5-mini', 'claude-opus-4-6', 'gemini-3-pro'])
 
         model_row = QWidget()
         model_row.setProperty("class", "stat-row")

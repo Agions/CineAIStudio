@@ -3,7 +3,7 @@
 
 """
 Kimi (月之暗面) 提供商
-支持 Kimi 2.5
+支持 Kimi k2
 """
 
 from typing import List, Dict, Any
@@ -20,8 +20,8 @@ class KimiProvider(BaseLLMProvider):
     """
 
     MODELS = {
-        "kimi-2.5": {
-            "name": "Kimi 2.5",
+        "kimi-k2": {
+            "name": "Kimi k2",
             "description": "最新版本",
             "max_tokens": 4000,
             "context_length": 128000,
@@ -45,7 +45,7 @@ class KimiProvider(BaseLLMProvider):
     def _get_model_name(self, model: str) -> str:
         """获取模型实际名称"""
         if model == "default":
-            return "kimi-2.5"
+            return "kimi-k2"
         if model in self.MODELS:
             return model
         raise ValueError(f"Unknown model: {model}")

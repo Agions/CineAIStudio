@@ -555,7 +555,7 @@ class ModelApplicationDialog(QWizard):
                 website="https://open.bigmodel.cn",
                 description="智谱GLM大模型，具备强大的理解和生成能力",
                 application_url="https://open.bigmodel.cn",
-                documentation_url="https://open.bigmodel.cn/dev/api#glm-4",
+                documentation_url="https://open.bigmodel.cn/dev/api#glm-5",
                 requirements=[
                     "需要注册智谱AI平台账号",
                     "需要完成实名认证",

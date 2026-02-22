@@ -13,7 +13,7 @@ AI 文案生成器 (Script Generator)
 
 支持多 LLM 提供商:
 - 通义千问 Qwen 3
-- Kimi 2.5
+- Kimi k2
 - 智谱 GLM-5
 - OpenAI (兼容)
 

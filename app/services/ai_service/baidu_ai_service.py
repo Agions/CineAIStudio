@@ -504,41 +504,41 @@ class GLMService(BaseAIService):
         self.api_base = "https://open.bigmodel.cn"
         self.api_key = None
         self.models = {
-            "glm-4": ModelInfo(
-                name="GLM-4",
+            "glm-5": ModelInfo(
+                name="GLM-5",
                 version="4",
                 provider="智谱AI",
                 capabilities=[ModelCapability.TEXT_GENERATION, ModelCapability.TRANSLATION],
                 max_tokens=128000,
                 cost_per_1k_tokens=0.1,
                 supported_languages=["zh", "en"],
-                description="智谱GLM-4大模型，具备强大的理解和生成能力",
+                description="智谱GLM-5大模型，具备强大的理解和生成能力",
                 website="https://open.bigmodel.cn",
-                documentation="https://open.bigmodel.cn/dev/api#glm-4"
+                documentation="https://open.bigmodel.cn/dev/api#glm-5"
             ),
-            "glm-4-air": ModelInfo(
-                name="GLM-4-Air",
+            "glm-5-air": ModelInfo(
+                name="GLM-5-Air",
                 version="4-air",
                 provider="智谱AI",
                 capabilities=[ModelCapability.TEXT_GENERATION, ModelCapability.TRANSLATION],
                 max_tokens=128000,
                 cost_per_1k_tokens=0.05,
                 supported_languages=["zh", "en"],
-                description="智谱GLM-4-Air大模型，成本更低，性能依然出色",
+                description="智谱GLM-5-Air大模型，成本更低，性能依然出色",
                 website="https://open.bigmodel.cn",
-                documentation="https://open.bigmodel.cn/dev/api#glm-4"
+                documentation="https://open.bigmodel.cn/dev/api#glm-5"
             ),
-            "glm-4-flash": ModelInfo(
-                name="GLM-4-Flash",
+            "glm-5-flash": ModelInfo(
+                name="GLM-5-Flash",
                 version="4-flash",
                 provider="智谱AI",
                 capabilities=[ModelCapability.TEXT_GENERATION, ModelCapability.TRANSLATION],
                 max_tokens=128000,
                 cost_per_1k_tokens=0.001,
                 supported_languages=["zh", "en"],
-                description="智谱GLM-4-Flash大模型，成本极低，适合快速测试",
+                description="智谱GLM-5-Flash大模型，成本极低，适合快速测试",
                 website="https://open.bigmodel.cn",
-                documentation="https://open.bigmodel.cn/dev/api#glm-4"
+                documentation="https://open.bigmodel.cn/dev/api#glm-5"
             )
         }
 

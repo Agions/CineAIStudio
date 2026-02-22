@@ -3,7 +3,7 @@
 
 """
 Anthropic Claude 提供商
-支持 Claude 3.5 Sonnet / Claude 3 Opus / Claude 3 Haiku
+支持 Claude Opus 4.6 / Claude Sonnet 4.6 / Claude Haiku 4.5
 """
 
 from typing import List, Dict, Any, Optional
@@ -21,33 +21,26 @@ class ClaudeProvider(BaseLLMProvider):
     API 文档: https://docs.anthropic.com/claude/reference/messages_post
     """
 
-    # 可用模型列表
+    # 可用模型列表 (2026.02 最新)
     MODELS = {
-        "claude-3-5-sonnet-20241022": {
-            "name": "Claude 3.5 Sonnet",
-            "description": "最佳性价比模型，综合能力最强",
+        "claude-opus-4-6": {
+            "name": "Claude Opus 4.6",
+            "description": "最智能模型，适合复杂任务和 Agent",
+            "max_tokens": 16384,
+            "context_length": 200000,
+            "vision": True,
+        },
+        "claude-sonnet-4-6": {
+            "name": "Claude Sonnet 4.6",
+            "description": "速度与智能的最佳平衡",
+            "max_tokens": 16384,
+            "context_length": 200000,
+            "vision": True,
+        },
+        "claude-haiku-4-5": {
+            "name": "Claude Haiku 4.5",
+            "description": "最快速模型，接近前沿性能",
             "max_tokens": 8192,
-            "context_length": 200000,
-            "vision": True,
-        },
-        "claude-3-opus-20240229": {
-            "name": "Claude 3 Opus",
-            "description": "最强性能模型，适合复杂任务",
-            "max_tokens": 4096,
-            "context_length": 200000,
-            "vision": True,
-        },
-        "claude-3-sonnet-20240229": {
-            "name": "Claude 3 Sonnet",
-            "description": "平衡性能和成本",
-            "max_tokens": 4096,
-            "context_length": 200000,
-            "vision": True,
-        },
-        "claude-3-haiku-20240307": {
-            "name": "Claude 3 Haiku",
-            "description": "最快响应模型，适合简单任务",
-            "max_tokens": 4096,
             "context_length": 200000,
             "vision": True,
         },
@@ -70,7 +63,7 @@ class ClaudeProvider(BaseLLMProvider):
             headers={
                 "x-api-key": api_key,
                 "Content-Type": "application/json",
-                "anthropic-version": "2023-06-01",
+                "anthropic-version": "2025-01-01",
             },
             timeout=120.0,  # Claude 可能需要更长时间
         )
@@ -78,7 +71,7 @@ class ClaudeProvider(BaseLLMProvider):
     def _get_model_name(self, model: str) -> str:
         """获取模型实际名称"""
         if model == "default":
-            return "claude-3-5-sonnet-20241022"
+            return "claude-opus-4-6"
         if model in self.MODELS:
             return model
         raise ValueError(f"Unknown model: {model}")
