@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-Kimi (月之暗面) 提供商
-支持 Kimi k2
+Kimi (月之暗面 Moonshot AI) 提供商
+支持 Kimi K2.5 (2026.02 最新)
 """
 
 from typing import List, Dict, Any
@@ -20,9 +20,16 @@ class KimiProvider(BaseLLMProvider):
     """
 
     MODELS = {
+        "kimi-k2.5": {
+            "name": "Kimi K2.5",
+            "description": "1.04T 参数 MoE 模型，原生多模态和 Agent Swarm (2026.01.27)",
+            "max_tokens": 8000,
+            "context_length": 200000,
+            "vision": True,
+        },
         "kimi-k2": {
-            "name": "Kimi k2",
-            "description": "最新版本",
+            "name": "Kimi K2",
+            "description": "上一代模型",
             "max_tokens": 4000,
             "context_length": 128000,
         },
@@ -45,7 +52,7 @@ class KimiProvider(BaseLLMProvider):
     def _get_model_name(self, model: str) -> str:
         """获取模型实际名称"""
         if model == "default":
-            return "kimi-k2"
+            return "kimi-k2.5"
         if model in self.MODELS:
             return model
         raise ValueError(f"Unknown model: {model}")
@@ -100,6 +107,11 @@ class KimiProvider(BaseLLMProvider):
 
     def get_model_info(self, model: str) -> Dict[str, Any]:
         return self.MODELS.get(model, {})
+
+    def supports_vision(self, model: str) -> bool:
+        """检查模型是否支持视觉"""
+        model_info = self.MODELS.get(model, {})
+        return model_info.get("vision", False)
 
     async def close(self):
         await self.http_client.aclose()

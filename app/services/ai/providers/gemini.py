@@ -3,7 +3,7 @@
 
 """
 Google Gemini 提供商
-支持 Gemini 3 Flash / Gemini 3 Pro / Gemini 3 Flash
+支持 Gemini 3 Flash / Gemini 3 Pro / Gemini 3.1 Pro (2026.02 最新)
 """
 
 from typing import List, Dict, Any, Optional
@@ -21,32 +21,39 @@ class GeminiProvider(BaseLLMProvider):
     API 文档: https://ai.google.dev/docs
     """
 
-    # 可用模型列表
+    # 可用模型列表 (2026.02 最新)
     MODELS = {
-        "gemini-2.0-flash": {
+        "gemini-3-flash": {
             "name": "Gemini 3 Flash",
-            "description": "最新版本，速度最快",
+            "description": "新一代智能，闪电般速度 (2026.02 默认模型)",
             "max_tokens": 8192,
             "context_length": 1000000,
             "vision": True,
         },
-        "gemini-3-pro": {
-            "name": "Gemini 3 Pro",
-            "description": "最强性能，支持超长上下文",
+        "gemini-3.1-pro": {
+            "name": "Gemini 3.1 Pro",
+            "description": "最智能模型，适合复杂任务 (2026.02)",
             "max_tokens": 8192,
             "context_length": 2000000,
             "vision": True,
         },
-        "gemini-3-flash": {
-            "name": "Gemini 3 Flash",
-            "description": "平衡性能和成本",
+        "gemini-3-pro": {
+            "name": "Gemini 3 Pro",
+            "description": "强大性能，支持超长上下文",
             "max_tokens": 8192,
-            "context_length": 1000000,
+            "context_length": 2000000,
             "vision": True,
         },
         "gemini-3-flash-8b": {
             "name": "Gemini 3 Flash-8B",
             "description": "轻量级模型，适合简单任务",
+            "max_tokens": 8192,
+            "context_length": 1000000,
+            "vision": True,
+        },
+        "gemini-3-deep-think": {
+            "name": "Gemini 3 Deep Think",
+            "description": "高级推理模型，适合科学和工程 (2026.02)",
             "max_tokens": 8192,
             "context_length": 1000000,
             "vision": True,
@@ -73,7 +80,7 @@ class GeminiProvider(BaseLLMProvider):
     def _get_model_name(self, model: str) -> str:
         """获取模型实际名称"""
         if model == "default":
-            return "gemini-2.0-flash"
+            return "gemini-3-flash"
         if model in self.MODELS:
             return model
         raise ValueError(f"Unknown model: {model}")

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-通义千问 Qwen 3 提供商
-支持 Qwen 3 Plus / Max / Flash 等模型
+通义千问 Qwen 3.5 提供商
+支持 Qwen 3.5 系列模型 (2026.02 最新)
 """
 
 from typing import List, Dict, Any
@@ -19,10 +19,17 @@ class QwenProvider(BaseLLMProvider):
     API 文档: https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope
     """
 
-    # 可用模型列表
+    # 可用模型列表 (2026.02 最新)
     MODELS = {
+        "qwen3.5": {
+            "name": "Qwen 3.5",
+            "description": "397B MoE 原生多模态模型，Agent AI 时代 (2026.02.16)",
+            "max_tokens": 8000,
+            "context_length": 128000,
+            "vision": True,
+        },
         "qwen-plus": {
-            "name": "Qwen 3 Plus",
+            "name": "Qwen Plus",
             "description": "综合最佳模型",
             "max_tokens": 8000,
             "context_length": 32000,
@@ -71,7 +78,7 @@ class QwenProvider(BaseLLMProvider):
     def _get_model_name(self, model: str) -> str:
         """获取模型实际名称"""
         if model == "default":
-            return "qwen-plus"
+            return "qwen3.5"
         if model in self.MODELS:
             return model
         raise ValueError(f"Unknown model: {model}")
@@ -154,6 +161,11 @@ class QwenProvider(BaseLLMProvider):
     def get_model_info(self, model: str) -> Dict[str, Any]:
         """获取模型信息"""
         return self.MODELS.get(model, {})
+
+    def supports_vision(self, model: str) -> bool:
+        """检查模型是否支持视觉"""
+        model_info = self.MODELS.get(model, {})
+        return model_info.get("vision", False)
 
     async def close(self):
         """关闭 HTTP 客户端"""
