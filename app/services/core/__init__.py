@@ -11,6 +11,22 @@ from .undo_manager import (
     CommandStatus,
 )
 
+from .workflow_engine import (
+    WorkflowEngine,
+    WorkflowStep,
+    WorkflowStatus,
+    WorkflowState,
+    WorkflowCallbacks,
+    CreationMode,
+    ExportFormat,
+    VideoSource,
+    AnalysisResult,
+    ScriptData,
+    TimelineData,
+    VoiceoverData,
+    create_workflow,
+)
+
 __all__ = [
     'UndoManager',
     'Command',
@@ -20,4 +36,18 @@ __all__ = [
     'ListAddCommand',
     'ListRemoveCommand',
     'CommandStatus',
+    # Workflow
+    'WorkflowEngine',
+    'WorkflowStep',
+    'WorkflowStatus',
+    'WorkflowState',
+    'WorkflowCallbacks',
+    'CreationMode',
+    'ExportFormat',
+    'VideoSource',
+    'AnalysisResult',
+    'ScriptData',
+    'TimelineData',
+    'VoiceoverData',
+    'create_workflow',
 ]
