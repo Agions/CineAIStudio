@@ -263,7 +263,7 @@ class VideoSummarizer:
             user_prompt = self._build_summary_prompt(analysis, config)
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},

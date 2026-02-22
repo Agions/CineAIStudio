@@ -151,7 +151,7 @@ class SettingsPage(BasePage):
         api_card = SettingCard("API 密钥", "🔑")
 
         api_keys = [
-            ("openai_key", "OpenAI API Key", "用于 GPT-4o 画面分析、Whisper 语音转字幕", "sk-..."),
+            ("openai_key", "OpenAI API Key", "用于 GPT-5 画面分析、Whisper 语音转字幕", "sk-..."),
             ("qwen_key", "通义千问 API Key", "用于通义千问 VL 视觉分析", "sk-..."),
             ("gemini_key", "Gemini API Key", "用于 Gemini 视频直传理解", "AIza..."),
             ("kimi_key", "Kimi API Key", "月之暗面 Moonshot AI", "sk-..."),

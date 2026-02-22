@@ -71,7 +71,7 @@
 | 项目 | 说明 |
 |------|------|
 | **输入** | 视频文件 |
-| **处理** | 视频级理解（Gemini 直传）/ 多帧视觉分析（GPT-4o/千问 VL）/ 叙事结构识别 |
+| **处理** | 视频级理解（Gemini 直传）/ 多帧视觉分析（GPT-5/千问 VL）/ 叙事结构识别 |
 | **输出** | 场景列表、角色、情感弧线、高潮标记、内容摘要 |
 
 ### Step 3: 📋 创作模式选择
@@ -130,7 +130,7 @@
 
 | 提供者 | 文本 | 视觉 | 配音 |
 |--------|:---:|:---:|:---:|
-| **OpenAI** (GPT-4o/GPT-5) | ✅ | ✅ | ✅ |
+| **OpenAI** (GPT-5/5.2) | ✅ | ✅ | ✅ |
 | **通义千问** (Qwen VL) | ✅ | ✅ | ❌ |
 | **Gemini** (Pro Vision) | ✅ | ✅ | ❌ |
 | **Kimi** (月之暗面) | ✅ | ❌ | ❌ |
@@ -142,7 +142,7 @@
 ### 画面理解
 
 - **视频级理解** — Gemini 视频直传 + 多帧连续分析
-- **多模型视觉分析** — GPT-4o / 千问 VL / Gemini Pro Vision，自动 fallback
+- **多模型视觉分析** — GPT-5 / 千问 VL / Gemini Pro Vision，自动 fallback
 - **叙事结构识别** — 故事线、角色、情感弧线、高潮标记
 
 ### 字幕提取
@@ -267,7 +267,7 @@ docs/                          # 文档
 | **音频分析** | librosa |
 | **AI 配音** | Edge TTS / OpenAI TTS |
 | **LLM 调度** | 自研多模型管理器（8 家提供商） |
-| **视觉 AI** | GPT-4o Vision / 千问 VL / Gemini Pro Vision |
+| **视觉 AI** | GPT-5 Vision / 千问 VL / Gemini Pro Vision |
 | **字幕提取** | Whisper + OCR |
 | **GPU 加速** | FFmpeg NVENC / VideoToolbox |
 | **代码规范** | flake8 + mypy + pylint |

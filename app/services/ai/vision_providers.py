@@ -3,7 +3,7 @@
 
 """
 多模型视觉分析适配器
-支持 OpenAI GPT-4o、Gemini Pro Vision、通义千问 VL 等多种 Vision 模型
+支持 OpenAI GPT-5、Gemini Pro Vision、通义千问 VL 等多种 Vision 模型
 """
 
 import os
@@ -75,9 +75,9 @@ class VisionProvider(ABC):
 
 
 class OpenAIVisionProvider(VisionProvider):
-    """OpenAI GPT-4o Vision"""
+    """OpenAI GPT-5 Vision"""
 
-    def __init__(self, api_key: str, model: str = "gpt-4o",
+    def __init__(self, api_key: str, model: str = "gpt-5",
                  base_url: Optional[str] = None):
         self.api_key = api_key
         self.model = model
@@ -217,7 +217,7 @@ class VisionAnalyzerFactory:
         if openai_key and not openai_key.startswith("${"):
             self._providers.append(OpenAIVisionProvider(
                 api_key=openai_key,
-                model=llm.get("openai", {}).get("vision_model", "gpt-4o"),
+                model=llm.get("openai", {}).get("vision_model", "gpt-5"),
                 base_url=llm.get("openai", {}).get("base_url"),
             ))
 

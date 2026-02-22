@@ -353,7 +353,7 @@ class VideoContentAnalyzer:
 只返回JSON，不要其他内容。"""
             
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5",
                 messages=[
                     {
                         "role": "user",
@@ -587,7 +587,7 @@ class VideoContentAnalyzer:
 ..."""
             
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-5-mini",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=500,
             )

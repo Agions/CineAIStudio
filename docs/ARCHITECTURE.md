@@ -143,7 +143,7 @@ timeout = config.get("LLM.timeout", 30)
 | GLM-5 | ✅ | ❌ | ❌ |
 | Claude | ✅ | ❌ | ❌ |
 | Gemini | ✅ | ✅ (Vision) | ❌ |
-| OpenAI | ✅ | ✅ (GPT-4o) | ✅ (TTS) |
+| OpenAI | ✅ | ✅ (GPT-5) | ✅ (TTS) |
 | Edge TTS | ❌ | ❌ | ✅ (免费) |
 | 本地 (Ollama) | ✅ | ❌ | ❌ |
 
