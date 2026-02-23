@@ -147,7 +147,15 @@ class QuickAIConfigWidget(QWidget):
 
     def _setup_connections(self):
         """设置信号连接"""
-        pass
+        # 连接按钮信号
+        if hasattr(self, 'apply_button'):
+            self.apply_button.clicked.connect(self._on_apply_clicked)
+        if hasattr(self, 'refresh_button'):
+            self.refresh_button.clicked.connect(self.refresh_status)
+        
+        # 连接配置变化信号
+        if hasattr(self, 'config_changed'):
+            self.config_changed.connect(self._on_config_changed)
 
     def _setup_refresh_timer(self):
         """设置定时刷新"""

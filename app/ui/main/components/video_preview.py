@@ -192,4 +192,34 @@ class VideoPreview(QWidget):
             self._player.setSource(QUrl())
 
     def update_theme(self, is_dark: bool = True):
-        pass
+        """更新主题"""
+        if is_dark:
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #0A0A0A;
+                }
+                QSlider::groove:horizontal {
+                    background: #2d2d2d;
+                    height: 4px;
+                }
+                QSlider::handle:horizontal {
+                    background: #2962FF;
+                    width: 14px;
+                    margin: -5px 0;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #f5f5f5;
+                }
+                QSlider::groove:horizontal {
+                    background: #e0e0e0;
+                    height: 4px;
+                }
+                QSlider::handle:horizontal {
+                    background: #2196F3;
+                    width: 14px;
+                    margin: -5px 0;
+                }
+            """)

@@ -269,7 +269,8 @@ class AIChatPage(BasePage):
 
     def create_content(self) -> None:
         """内容已在_init_ui中创建"""
-        pass
+        # 内容已在 _init_ui 中创建，这里可以刷新界面状态
+        self._refresh_ui_state()
 
     def _create_chat_panel(self) -> QWidget:
         """创建聊天面板"""
@@ -562,4 +563,12 @@ class MockAIService:
         return "我理解您的需求。作为AI视频助手，我可以帮您处理各种视频任务。请告诉我具体需要什么帮助！"
 
     def cleanup(self):
-        pass
+        """清理资源"""
+        # 停止刷新定时器
+        if hasattr(self, 'refresh_timer'):
+            self.refresh_timer.stop()
+        # 清理聊天记录
+        if hasattr(self, 'chat_history'):
+            self.chat_history.clear()
+        # 断开信号连接
+        self.disconnect()

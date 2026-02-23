@@ -493,8 +493,44 @@ class ExportMonitorWidget(QWidget):
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
-        # 实现主题更新逻辑
-        pass
+        if is_dark:
+            self.setStyleSheet("""
+                QGroupBox {
+                    border: 1px solid #3a3a3a;
+                    border-radius: 4px;
+                    margin-top: 8px;
+                    padding-top: 8px;
+                    color: #ffffff;
+                }
+                QProgressBar {
+                    border: 1px solid #3a3a3a;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d2d;
+                }
+                QProgressBar::chunk {
+                    background-color: #2962FF;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QGroupBox {
+                    border: 1px solid #d0d0d0;
+                    border-radius: 4px;
+                    margin-top: 8px;
+                    padding-top: 8px;
+                    color: #000000;
+                }
+                QProgressBar {
+                    border: 1px solid #d0d0d0;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #f5f5f5;
+                }
+                QProgressBar::chunk {
+                    background-color: #2196F3;
+                }
+            """)
 
 
 class ExportProgressDialog(QDialog):
