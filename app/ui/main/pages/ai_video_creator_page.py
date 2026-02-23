@@ -1151,8 +1151,9 @@ class AIVideoCreatorPage(BasePage):
         if hasattr(maker, 'auto_mashup'):
             maker.auto_mashup(project)
         else:
-             # 如果 MashupMaker 还没实现 auto_mashup，这里作为未实现功能的占位
-             pass
+            # 如果 MashupMaker 还没实现 auto_mashup
+            self.logger.warning("自动混剪功能暂未实现")
+            return ""
         
         # 导出
         draft_path = maker.export_to_jianying(project, output_dir + "/jianying_drafts")
