@@ -1,0 +1,315 @@
+/* 全局样式表 - CineAI Studio Modern Dark */
+
+/* === 基础控件 === */
+
+QWidget {
+    background-color: #121212;
+    color: #FFFFFF;
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-size: 13px;
+    selection-background-color: #2962FF;
+    selection-color: #FFFFFF;
+}
+
+/* === 滚动条 === */
+QScrollBar:vertical {
+    border: none;
+    background: #121212;
+    width: 10px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: #333333;
+    min-height: 20px;
+    border-radius: 5px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #4A4A4A;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background: #121212;
+    height: 10px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #333333;
+    min-width: 20px;
+    border-radius: 5px;
+    margin: 2px;
+}
+
+/* === 侧边栏 === */
+QFrame#left_panel {
+    background-color: #1E1E1E;
+    border-right: 1px solid #333333;
+}
+
+QLabel#app_title {
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 20px;
+}
+
+/* 导航按钮 */
+QPushButton#nav_button {
+    text-align: left;
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #B0B0B0;
+    padding: 10px 16px;
+    font-size: 14px;
+    margin: 2px 8px;
+}
+
+QPushButton#nav_button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #FFFFFF;
+}
+
+QPushButton#nav_button:checked {
+    background-color: rgba(41, 98, 255, 0.15); /* Primary Blue with opacity */
+    color: #2962FF;
+    font-weight: 600;
+}
+
+/* === 主内容区 === */
+QWidget#page_header {
+    background-color: #121212;
+    border-bottom: 1px solid #2C2C2C;
+}
+
+QLabel#page_title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+/* === 通用按钮 === */
+QPushButton {
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-weight: 500;
+}
+
+QPushButton#primary_button {
+    background-color: #2962FF;
+    color: white;
+    border: none;
+}
+
+QPushButton#primary_button:hover {
+    background-color: #448AFF;
+}
+
+QPushButton#primary_button:pressed {
+    background-color: #0039CB;
+}
+
+QPushButton#secondary_button {
+    background-color: transparent;
+    border: 1px solid #333333;
+    color: #E0E0E0;
+}
+
+QPushButton#secondary_button:hover {
+    background-color: #2C2C2C;
+    border-color: #4A4A4A;
+}
+
+/* === 输入控件 === */
+QLineEdit, QPlainTextEdit, QTextEdit {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 8px;
+    color: #FFFFFF;
+}
+
+QLineEdit:focus, QPlainTextEdit:focus, QTextEdit:focus {
+    border: 1px solid #2962FF;
+    background-color: #262626;
+}
+
+QComboBox {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: #FFFFFF;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none; /* 可以替换为自定义SVG图标 */
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #808080;
+    margin-right: 8px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #2C2C2C;
+    border: 1px solid #333333;
+    selection-background-color: #2962FF;
+    outline: none;
+}
+
+/* === TabWidget === */
+QTabWidget::pane {
+    border: 1px solid #333333;
+    border-radius: 8px;
+    background-color: #1E1E1E;
+}
+
+QTabBar::tab {
+    background-color: transparent;
+    color: #B0B0B0;
+    padding: 8px 16px;
+    margin-right: 4px;
+    border-bottom: 2px solid transparent;
+}
+
+QTabBar::tab:selected {
+    color: #FFFFFF;
+    border-bottom: 2px solid #2962FF;
+}
+
+QTabBar::tab:hover {
+    color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+/* === 分隔线 === */
+QFrame[frameShape="4"] { /* HLine */
+    color: #333333;
+}
+
+QFrame#header_separator {
+    color: #2C2C2C;
+}
+
+/* === ToolTip === */
+QToolTip {
+    background-color: #333333;
+    color: white;
+    border: 1px solid #4A4A4A;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+/* === 专用组件样式 === */
+
+/* 视频拖放区域 */
+VideoDropZone {
+    border: 2px dashed #4A4A4A;
+    border-radius: 12px;
+    background-color: rgba(30, 30, 30, 0.5);
+}
+
+VideoDropZone:hover {
+    border-color: #2962FF;
+    background-color: rgba(41, 98, 255, 0.1);
+}
+
+/* 列表控件 */
+QListWidget {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+QListWidget::item {
+    color: #E0E0E0;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+QListWidget::item:selected {
+    background-color: rgba(41, 98, 255, 0.2);
+    color: #2962FF;
+    border: 1px solid rgba(41, 98, 255, 0.3);
+}
+
+QListWidget::item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 底部操作栏 */
+QFrame#action_bar {
+    background-color: #1E1E1E;
+    border-top: 1px solid #333333;
+    border-radius: 0px 0px 8px 8px; /* 仅底部圆角 */
+}
+
+/* 进度条 */
+QProgressBar {
+    background-color: #2C2C2C;
+    border-radius: 4px;
+    text-align: center;
+    color: white;
+}
+
+QProgressBar::chunk {
+    background-color: #2962FF;
+    border-radius: 4px;
+}
+
+/* MacCard 替代样式 (如果 MacCard 本身不支持 QSS) */
+QWidget#card {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    border-radius: 12px;
+}
+
+/* 视频播放器 */
+QVideoWidget {
+    background-color: black;
+    border-radius: 8px;
+    border: 1px solid #333333;
+}
+
+/* 滑块样式 */
+QSlider::groove:horizontal {
+    border: 1px solid #333333;
+    height: 6px;
+    background: #2C2C2C;
+    margin: 2px 0;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: #B0B0B0;
+    border: 1px solid #5c5c5c;
+    width: 14px;
+    height: 14px;
+    margin: -5px 0;
+    border-radius: 7px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #FFFFFF;
+}
+
+QSlider::sub-page:horizontal {
+    background: #2962FF;
+    border-radius: 3px;
+}
