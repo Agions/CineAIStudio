@@ -687,8 +687,11 @@ class PropertiesPanel(QWidget):
         return row
 
     def _connect_ai_signals(self):
-        """连接AI信号（占位符）"""
-        pass
+        """连接AI信号"""
+        # 连接 AI 分析完成信号
+        if hasattr(self, 'ai_analyzer'):
+            self.ai_analyzer.analysis_completed.connect(self._on_ai_analysis_completed)
+            self.ai_analyzer.analysis_failed.connect(self._on_ai_analysis_failed)
 
 
 class TimelinePanel(QWidget):

@@ -755,10 +755,18 @@ class ExportPanel(QWidget):
         try:
             if action == "start":
                 # 开始任务（重新实现）
-                pass
+                success = self.export_system.resume_export(task_id)
+                if success:
+                    QMessageBox.information(self, "成功", "任务已恢复")
+                else:
+                    QMessageBox.warning(self, "警告", "无法恢复该任务")
             elif action == "pause":
                 # 暂停任务
-                pass
+                success = self.export_system.pause_export(task_id)
+                if success:
+                    QMessageBox.information(self, "成功", "任务已暂停")
+                else:
+                    QMessageBox.warning(self, "警告", "无法暂停该任务")
             elif action == "cancel":
                 success = self.export_system.cancel_export(task_id)
                 if success:
@@ -767,10 +775,15 @@ class ExportPanel(QWidget):
                     QMessageBox.warning(self, "警告", "无法取消该任务")
             elif action == "remove":
                 # 移除任务
-                pass
+                success = self.export_system.remove_from_queue(task_id)
+                if success:
+                    self._refresh_queue_list()
             elif action == "clear_completed":
                 # 清除已完成任务
-                pass
+                success = self.export_system.clear_completed()
+                if success:
+                    self._refresh_queue_list()
+                    QMessageBox.information(self, "成功", "已完成任务已清除")
 
         except Exception as e:
             QMessageBox.critical(self, "错误", f"操作失败: {str(e)}")

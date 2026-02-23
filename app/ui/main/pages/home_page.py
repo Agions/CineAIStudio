@@ -419,8 +419,10 @@ class HomePage(BasePage):
     def on_activated(self) -> None:
         """页面激活"""
         # 刷新最近项目列表
-        pass
+        self._load_recent_projects()
+        self._load_templates()
 
     def on_deactivated(self) -> None:
         """页面停用"""
-        pass
+        # 保存页面状态
+        self._save_page_state()

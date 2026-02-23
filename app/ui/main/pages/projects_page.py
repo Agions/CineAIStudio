@@ -905,8 +905,9 @@ class ProjectsPage(BasePage):
 
     def create_content(self) -> None:
         """创建页面内容"""
-        # 内容创建已在_init_ui中完成
-        pass
+        # 内容创建已在 _init_ui 中完成
+        # 刷新项目列表
+        self._refresh_project_list()
 
     def _check_services(self):
         """检查服务状态"""
