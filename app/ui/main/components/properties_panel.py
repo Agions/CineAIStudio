@@ -227,4 +227,34 @@ class PropertiesPanel(QWidget):
         self.clear()
 
     def update_theme(self, is_dark: bool = True):
-        pass
+        """更新主题"""
+        if is_dark:
+            self.setStyleSheet("""
+                QScrollArea {
+                    background-color: #1a1a1a;
+                    border: none;
+                }
+                QLabel {
+                    color: #ffffff;
+                }
+                QLineEdit, QSpinBox, QComboBox {
+                    background-color: #2d2d2d;
+                    color: #ffffff;
+                    border: 1px solid #3a3a3a;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QScrollArea {
+                    background-color: #f5f5f5;
+                    border: none;
+                }
+                QLabel {
+                    color: #000000;
+                }
+                QLineEdit, QSpinBox, QComboBox {
+                    background-color: #ffffff;
+                    color: #000000;
+                    border: 1px solid #d0d0d0;
+                }
+            """)

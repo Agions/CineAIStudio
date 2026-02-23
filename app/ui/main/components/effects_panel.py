@@ -66,8 +66,38 @@ class EffectsPanel(QWidget):
 
     def cleanup(self):
         """清理资源"""
-        pass
+        # 清理特效列表
+        self.effects_list.clear()
+        # 清理预览
+        self.preview_label.clear()
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
-        pass
+        if is_dark:
+            self.setStyleSheet("""
+                QGroupBox {
+                    border: 1px solid #3a3a3a;
+                    border-radius: 4px;
+                    margin-top: 8px;
+                    padding-top: 8px;
+                    color: #ffffff;
+                }
+                QListWidget {
+                    background-color: #1a1a1a;
+                    color: #ffffff;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QGroupBox {
+                    border: 1px solid #d0d0d0;
+                    border-radius: 4px;
+                    margin-top: 8px;
+                    padding-top: 8px;
+                    color: #000000;
+                }
+                QListWidget {
+                    background-color: #ffffff;
+                    color: #000000;
+                }
+            """)

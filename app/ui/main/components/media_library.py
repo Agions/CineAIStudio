@@ -94,8 +94,34 @@ class MediaLibrary(QWidget):
 
     def cleanup(self):
         """清理资源"""
-        pass
+        # 清理媒体列表
+        self.media_list.clear()
+        # 清理缩略图缓存
+        self.thumbnail_cache.clear()
+        # 停止所有加载任务
+        self.load_tasks.clear()
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
-        pass
+        if is_dark:
+            self.setStyleSheet("""
+                QListWidget {
+                    background-color: #1a1a1a;
+                    color: #ffffff;
+                    border: 1px solid #3a3a3a;
+                }
+                QListWidget::item:selected {
+                    background-color: #2962FF;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QListWidget {
+                    background-color: #ffffff;
+                    color: #000000;
+                    border: 1px solid #d0d0d0;
+                }
+                QListWidget::item:selected {
+                    background-color: #2196F3;
+                }
+            """)
