@@ -9,7 +9,7 @@ PyQt6-sip>=13.6.0
 PyQt6-Fluent-Widgets>=1.11.0
 
 ## 图像/视频处理
-opencv-python>=4.8.1
+opencv-python.1
 numpy>=1.26.0
 pillow>=10.1.0
 ffmpeg-python==0.2.0
@@ -40,10 +40,26 @@ moviepy>=1.0.3
 openai>=1.0.0
 google-generativeai>=0.8.0
 
-## 测试依赖（可选）
-# pytest>=7.4.0
-# pytest-cov>=4.1.0
-# pytest-asyncio>=0.21.0
-# black>=23.11.0
-# flake8>=6.1.0
-# mypy>=1.7.0
+## 版本兼容
+packaging>=21.0
+
+# =======================
+# 开发与测试依赖
+# =======================
+
+## 测试框架
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+pytest-timeout>=2.1.0
+
+## 代码质量
+black>=23.11.0
+flake8>=6.1.0
+mypy>=1.7.0
+isort>=5.12.0
+
+## 类型支持
+types-requests>=2.31.0
+types-PyYAML>=6.0.0
+types-python-dotenv>=1.0.0

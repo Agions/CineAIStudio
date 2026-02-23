@@ -74,6 +74,11 @@ class PerformanceConfig:
     enable_preview_optimization: bool = True
     enable_proxy_generation: bool = True
     max_concurrent_tasks: int = 3
+    
+    # 启动优化
+    enable_lazy_load: bool = True  # 懒加载模块
+    enable_fast_startup: bool = True  # 快速启动模式
+    preload_modules: List[str] = field(default_factory=lambda: ["app.core.application", "app.ui.main.main_window"])
 
 
 @dataclass
