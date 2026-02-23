@@ -367,7 +367,11 @@ class SettingsPage(BasePage):
             subprocess.Popen(["xdg-open", str(p)])
 
     def on_activated(self) -> None:
-        pass
+        """页面激活时调用"""
+        # 刷新设置
+        self._load_settings()
 
     def on_deactivated(self) -> None:
-        pass
+        """页面停用时调用"""
+        # 保存设置
+        self._save_settings()

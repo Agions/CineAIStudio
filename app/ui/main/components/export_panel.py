@@ -795,8 +795,20 @@ class ExportPanel(QWidget):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             preset_data = dialog.get_preset_data()
             # 创建预设并添加到系统
-            # 这里需要实现预设创建逻辑
-            QMessageBox.information(self, "成功", "预设已添加")
+            new_preset = ExportPreset(
+                name=preset_data.get("name", "新预设"),
+                format=preset_data.get("format", "mp4"),
+                codec=preset_data.get("codec", "h264"),
+                resolution=preset_data.get("resolution", "1920x1080"),
+                fps=preset_data.get("fps", 30),
+                bitrate=preset_data.get("bitrate", "8M"),
+                audio_codec=preset_data.get("audio_codec", "aac"),
+                audio_bitrate=preset_data.get("audio_bitrate", "192k"),
+            )
+            # 添加到预设列表
+            self.presets.append(new_preset)
+            self._refresh_presets_table()
+            QMessageBox.information(self, "成功", f"预设 '{new_preset.name}' 已添加")
 
     def edit_preset(self):
         """编辑预设"""
@@ -886,5 +898,30 @@ class ExportPanel(QWidget):
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
-        # 实现主题更新逻辑
-        pass
+        # 根据主题更新样式
+        if is_dark:
+            self.setStyleSheet("""
+                QGroupBox {
+                    border: 1px solid #3a3a3a;
+                    border-radius: 4px;
+                    margin-top: 8px;
+                    padding-top: 8px;
+                }
+                QTableWidget {
+                    background-color: #1a1a1a;
+                    alternate-background-color: #242424;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QGroupBox {
+                    border: 1px solid #d0d0d0;
+                    border-radius: 4px;
+                    margin-top: 8px;
+                    padding-top: 8px;
+                }
+                QTableWidget {
+                    background-color: #ffffff;
+                    alternate-background-color: #f5f5f5;
+                }
+            """)

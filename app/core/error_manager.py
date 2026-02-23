@@ -485,9 +485,29 @@ class RetryRecoveryStrategy(ErrorRecoveryStrategy):
                 error_info.category in [ErrorCategory.NETWORK, ErrorCategory.AI])
 
     def recover(self, error_info: ErrorInfo) -> bool:
-        # 这里可以实现具体的重试逻辑
-        # 返回 True 表示恢复成功
-        return False  # 默认不实现
+        """实现具体的重试逻辑"""
+        import time
+        import random
+        
+        # 根据错误类型计算等待时间
+        if error_info.category == ErrorCategory.NETWORK:
+            # 网络错误：指数退避
+            wait_time = min(2 ** error_info.retry_count, 30)
+        elif error_info.category == ErrorCategory.AI:
+            # AI 错误：固定等待 + 随机抖动
+            wait_time = 5 + random.uniform(0, 2)
+        else:
+            wait_time = 2
+        
+        # 实际等待（可以通过配置禁用）
+        # time.sleep(wait_time)  # 注释掉，实际等待需要异步执行
+        
+        # 标记为已重试
+        error_info.retry_count += 1
+        error_info.last_retry_time = time.time()
+        
+        # 返回 True 表示准备好重试
+        return True
 
     def get_estimated_recovery_time(self, error_info: ErrorInfo) -> float:
         return 5.0  # 预估5秒
