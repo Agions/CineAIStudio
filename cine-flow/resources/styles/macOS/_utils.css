@@ -1,0 +1,1294 @@
+/**
+ * macOS 设计系统 - 工具类样式
+ *
+ * 设计理念:
+ * - 原子化 CSS 类，快速构建界面
+ * - 覆盖布局、间距、颜色、状态等常用属性
+ * - 保持一致性，易于维护
+ * - 命名规范清晰 (类似 Tailwind 但更符合 macOS)
+ *
+ * 分类:
+ * 1. 布局工具 (Layout)
+ * 2. 间距工具 (Spacing)
+ * 3. 颜色工具 (Colors)
+ * 4. 排版工具 (Typography)
+ * 5. 状态工具 (State)
+ * 6. 显示控制 (Display)
+ *
+ * @category: Utilities
+ * @order: 5
+ * @author: Senior Full Stack Engineer
+ */
+
+/* ========================================
+ * 布局工具 (Layout Utilities)
+ * ======================================== */
+
+/* 弹性盒子容器 */
+.flex {
+  display: flex !important;
+}
+.inline-flex {
+  display: inline-flex !important;
+}
+.flex-col {
+  flex-direction: column !important;
+}
+.flex-row {
+  flex-direction: row !important;
+}
+
+/* 主轴对齐 */
+.justify-start {
+  justify-content: flex-start !important;
+}
+.justify-center {
+  justify-content: center !important;
+}
+.justify-end {
+  justify-content: flex-end !important;
+}
+.justify-between {
+  justify-content: space-between !important;
+}
+.justify-around {
+  justify-content: space-around !important;
+}
+.justify-evenly {
+  justify-content: space-evenly !important;
+}
+
+/* 交叉轴对齐 */
+.items-start {
+  align-items: flex-start !important;
+}
+.items-center {
+  align-items: center !important;
+}
+.items-end {
+  align-items: flex-end !important;
+}
+.items-baseline {
+  align-items: baseline !important;
+}
+.items-stretch {
+  align-items: stretch !important;
+}
+
+/* 自身对齐 */
+.self-start {
+  align-self: flex-start !important;
+}
+.self-center {
+  align-self: center !important;
+}
+.self-end {
+  align-self: flex-end !important;
+}
+.self-stretch {
+  align-self: stretch !important;
+}
+
+/* 伸缩因子 */
+.flex-1 {
+  flex: 1 1 0% !important;
+}
+.flex-auto {
+  flex: 1 1 auto !important;
+}
+.flex-initial {
+  flex: 0 1 auto !important;
+}
+.flex-none {
+  flex: none !important;
+}
+
+/* 包装 */
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+.flex-nowrap {
+  flex-wrap: nowrap !important;
+}
+.flex-wrap-reverse {
+  flex-wrap: wrap-reverse !important;
+}
+
+/* 网格容器 */
+.grid {
+  display: grid !important;
+}
+.inline-grid {
+  display: inline-grid !important;
+}
+
+/* 网格列 */
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+.grid-cols-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+.grid-cols-12 {
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+}
+
+/* 自动列 */
+.grid-cols-auto {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+}
+
+/* 间隙 */
+.gap-1 {
+  gap: var(--space-1) !important;
+}
+.gap-2 {
+  gap: var(--space-2) !important;
+}
+.gap-3 {
+  gap: var(--space-3) !important;
+}
+.gap-4 {
+  gap: var(--space-4) !important;
+}
+.gap-5 {
+  gap: var(--space-5) !important;
+}
+.gap-6 {
+  gap: var(--space-6) !important;
+}
+
+/* 响应式间隙 (示例) */
+@media (max-width: 768px) {
+  .gap-sm-2 {
+    gap: var(--space-2) !important;
+  }
+}
+
+/* ========================================
+ * 间距工具 (Spacing Utilities)
+ * 基于 4px 网格系统
+ * ======================================== */
+
+/* 内边距 (Padding) */
+.p-0 {
+  padding: 0 !important;
+}
+.p-1 {
+  padding: var(--space-1) !important;
+}
+.p-2 {
+  padding: var(--space-2) !important;
+}
+.p-3 {
+  padding: var(--space-3) !important;
+}
+.p-4 {
+  padding: var(--space-4) !important;
+}
+.p-5 {
+  padding: var(--space-5) !important;
+}
+.p-6 {
+  padding: var(--space-6) !important;
+}
+
+/* 单侧内边距 */
+.pt-2 {
+  padding-top: var(--space-2) !important;
+}
+.pr-2 {
+  padding-right: var(--space-2) !important;
+}
+.pb-2 {
+  padding-bottom: var(--space-2) !important;
+}
+.pl-2 {
+  padding-left: var(--space-2) !important;
+}
+
+.px-2 {
+  padding-left: var(--space-2) !important;
+  padding-right: var(--space-2) !important;
+}
+.py-2 {
+  padding-top: var(--空间-2) !important;
+  padding-bottom: var(--space-2) !important;
+}
+
+.px-3 {
+  padding-left: var(--space-3) !important;
+  padding-right: var(--space-3) !important;
+}
+.py-3 {
+  padding-top: var(--space-3) !important;
+  padding-bottom: var(--space-3) !important;
+}
+
+.px-4 {
+  padding-left: var(--space-4) !important;
+  padding-right: var(--space-4) !important;
+}
+.py-4 {
+  padding-top: var(--space-4) !important;
+  padding-bottom: var(--space-4) !important;
+}
+
+.px-5 {
+  padding-left: var(--space-5) !important;
+  padding-right: var(--space-5) !important;
+}
+.py-5 {
+  padding-top: var(--space-5) !important;
+  padding-bottom: var(--space-5) !important;
+}
+
+/* 外边距 (Margin) */
+.m-0 {
+  margin: 0 !important;
+}
+.m-1 {
+  margin: var(--space-1) !important;
+}
+.m-2 {
+  margin: var(--space-2) !important;
+}
+.m-3 {
+  margin: var(--space-3) !important;
+}
+.m-4 {
+  margin: var(--space-4) !important;
+}
+.m-5 {
+  margin: var(--space-5) !important;
+}
+.m-6 {
+  margin: var(--space-6) !important;
+}
+
+/* 单侧外边距 */
+.mt-1 {
+  margin-top: var(--space-1) !important;
+}
+.mr-1 {
+  margin-right: var(--space-1) !important;
+}
+.mb-1 {
+  margin-bottom: var(--space-1) !important;
+}
+.ml-1 {
+  margin-left: var(--space-1) !important;
+}
+
+.mt-2 {
+  margin-top: var(--space-2) !important;
+}
+.mr-2 {
+  margin-right: var(--space-2) !important;
+}
+.mb-2 {
+  margin-bottom: var(--space-2) !important;
+}
+.ml-2 {
+  margin-left: var(--space-2) !important;
+}
+
+.mt-3 {
+  margin-top: var(--space-3) !important;
+}
+.mr-3 {
+  margin-right: var(--space-3) !important;
+}
+.mb-3 {
+  margin-bottom: var(--space-3) !important;
+}
+.ml-3 {
+  margin-left: var(--space-3) !important;
+}
+
+.mt-4 {
+  margin-top: var(--space-4) !important;
+}
+.mr-4 {
+  margin-right: var(--space-4) !important;
+}
+.mb-4 {
+  margin-bottom: var(--space-4) !important;
+}
+.ml-4 {
+  margin-left: var(--space-4) !important;
+}
+
+.mt-5 {
+  margin-top: var(--space-5) !important;
+}
+.mr-5 {
+  margin-right: var(--space-5) !important;
+}
+.mb-5 {
+  margin-bottom: var(--space-5) !important;
+}
+.ml-5 {
+  margin-left: var(--space-5) !important;
+}
+
+/* 自动边距 */
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.ml-auto {
+  margin-left: auto !important;
+}
+.mr-auto {
+  margin-right: auto !important;
+}
+.mt-auto {
+  margin-top: auto !important;
+}
+.mb-auto {
+  margin-bottom: auto !important;
+}
+
+/* 负边距（特殊场景） */
+.-mt-1 {
+  margin-top: calc(var(--space-1) * -1) !important;
+}
+.-ml-2 {
+  margin-left: calc(var(--space-2) * -1) !important;
+}
+
+/* ========================================
+ * 颜色工具 (Color Utilities)
+ * 深色模式专用
+ * ======================================== */
+
+/* 背景色 */
+.bg-base {
+  background-color: var(--macos-background-base) !important;
+}
+.bg-surface {
+  background-color: var(--macos-background-surface) !important;
+}
+.bg-secondary {
+  background-color: var(--macos-background-secondary) !important;
+}
+.bg-tertiary {
+  background-color: var(--macos-background-tertiary) !important;
+}
+
+/* 文本色 */
+.text-primary {
+  color: var(--macos-text-primary) !important;
+}
+.text-secondary {
+  color: var(--macos-text-secondary) !important;
+}
+.text-tertiary {
+  color: var(--macos-text-tertiary) !important;
+}
+.text-disabled {
+  color: var(--macos-text-disabled) !important;
+}
+
+/* 功能色 */
+.text-accent {
+  color: var(--macos-accent-blue) !important;
+}
+.text-success {
+  color: var(--macos-success) !important;
+}
+.text-warning {
+  color: var(--macos-warning) !important;
+}
+.text-error {
+  color: var(--macos-error) !important;
+}
+.text-info {
+  color: var(--macos-info) !important;
+}
+
+.bg-accent {
+  background-color: var(--macos-accent-blue) !important;
+}
+.bg-success {
+  background-color: var(--macos-success) !important;
+}
+.bg-warning {
+  background-color: var(--macos-warning) !important;
+}
+.bg-error {
+  background-color: var(--macos-error) !important;
+}
+
+/* 边框色 */
+.border {
+  border: 1px solid var(--macos-border-light) !important;
+}
+.border-light {
+  border-color: var(--macos-border-light) !important;
+}
+.border-medium {
+  border-color: var(--macos-border-medium) !important;
+}
+.border-strong {
+  border-color: var(--macos-border-strong) !important;
+}
+.border-accent {
+  border-color: var(--macos-accent-blue) !important;
+}
+.border-error {
+  border-color: var(--macos-error) !important;
+}
+
+/* 半透明背景 */
+.bg-blur {
+  background: rgba(30, 30, 30, 0.8);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ========================================
+ * 排版工具 (Typography Utilities)
+ * ======================================== */
+
+/* 字号 */
+.text-xs {
+  font-size: var(--text-xs) !important;
+}
+.text-sm {
+  font-size: var(--text-sm) !important;
+}
+.text-base {
+  font-size: var(--text-base) !important;
+}
+.text-md {
+  font-size: var(--text-md) !important;
+}
+.text-lg {
+  font-size: var(--text-lg) !important;
+}
+.text-xl {
+  font-size: var(--text-xl) !important;
+}
+.text-2xl {
+  font-size: var(--text-2xl) !important;
+}
+.text-3xl {
+  font-size: var(--text-3xl) !important;
+}
+
+/* 字重 */
+.font-thin {
+  font-weight: 100 !important;
+}
+.font-light {
+  font-weight: 300 !important;
+}
+.font-regular {
+  font-weight: 400 !important;
+}
+.font-medium {
+  font-weight: 500 !important;
+}
+.font-semibold {
+  font-weight: 600 !important;
+}
+.font-bold {
+  font-weight: 700 !important;
+}
+
+/* 对齐 */
+.text-left {
+  text-align: left !important;
+}
+.text-center {
+  text-align: center !important;
+}
+.text-right {
+  text-align: right !important;
+}
+.text-justify {
+  text-align: justify !important;
+}
+
+/* 行高 */
+.leading-none {
+  line-height: 1 !important;
+}
+.leading-tight {
+  line-height: 1.25 !important;
+}
+.leading-normal {
+  line-height: 1.5 !important;
+}
+.leading-relaxed {
+  line-height: 1.75 !important;
+}
+
+/* 修饰 */
+.italic {
+  font-style: italic !important;
+}
+.underline {
+  text-decoration: underline !important;
+}
+.line-through {
+  text-decoration: line-through !important;
+}
+.no-underline {
+  text-decoration: none !important;
+}
+
+/* 大小写 */
+.uppercase {
+  text-transform: uppercase !important;
+}
+.lowercase {
+  text-transform: lowercase !important;
+}
+.capitalize {
+  text-transform: capitalize !important;
+}
+
+/* 字符间距 */
+.tracking-tight {
+  letter-spacing: -0.02em !important;
+}
+.tracking-normal {
+  letter-spacing: 0 !important;
+}
+.tracking-wide {
+  letter-spacing: 0.02em !important;
+}
+
+/* 文本截断 */
+.truncate {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.line-clamp-2 {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+}
+
+.line-clamp-3 {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+  overflow: hidden !important;
+}
+
+/* ========================================
+ * 尺寸工具 (Size Utilities)
+ * ======================================== */
+
+/* 宽度 */
+.w-full {
+  width: 100% !important;
+}
+.w-auto {
+  width: auto !important;
+}
+.w-screen {
+  width: 100vw !important;
+}
+
+.w-12 {
+  width: 50% !important;
+}
+.w-13 {
+  width: 33.333% !important;
+}
+.w-23 {
+  width: 66.666% !important;
+}
+.w-14 {
+  width: 25% !important;
+}
+.w-34 {
+  width: 75% !important;
+}
+
+/* 高度 */
+.h-full {
+  height: 100% !important;
+}
+.h-auto {
+  height: auto !important;
+}
+.h-screen {
+  height: 100vh !important;
+}
+
+.h-8 {
+  height: 2rem !important;
+} /* 32px */
+.h-10 {
+  height: 2.5rem !important;
+} /* 40px */
+.h-12 {
+  height: 3rem !important;
+} /* 48px */
+.h-16 {
+  height: 4rem !important;
+} /* 64px */
+
+/* 最大/最小尺寸 */
+.max-w-full {
+  max-width: 100% !important;
+}
+.max-w-screen-md {
+  max-width: 768px !important;
+}
+.max-w-screen-lg {
+  max-width: 1024px !important;
+}
+.max-w-screen-xl {
+  max-width: 1280px !important;
+}
+
+.min-h-screen {
+  min-height: 100vh !important;
+}
+
+/* ========================================
+ * 显示与可见性 (Display & Visibility)
+ * ======================================== */
+
+/* 显示 */
+.block {
+  display: block !important;
+}
+.inline {
+  display: inline !important;
+}
+.inline-block {
+  display: inline-block !important;
+}
+.table {
+  display: table !important;
+}
+.table-row {
+  display: table-row !important;
+}
+.table-cell {
+  display: table-cell !important;
+}
+
+/* 隐藏 */
+.hidden {
+  display: none !important;
+}
+.invisible {
+  visibility: hidden !important;
+}
+
+/* 响应式显示 */
+@media (min-width: 769px) {
+  .md-block {
+    display: block !important;
+  }
+  .md-hidden {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .sm-hidden {
+    display: none !important;
+  }
+}
+
+/* 溢出 */
+.overflow-hidden {
+  overflow: hidden !important;
+}
+.overflow-visible {
+  overflow: visible !important;
+}
+.overflow-auto {
+  overflow: auto !important;
+}
+.overflow-scroll {
+  overflow: scroll !important;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+.overflow-y-hidden {
+  overflow-y: hidden !important;
+}
+.overflow-x-auto {
+  overflow-x: auto !important;
+}
+.overflow-y-auto {
+  overflow-y: auto !important;
+}
+
+/* ========================================
+ * 定位工具 (Position Utilities)
+ * ======================================== */
+
+.static {
+  position: static !important;
+}
+.relative {
+  position: relative !important;
+}
+.absolute {
+  position: absolute !important;
+}
+.fixed {
+  position: fixed !important;
+}
+.sticky {
+  position: sticky !important;
+}
+
+/* 位置 */
+.top-0 {
+  top: 0 !important;
+}
+.right-0 {
+  right: 0 !important;
+}
+.bottom-0 {
+  bottom: 0 !important;
+}
+.left-0 {
+  left: 0 !important;
+}
+
+.top-12 {
+  top: 50% !important;
+}
+.left-12 {
+  left: 50% !important;
+}
+
+/* Z-index */
+.z-0 {
+  z-index: 0 !important;
+}
+.z-10 {
+  z-index: 10 !important;
+}
+.z-20 {
+  z-index: 20 !important;
+}
+.z-30 {
+  z-index: 30 !important;
+}
+.z-40 {
+  z-index: 40 !important;
+}
+.z-50 {
+  z-index: 50 !important;
+}
+.z-100 {
+  z-index: 100 !important;
+}
+.z-200 {
+  z-index: 200 !important;
+}
+.z-300 {
+  z-index: 300 !important;
+}
+.z-400 {
+  z-index: 400 !important;
+}
+.z-500 {
+  z-index: 500 !important;
+}
+
+/* ========================================
+ * 边框与圆角 (Borders & Radius)
+ * ======================================== */
+
+/* 边框宽度 */
+.border-none {
+  border: none !important;
+}
+.border-0 {
+  border-width: 0 !important;
+}
+.border {
+  border-width: 1px !important;
+}
+.border-2 {
+  border-width: 2px !important;
+}
+
+/* 边框方向 */
+.border-t {
+  border-top: 1px solid var(--macos-border-light) !important;
+}
+.border-r {
+  border-right: 1px solid var(--macos-border-light) !important;
+}
+.border-b {
+  border-bottom: 1px solid var(--macos-border-light) !important;
+}
+.border-l {
+  border-left: 1px solid var(--macos-border-light) !important;
+}
+
+/* 圆角 */
+.rounded-none {
+  border-radius: 0 !important;
+}
+.rounded-sm {
+  border-radius: var(--radius-sm) !important;
+}
+.rounded-md {
+  border-radius: var(--radius-md) !important;
+}
+.rounded-lg {
+  border-radius: var(--radius-lg) !important;
+}
+.rounded-xl {
+  border-radius: var(--radius-xl) !important;
+}
+.rounded-full {
+  border-radius: 9999px !important;
+}
+
+/* 单侧圆角 */
+.rounded-t-md {
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+.rounded-b-md {
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+/* ========================================
+ * 交互与状态 (Interactive & State)
+ * ======================================== */
+
+/* 鼠标指针 */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+.cursor-default {
+  cursor: default !important;
+}
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
+.cursor-text {
+  cursor: text !important;
+}
+
+/* 选择 */
+.select-none {
+  user-select: none !important;
+}
+.select-text {
+  user-select: text !important;
+}
+.select-all {
+  user-select: all !important;
+}
+
+/* 点击穿透 */
+.pointer-events-none {
+  pointer-events: none !important;
+}
+.pointer-events-auto {
+  pointer-events: auto !important;
+}
+
+/* 透明度 */
+.opacity-0 {
+  opacity: 0 !important;
+}
+.opacity-25 {
+  opacity: 0.25 !important;
+}
+.opacity-50 {
+  opacity: 0.5 !important;
+}
+.opacity-75 {
+  opacity: 0.75 !important;
+}
+.opacity-100 {
+  opacity: 1 !important;
+}
+
+/* ========================================
+ * 变换 (Transforms)
+ * ======================================== */
+
+.translate-x-0 {
+  transform: translateX(0) !important;
+}
+.translate-x-12 {
+  transform: translateX(50%) !important;
+}
+.translate-y-0 {
+  transform: translateY(0) !important;
+}
+.translate-y-12 {
+  transform: translateY(50%) !important;
+}
+
+.scale-95 {
+  transform: scale(0.95) !important;
+}
+.scale-100 {
+  transform: scale(1) !important;
+}
+.scale-105 {
+  transform: scale(1.05) !important;
+}
+
+/* ========================================
+ * 阴影工具 (Shadows)
+ * ======================================== */
+
+.shadow-sm {
+  box-shadow: var(--macos-shadow-sm) !important;
+}
+.shadow-md {
+  box-shadow: var(--macos-shadow-md) !important;
+}
+.shadow-lg {
+  box-shadow: var(--macos-shadow-lg) !important;
+}
+.shadow-xl {
+  box-shadow: var(--macos-shadow-xl) !important;
+}
+.shadow-none {
+  box-shadow: none !important;
+}
+
+/* ========================================
+ * 透明度与混合 (Blend Modes)
+ * ======================================== */
+
+.backdrop-blur {
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(4px) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.backdrop-blur-lg {
+  -webkit-backdrop-filter: blur(20px) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ========================================
+ * 布局模式 (Layout Modes)
+ * ======================================== */
+
+/* 容器模式 */
+.container {
+  width: 100%;
+  max-width: min(100% - 2rem, 800px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* 全屏布局 */
+.fullscreen {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 中心布局 */
+.center-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========================================
+ * 状态指示 (Status Indicators)
+ * ======================================== */
+
+/* 加载状态 */
+.loading-ring {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--macos-accent-blue);
+  animation: spin 1s linear infinite;
+}
+
+/* 点击波纹 (Ripple) - 按Material风格，但可选 */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.ripple:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* ========================================
+ * 可访问性 (Accessibility)
+ * ======================================== */
+
+/* 仅屏幕阅读器可见 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* 高对比度支持 */
+@media (prefers-contrast: high) {
+  .contrast-border {
+    border-width: 2px !important;
+  }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+ * 特殊效果 (Special Effects)
+ * ======================================== */
+
+/* 晕影 (Vignette) */
+.vignette {
+  position: relative;
+}
+
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+/* 玻璃拟态 (Glassmorphism) */
+.glass {
+  background: rgba(30, 30, 30, 0.7);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+ * 组合示例 (Combinations)
+ * ======================================== */
+
+/* 卡片基础模板 */
+.card-base {
+  @apply bg-surface border rounded-md p-4 shadow-sm;
+}
+
+/* 按钮基础模板 */
+.button-base {
+  @apply flex items-center justify-center px-4 py-2 rounded-sm font-medium transition-colors;
+}
+
+/* 标签模板 */
+.tag-base {
+  @apply inline-flex items-center px-2 py-1 text-xs rounded bg-tertiary text-secondary;
+}
+
+/* ========================================
+ * 动画工具 (Animation Utilities)
+ * ======================================== */
+
+/* 淡入 */
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* 滑入 */
+.slide-in-right {
+  animation: slideInRight 0.3s ease forwards;
+}
+
+/* 弹跳 */
+.bounce {
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10%);
+  }
+}
+
+/* ========================================
+ * 响应式增强 (Responsive Enhancement)
+ * ======================================== */
+
+/* 移动端安全区域 (iPhone X+) */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ========================================
+ * 性能优化 (Performance)
+ * ======================================== */
+
+/* 重绘优化 */
+.will-change {
+  will-change: transform, opacity, layout;
+  transform: translateZ(0);
+}
+
+/* 强制硬件加速 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ========================================
+ * 实用工具 (Practical Utilities)
+ * ======================================== */
+
+/* 文本选择颜色 */
+.selection-accent::selection {
+  background: var(--macos-accent-blue);
+  color: white;
+}
+
+/* 滚动条隐藏 (视觉隐藏) */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 映像效果 (Mirror) */
+.mirror {
+  transform: scaleX(-1);
+}
+
+/* 旋转 */
+.rotate-45 {
+  transform: rotate(45deg);
+}
+.rotate-90 {
+  transform: rotate(90deg);
+}
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* 浮动元素 */
+.float-left {
+  float: left;
+}
+.float-right {
+  float: right;
+}
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* ========================================
+ * 最佳实践提示
+ * ======================================== */
+
+/*
+ * 工具类使用建议:
+ *
+ * 1. 优先使用语义化类名，避免过度使用工具类
+ * 2. 组合使用: class="flex items-center gap-2 p-3 bg-surface rounded"
+ * 3. 响应式: class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+ * 4. 避免内联样式与工具类混用
+ *
+ * 示例:
+ * <!-- 推荐 -->
+ * <div class="card p-4 shadow-sm hover:shadow-md">
+ *   <h3 class="text-lg font-bold text-primary">标题</h3>
+ *   <p class="text-sm text-secondary mt-2">描述</p>
+ *   <button class="button button-primary mt-4">操作</button>
+ * </div>
+ *
+ * <!-- 不推荐 -->
+ * <div style="padding: 1rem; background: #2d2d2d">
+ *   <h3 class="title">标题</h3>
+ *   <button style="margin-top: 16px" class="btn">操作</button>
+ * </div>
+ */

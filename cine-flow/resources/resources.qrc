@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RCC version="1.0">
+    <qresource prefix="/styles/macOS">
+        <file alias="macOS_desktop_stylesheet.qss">resources/styles/macOS/macOS_desktop_stylesheet.qss</file>
+        <file alias="_reset.css">resources/styles/macOS/_reset.css</file>
+        <file alias="_typography.css">resources/styles/macOS/_typography.css</file>
+        <file alias="_layout.css">resources/styles/macOS/_layout.css</file>
+        <file alias="_components.css">resources/styles/macOS/_components.css</file>
+        <file alias="_utils.css">resources/styles/macOS/_utils.css</file>
+    </qresource>
+</RCC>

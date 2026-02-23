@@ -1,0 +1,42 @@
+# CineFlow AI LLM 配置
+
+LLM:
+  # 默认提供商 (qwen | kimi | glm5 | openai | local)
+  default_provider: "qwen"
+
+  # 通义千问 Qwen 3
+  qwen:
+    enabled: true
+    api_key: \${QWEN_API_KEY}
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen-plus"
+    max_tokens: 2000
+    temperature: 0.7
+    top_p: 0.9
+
+  # Kimi 2.5
+  kimi:
+    enabled: false
+    api_key: \${KIMI_API_KEY}
+    base_url: "https://api.moonshot.cn/v1"
+    model: "kimi-2.5"
+    max_tokens: 2000
+    temperature: 0.7
+
+  # 智谱 GLM-5
+  glm5:
+    enabled: false
+    api_key: \${GLM5_API_KEY}
+    base_url: "https://open.bigmodel.cn/api/paas/v4/"
+    model: "glm-5"
+    max_tokens: 2000
+    temperature: 0.7
+
+  # OpenAI (可选)
+  openai:
+    enabled: false
+    api_key: \${OPENAI_API_KEY}
+    base_url: "https://api.openai.com/v1"
+    model: "gpt-4"
+    max_tokens: 2000
+    temperature: 0.7
