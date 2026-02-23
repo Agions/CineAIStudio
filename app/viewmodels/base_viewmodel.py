@@ -46,5 +46,10 @@ class BaseViewModel(QObject):
         self.error_occurred.emit(msg)
 
     def dispose(self):
-        """清理资源，子类可重写"""
-        pass
+        """清理资源"""
+        # 断开所有信号连接
+        self.error_occurred.disconnect()
+        self.state_changed.disconnect()
+        # 清理定时器
+        if hasattr(self, '_refresh_timer'):
+            self._refresh_timer.stop()

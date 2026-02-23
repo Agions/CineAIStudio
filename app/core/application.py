@@ -455,7 +455,20 @@ class Application(QObject):
     def _register_core_services(self) -> None:
         """注册核心服务"""
         # 注册核心服务到服务容器
-        pass
+        from app.core.service_registry import ServiceRegistry
+        from app.core.logger import Logger
+        
+        # 注册日志服务
+        if hasattr(self, 'logger'):
+            ServiceRegistry.register('logger', self.logger)
+        
+        # 注册配置管理器
+        if hasattr(self, 'config_manager'):
+            ServiceRegistry.register('config_manager', self.config_manager)
+        
+        # 注册事件总线
+        if hasattr(self, 'event_bus'):
+            ServiceRegistry.register('event_bus', self.event_bus)
 
     def _load_configuration(self) -> None:
         """加载配置"""
