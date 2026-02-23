@@ -9,7 +9,7 @@ PyQt6-sip>=13.6.0
 PyQt6-Fluent-Widgets>=1.11.0
 
 ## 图像/视频处理
-opencv-python.1
+opencv-python>=4.8.1
 numpy>=1.26.0
 pillow>=10.1.0
 ffmpeg-python==0.2.0
