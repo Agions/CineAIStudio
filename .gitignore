@@ -341,3 +341,8 @@ Jenkinsfile
 UPGRADE_PLAN.md
 docs/planning/
 docs/dev/
+
+# Coverage
+htmlcov/
+.coverage
+cov.xml
