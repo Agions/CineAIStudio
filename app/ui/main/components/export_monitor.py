@@ -586,8 +586,11 @@ class ExportProgressDialog(QDialog):
 
     def on_export_progress(self, task_id: str, progress: float):
         """导出进度事件"""
-        # 更新显示由定时器处理
-        pass
+        # 更新进度条
+        if hasattr(self, 'progress_bar'):
+            self.progress_bar.setValue(int(progress * 100))
+        if hasattr(self, 'progress_label'):
+            self.progress_label.setText(f"{int(progress * 100)}%")
 
     def on_export_completed(self, task_id: str, output_path: str):
         """导出完成事件"""
@@ -605,7 +608,17 @@ class ExportProgressDialog(QDialog):
     def on_export_failed(self, task_id: str, error_message: str):
         """导出失败事件"""
         # 显示错误通知
-        pass
+        from PyQt6.QtWidgets import QMessageBox
+        QMessageBox.critical(
+            self,
+            "导出失败",
+            f"任务 {task_id} 导出失败：\n{error_message}"
+        )
+        # 更新状态显示
+        if hasattr(self, 'status_label'):
+            self.status_label.setText("导出失败")
+        if hasattr(self, 'progress_bar'):
+            self.progress_bar.setValue(0)
 
     def cancel_all_tasks(self):
         """取消所有任务"""
