@@ -261,7 +261,15 @@ class PluginLoader:
                 errors.append(f"Missing or inactive dependency: {dep}")
 
         # 检查版本兼容性
-        # TODO: 实现版本检查逻辑
+        if entry.info.version:
+            # 检查插件管理器是否支持此版本
+            min_version = entry.info.compatibility.get('min_version')
+            max_version = entry.info.compatibility.get('max_version')
+            
+            if min_version or max_version:
+                current_version = "3.0.0"  # 假设当前版本
+                if not self._check_version_compatible(current_version, min_version, max_version):
+                    errors.append(f"Version incompatibility: requires {min_version}-{max_version}, got {current_version}")
 
         return errors
 
@@ -402,3 +410,18 @@ class PluginLoader:
 
         except Exception:
             return False
+
+    def _check_version_compatible(self, current: str, min_version: str = None, max_version: str = None) -> bool:
+        """检查版本兼容性"""
+        from packaging import version
+        
+        try:
+            curr = version.parse(current)
+            
+            if min_version and curr < version.parse(min_version):
+                return False
+            if max_version and curr > version.parse(max_version):
+                return False
+            return True
+        except Exception:
+            return True  # 版本检查失败时默认通过

@@ -235,12 +235,53 @@ class PluginManager:
     def install_plugin(self, plugin_file: str) -> Optional[str]:
         """安装插件（从文件）"""
         try:
-            # TODO: 实现插件安装逻辑
-            # 1. 验证插件文件
-            # 2. 解压缩到插件目录
-            # 3. 验证插件清单
-            # 4. 注册到注册表
-            pass
+            plugin_path = Path(plugin_file)
+            if not plugin_path.exists():
+                self.logger.error(f"Plugin file not found: {plugin_file}")
+                return None
+
+            # 确定插件ID
+            plugin_id = plugin_path.stem
+            
+            # 目标目录
+            target_dir = Path(self.config.plugin_directories[0]) / plugin_id
+            target_dir.mkdir(parents=True, exist_ok=True)
+
+            # 复制插件文件到插件目录
+            import shutil
+            if plugin_path.suffix == '.zip':
+                import zipfile
+                with zipfile.ZipFile(plugin_path, 'r') as zf:
+                    zf.extractall(target_dir)
+            else:
+                shutil.copy2(plugin_path, target_dir)
+
+            # 验证插件清单
+            manifest_file = target_dir / "plugin.json"
+            if not manifest_file.exists():
+                self.logger.error(f"Plugin manifest not found: {manifest_file}")
+                shutil.rmtree(target_dir)
+                return None
+
+            # 注册到注册表
+            with open(manifest_file, 'r', encoding='utf-8') as f:
+                manifest = json.load(f)
+            
+            entry = PluginRegistryEntry(
+                plugin_id=manifest.get('id', plugin_id),
+                name=manifest.get('name', plugin_id),
+                version=manifest.get('version', '1.0.0'),
+                description=manifest.get('description', ''),
+                author=manifest.get('author', ''),
+                path=str(target_dir),
+                dependencies=manifest.get('dependencies', []),
+                loaded=False,
+                load_time=0.0
+            )
+            
+            self.registry.register_plugin(entry)
+            self.logger.info(f"Plugin installed: {entry.name} v{entry.version}")
+            return entry.plugin_id
 
         except Exception as e:
             self.logger.error(f"Failed to install plugin: {e}")
@@ -257,8 +298,13 @@ class PluginManager:
             if not self.registry.unregister_plugin(plugin_id):
                 return False
 
-            # TODO: 删除插件文件
-            pass
+            # 删除插件文件
+            entry = self.registry.get_plugin(plugin_id)
+            if entry:
+                import shutil
+                plugin_path = Path(entry.path)
+                if plugin_path.exists():
+                    shutil.rmtree(plugin_path)
 
             self.logger.info(f"Plugin uninstalled: {plugin_id}")
             return True
@@ -290,8 +336,39 @@ class PluginManager:
     def update_plugin(self, plugin_id: str, update_file: str) -> bool:
         """更新插件"""
         try:
-            # TODO: 实现插件更新逻辑
-            pass
+            # 获取当前插件信息
+            current = self.registry.get_plugin(plugin_id)
+            if not current:
+                self.logger.error(f"Plugin not found: {plugin_id}")
+                return False
+
+            # 备份当前版本
+            import shutil
+            backup_path = Path(current.path).parent / f"{plugin_id}_backup"
+            if Path(current.path).exists():
+                if backup_path.exists():
+                    shutil.rmtree(backup_path)
+                shutil.copytree(Path(current.path), backup_path)
+
+            # 卸载当前版本
+            self.unload_plugin(plugin_id)
+            self.registry.unregister_plugin(plugin_id)
+
+            # 安装新版本
+            new_plugin_id = self.install_plugin(update_file)
+            if new_plugin_id is None:
+                # 恢复备份
+                shutil.rmtree(Path(current.path))
+                shutil.move(str(backup_path), Path(current.path))
+                self.registry.register_plugin(current)
+                return False
+
+            # 清理备份
+            if backup_path.exists():
+                shutil.rmtree(backup_path)
+
+            self.logger.info(f"Plugin updated: {plugin_id}")
+            return True
 
         except Exception as e:
             self.logger.error(f"Failed to update plugin {plugin_id}: {e}")
