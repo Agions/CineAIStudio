@@ -31,14 +31,14 @@ from app.core.project_template_manager import ProjectTemplateManager, TemplateIn
 from app.core.project_settings_manager import ProjectSettingsManager
 from app.core.project_version_manager import ProjectVersionManager
 
-# 导入标准化 macOS 组件
-from app.ui.common.macOS_components import (
+# 导入标准化组件
+from app.ui.components import (
     MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
     MacDangerButton, MacIconButton, MacTitleLabel, MacLabel, MacBadge,
     MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
     MacSearchBox, MacButtonGroup,
-    create_icon_text_row, create_status_badge_row
 )
+from app.ui.common.macOS_components import create_icon_text_row, create_status_badge_row
 
 
 class ProjectCard(MacCard):

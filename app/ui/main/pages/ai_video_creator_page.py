@@ -29,7 +29,7 @@ from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 
 from .base_page import BasePage
-from app.ui.common.macOS_components import (
+from app.ui.components import (
     MacCard, MacTitleLabel, MacPrimaryButton, MacSecondaryButton, MacLabel,
     MacGrid, MacScrollArea
 )

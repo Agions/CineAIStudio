@@ -18,7 +18,7 @@ from app.core.icon_manager import get_icon
 from app.services.ai_service.mock_ai_service import MockAIService
 
 # 导入标准化 macOS 组件
-from app.ui.common.macOS_components import (
+from app.ui.components import (
     MacCard, MacPrimaryButton, MacSecondaryButton,
     MacIconButton, MacTitleLabel, MacLabel,
     MacScrollArea, MacEmptyState, MacSearchBox
