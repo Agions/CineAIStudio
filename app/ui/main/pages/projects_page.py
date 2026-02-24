@@ -38,7 +38,6 @@ from app.ui.components import (
     MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
     MacSearchBox, MacButtonGroup,
 )
-from app.ui.common.macOS_components import create_icon_text_row, create_status_badge_row
 
 
 class ProjectCard(MacCard):

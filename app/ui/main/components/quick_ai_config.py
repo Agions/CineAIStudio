@@ -24,10 +24,9 @@ from ..dialogs.model_application_dialog import ModelApplicationDialog
 
 # 导入标准化 macOS 组件
 from app.ui.common.macOS_components import (
-    MacCard, MacPrimaryButton, MacSecondaryButton,
+    MacCard, MacSecondaryButton,
     MacIconButton, MacTitleLabel, MacLabel, MacBadge,
-    MacScrollArea, MacEmptyState,
-    create_icon_text_row
+    MacEmptyState,
 )
 
 
