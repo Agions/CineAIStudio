@@ -38,8 +38,6 @@ class CreationMode(Enum):
     COMMENTARY = "commentary"
     MASHUP = "mashup"
     MONOLOGUE = "monologue"
-    CLIP = "clip"
-    PROMO = "promo"
 
 
 class WorkflowStatus(Enum):
@@ -295,7 +293,7 @@ class WorkflowEngine:
 
     def step_select_mode(self, mode: CreationMode) -> CreationMode:
         """
-        输入: 用户选择的模式（解说/混剪/独白/切片/推广）
+        输入: 用户选择的模式（解说/混剪/独白）
         输出: 确认的模式
         """
         self._update(step=WorkflowStep.MODE_SELECT, progress=45)
