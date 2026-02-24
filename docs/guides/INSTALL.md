@@ -132,7 +132,7 @@ pytest tests/ -v
 python3 app/main.py
 
 # 或使用配置的命令入口
-cineflow-ai
+clipflowcut-ai
 ```
 
 ---
@@ -208,7 +208,7 @@ mypy>=1.7.0           # 静态类型检查
 ### 1. 启动应用
 
 ```
-cineflow-ai
+clipflowcut-ai
 ```
 
 ### 2. 验证 API 连接
