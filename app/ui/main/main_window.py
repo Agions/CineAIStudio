@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 主窗口 - 设置版本
+ClipFlowCut 主窗口 - 设置版本
 实现双页面架构：首页 + 设置页面
 """
 
@@ -38,19 +38,16 @@ from ...utils.error_handler import handle_exception, show_error_dialog
 
 
 class PageType(Enum):
-    """页面类型"""
+    """页面类型 - 简化版"""
     HOME = "home"
     SETTINGS = "settings"
-    VIDEO_EDITOR = "video_editor"
     PROJECTS = "projects"
-    AI_CHAT = "ai_chat"
-    AI_VIDEO_CREATOR = "ai_video_creator"  # AI 视频创作
 
 
 @dataclass
 class WindowConfig:
     """窗口配置"""
-    title: str = "ClipFlow"
+    title: str = "ClipFlowCut"
     width: int = 1200
     height: int = 800
     min_width: int = 800
@@ -60,7 +57,7 @@ class WindowConfig:
 
 
 class MainWindow(QMainWindow):
-    """ClipFlow 主窗口 - 设置版本"""
+    """ClipFlowCut 主窗口 - 设置版本"""
 
     # 信号定义
     page_changed = pyqtSignal(PageType)           # 页面切换信号
@@ -154,7 +151,7 @@ class MainWindow(QMainWindow):
         left_layout.setSpacing(0)
 
         # 应用标题
-        self.app_title = QLabel("ClipFlow")
+        self.app_title = QLabel("ClipFlowCut")
         self.app_title.setObjectName("app_title")
         left_layout.addWidget(self.app_title)
 
@@ -497,7 +494,7 @@ class MainWindow(QMainWindow):
         """加载设置，添加验证和默认值处理"""
         try:
             # 加载窗口设置
-            settings = QSettings("ClipFlow", "MainWindow")
+            settings = QSettings("ClipFlowCut", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 恢复窗口位置和大小
@@ -547,7 +544,7 @@ class MainWindow(QMainWindow):
     def _save_settings(self):
         """保存设置，添加验证和异常处理"""
         try:
-            settings = QSettings("ClipFlow", "MainWindow")
+            settings = QSettings("ClipFlowCut", "MainWindow")
             settings.setFallbacksEnabled(True)
 
             # 保存窗口位置和大小
@@ -862,7 +859,7 @@ class MainWindow(QMainWindow):
             reply = QMessageBox.question(
                 self,
                 "确认退出",
-                "确定要退出 ClipFlow 吗？",
+                "确定要退出 ClipFlowCut 吗？",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )

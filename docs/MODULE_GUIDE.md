@@ -1,8 +1,8 @@
-# CineFlow 组件化设计指南
+# ClipFlowCut 组件化设计指南
 
 ## 概述
 
-CineFlow UI 采用模块化、组件化设计，确保代码可维护、可扩展。
+ClipFlowCut UI 采用模块化、组件化设计，确保代码可维护、可扩展。
 
 ---
 

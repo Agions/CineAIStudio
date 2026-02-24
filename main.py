@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 主程序入口
+ClipFlowCut 主程序入口
 专业的AI视频编辑器
 """
 

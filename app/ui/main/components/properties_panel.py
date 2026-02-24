@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 属性面板
+ClipFlowCut 属性面板
 显示和编辑选中片段的属性（时间/转场/字幕/配音）
 """
 

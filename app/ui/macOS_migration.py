@@ -676,7 +676,7 @@ class NavigationButton(QPushButton):
         def replace_title(match):
             old_code = match.group(1)
             return old_code + '''# 主标题
-        title_label = QLabel("ClipFlow")
+        title_label = QLabel("ClipFlowCut")
         title_label.setProperty("class", "title-4xl")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("")  # 清除旧样式，使用类名
@@ -698,7 +698,7 @@ class NavigationButton(QPushButton):
         # 这里的替换逻辑需要调整，因为原有代码结构复杂
         # 简化成直接替换核心部分
         old_title_styles = '''        # 主标题
-        title_label = QLabel("ClipFlow")
+        title_label = QLabel("ClipFlowCut")
         title_label.setObjectName("mainTitle")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet(\"\"\"
@@ -723,7 +723,7 @@ class NavigationButton(QPushButton):
         \"\"\")'''
 
         new_title_styles = '''        # 主标题
-        title_label = QLabel("ClipFlow")
+        title_label = QLabel("ClipFlowCut")
         title_label.setProperty("class", "title-4xl")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 

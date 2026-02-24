@@ -1,4 +1,4 @@
-# CineFlow AI 故障排查手册
+# ClipFlowCut AI 故障排查手册
 
 > 常见问题解决指南
 
@@ -286,7 +286,7 @@ pytest tests/ -v
 ### 搜索问题
 
 在解决之前，先搜索是否有相同问题:
-- [GitHub Issues](https://github.com/Agions/CineFlow/issues)
+- [GitHub Issues](https://github.com/Agions/ClipFlowCut/issues)
 - [INSTALL.md](INSTALL.md) - 安装指南
 - [DEVELOPER.md](DEVELOPER.md) - 开发指南
 

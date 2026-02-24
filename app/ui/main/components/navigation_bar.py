@@ -150,7 +150,7 @@ class NavigationBar(QWidget):
         layout.addWidget(logo_label)
 
         # 标题
-        title_label = QLabel("ClipFlow")
+        title_label = QLabel("ClipFlowCut")
         title_label.setProperty("class", "app-title")
         layout.addWidget(title_label)
 
@@ -250,31 +250,19 @@ class NavigationBar(QWidget):
 
 # 预定义的导航项
 def create_default_navigation_items() -> List[NavigationItem]:
-    """创建默认导航项"""
+    """创建默认导航项 - 简化版：首页、项目管理、设置"""
     return [
         NavigationItem(
             id="home",
-            text="主页",
+            text="首页",
             icon="🏠",
             tooltip="返回首页"
         ),
         NavigationItem(
             id="projects",
-            text="项目",
+            text="项目管理",
             icon="📁",
             tooltip="项目管理"
-        ),
-        NavigationItem(
-            id="video_editor",
-            text="视频编辑",
-            icon="🎬",
-            tooltip="专业的视频编辑功能"
-        ),
-        NavigationItem(
-            id="ai_chat",
-            text="AI对话",
-            icon="🤖",
-            tooltip="AI助手对话"
         ),
         NavigationItem(
             id="settings",

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 项目管理页面 - macOS 设计系统优化版
+ClipFlowCut 项目管理页面 - macOS 设计系统优化版
 使用标准化组件，零内联样式
 """
 
@@ -1328,7 +1328,7 @@ class ProjectsPage(BasePage):
     def _on_open_project(self):
         """打开项目"""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "打开项目", "", "ClipFlow项目 (*.json)"
+            self, "打开项目", "", "ClipFlowCut项目 (*.json)"
         )
 
         if file_path:
@@ -1345,7 +1345,7 @@ class ProjectsPage(BasePage):
     def _on_import_project(self):
         """导入项目"""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "导入项目", "", "ClipFlow项目包 (*.zip)"
+            self, "导入项目", "", "ClipFlowCut项目包 (*.zip)"
         )
 
         if file_path:
@@ -1390,7 +1390,7 @@ class ProjectsPage(BasePage):
 
         if project_id:
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "导出项目", "", "ClipFlow项目包 (*.zip)"
+                self, "导出项目", "", "ClipFlowCut项目包 (*.zip)"
             )
 
             if file_path:

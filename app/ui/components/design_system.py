@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CineFlow 设计系统 - 统一 UI 组件
+ClipFlowCut 设计系统 - 统一 UI 组件
 """
 
 from typing import Optional
@@ -126,7 +126,7 @@ class StyleSheet:
 
 
 class CFButton(QPushButton):
-    """CineFlow 按钮"""
+    """ClipFlowCut 按钮"""
     
     def __init__(self, text="", variant="primary", icon="", parent=None):
         super().__init__(text, parent)
@@ -137,7 +137,7 @@ class CFButton(QPushButton):
 
 
 class CFLabel(QLabel):
-    """CineFlow 标签"""
+    """ClipFlowCut 标签"""
     
     def __init__(self, text="", secondary=False, parent=None):
         super().__init__(text, parent)
@@ -145,7 +145,7 @@ class CFLabel(QLabel):
 
 
 class CFCard(QWidget):
-    """CineFlow 卡片"""
+    """ClipFlowCut 卡片"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -153,7 +153,7 @@ class CFCard(QWidget):
 
 
 class CFPanel(QWidget):
-    """CineFlow 面板"""
+    """ClipFlowCut 面板"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -161,7 +161,7 @@ class CFPanel(QWidget):
 
 
 class CFInput(QLineEdit):
-    """CineFlow 输入框"""
+    """ClipFlowCut 输入框"""
     
     def __init__(self, placeholder="", parent=None):
         super().__init__(parent)
@@ -170,7 +170,7 @@ class CFInput(QLineEdit):
 
 
 class CFProgressBar(QProgressBar):
-    """CineFlow 进度条"""
+    """ClipFlowCut 进度条"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -178,7 +178,7 @@ class CFProgressBar(QProgressBar):
 
 
 class CFNavButton(CFButton):
-    """CineFlow 导航按钮"""
+    """ClipFlowCut 导航按钮"""
     
     def __init__(self, text="", icon="", selected=False, parent=None):
         super().__init__(text, variant="ghost", parent=parent)

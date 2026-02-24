@@ -1,4 +1,4 @@
-# CineFlow AI 安装指南
+# ClipFlowCut AI 安装指南
 
 > 完整的安装、配置和故障排查指南
 
@@ -24,7 +24,7 @@
 
 ```bash
 # 使用 HTTPS
-git clone https://github.com/Agions/CineFlow.git
+git clone https://github.com/Agions/ClipFlowCut.git
 cd CineAIStudio
 
 # 或使用 SSH
@@ -52,7 +52,7 @@ pip install -r requirements.txt
 
 ### 4. 配置 LLM API
 
-**重要**: CineFlow AI 需要 LLM API 才能生成 AI 文案和处理视频。
+**重要**: ClipFlowCut AI 需要 LLM API 才能生成 AI 文案和处理视频。
 
 #### 4.1 创建配置文件
 
@@ -235,7 +235,7 @@ cineflow-ai
 
 - [快速上手指南](QUICKSTART.md)
 - [故障排查手册](TROUBLESHOOT.md)
-- [GitHub Issues](https://github.com/Agions/CineFlow/issues)
+- [GitHub Issues](https://github.com/Agions/ClipFlowCut/issues)
 
 ---
 
@@ -243,7 +243,7 @@ cineflow-ai
 
 ### Q: 是否必须配置 API？
 
-**A**: 是的。CineFlow AI 是一个 AI 驱动的视频创作工具，所有功能都需要 LLM API 支持。
+**A**: 是的。ClipFlowCut AI 是一个 AI 驱动的视频创作工具，所有功能都需要 LLM API 支持。
 
 ### Q: 如何选择 LLM 提供商？
 

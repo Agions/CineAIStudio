@@ -1,4 +1,4 @@
-# CineFlow AI 快速上手
+# ClipFlowCut AI 快速上手
 
 ## 环境要求
 
@@ -10,8 +10,8 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/Agions/cine-flow.git
-cd cine-flow
+git clone https://github.com/Agions/clip-flow-cut.git
+cd clip-flow-cut
 
 # 安装依赖
 pip install -r requirements.txt

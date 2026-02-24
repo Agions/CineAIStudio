@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 视频预览组件
+ClipFlowCut 视频预览组件
 基于 QMediaPlayer 的视频播放 + 帧预览
 """
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 首页 - 模板选择式设计
+ClipFlowCut 首页 - 模板选择式设计
 简洁、美观、以创作流程为核心
 """
 
@@ -252,7 +252,7 @@ class HomePage(BasePage):
         layout.setSpacing(12)
 
         # 主标题
-        title = QLabel("欢迎使用 ClipFlow")
+        title = QLabel("欢迎使用 ClipFlowCut")
         title.setFont(QFont("", 32, QFont.Weight.Bold))
         title.setStyleSheet("""
             color: qlineargradient(x1:0, y1:0, x2:1, y2:0,

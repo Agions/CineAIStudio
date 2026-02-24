@@ -1,4 +1,4 @@
-# 🎬 CineFlow - AI 视频创作桌面应用
+# 🎬 ClipFlowCut - AI 视频创作桌面应用
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-3.0.0-blue.svg" alt="Version" />
@@ -13,7 +13,7 @@
 
 ## ✨ 简介
 
-CineFlow 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统手动剪辑软件（如 Premiere、Final Cut），CineFlow 通过 AI 实现自动化创作。
+ClipFlowCut 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统手动剪辑软件（如 Premiere、Final Cut），ClipFlowCut 通过 AI 实现自动化创作。
 
 基于 **PyQt6** 构建原生桌面界面，提供从视频理解到成片导出的完整创作能力。
 
@@ -90,8 +90,8 @@ CineFlow 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统�
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/Agions/cine-flow.git
-cd cine-flow
+git clone https://github.com/Agions/clip-flow-cut.git
+cd clip-flow-cut
 
 # 2. 创建虚拟环境（推荐）
 python -m venv venv
@@ -114,7 +114,7 @@ python main.py
 ## 📁 项目结构
 
 ```
-cine-flow/
+clip-flow-cut/
 ├── app/
 │   ├── core/                 # 核心模块
 │   │   ├── application.py    # 应用入口
@@ -177,7 +177,7 @@ MIT License - 详见 [LICENSE](./LICENSE)
 
 ## ⭐️ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Agions/cine-flow&type=Date)](https://star-history.com/#Agions/cine-flow&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Agions/clip-flow-cut&type=Date)](https://star-history.com/#Agions/clip-flow-cut&Date)
 
 ---
 

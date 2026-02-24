@@ -1,11 +1,33 @@
 # Change Log
 
-> CineFlow AI 版本更新日志
+> ClipFlowCut AI 版本更新日志
 
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [3.0.0] - 2026-02-24
+
+### Changed
+
+#### 项目重命名
+- 🎉 **项目更名** - CineFlow → ClipFlowCut
+- 📝 更新 README.md
+- 📝 更新所有文档
+
+#### 导航优化
+- 🚀 **简化导航** - 只保留三个核心导航：首页、项目管理、设置
+- 🎨 统一 macOS 风格设计
+
+#### 文档
+- 📖 **docsify 文档** - 创建专业的在线文档系统
+- 📝 新增快速开始指南
+- 📝 新增功能指南
+- 📝 新增工作流程说明
+- 📝 新增常见问题解答
 
 ---
 
@@ -23,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ⚙️ **配置管理** - YAML 配置文件
 
 #### 文档
-- 📖 [RELEASE.md](https://github.com/Agions/CineFlow/blob/main/RELEASE.md) - 发布说明
+- 📖 [RELEASE.md](https://github.com/Agions/ClipFlowCut/blob/main/RELEASE.md) - 发布说明
 - 📝 7 个快速开始示例 (examples/quick_start.py)
 
 #### 模块
@@ -33,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **仓库名称**: CineAIStudio → CineFlow
+- **仓库名称**: CineAIStudio → ClipFlowCut
 - **Python 版本**: 3.10+ → 3.12+ (推荐)
 - **配置方式**: .env → YAML
 
@@ -112,11 +134,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 #### Renamed
-- 项目名称从 **CineAIStudio** 重命名为 **CineFlow AI**
+- 项目名称从 **CineAIStudio** 重命名为 **ClipFlowCut AI**
 
 #### Updated
 - `ScriptGenerator` - 支持使用 LLMManager
-- `README.md` - 更新为 CineFlow AI 名称
+- `README.md` - 更新为 ClipFlowCut AI 名称
 - `requirements.txt` - 更新依赖配置
 
 ### Fixed
