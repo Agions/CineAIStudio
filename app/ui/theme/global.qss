@@ -309,3 +309,79 @@ QToolTip {
     padding: 4px 8px;
     border-radius: 4px;
 }
+
+/* macOS 风格组件 */
+QFrame[class="card"] {
+    background-color: #2D2D2D;
+    border: 1px solid #404040;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+QFrame[class="card card-interactive"]:hover {
+    background-color: #383838;
+    border-color: #2196F3;
+}
+
+QFrame[class="card card-elevated"] {
+    background-color: #333333;
+    border: 1px solid #505050;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+QPushButton[class="primary"] {
+    background-color: #2196F3;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+}
+
+QPushButton[class="primary"]:hover {
+    background-color: #1976D2;
+}
+
+QPushButton[class="secondary"] {
+    background-color: transparent;
+    color: #2196F3;
+    border: 1px solid #2196F3;
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+QPushButton[class="secondary"]:hover {
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+QPushButton[class="danger"] {
+    background-color: #F44336;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+QPushButton[class="danger"]:hover {
+    background-color: #D32F2F;
+}
+
+QLabel[class="title"] {
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+QLabel[class="subtitle"] {
+    font-size: 16px;
+    font-weight: 500;
+    color: #CCCCCC;
+}
+
+QLabel[class="badge"] {
+    background-color: #2196F3;
+    color: #FFFFFF;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
+}
