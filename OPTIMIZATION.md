@@ -15,7 +15,15 @@
 - [x] 统一设计系统 (app/ui/components/design_system.py)
   - DesignSystem - 颜色、字体、间距常量
   - StyleSheet - 样式生成器
-  - CFButton, CFLabel, CFCard, CFInput - 基础组件
+  - CFButton, CFLabel, CFCard, CFPanel - 基础组件
+  - CFInput, CFProgressBar, CFNavButton - 业务组件
+- [x] 全局样式表 (app/ui/theme/global.qss)
+  - 统一的深色主题
+  - 覆盖所有 PyQt6 控件样式
+
+### 提交
+- `0e6ede4` - 扩展设计系统组件库
+- `1683bf9` - 添加全局 QSS 样式表
 
 ## Phase 3: 剪辑流程优化 (进行中)
 - [x] 分析核心剪辑流程模块
