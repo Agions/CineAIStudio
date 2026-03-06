@@ -122,7 +122,7 @@ class SuggestionBox(QWidget):
             btn = MacSecondaryButton(text)
             btn.setProperty("class", "button suggestion")
             btn.setMinimumHeight(32)
-            btn.clicked.connect(lambda checked, a=action: self.suggestion_clicked.emit(a))
+            btn.clicked.connect(lambda _checked, a=action: self.suggestion_clicked.emit(a))
             suggestions_grid_layout.addWidget(btn)
 
         suggestions_grid_layout.addStretch()
@@ -528,21 +528,30 @@ class MockAIService:
         self.api_key = api_key
         self.base_url = base_url
 
-    def send_message(self, message: str, history: List[Dict], callback, error_callback):
+    def send_message(self, message: str, history: List[Dict], callback, error_callback=None):
         """发送消息（模拟异步响应）"""
         import threading
         import time
 
         def mock_response():
-            time.sleep(1)  # 模拟延迟
-            response = self._generate_response(message)
+            try:
+                time.sleep(1)  # 模拟延迟
+                response = self._generate_response(message)
 
-            from PyQt6.QtCore import QMetaObject, Qt
-            QMetaObject.invokeMethod(
-                None,
-                lambda: callback(response),
-                Qt.ConnectionType.QueuedConnection
-            )
+                from PyQt6.QtCore import QMetaObject, Qt
+                QMetaObject.invokeMethod(
+                    None,
+                    lambda: callback(response),
+                    Qt.ConnectionType.QueuedConnection
+                )
+            except Exception as e:
+                if error_callback:
+                    from PyQt6.QtCore import QMetaObject, Qt
+                    QMetaObject.invokeMethod(
+                        None,
+                        lambda: error_callback(str(e)),
+                        Qt.ConnectionType.QueuedConnection
+                    )
 
         thread = threading.Thread(target=mock_response)
         thread.daemon = True

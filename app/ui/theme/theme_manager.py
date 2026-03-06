@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QObject, pyqtSignal, QTimer
-from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtGui import QColor
 
 from ...core.config_manager import ThemeConfig
 

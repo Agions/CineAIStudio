@@ -558,7 +558,7 @@ class ScriptGenerator:
                 if part in '。！？，；':
                     current_text += part
 
-                    if len(current_text) > 5:  # 至少5个字才生成字幕
+                    if len(current_text) >= max_chars:  # 至少 max_chars 个字才生成字幕
                         word_count = len(current_text)
                         duration = (word_count / max(segment_words, 1)) * segment_duration
 
