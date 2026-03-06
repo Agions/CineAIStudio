@@ -316,6 +316,9 @@ resources/styles/generated/
 
 # Documentation build artifacts
 docs/build/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/node_modules/
 
 # Package management
 *.whl

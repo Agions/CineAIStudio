@@ -14,16 +14,15 @@ from enum import Enum
 
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget,
-    QToolBar, QStatusBar, QMenuBar, QSplitter, QFrame, QLabel,
+    QStatusBar, QSplitter, QFrame, QLabel,
     QSizePolicy, QApplication, QMessageBox, QPushButton
 )
 from PyQt6.QtCore import (
     Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
-    QMimeData, QUrl, QEvent
+    QUrl
 )
 from PyQt6.QtGui import (
-    QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
-    QAction, QFontDatabase, QCloseEvent, QKeySequence, QShortcut
+    QIcon, QPixmap, QFont, QColor, QCursor, QCloseEvent
 )
 
 

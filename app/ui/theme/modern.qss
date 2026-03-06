@@ -811,3 +811,619 @@ QDial {
 QProgressIndicator {
     background-color: transparent;
 }
+
+/* ============================================
+   动效增强 - 页面切换与交互动画
+   ============================================ */
+
+/* === 页面切换动画类 === */
+QWidget[class="page"] {
+    /* 页面基础样式 */
+}
+
+QWidget[class="page-enter"] {
+    /* 页面进入动画 - 淡入 */
+    opacity: 0;
+}
+
+QWidget[class="page-exit"] {
+    /* 页面退出动画 - 淡出 */
+    opacity: 1;
+}
+
+/* === 弹窗动画 === */
+QDialog[class="animated"] {
+    /* 弹窗入场动画 */
+}
+
+/* === 按钮点击反馈效果 === */
+
+/* 主按钮点击波纹效果 */
+QPushButton[class="primary ripple"] {
+    position: relative;
+    overflow: hidden;
+}
+
+QPushButton[class="primary ripple"]:pressed::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+QPushButton[class="primary ripple"]:pressed {
+    transform: scale(0.98);
+}
+
+/* 图标按钮悬停放大效果 */
+QPushButton[class="icon-button"]:hover {
+    transform: scale(1.1);
+}
+
+QPushButton[class="icon-button"]:pressed {
+    transform: scale(0.95);
+}
+
+/* 卡片悬停上浮效果 */
+QWidget[class="card-hover"]:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* === 列表项交互动画 === */
+
+QListWidget::item {
+    transition: all 0.2s ease;
+}
+
+QListWidget::item:hover {
+    padding-left: 16px; /* 轻微右移效果 */
+}
+
+QListWidget::item:selected {
+    padding-left: 12px;
+}
+
+/* === 输入框聚焦动画 === */
+
+QLineEdit[class="animated"],
+QTextEdit[class="animated"],
+QPlainTextEdit[class="animated"] {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+QLineEdit[class="animated"]:focus,
+QTextEdit[class="animated"]:focus,
+QPlainTextEdit[class="animated"]:focus {
+    border-color: #6366F1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+/* === 标签页切换动画 === */
+
+QTabBar::tab[class="animated"] {
+    transition: all 0.25s ease;
+}
+
+QTabBar::tab[class="animated"]:selected {
+    transform: translateY(-2px);
+}
+
+/* === 滑块动画 === */
+
+QSlider[class="animated"]::handle:horizontal {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+QSlider[class="animated"]::handle:horizontal:hover {
+    transform: scale(1.2);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+/* === 复选框动画 === */
+
+QCheckBox[class="animated"]::indicator {
+    transition: all 0.2s ease;
+}
+
+QCheckBox[class="animated"]::indicator:checked {
+    transform: scale(1.1);
+}
+
+/* === 加载状态动画 === */
+
+/* 脉冲加载效果 */
+QWidget[class="pulse"] {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* 旋转加载效果 */
+QWidget[class="spin"] {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 摇摆效果 */
+QWidget[class="shake"] {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* 淡入效果 */
+QWidget[class="fade-in"] {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 淡出效果 */
+QWidget[class="fade-out"] {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* === 过渡动画类 === */
+
+/* 淡入淡出过渡 */
+QWidget[class="transition-fade"] {
+    transition: opacity 0.25s ease;
+}
+
+/* 颜色过渡 */
+QWidget[class="transition-color"] {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* 边框过渡 */
+QWidget[class="transition-border"] {
+    transition: border-color 0.2s ease, border-width 0.2s ease;
+}
+
+/* 阴影过渡 */
+QWidget[class="transition-shadow"] {
+    transition: box-shadow 0.25s ease;
+}
+
+/* 变换过渡 */
+QWidget[class="transition-transform"] {
+    transition: transform 0.2s ease;
+}
+
+/* === 悬浮效果 === */
+
+/* 轻微上浮 */
+QWidget[class="hover-lift"]:hover {
+    transform: translateY(-2px);
+}
+
+/* 中度上浮 */
+QWidget[class="hover-raise"]:hover {
+    transform: translateY(-4px);
+}
+
+/* 显著上浮 */
+QWidget[class="hover-lift-lg"]:hover {
+    transform: translateY(-8px);
+}
+
+/* 缩放悬浮 */
+QWidget[class="hover-scale"]:hover {
+    transform: scale(1.02);
+}
+
+/* === 压感效果 === */
+
+/* 按下缩小 */
+QWidget[class="press-scale"]:pressed {
+    transform: scale(0.97);
+}
+
+/* 按下上浮 */
+QWidget[class="press-raise"]:pressed {
+    transform: translateY(2px);
+}
+
+/* 按下变暗 */
+QWidget[class="press-darken"]:pressed {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* === 选中状态动画 === */
+
+/* 勾选动画 */
+QCheckBox[class="check-animated"]::indicator:checked {
+    animation: checkPop 0.2s ease-out;
+}
+
+@keyframes checkPop {
+    0% {
+        transform: scale(0.8);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* === 消息提示动画 === */
+
+/* 成功提示 */
+QWidget[class="toast-success"] {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 错误提示 */
+QWidget[class="toast-error"] {
+    animation: shake 0.4s ease-in-out;
+}
+
+/* === 骨架屏加载效果 === */
+
+QWidget[class="skeleton"] {
+    background: linear-gradient(90deg, 
+        #21262D 0%, 
+        #30363D 50%, 
+        #21262D 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* === 分割线动画 === */
+
+QFrame[class="divider-animated"] {
+    animation: expandWidth 0.5s ease-out;
+}
+
+@keyframes expandWidth {
+    from {
+        max-width: 0;
+    }
+    to {
+        max-width: 100%;
+    }
+}
+
+/* === 导航按钮特殊效果 === */
+
+/* 选中时脉冲效果 */
+QPushButton[class="nav-active"] {
+    animation: navPulse 2s ease-in-out infinite;
+}
+
+@keyframes navPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
+    }
+}
+
+/* 悬停时左侧指示条滑入 */
+QPushButton[class="nav-hover"]::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: #6366F1;
+    border-radius: 0 2px 2px 0;
+    transition: height 0.2s ease;
+}
+
+QPushButton[class="nav-hover"]:hover::before {
+    height: 60%;
+}
+
+/* === 进度条动画 === */
+
+/* 进度条条纹动画 */
+QProgressBar[class="striped"]::chunk {
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 255, 255, 0.1) 10px,
+        rgba(255, 255, 255, 0.1) 20px
+    );
+    animation: progressStripe 1s linear infinite;
+}
+
+@keyframes progressStripe {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 40px 0;
+    }
+}
+
+/* 进度条脉冲效果 */
+QProgressBar[class="pulsing"]::chunk {
+    animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes progressPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* === 滚动动画 === */
+
+/* 滚动条平滑滚动 */
+QScrollBar[class="smooth"] {
+    scrollbar-snap-type: none;
+}
+
+QScrollBar[class="smooth"]::handle:vertical {
+    transition: height 0.2s ease;
+}
+
+/* === 窗口边缘效果 === */
+
+/* 窗口边缘发光 */
+QMainWindow[class="glow-edge"] {
+    border: 1px solid transparent;
+    border-image: linear-gradient(135deg, 
+        #6366F1 0%, 
+        #8B5CF6 25%, 
+        #06B6D4 50%, 
+        #8B5CF6 75%, 
+        #6366F1 100%) 1;
+    animation: edgeGlow 3s linear infinite;
+}
+
+@keyframes edgeGlow {
+    0% {
+        border-image: linear-gradient(135deg, #6366F1, #8B5CF6, #06B6D4, #8B5CF6, #6366F1) 1;
+    }
+    50% {
+        border-image: linear-gradient(135deg, #06B6D4, #6366F1, #8B5CF6, #6366F1, #06B6D4) 1;
+    }
+    100% {
+        border-image: linear-gradient(135deg, #6366F1, #8B5CF6, #06B6D4, #8B5CF6, #6366F1) 1;
+    }
+}
+
+/* === 对话框入场动画 === */
+
+QDialog[class="slide-in"] {
+    animation: dialogSlideIn 0.3s ease-out;
+}
+
+@keyframes dialogSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+QDialog[class="scale-in"] {
+    animation: dialogScaleIn 0.25s ease-out;
+}
+
+@keyframes dialogScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* === 工具栏按钮动画 === */
+
+QToolButton[class="tool-animated"]:hover {
+    animation: toolHover 0.2s ease-out;
+}
+
+@keyframes toolHover {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* === 状态指示器动画 === */
+
+/* 在线状态呼吸灯 */
+QWidget[class="status-online"] {
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(35, 134, 54, 0);
+    }
+}
+
+/* 警告状态闪烁 */
+QWidget[class="status-warning"] {
+    animation: statusBlink 1s ease-in-out infinite;
+}
+
+@keyframes statusBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* === 下拉菜单动画 === */
+
+QMenu[class="menu-animated"] {
+    animation: menuSlideIn 0.15s ease-out;
+}
+
+@keyframes menuSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === 提示工具动画 === */
+
+QToolTip[class="tooltip-animated"] {
+    animation: tooltipFadeIn 0.15s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === 拖放区域动画 === */
+
+/* 拖放悬停效果 */
+QFrame[class="drop-zone"] {
+    transition: all 0.3s ease;
+}
+
+QFrame[class="drop-zone"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px dashed transparent;
+    border-radius: inherit;
+    transition: all 0.3s ease;
+}
+
+QFrame[class="drop-zone"]:hover::after,
+QFrame[class="drop-zone"][class="drag-over"]::after {
+    border-color: #6366F1;
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+/* 拖放脉冲效果 */
+QFrame[class="drop-zone-pulse"] {
+    animation: dropZonePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dropZonePulse {
+    0%, 100% {
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+    50% {
+        border-color: rgba(99, 102, 241, 0.6);
+    }
+}
+
+/* === 玻璃拟态动效增强 === */
+
+/* 毛玻璃悬浮效果 */
+QWidget[class="glass-hover"]:hover {
+    background-color: rgba(34, 34, 46, 0.85);
+    backdrop-filter: blur(10px);
+}
+
+/* 玻璃发光效果 */
+QWidget[class="glass-glow"]:hover {
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}

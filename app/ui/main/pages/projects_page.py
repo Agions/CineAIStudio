@@ -32,7 +32,6 @@ from app.ui.common.macOS_components import create_icon_text_row
 from app.core.project_manager import ProjectManager, Project, ProjectType, ProjectStatus
 from app.core.project_template_manager import ProjectTemplateManager, TemplateInfo
 from app.core.project_settings_manager import ProjectSettingsManager
-from app.core.project_version_manager import ProjectVersionManager
 
 # 导入标准化组件
 from app.ui.components import (

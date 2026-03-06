@@ -11,12 +11,12 @@ from PyQt6.QtWidgets import (
     QFrame, QScrollArea, QStackedWidget, QProgressBar,
     QComboBox, QSlider, QTabWidget, QListWidget, QListWidgetItem,
     QLineEdit, QMessageBox, QFileDialog, QApplication,
-    QToolBox, QSizePolicy, QFormLayout, QPushButton
+    QSizePolicy, QFormLayout, QPushButton
 )
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
-from PyQt6.QtCore import Qt, pyqtSignal, QSize, QTimer, QUrl, QMimeData
-from PyQt6.QtGui import QIcon, QAction, QDragEnterEvent, QDropEvent
+from PyQt6.QtCore import Qt, pyqtSignal, QSize, QTimer, QUrl
+from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent
 
 from .base_page import BasePage
 from app.services.ai_service.mock_ai_service import MockAIService
