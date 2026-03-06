@@ -330,7 +330,6 @@ docs/node_modules/
 *.pid.lock
 
 # CI/CD
-.github/workflows/
 .gitlab-ci.yml
 Jenkinsfile
 

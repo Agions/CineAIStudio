@@ -10,7 +10,7 @@ from typing import Optional, List, Dict, Any
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea,
     QFrame, QPushButton, QSlider, QToolButton, QSizePolicy,
-    QMenu, QToolTip
+    QMenu
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QRect, QPoint
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QMouseEvent, QPaintEvent

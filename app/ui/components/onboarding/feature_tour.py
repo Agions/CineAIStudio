@@ -4,7 +4,7 @@
 """
 
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QPushButton, QFrame, QScrollArea, QSizeGrip)
+                             QPushButton, QFrame, QScrollArea)
 from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor, QPainter, QLinearGradient
 

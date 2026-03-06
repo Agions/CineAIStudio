@@ -6,7 +6,7 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QScrollArea, QFrame)
 from PyQt6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
-from PyQt6.QtGui import QFont, QPixmap, QPainter, QLinearGradient, QColor, QFontDatabase
+from PyQt6.QtGui import QFont, QPixmap, QPainter, QLinearGradient, QColor
 
 # 色彩系统
 COLORS = {
