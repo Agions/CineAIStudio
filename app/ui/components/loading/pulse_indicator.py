@@ -8,13 +8,13 @@
 
 from PyQt6.QtWidgets import (
     QWidget, QFrame, QLabel, QVBoxLayout, QHBoxLayout, 
-    QGraphicsOpacityEffect, QSizePolicy
+    QSizePolicy
 )
 from PyQt6.QtCore import (
     Qt, QTimer, QPropertyAnimation, QEasingCurve, 
-    pyqtProperty, QSize, QPoint, QParallelAnimationGroup, QSequentialAnimationGroup
+    QSize, QPoint
 )
-from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QConicalGradient, QFont
+from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont
 
 
 class PulseIndicator(QFrame):

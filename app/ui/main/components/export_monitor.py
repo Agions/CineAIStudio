@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QTableWidgetItem, QFrame, QSplitter, QGroupBox,
                             QTextEdit, QScrollArea)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread, QRect
-from PyQt6.QtGui import QFont, QPalette, QColor, QPainter, QPen
+from PyQt6.QtGui import QFont, QColor, QPainter, QPen
 
 from ...export.export_system import ExportTask, ExportStatus
 from ...core.logger import Logger

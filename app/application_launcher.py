@@ -21,7 +21,6 @@ from .core.icon_manager import init_icon_manager
 from .core.project_manager import ProjectManager
 from .core.project_template_manager import ProjectTemplateManager
 from .core.project_settings_manager import ProjectSettingsManager
-from .core.project_version_manager import ProjectVersionManager
 from .utils.error_handler import handle_exception, show_error_dialog
 from .ui.main.main_window import MainWindow
 from .core.application import ApplicationState

@@ -16,10 +16,9 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QLineEdit, QTextEdit, QCheckBox, QSlider, QDialog,
                             QDialogButtonBox, QFormLayout, QScrollArea)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread
-from PyQt6.QtGui import QFont, QPalette, QColor
+from PyQt6.QtGui import QFont, QColor
 
-from ...export.export_system import ExportSystem, ExportTask, ExportPreset
-from ...export.jianying_draft_generator import JianyingDraftGenerator
+from ...export.export_system import ExportTask, ExportPreset
 from ...core.logger import Logger
 
 
