@@ -3,7 +3,7 @@
 """
 
 from PyQt6.QtWidgets import QWidget, QGraphicsOpacityEffect
-from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, QTimer, Qt, pyqtProperty
+from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, QTimer, Qt
 from PyQt6.QtGui import QPainter, QColor, QLinearGradient
 
 
