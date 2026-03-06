@@ -1,0 +1,76 @@
+# ClipFlowCut 依赖包
+#
+# ⚠️ 重要提示：
+# 本项目基于 PyQt6 开发，必须使用 PyQt6，不是 PySide6！
+#
+# 如果遇到以下错误：
+#   QLabel(...): argument 1 has unexpected type 'str'
+# 请检查是否安装了 PySide6，如果是请先卸载：
+#   pip uninstall PySide6
+# 然后确保安装的是 PyQt6：
+#   pip install PyQt6
+#
+
+## 核心依赖
+PyQt6>=6.6.0
+PyQt6-Qt6>=6.6.0
+PyQt6-sip>=13.6.0
+
+## UI 组件库
+PyQt6-Fluent-Widgets>=1.11.0
+
+## 图像/视频处理
+opencv-python>=4.8.1
+numpy>=1.26.0
+pillow>=10.1.0
+ffmpeg-python==0.2.0
+
+## 音频分析
+librosa>=0.10.0
+soundfile>=0.12.0
+
+## 网络请求
+requests>=2.31.0
+httpx>=0.25.0
+
+## 配置管理
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+## 系统工具
+psutil>=5.9.6
+
+## 安全/加密
+cryptography>=41.0.0
+keyring>=24.0.0
+
+## 视频编辑（可选）
+moviepy>=1.0.3
+
+## LLM 相关
+openai>=1.0.0
+google-generativeai>=0.8.0
+
+## 版本兼容
+packaging>=21.0
+
+# =======================
+# 开发与测试依赖
+# =======================
+
+## 测试框架
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+pytest-timeout>=2.1.0
+
+## 代码质量
+black>=23.11.0
+flake8>=6.1.0
+mypy>=1.7.0
+isort>=5.12.0
+
+## 类型支持
+types-requests>=2.31.0
+types-PyYAML>=6.0.0
+types-python-dotenv>=1.0.0
