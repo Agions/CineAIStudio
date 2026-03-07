@@ -174,13 +174,19 @@ class MainWindow(QMainWindow):
             btn.setIconSize(QSize(20, 20))
             btn.setContentsMargins(8, 4, 8, 4)
 
-        # 连接按钮信号
-        self.home_btn.clicked.connect(lambda: self.switch_to_page(PageType.HOME))
-        self.settings_btn.clicked.connect(lambda: self.switch_to_page(PageType.SETTINGS))
-        self.projects_btn.clicked.connect(lambda: self.switch_to_page(PageType.PROJECTS))
-        self.ai_video_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_VIDEO_CREATOR))
-        self.editor_btn.clicked.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
-        self.ai_chat_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_CHAT))
+        # 连接按钮信号 - 使用直接方法调用确保可靠
+        self.home_btn.clicked.disconnect()
+        self.home_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.HOME))
+        self.settings_btn.clicked.disconnect()
+        self.settings_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.SETTINGS))
+        self.projects_btn.clicked.disconnect()
+        self.projects_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.PROJECTS))
+        self.ai_video_btn.clicked.disconnect()
+        self.ai_video_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.AI_VIDEO_CREATOR))
+        self.editor_btn.clicked.disconnect()
+        self.editor_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.VIDEO_EDITOR))
+        self.ai_chat_btn.clicked.disconnect()
+        self.ai_chat_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.AI_CHAT))
 
         # 添加按钮到导航布局
         # 导航按钮（首页 + 项目管理 + 设置）
@@ -327,6 +333,7 @@ class MainWindow(QMainWindow):
             self.logger.info("开始加载首页...")
             self.home_page = HomePage(self.application)
             self.page_stack.addWidget(self.home_page)
+            self.page_stack.setCurrentWidget(self.home_page)  # 设置首页为当前页面
             self.pages_loading_status["home"] = True
             self.logger.info("首页初始化完成")
             
@@ -569,6 +576,11 @@ class MainWindow(QMainWindow):
                 
         except Exception as e:
             self.logger.error(f"应用样式失败: {e}")
+            
+    def _on_nav_button_clicked(self, page_type: PageType):
+        """导航按钮点击处理"""
+        self.logger.info(f"导航按钮被点击: {page_type.value}")
+        self.switch_to_page(page_type)
             
     def _apply_theme(self):
         """应用主题设置"""
