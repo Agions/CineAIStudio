@@ -73,9 +73,22 @@ QWidget {
 /* === 主窗口背景 - 渐变 === */
 QMainWindow {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-        stop:0 #0A0A0F,
-        stop:0.5 #12121A,
-        stop:1 #0A0A0F);
+        stop:0 #0f0f1a,
+        stop:0.3 #1a1a2e,
+        stop:0.6 #16213e,
+        stop:1 #0f0f1a);
+}
+
+/* === 主内容区背景 === */
+QWidget#central_widget {
+    background: transparent;
+}
+
+/* === 页面内容区 === */
+QStackedWidget#page_stack {
+    background: rgba(15, 15, 26, 0.6);
+    border-radius: 16px;
+    margin: 12px;
 }
 
 /* === 滚动条 - 精致设计 === */
@@ -145,11 +158,26 @@ QFrame#glass_panel {
 }
 
 QLabel#app_title {
-    color: #F0F6FC;
-    font-size: 18px;
+    color: #FFFFFF;
+    font-size: 20px;
     font-weight: 700;
-    padding: 24px 20px;
+    padding: 28px 20px;
     letter-spacing: -0.02em;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #6366F1,
+        stop:0.5 #8B5CF6,
+        stop:1 #A855F7);
+    -qt-background-role: background;
+    border-radius: 0px;
+}
+
+/* === 左侧导航栏 === */
+QWidget#left_sidebar {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #1a1a2e,
+        stop:0.5 #16213e,
+        stop:1 #1a1a2e);
+    border-right: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 /* 导航按钮 - 现代渐变 + 悬浮效果 */
@@ -157,40 +185,62 @@ QPushButton#nav_button {
     text-align: left;
     background-color: transparent;
     border: none;
-    border-radius: 8px;
-    color: #8B949E;
-    padding: 12px 16px;
+    border-radius: 12px;
+    color: #9CA3AF;
+    padding: 14px 18px;
     font-size: 14px;
     font-weight: 500;
-    margin: 2px 8px;
-    transition: all 0.2s ease;
+    margin: 4px 12px;
+    transition: all 0.25s ease;
+    icon-size: 22px;
 }
 
 QPushButton#nav_button:hover {
-    background-color: rgba(99, 102, 241, 0.1);
-    color: #E6EDF3;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(99, 102, 241, 0.15),
+        stop:1 rgba(139, 92, 246, 0.1));
+    color: #FFFFFF;
+    padding-left: 22px;
 }
 
 QPushButton#nav_button:checked {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 rgba(99, 102, 241, 0.2),
-        stop:1 rgba(139, 92, 246, 0.2));
-    color: #A371F7;
+        stop:0 rgba(99, 102, 241, 0.25),
+        stop:0.5 rgba(139, 92, 246, 0.2),
+        stop:1 rgba(99, 102, 241, 0.15));
+    color: #FFFFFF;
     font-weight: 600;
-    border-left: 3px solid #6366F1;
+    border-left: none;
+    padding-left: 22px;
+}
+
+/* 导航按钮图标 */
+QPushButton#nav_button::icon {
+    padding-right: 12px;
+}
+
+/* 导航分隔线 */
+QFrame#nav_separator {
+    background: rgba(255, 255, 255, 0.08);
+    margin: 16px 20px;
+    max-height: 1px;
 }
 
 /* === 主内容区 === */
 QWidget#page_header {
-    background-color: rgba(10, 10, 15, 0.8);
-    border-bottom: 1px solid rgba(33, 38, 45, 0.8);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(26, 26, 46, 0.9),
+        stop:1 rgba(22, 33, 62, 0.9));
+    border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+    padding: 8px 24px;
 }
 
 QLabel#page_title {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
-    color: #F0F6FC;
+    color: #FFFFFF;
     letter-spacing: -0.02em;
+    padding-left: 8px;
 }
 
 /* === 通用按钮 - 渐变 + 动效 === */
@@ -206,17 +256,23 @@ QPushButton {
 QPushButton[class="primary"] {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
         stop:0 #6366F1,
-        stop:1 #8B5CF6);
+        stop:0.5 #8B5CF6,
+        stop:1 #A855F7);
     color: white;
     border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 14px;
 }
 
 QPushButton[class="primary"]:hover {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
         stop:0 #818CF8,
-        stop:1 #A78BFA);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        stop:0.5 #A78BFA,
+        stop:1 #C084FC);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
 }
 
 QPushButton[class="primary"]:pressed {
@@ -229,15 +285,22 @@ QPushButton[class="primary"]:pressed {
 
 /* 次要按钮 */
 QPushButton[class="secondary"] {
-    background-color: transparent;
-    border: 1px solid #30363D;
-    color: #C9D1D9;
+    background-color: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: #A78BFA;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 500;
+    font-size: 14px;
 }
 
 QPushButton[class="secondary"]:hover {
-    background-color: rgba(99, 102, 241, 0.1);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(99, 102, 241, 0.2),
+        stop:1 rgba(139, 92, 246, 0.2));
     border-color: #6366F1;
-    color: #E6EDF3;
+    color: #FFFFFF;
+    transform: translateY(-1px);
 }
 
 /* 危险按钮 */
