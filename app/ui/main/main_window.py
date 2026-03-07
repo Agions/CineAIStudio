@@ -623,6 +623,11 @@ class MainWindow(QMainWindow):
                     target_page = ProjectsPage(self.application)
                     self.projects_page = target_page
                     self.page_stack.addWidget(target_page)
+                elif page_type == PageType.VIDEO_EDITOR:
+                    from .pages.video_editor_page import VideoEditorPage
+                    target_page = VideoEditorPage(self.application)
+                    self.video_editor_page = target_page
+                    self.page_stack.addWidget(target_page)
                 elif page_type == PageType.AI_VIDEO_CREATOR:
                     from .pages.ai_video_creator_page import AIVideoCreatorPage
                     target_page = AIVideoCreatorPage(self.application)
@@ -632,6 +637,11 @@ class MainWindow(QMainWindow):
                     from .pages.ai_chat_page import AIChatPage
                     target_page = AIChatPage(self.application)
                     self.ai_chat_page = target_page
+                    self.page_stack.addWidget(target_page)
+                elif page_type == PageType.SETTINGS:
+                    from .pages.settings_page import SettingsPage
+                    target_page = SettingsPage(self.application)
+                    self.settings_page = target_page
                     self.page_stack.addWidget(target_page)
                 
                 if target_page:
