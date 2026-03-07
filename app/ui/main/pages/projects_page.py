@@ -65,12 +65,12 @@ class ProjectCard(MacCard):
         layout = self.layout()
 
         # 项目名称 (大标题)
-        self.name_label = MacLabel("", "card-title")
+        self.name_label = MacLabel("", None, "card-title")
         self.name_label.setWordWrap(True)
         layout.addWidget(self.name_label)
 
         # 项目描述 (副标题)
-        self.desc_label = MacLabel("", "card-subtitle")
+        self.desc_label = MacLabel("", None, "card-subtitle")
         self.desc_label.setWordWrap(True)
         layout.addWidget(self.desc_label)
 
@@ -88,7 +88,7 @@ class ProjectCard(MacCard):
         info_layout.addStretch()
 
         # 日期标签
-        self.date_label = MacLabel("", "text-sm text-muted")
+        self.date_label = MacLabel("", None, "text-sm text-muted")
         info_layout.addWidget(self.date_label)
 
         layout.addWidget(info_row)
@@ -161,7 +161,7 @@ class TemplateCard(MacCard):
         self.layout().setContentsMargins(12, 12, 12, 12)
 
         # 模板名称
-        self.name_label = MacLabel("", "text-lg text-bold")
+        self.name_label = MacLabel("", None, "text-lg text-bold")
         self.name_label.setWordWrap(True)
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout().addWidget(self.name_label)
@@ -557,7 +557,7 @@ class ProjectSettingsDialog(QDialog):
         res_row_layout = QHBoxLayout(res_row)
         res_row_layout.setContentsMargins(0, 0, 0, 0)
         res_row_layout.setSpacing(8)
-        res_row_layout.addWidget(MacLabel("分辨率:", "text-secondary text-bold"))
+        res_row_layout.addWidget(MacLabel("分辨率:", None, "text-secondary text-bold"))
         res_row_layout.addWidget(self.resolution_combo, 1)
         form_layout.addWidget(res_row)
 
@@ -572,7 +572,7 @@ class ProjectSettingsDialog(QDialog):
         fps_row_layout = QHBoxLayout(fps_row)
         fps_row_layout.setContentsMargins(0, 0, 0, 0)
         fps_row_layout.setSpacing(8)
-        fps_row_layout.addWidget(MacLabel("帧率 (FPS):", "text-secondary text-bold"))
+        fps_row_layout.addWidget(MacLabel("帧率 (FPS):", None, "text-secondary text-bold"))
         fps_row_layout.addWidget(self.fps_spin, 1)
         form_layout.addWidget(fps_row)
 
@@ -586,7 +586,7 @@ class ProjectSettingsDialog(QDialog):
         bitrate_row_layout = QHBoxLayout(bitrate_row)
         bitrate_row_layout.setContentsMargins(0, 0, 0, 0)
         bitrate_row_layout.setSpacing(8)
-        bitrate_row_layout.addWidget(MacLabel("比特率:", "text-secondary text-bold"))
+        bitrate_row_layout.addWidget(MacLabel("比特率:", None, "text-secondary text-bold"))
         bitrate_row_layout.addWidget(self.bitrate_combo, 1)
         form_layout.addWidget(bitrate_row)
 
@@ -600,7 +600,7 @@ class ProjectSettingsDialog(QDialog):
         codec_row_layout = QHBoxLayout(codec_row)
         codec_row_layout.setContentsMargins(0, 0, 0, 0)
         codec_row_layout.setSpacing(8)
-        codec_row_layout.addWidget(MacLabel("编码器:", "text-secondary text-bold"))
+        codec_row_layout.addWidget(MacLabel("编码器:", None, "text-secondary text-bold"))
         codec_row_layout.addWidget(self.codec_combo, 1)
         form_layout.addWidget(codec_row)
 
@@ -634,7 +634,7 @@ class ProjectSettingsDialog(QDialog):
         rate_row_layout = QHBoxLayout(rate_row)
         rate_row_layout.setContentsMargins(0, 0, 0, 0)
         rate_row_layout.setSpacing(8)
-        rate_row_layout.addWidget(MacLabel("采样率 (Hz):", "text-secondary text-bold"))
+        rate_row_layout.addWidget(MacLabel("采样率 (Hz):", None, "text-secondary text-bold"))
         rate_row_layout.addWidget(self.samplerate_combo, 1)
         form_layout.addWidget(rate_row)
 
@@ -648,7 +648,7 @@ class ProjectSettingsDialog(QDialog):
         audio_rate_row_layout = QHBoxLayout(audio_rate_row)
         audio_rate_row_layout.setContentsMargins(0, 0, 0, 0)
         audio_rate_row_layout.setSpacing(8)
-        audio_rate_row_layout.addWidget(MacLabel("比特率:", "text-secondary text-bold"))
+        audio_rate_row_layout.addWidget(MacLabel("比特率:", None, "text-secondary text-bold"))
         audio_rate_row_layout.addWidget(self.audio_bitrate_combo, 1)
         form_layout.addWidget(audio_rate_row)
 
@@ -663,7 +663,7 @@ class ProjectSettingsDialog(QDialog):
         channels_row_layout = QHBoxLayout(channels_row)
         channels_row_layout.setContentsMargins(0, 0, 0, 0)
         channels_row_layout.setSpacing(8)
-        channels_row_layout.addWidget(MacLabel("声道数:", "text-secondary text-bold"))
+        channels_row_layout.addWidget(MacLabel("声道数:", None, "text-secondary text-bold"))
         channels_row_layout.addWidget(self.channels_spin, 1)
         form_layout.addWidget(channels_row)
 
@@ -704,7 +704,7 @@ class ProjectSettingsDialog(QDialog):
         interval_row_layout = QHBoxLayout(interval_row)
         interval_row_layout.setContentsMargins(0, 0, 0, 0)
         interval_row_layout.setSpacing(8)
-        interval_row_layout.addWidget(MacLabel("自动保存间隔:", "text-secondary text-bold"))
+        interval_row_layout.addWidget(MacLabel("自动保存间隔:", None, "text-secondary text-bold"))
         interval_row_layout.addWidget(self.interval_spin, 1)
         form_layout.addWidget(interval_row)
 
@@ -719,7 +719,7 @@ class ProjectSettingsDialog(QDialog):
         backups_row_layout = QHBoxLayout(backups_row)
         backups_row_layout.setContentsMargins(0, 0, 0, 0)
         backups_row_layout.setSpacing(8)
-        backups_row_layout.addWidget(MacLabel("最大备份数:", "text-secondary text-bold"))
+        backups_row_layout.addWidget(MacLabel("最大备份数:", None, "text-secondary text-bold"))
         backups_row_layout.addWidget(self.max_backups_spin, 1)
         form_layout.addWidget(backups_row)
 
@@ -753,7 +753,7 @@ class ProjectSettingsDialog(QDialog):
         model_row_layout = QHBoxLayout(model_row)
         model_row_layout.setContentsMargins(0, 0, 0, 0)
         model_row_layout.setSpacing(8)
-        model_row_layout.addWidget(MacLabel("默认模型:", "text-secondary text-bold"))
+        model_row_layout.addWidget(MacLabel("默认模型:", None, "text-secondary text-bold"))
         model_row_layout.addWidget(self.model_combo, 1)
         form_layout.addWidget(model_row)
 
@@ -768,7 +768,7 @@ class ProjectSettingsDialog(QDialog):
         tokens_row_layout = QHBoxLayout(tokens_row)
         tokens_row_layout.setContentsMargins(0, 0, 0, 0)
         tokens_row_layout.setSpacing(8)
-        tokens_row_layout.addWidget(MacLabel("最大令牌数:", "text-secondary text-bold"))
+        tokens_row_layout.addWidget(MacLabel("最大令牌数:", None, "text-secondary text-bold"))
         tokens_row_layout.addWidget(self.max_tokens_spin, 1)
         form_layout.addWidget(tokens_row)
 
@@ -776,14 +776,14 @@ class ProjectSettingsDialog(QDialog):
         self.temperature_slider = QSlider(Qt.Orientation.Horizontal)
         self.temperature_slider.setRange(0, 200)
         self.temperature_slider.setValue(70)
-        self.temperature_label = MacLabel("0.7", "text-bold")
+        self.temperature_label = MacLabel("0.7", None, "text-bold")
 
         temp_row = QWidget()
         temp_row.setProperty("class", "stat-row")
         temp_row_layout = QHBoxLayout(temp_row)
         temp_row_layout.setContentsMargins(0, 0, 0, 0)
         temp_row_layout.setSpacing(8)
-        temp_row_layout.addWidget(MacLabel("创造性程度:", "text-secondary text-bold"))
+        temp_row_layout.addWidget(MacLabel("创造性程度:", None, "text-secondary text-bold"))
         temp_row_layout.addWidget(self.temperature_slider, 1)
         temp_row_layout.addWidget(self.temperature_label)
 
@@ -1171,10 +1171,10 @@ class ProjectsPage(BasePage):
         info_title = MacTitleLabel("时间信息")
         info_layout.addWidget(info_title)
 
-        self.detail_created = MacLabel("", "text-base")
+        self.detail_created = MacLabel("", None, "text-base")
         info_layout.addWidget(self._create_detail_row("🗓️ 创建时间:", self.detail_created))
 
-        self.detail_modified = MacLabel("", "text-base")
+        self.detail_modified = MacLabel("", None, "text-base")
         info_layout.addWidget(self._create_detail_row("🔄 修改时间:", self.detail_modified))
 
         layout.addWidget(info_card)
@@ -1188,7 +1188,7 @@ class ProjectsPage(BasePage):
         desc_title = MacTitleLabel("项目描述")
         desc_layout.addWidget(desc_title)
 
-        self.detail_description = MacLabel("暂无描述", "text-secondary")
+        self.detail_description = MacLabel("暂无描述", None, "text-secondary")
         self.detail_description.setWordWrap(True)
         desc_layout.addWidget(self.detail_description)
 
