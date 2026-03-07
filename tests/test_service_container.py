@@ -2,7 +2,6 @@
 """测试服务容器"""
 
 import pytest
-
 from app.core.service_container import ServiceContainer
 
 
@@ -13,98 +12,90 @@ class TestServiceContainer:
         """测试初始化"""
         container = ServiceContainer()
         
-        assert isinstance(container._services, dict)
-        assert isinstance(container._services_by_name, dict)
+        assert container._services == {}
+        assert container._services_by_name == {}
 
-    def test_register_and_get(self):
-        """测试注册和获取服务"""
+    def test_register(self):
+        """测试注册服务"""
         container = ServiceContainer()
+        service = object()
         
-        class TestService:
-            pass
+        container.register(str, service)
         
-        service = TestService()
-        container.register(TestService, service)
-        
-        result = container.get(TestService)
-        assert result is service
+        assert container.get(str) is service
 
     def test_register_by_name(self):
         """测试按名称注册"""
         container = ServiceContainer()
-        
         service = object()
+        
         container.register_by_name("my_service", service)
         
-        result = container.get_by_name("my_service")
-        assert result is service
+        assert container.get_by_name("my_service") is service
 
     def test_get_not_exists(self):
         """测试获取不存在的服务"""
         container = ServiceContainer()
         
-        class UnknownService:
-            pass
+        result = container.get(str)
         
-        result = container.get(UnknownService)
         assert result is None
 
     def test_get_by_name_not_exists(self):
         """测试按名称获取不存在的服务"""
         container = ServiceContainer()
         
-        result = container.get_by_name("unknown")
+        result = container.get_by_name("not_exists")
+        
         assert result is None
 
-    def test_has_service(self):
+    def test_has(self):
         """测试检查服务存在"""
         container = ServiceContainer()
+        service = object()
         
-        class MyService:
-            pass
+        container.register(str, service)
         
-        container.register(MyService, MyService())
-        
-        assert container.has(MyService) is True
-        assert container.has(object) is False
+        assert container.has(str) is True
+        assert container.has(int) is False
 
     def test_has_by_name(self):
-        """测试按名称检查服务存在"""
+        """测试按名称检查存在"""
         container = ServiceContainer()
+        service = object()
         
-        container.register_by_name("exists", object())
+        container.register_by_name("test", service)
         
-        assert container.has_by_name("exists") is True
+        assert container.has_by_name("test") is True
         assert container.has_by_name("not_exists") is False
 
     def test_remove(self):
         """测试移除服务"""
         container = ServiceContainer()
+        service = object()
         
-        class RemovableService:
-            pass
+        container.register(str, service)
+        container.remove(str)
         
-        container.register(RemovableService, RemovableService())
-        assert container.has(RemovableService) is True
-        
-        container.remove(RemovableService)
-        assert container.has(RemovableService) is False
+        assert container.get(str) is None
 
-    def test_remove_not_exists(self):
-        """测试移除不存在的服务"""
+    def test_remove_by_name(self):
+        """测试按名称移除"""
         container = ServiceContainer()
+        service = object()
         
-        # 不应该抛出异常
-        container.remove(object)
+        container.register_by_name("test", service)
+        container.remove_by_name("test")
+        
+        assert container.get_by_name("test") is None
 
     def test_clear(self):
-        """测试清空服务"""
+        """测试清空"""
         container = ServiceContainer()
         
-        container.register_by_name("s1", object())
-        container.register_by_name("s2", object())
-        
+        container.register(str, object())
+        container.register_by_name("test", object())
         container.clear()
         
-        assert container.has_by_name("s1") is False
-        assert container.has_by_name("s2") is False
+        assert container.get(str) is None
+        assert container.get_by_name("test") is None
