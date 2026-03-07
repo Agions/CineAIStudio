@@ -21,6 +21,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont, QCursor
 
 from .base_page import BasePage
+from ...theme.theme_toggle import ThemeToggleButton
 
 
 class SettingRow(QFrame):
@@ -146,6 +147,30 @@ class SettingsPage(BasePage):
         title.setFont(QFont("", 24, QFont.Weight.Bold))
         title.setStyleSheet("color: #FFF;")
         content_layout.addWidget(title)
+
+        # ── 主题设置 ──
+        theme_card = SettingCard("外观主题", "🎨")
+        
+        theme_toggle = ThemeToggleButton()
+        theme_toggle.setStyleSheet("""
+            ThemeToggleButton {
+                background: #2A2A2A;
+                border: 1px solid #404040;
+                border-radius: 8px;
+                padding: 8px 16px;
+            }
+        """)
+        
+        theme_desc = QLabel("选择应用主题和配色方案")
+        theme_desc.setStyleSheet("color: #888; font-size: 12px; margin-bottom: 8px;")
+        
+        theme_row = QHBoxLayout()
+        theme_row.addWidget(theme_toggle)
+        theme_row.addStretch()
+        
+        theme_card.add_widget(theme_desc)
+        theme_card.add_layout(theme_row)
+        content_layout.addWidget(theme_card)
 
         # ── API Key 配置 ──
         api_card = SettingCard("API 密钥", "🔑")
