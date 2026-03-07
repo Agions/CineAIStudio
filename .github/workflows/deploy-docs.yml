@@ -40,7 +40,7 @@ jobs:
         run |
           cd docs
           npm install
-          npm run build
+          npm run docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
