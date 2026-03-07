@@ -1,11 +1,15 @@
 name: Deploy Docs
 
+# 暂时禁用，等文档准备好后再启用
+# on:
+#   push:
+#     branches: [main]
+#     paths:
+#       - 'docs/**'
+#       - '.github/workflows/deploy-docs.yml'
+
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
