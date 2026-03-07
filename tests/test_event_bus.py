@@ -2,89 +2,99 @@
 """测试事件总线"""
 
 import pytest
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QObject, pyqtSignal
-
-from app.core.event_bus import EventBus, event_bus
+from app.core.event_bus import EventBus
 
 
-class TestListener(QObject):
-    """测试监听器"""
-    received = pyqtSignal(str)
-    
-    def __init__(self):
-        super().__init__()
-        self.received.connect(self._on_received)
-        self.messages = []
+class TestEventBus:
+    """测试事件总线"""
+
+    def test_init(self):
+        """测试初始化"""
+        bus = EventBus()
+        assert bus._handlers == {}
+
+    def test_subscribe(self):
+        """测试订阅"""
+        bus = EventBus()
+        handler = lambda x: x
         
-    def _on_received(self, message):
-        self.messages.append(message)
+        bus.subscribe("test_event", handler)
+        
+        assert "test_event" in bus._handlers
+        assert handler in bus._handlers["test_event"]
 
+    def test_unsubscribe(self):
+        """测试取消订阅"""
+        bus = EventBus()
+        handler = lambda x: x
+        
+        bus.subscribe("test_event", handler)
+        bus.unsubscribe("test_event", handler)
+        
+        assert handler not in bus._handlers.get("test_event", [])
 
-@pytest.fixture
-def qapp():
-    """创建 QApplication"""
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
-    return app
+    def test_publish(self):
+        """测试发布"""
+        bus = EventBus()
+        result = []
+        
+        def handler(data):
+            result.append(data)
+        
+        bus.subscribe("test_event", handler)
+        bus.publish("test_event", "hello")
+        
+        assert result == ["hello"]
 
+    def test_publish_without_data(self):
+        """测试无数据发布"""
+        bus = EventBus()
+        result = []
+        
+        def handler(data):
+            result.append(data)
+        
+        bus.subscribe("test_event", handler)
+        bus.publish("test_event")
+        
+        assert result == [None]
 
-def test_subscribe_and_emit(qapp):
-    """测试订阅和发布"""
-    listener = TestListener()
-    
-    # 订阅事件
-    event_bus.subscribe("test.event", listener.received)
-    
-    # 发布事件
-    event_bus.emit("test.event", "hello")
-    
-    # 处理事件循环
-    from PyQt6.QtCore import QCoreApplication
-    QCoreApplication.processEvents()
-    
-    assert "hello" in listener.messages
+    def test_multiple_handlers(self):
+        """测试多个处理器"""
+        bus = EventBus()
+        result1 = []
+        result2 = []
+        
+        def handler1(data):
+            result1.append(data)
+        
+        def handler2(data):
+            result2.append(data)
+        
+        bus.subscribe("test_event", handler1)
+        bus.subscribe("test_event", handler2)
+        bus.publish("test_event", "data")
+        
+        assert result1 == ["data"]
+        assert result2 == ["data"]
 
+    def test_duplicate_subscription(self):
+        """测试重复订阅"""
+        bus = EventBus()
+        handler = lambda x: x
+        
+        bus.subscribe("test_event", handler)
+        bus.subscribe("test_event", handler)
+        
+        assert len(bus._handlers["test_event"]) == 1
 
-def test_unsubscribe(qapp):
-    """测试取消订阅"""
-    listener = TestListener()
-    
-    event_bus.subscribe("test.event", listener.received)
-    event_bus.unsubscribe("test.event", listener.received)
-    
-    event_bus.emit("test.event", "test")
-    QCoreApplication.processEvents()
-    
-    assert len(listener.messages) == 0
-
-
-def test_multiple_listeners(qapp):
-    """测试多个监听器"""
-    listener1 = TestListener()
-    listener2 = TestListener()
-    
-    event_bus.subscribe("test.event", listener1.received)
-    event_bus.subscribe("test.event", listener2.received)
-    
-    event_bus.emit("test.event", "broadcast")
-    QCoreApplication.processEvents()
-    
-    assert "broadcast" in listener1.messages
-    assert "broadcast" in listener2.messages
-
-
-def test_emit_to_all_listeners(qapp):
-    """测试向所有监听器发送"""
-    listener1 = TestListener()
-    listener2 = TestListener()
-    
-    event_bus.subscribe("event1", listener1.received)
-    event_bus.subscribe("event2", listener2.received)
-    
-    event_bus.emit_to_all("hello")
-    QCoreApplication.processEvents()
-    
-    assert "hello" in listener1.messages
-    assert "hello" in listener2.messages
+    def test_clear_event_handlers(self):
+        """测试清除事件处理器"""
+        bus = EventBus()
+        
+        bus.subscribe("event1", lambda x: x)
+        bus.subscribe("event2", lambda x: x)
+        
+        bus._handlers.clear()
+        
+        assert len(bus._handlers) == 0

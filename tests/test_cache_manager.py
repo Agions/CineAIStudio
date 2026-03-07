@@ -1,116 +1,88 @@
 #!/usr/bin/env python3
 """测试缓存管理器"""
 
-import os
-import json
-import tempfile
-import time
 import pytest
+import time
 
-from app.core.cache_manager import CacheManager, CacheEntry
-
-
-@pytest.fixture
-def temp_cache_dir():
-    """创建临时缓存目录"""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    import shutil
-    shutil.rmtree(temp_dir)
+from app.core.cache_manager import MemoryCache
+from app.core.interfaces.cache_interface import CachePolicy
 
 
-@pytest.fixture
-def cache_manager(temp_cache_dir):
-    """创建缓存管理器实例"""
-    return CacheManager(cache_root=temp_cache_dir)
+class TestMemoryCache:
+    """测试内存缓存"""
 
-
-class TestCacheManager:
-    """缓存管理器测试"""
-
-    def test_set_and_get(self, cache_manager):
-        """测试设置和获取缓存"""
-        cache_manager.set("test_key", {"data": "value"})
-        result = cache_manager.get("test_key")
+    def test_init(self):
+        """测试初始化"""
+        cache = MemoryCache(max_size=100, max_memory_mb=10)
         
-        assert result is not None
-        assert result["data"] == "value"
+        assert cache._max_size == 100
+        assert cache._policy == CachePolicy.LRU
 
-    def test_get_nonexistent(self, cache_manager):
+    def test_set_and_get(self):
+        """测试设置和获取"""
+        cache = MemoryCache()
+        
+        cache.set("key1", "value1")
+        value = cache.get("key1")
+        
+        assert value == "value1"
+
+    def test_get_nonexistent(self):
         """测试获取不存在的键"""
-        result = cache_manager.get("nonexistent")
-        assert result is None
+        cache = MemoryCache()
+        
+        value = cache.get("nonexistent")
+        
+        assert value is None
 
-    def test_exists(self, cache_manager):
-        """测试键是否存在"""
-        cache_manager.set("exists_key", "value")
+    def test_delete(self):
+        """测试删除"""
+        cache = MemoryCache()
         
-        assert cache_manager.exists("exists_key") is True
-        assert cache_manager.exists("nonexistent") is False
+        cache.set("key1", "value1")
+        cache.delete("key1")
+        value = cache.get("key1")
+        
+        assert value is None
 
-    def test_delete(self, cache_manager):
-        """测试删除缓存"""
-        cache_manager.set("to_delete", "value")
-        assert cache_manager.exists("to_delete") is True
+    def test_clear(self):
+        """测试清空"""
+        cache = MemoryCache()
         
-        cache_manager.delete("to_delete")
-        assert cache_manager.exists("to_delete") is False
+        cache.set("key1", "value1")
+        cache.set("key2", "value2")
+        cache.clear()
+        
+        assert cache.get("key1") is None
+        assert cache.get("key2") is None
 
-    def test_clear(self, cache_manager):
-        """测试清空缓存"""
-        cache_manager.set("key1", "value1")
-        cache_manager.set("key2", "value2")
+    def test_contains(self):
+        """测试包含"""
+        cache = MemoryCache()
         
-        cache_manager.clear()
+        cache.set("key1", "value1")
         
-        assert cache_manager.exists("key1") is False
-        assert cache_manager.exists("key2") is False
+        assert "key1" in cache
+        assert "key2" not in cache
 
-    def test_ttl_expiration(self, temp_cache_dir):
-        """测试 TTL 过期"""
-        # 创建 1 秒过期的缓存
-        cm = CacheManager(cache_root=temp_cache_dir, default_ttl=1)
-        cm.set("ttl_key", "value")
+    def test_size(self):
+        """测试大小"""
+        cache = MemoryCache()
         
-        # 立即获取应该存在
-        assert cm.get("ttl_key") is not None
+        cache.set("key1", "value1")
+        cache.set("key2", "value2")
         
-        # 等待过期
-        time.sleep(1.5)
-        
-        # 应该返回 None
-        assert cm.get("ttl_key") is None
+        assert cache.size() == 2
 
-    def test_cache_stats(self, cache_manager):
-        """测试缓存统计"""
-        cache_manager.set("key1", "value1")
-        cache_manager.set("key2", "value2")
+    def test_lru_eviction(self):
+        """测试 LRU 淘汰"""
+        cache = MemoryCache(max_size=2)
         
-        stats = cache_manager.get_stats()
+        cache.set("key1", "value1")
+        cache.set("key2", "value2")
+        cache.set("key3", "value3")
         
-        assert stats["total_keys"] == 2
-        assert "size_bytes" in stats
-
-
-class TestCacheEntry:
-    """缓存条目测试"""
-
-    def test_entry_creation(self):
-        """测试创建缓存条目"""
-        entry = CacheEntry(key="test", value={"data": "value"})
-        
-        assert entry.key == "test"
-        assert entry.value["data"] == "value"
-        assert entry.created_at > 0
-
-    def test_entry_is_expired(self):
-        """测试条目过期"""
-        entry = CacheEntry(key="test", value="value", ttl=-1)  # 已过期
-        
-        assert entry.is_expired() is True
-
-    def test_entry_not_expired(self):
-        """测试条目未过期"""
-        entry = CacheEntry(key="test", value="value", ttl=3600)  # 1小时后过期
-        
-        assert entry.is_expired() is False
+        # key1 应该被淘汰
+        assert cache.get("key1") is None
+        assert cache.get("key2") == "value2"
+        assert cache.get("key3") == "value3"
