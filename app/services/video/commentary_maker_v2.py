@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from .base_maker import BaseVideoMaker, MakerProgress
 from .story_builder import StoryBuilder, create_story, SegmentType
 from .subtitle_remover import remove_video_subtitles
+from .subtitle_analyzer import SubtitleAnalyzer, extract_video_subtitles, analyze_subtitle_content, sync_narration
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 from ..ai.script_generator import ScriptGenerator, ScriptConfig, ScriptStyle
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig
@@ -107,15 +108,21 @@ class CommentaryMakerV2:
             result["clean_video_path"] = clean_video_path
             self._emit_progress(10, "字幕去除完成")
             
-            # 2. 分析视频场景 (10-25%)
-            self._emit_progress(12, "分析视频场景...")
-            scenes = await self._analyze_scenes(clean_video_path)
-            result["scenes"] = scenes
-            self._emit_progress(25, f"发现 {len(scenes)} 个场景")
+            # 2. 提取原视频字幕 (10-20%)
+            self._emit_progress(12, "提取原视频字幕...")
+            original_subtitles = extract_video_subtitles(clean_video_path)
+            result["original_subtitles"] = original_subtitles
+            self._emit_progress(20, f"提取到 {len(original_subtitles)} 条字幕")
             
-            # 3. 生成解说脚本 (25-45%)
-            self._emit_progress(28, "生成解说脚本...")
-            script = await self._generate_script(topic, style, scenes)
+            # 3. 分析字幕内容 (20-30%)
+            self._emit_progress(22, "分析字幕内容...")
+            subtitle_analysis = analyze_subtitle_content(original_subtitles)
+            result["subtitle_analysis"] = subtitle_analysis
+            self._emit_progress(30, "字幕分析完成")
+            
+            # 4. 基于字幕生成解说脚本 (30-45%)
+            self._emit_progress(32, "基于字幕生成解说...")
+            script = await self._generate_script(topic, style, scenes, subtitle_analysis)
             result["script"] = script
             self._emit_progress(45, "脚本生成完成")
             
@@ -172,13 +179,61 @@ class CommentaryMakerV2:
         except Exception:
             return []
     
-    async def _generate_script(
+    def _generate_script_from_analysis(
+        self,
+        topic: str,
+        keywords: List[str],
+        topics: List[str],
+        emotions: List[str],
+        style: str,
+    ) -> str:
+        """基于字幕分析结果生成脚本"""
+        # 结合关键词和主题生成解说
+        base_topic = topics[0] if topics else topic
+        
+        script_templates = {
+            "explainer": f"关于{base_topic}，让我们来看看...",
+            "review": f"这个{base_topic}，我的看法是...",
+            "storytelling": f"{base_topic}的故事，要从...",
+            "educational": f"今天来学习{base_topic}...",
+        }
+        
+        script = script_templates.get(style, script_templates["explainer"])
+        
+        # 添加关键词相关内容
+        for kw in keywords[:3]:
+            script += f"\n{kw}是一个很重要的点..."
+        
+        return script
+    
+    def _generate_script_from_scenes(
         self,
         topic: str,
         style: str,
         scenes: List[SceneInfo],
     ) -> str:
-        """生成解说脚本"""
+        """基于场景生成脚本"""
+        self,
+        topic: str,
+        style: str,
+        scenes: List[SceneInfo],
+        subtitle_analysis: Dict = None,
+    ) -> str:
+        """生成解说脚本（基于字幕内容）"""
+        # 基于字幕分析结果生成脚本
+        if subtitle_analysis and subtitle_analysis.get("keywords"):
+            # 使用字幕关键词
+            keywords = subtitle_analysis.get("keywords", [])[:5]
+            topics = subtitle_analysis.get("topics", [])
+            emotions = subtitle_analysis.get("emotions", ["neutral"])
+            
+            # 生成相关解说
+            script = self._generate_script_from_analysis(
+                topic, keywords, topics, emotions, style
+            )
+        else:
+            # 使用场景分析
+            script = self._generate_script_from_scenes(topic, style, scenes)
         script_style = {
             "explainer": ScriptStyle.PROFESSIONAL,
             "review": ScriptStyle.CASUAL,
