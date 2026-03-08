@@ -204,6 +204,7 @@ class AnimatedCounter(QWidget):
     """数字滚动动画"""
     
     finished = pyqtSignal()
+    valueChanged = pyqtSignal(int)
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -214,22 +215,23 @@ class AnimatedCounter(QWidget):
     def setValue(self, value: int, duration: int = 1000):
         """设置目标值"""
         self._target = value
-        self._animation = QPropertyAnimation(self, b"value")
+        self._animation = QPropertyAnimation(self, b"windowOpacity")
         self._animation.setDuration(duration)
         self._animation.setStartValue(self._value)
         self._animation.setEndValue(value)
         self._animation.setEasingCurve(QEasingCurve.Type.OutCubic)
-        self._animation.valueChanged.connect(self.update)
+        self._animation.valueChanged.connect(lambda v: self._on_value_changed(v))
         self._animation.finished.connect(self.finished.emit)
         self._animation.start()
         
+    def _on_value_changed(self, value: float):
+        """值变化回调"""
+        self._value = value
+        self.valueChanged.emit(int(value))
+        self.update()
+        
     def value(self) -> int:
         return int(self._value)
-    
-    def setValue(self, value: float):
-        self._value = value
-        
-    paintEvent = pyqtSignal()
 
 
 class TransitionStack(QWidget):

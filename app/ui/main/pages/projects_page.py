@@ -1429,18 +1429,17 @@ class ProjectsPage(BasePage):
 
     def _on_new_project(self):
         """新建项目"""
-        print(f"[DEBUG] _on_new_project called")
-        print(f"[DEBUG] template_manager: {self.template_manager}")
-        print(f"[DEBUG] project_manager: {self.project_manager}")
+        self.logger.debug("_on_new_project called")
+        
         # 检查模板管理器是否可用
         if not self.template_manager:
-            print("[DEBUG] template_manager is None, showing warning")
+            self.logger.warning("template_manager is None, cannot create project")
             QMessageBox.warning(self, "错误", "模板管理器不可用，无法创建项目")
             return
 
         # 检查项目管理器是否可用
         if not self.project_manager:
-            print("[DEBUG] project_manager is None, showing warning")
+            self.logger.warning("project_manager is None, cannot create project")
             QMessageBox.warning(self, "错误", "项目管理器不可用，无法创建项目")
             return
 
@@ -1467,9 +1466,7 @@ class ProjectsPage(BasePage):
                 else:
                     QMessageBox.warning(self, "失败", "无法创建项目")
         except Exception as e:
-            print(f"[DEBUG] Exception: {e}")
-            import traceback
-            traceback.print_exc()
+            self.logger.error(f"Failed to create project: {e}", exc_info=True)
             QMessageBox.critical(self, "错误", f"创建项目时发生错误: {str(e)}")
 
     def _on_open_project(self):
