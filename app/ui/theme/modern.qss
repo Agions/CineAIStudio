@@ -159,9 +159,8 @@ QFrame#glass_panel {
 
 QLabel#app_title {
     color: #FFFFFF;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
-    padding: 28px 20px;
     letter-spacing: -0.02em;
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
         stop:0 #6366F1,
@@ -217,6 +216,22 @@ QPushButton#nav_button:checked {
 /* 导航按钮图标 */
 QPushButton#nav_button::icon {
     padding-right: 12px;
+}
+
+/* 导航折叠/展开按钮 */
+QPushButton#toggle_nav_btn {
+    background-color: rgba(99, 102, 241, 0.15);
+    border: none;
+    border-radius: 6px;
+    color: #9CA3AF;
+    font-size: 12px;
+    padding: 4px;
+    transition: all 0.2s ease;
+}
+
+QPushButton#toggle_nav_btn:hover {
+    background-color: rgba(99, 102, 241, 0.3);
+    color: #FFFFFF;
 }
 
 /* 导航分隔线 */
