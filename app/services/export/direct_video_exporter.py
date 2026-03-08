@@ -117,6 +117,94 @@ class VideoExportConfig:
     # 质量设置
     video_bitrate: str = "5M"      # 视频码率
     audio_bitrate: str = "192k"    # 音频码率
+    
+    # 硬件加速
+    hw_accel: HWAccel = HWAccel.NONE
+    
+    # 高级选项
+    two_pass: bool = False          # 两遍编码
+    fast_start: bool = True         # MP4 FastStart
+    preset: str = "medium"          # 编码预设 (ultrafast-slow)
+
+
+class ExportPreset(Enum):
+    """导出预设"""
+    # 视频平台预设
+    BILIBILI = "bilibili"       # B站: 1080P 高码率
+    YOUTUBE = "youtube"         # YouTube: 4K
+    TWITTER = "twitter"          # Twitter: 压缩优化
+    TIKTOK = "tiktok"           # TikTok: 竖屏 1080P
+    WECHAT = "wechat"            # 微信: 压缩视频
+    
+    # 质量预设
+    MAX_QUALITY = "max_quality"   # 最高质量
+    BALANCED = "balanced"         # 均衡
+    FAST_EXPORT = "fast"          # 快速导出
+    
+    @staticmethod
+    def get_config(preset: 'ExportPreset') -> VideoExportConfig:
+        """获取预设配置"""
+        configs = {
+            ExportPreset.BILIBILI: VideoExportConfig(
+                resolution=Resolution.FHD_1080P,
+                fps=60.0,
+                video_bitrate="8M",
+                audio_bitrate="320k",
+                format=VideoFormat.MP4,
+            ),
+            ExportPreset.YOUTUBE: VideoExportConfig(
+                resolution=Resolution.UHD_4K,
+                fps=60.0,
+                video_bitrate="25M",
+                audio_bitrate="320k",
+                format=VideoFormat.MP4,
+            ),
+            ExportPreset.TWITTER: VideoExportConfig(
+                resolution=Resolution.FHD_1080P,
+                fps=30.0,
+                video_bitrate="4M",
+                audio_bitrate="128k",
+                format=VideoFormat.MP4,
+            ),
+            ExportPreset.TIKTOK: VideoExportConfig(
+                resolution=Resolution.VERTICAL_1080P,
+                fps=30.0,
+                video_bitrate="6M",
+                audio_bitrate="128k",
+                format=VideoFormat.MP4,
+            ),
+            ExportPreset.WECHAT: VideoExportConfig(
+                resolution=Resolution.FHD_1080P,
+                fps=30.0,
+                video_bitrate="2M",
+                audio_bitrate="128k",
+                format=VideoFormat.MP4,
+                two_pass=True,
+            ),
+            ExportPreset.MAX_QUALITY: VideoExportConfig(
+                resolution=Resolution.UHD_4K,
+                fps=60.0,
+                video_bitrate="50M",
+                audio_bitrate="512k",
+                format=VideoFormat.MP4,
+                preset="slow",
+                two_pass=True,
+            ),
+            ExportPreset.BALANCED: VideoExportConfig(
+                resolution=Resolution.FHD_1080P,
+                fps=30.0,
+                video_bitrate="5M",
+                audio_bitrate="192k",
+            ),
+            ExportPreset.FAST_EXPORT: VideoExportConfig(
+                resolution=Resolution.HD_720P,
+                fps=30.0,
+                video_bitrate="3M",
+                audio_bitrate="128k",
+                preset="fast",
+            ),
+        }
+        return configs.get(preset, VideoExportConfig())
     crf: int = 23                  # 恒定质量因子 (0-51)
     preset: str = "medium"         # 编码预设
 
