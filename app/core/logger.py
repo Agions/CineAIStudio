@@ -106,15 +106,32 @@ def setup_logging(
     if enable_file:
         try:
             from pathlib import Path
-            log_dir = Path("logs")
-            log_dir.mkdir(exist_ok=True)
+            from logging.handlers import RotatingFileHandler
+            
+            log_dir = Path.home() / "ClipFlowCut" / "logs"
+            log_dir.mkdir(parents=True, exist_ok=True)
 
-            file_handler = logging.FileHandler(
+            # 使用旋转日志文件 (最大10MB, 保留5个备份)
+            file_handler = RotatingFileHandler(
                 log_dir / "ClipFlow.log",
+                maxBytes=10*1024*1024,  # 10MB
+                backupCount=5,
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)
             root_logger.addHandler(file_handler)
+            
+            # 单独的错误日志文件
+            error_handler = RotatingFileHandler(
+                log_dir / "errors.log",
+                maxBytes=5*1024*1024,  # 5MB
+                backupCount=3,
+                encoding='utf-8'
+            )
+            error_handler.setLevel(logging.ERROR)
+            error_handler.setFormatter(formatter)
+            root_logger.addHandler(error_handler)
+            
         except Exception as e:
             print(f"无法创建日志文件: {e}")
 
