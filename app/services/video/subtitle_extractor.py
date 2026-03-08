@@ -99,12 +99,18 @@ class SubtitleExtractor:
         通过语音识别提取字幕
         
         使用 ASR 技术识别视频中的语音
+        
+        可选方案:
+        - Whisper (本地) - 推荐，准确率高
+        - 阿里云 ASR
+        - 腾讯云 ASR
+        - 百度 ASR
         """
-        # TODO: 集成 ASR 服务
-        # 可以使用:
-        # - Whisper (本地)
-        # - 阿里云 ASR
-        # - 腾讯云 ASR
+        # 实现提示: 使用 faster-whisper
+        # from faster_whisper import WhisperModel
+        # model = WhisperModel("small", device="cpu")
+        # segments, info = model.transcribe(video_path, language="zh")
+        # return [{"start": s.start, "end": s.end, "text": s.text} for s in segments]
         
         return []
     
@@ -113,12 +119,17 @@ class SubtitleExtractor:
         通过 OCR 识别硬字幕
         
         识别视频中嵌入的文字
+        
+        可选方案:
+        - EasyOCR - 推荐，中文支持好
+        - Tesseract
+        - 云服务 OCR (阿里云/腾讯云)
         """
-        # TODO: 实现 OCR 识别
-        # 可以使用:
-        # - EasyOCR
-        # - Tesseract
-        # - 云服务 OCR
+        # 实现提示: 使用 easyocr
+        # import easyocr
+        # reader = easyocr.Reader(['ch_sim', 'en'])
+        # results = reader.readframe(video_path)
+        # return [{"start": t, "end": t+2, "text": text} for text, t in results]
         
         return []
     

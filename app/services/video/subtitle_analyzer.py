@@ -31,10 +31,9 @@ class SubtitleAnalyzer:
         Returns:
             [{"start": 0.0, "end": 5.0, "text": "对话内容"}, ...]
         """
-        # TODO: 使用 FFmpeg/OCR 提取字幕
-        
-        # 模拟返回
-        return []
+        # 调用字幕提取器
+        from .subtitle_extractor import extract_subtitles
+        return extract_subtitles(video_path=video_path, source="auto")
     
     def analyze_subtitles(self, subtitles: List[Dict]) -> Dict:
         """

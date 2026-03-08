@@ -169,8 +169,19 @@ class VideoPlayer(QWidget):
     
     def toggle_fullscreen(self):
         """切换全屏"""
-        # TODO: 实现全屏
-        pass
+        if self.isFullScreen():
+            self.showNormal()
+            self._btn_fullscreen.setText("⛶")
+        else:
+            self.showFullScreen()
+            self._btn_fullscreen.setText("✕")
+    
+    def keyPressEvent(self, event):
+        """键盘事件 - ESC 退出全屏"""
+        if event.key() == Qt.Key.Key_Escape and self.isFullScreen():
+            self.showNormal()
+            self._btn_fullscreen.setText("⛶")
+        super().keyPressEvent(event)
     
     # ===== 信号处理 =====
     

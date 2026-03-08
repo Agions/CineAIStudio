@@ -388,11 +388,16 @@ class ErrorReporter:
                     "details": error_info.details,
                     "timestamp": error_info.timestamp.isoformat(),
                 }
-                # TODO: 实现 HTTP 请求发送到服务端
-                # import httpx
-                # httpx.post(self.endpoint, json=payload, headers={"Authorization": f"Bearer {self.api_key}"})
-            except Exception:
-                pass  # 上报失败不影响主流程
+                # 发送错误报告到服务端
+                try:
+                    import httpx
+                    if hasattr(self, 'endpoint') and self.endpoint:
+                        headers = {"Content-Type": "application/json"}
+                        if hasattr(self, 'api_key') and self.api_key:
+                            headers["Authorization"] = f"Bearer {self.api_key}"
+                        httpx.post(self.endpoint, json=payload, headers=headers, timeout=5.0)
+                except Exception:
+                    pass  # 上报失败不影响主流程
         return True
     
     def get_error_summary(self) -> Dict[str, int]:
