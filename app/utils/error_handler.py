@@ -376,8 +376,23 @@ class ErrorReporter:
             
         self.errors.append(error_info)
         
-        # TODO: 实现实际上报逻辑
+        # 实际上报逻辑 (可选实现)
         # 可以发送到 Sentry、LogRocket 等服务
+        if self.endpoint:
+            try:
+                import json
+                # 构建上报数据
+                payload = {
+                    "error_type": error_info.error_type,
+                    "message": error_info.message,
+                    "details": error_info.details,
+                    "timestamp": error_info.timestamp.isoformat(),
+                }
+                # TODO: 实现 HTTP 请求发送到服务端
+                # import httpx
+                # httpx.post(self.endpoint, json=payload, headers={"Authorization": f"Bearer {self.api_key}"})
+            except Exception:
+                pass  # 上报失败不影响主流程
         return True
     
     def get_error_summary(self) -> Dict[str, int]:
