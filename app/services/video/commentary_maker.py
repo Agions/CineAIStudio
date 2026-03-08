@@ -115,10 +115,26 @@ class CommentaryMaker(BaseVideoMaker[CommentaryProject]):
         self,
         openai_api_key: Optional[str] = None,
         voice_provider: str = "edge",
+        llm_provider: str = "openai",
+        max_retries: int = 3,
+        timeout: int = 300,
     ):
+        """
+        初始化解说制作器
+        
+        Args:
+            openai_api_key: OpenAI API 密钥
+            voice_provider: 语音提供商 (edge/openai/azure)
+            llm_provider: LLM 提供商 (openai/qwen/claude/gemini)
+            max_retries: 最大重试次数
+            timeout: 超时时间(秒)
+        """
         super().__init__()
         self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
         self.voice_provider = voice_provider
+        self.llm_provider = llm_provider
+        self.max_retries = max_retries
+        self.timeout = timeout
 
         self.voice_generator = VoiceGenerator(provider=voice_provider)
         self.caption_generator = CaptionGenerator()

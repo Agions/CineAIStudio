@@ -207,10 +207,29 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self,
         openai_api_key: Optional[str] = None,
         voice_provider: str = "edge",
+        llm_provider: str = "openai",
+        emotion_detection: bool = True,
+        subtitle_style: str = "cinematic",
+        max_retries: int = 3,
     ):
+        """
+        初始化独白制作器
+        
+        Args:
+            openai_api_key: OpenAI API 密钥
+            voice_provider: 语音提供商
+            llm_provider: LLM 提供商
+            emotion_detection: 是否启用情感检测
+            subtitle_style: 字幕风格 (cinematic/classic/minimal)
+            max_retries: 最大重试次数
+        """
         super().__init__()
         self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
         self.voice_provider = voice_provider
+        self.llm_provider = llm_provider
+        self.emotion_detection = emotion_detection
+        self.subtitle_style = subtitle_style
+        self.max_retries = max_retries
 
         self.voice_generator = VoiceGenerator(provider=voice_provider)
         self.caption_generator = CaptionGenerator()

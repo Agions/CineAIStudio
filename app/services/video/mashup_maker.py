@@ -188,13 +188,33 @@ class MashupMaker(ProgressMixin):
         },
     }
 
-    def __init__(self):
+    def __init__(
+        self,
+        scene_threshold: float = 0.3,
+        min_scene_duration: float = 0.5,
+        beat_detection_sensitivity: str = "medium",
+        enable_face_detection: bool = True,
+        max_retries: int = 3,
+    ):
+        """
+        初始化混剪制作器
+        
+        Args:
+            scene_threshold: 场景检测阈值 (0.0-1.0)
+            min_scene_duration: 最小场景时长(秒)
+            beat_detection_sensitivity: 节拍检测灵敏度 (low/medium/high)
+            enable_face_detection: 是否启用人脸检测
+            max_retries: 最大重试次数
+        """
         super().__init__()
         self.scene_analyzer = SceneAnalyzer(AnalysisConfig(
-            scene_threshold=0.3,
-            min_scene_duration=0.5,
+            scene_threshold=scene_threshold,
+            min_scene_duration=min_scene_duration,
         ))
         self.jianying_exporter = JianyingExporter()
+        self.beat_detection_sensitivity = beat_detection_sensitivity
+        self.enable_face_detection = enable_face_detection
+        self.max_retries = max_retries
     
     def create_project(
         self,
