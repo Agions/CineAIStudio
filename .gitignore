@@ -369,3 +369,32 @@ NOTES_*.md
 dev/
 temp/
 *.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+*.cache
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# Temp
+temp/
+tmp/
+*.tmp
