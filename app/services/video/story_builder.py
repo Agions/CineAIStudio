@@ -95,11 +95,36 @@ class StoryLine:
             if segment.is_original:
                 segment.duration = segment.source_end - segment.source_start
             elif segment.is_ai_content and segment.voice_path:
-                # TODO: 估算配音时长
-                segment.duration = 10.0
+                # 估算配音时长：字数 / 语速
+                text = segment.script or ""
+                segment.duration = self._estimate_voice_duration(text)
         
        (segment)
         self._update_duration()
+    
+    def _estimate_voice_duration(self, text: str, words_per_minute: float = 150.0) -> float:
+        """
+        估算配音时长
+        
+        Args:
+            text: 文本内容
+            words_per_minute: 语速 (默认150字/分钟)
+            
+        Returns:
+            估算时长(秒)
+        """
+        if not text:
+            return 3.0
+        
+        # 中文字数 / 英文字数
+        chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
+        english_words = sum(1 for c in text if c.isalpha())
+        
+        # 估算
+        total_units = chinese_chars + english_words
+        duration_minutes = total_units / words_per_minute
+        
+        return max(2.0, duration_minutes * 60)  # 至少2秒
     
     def _update_duration(self):
         """更新总时长"""
