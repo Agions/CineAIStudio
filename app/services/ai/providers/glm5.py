@@ -20,18 +20,38 @@ from ..base_LLM_provider import (
 
 
 class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
-    """智谱 GLM-5 提供商"""
+    """智谱 GLM-5 提供商 (2026年3月最新)"""
 
-    # 模型管理混入需要
+    # 模型列表 (2026年3月最新)
     MODELS = {
+        "glm-5-plus": {
+            "name": "GLM-5 Plus",
+            "description": "旗舰版，多模态能力最强 (2026.03)",
+            "max_tokens": 8000,
+            "context_length": 200000,
+            "vision": True,
+        },
         "glm-5": {
             "name": "GLM-5",
-            "description": "正式版",
+            "description": "标准版",
             "max_tokens": 8000,
             "context_length": 128000,
+            "vision": True,
+        },
+        "glm-4": {
+            "name": "GLM-4",
+            "description": "上一代旗舰",
+            "max_tokens": 4000,
+            "context_length": 128000,
+        },
+        "glm-4-flash": {
+            "name": "GLM-4 Flash",
+            "description": "极速版",
+            "max_tokens": 4000,
+            "context_length": 32000,
         },
     }
-    DEFAULT_MODEL = "glm-5"
+    DEFAULT_MODEL = "glm-5-plus"
 
     def __init__(
         self,

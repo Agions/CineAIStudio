@@ -26,15 +26,17 @@ T = TypeVar("T")
 # ============ 枚举定义 ============
 
 class ProviderType(Enum):
-    """LLM 提供商类型"""
-    QWEN = "qwen"
-    KIMI = "kimi"
-    GLM5 = "glm5"
-    CLAUDE = "claude"
-    GEMINI = "gemini"
-    OPENAI = "openai"
-    LOCAL = "local"
-    DEEPSEEK = "deepseek"
+    """LLM 提供商类型 (2026年3月最新国产模型)"""
+    QWEN = "qwen"           # 阿里通义千问
+    KIMI = "kimi"           # 月之暗面 Kimi
+    GLM5 = "glm5"           # 智谱 GLM
+    DOUBAO = "doubao"       # 字节豆包 (新增)
+    HUNYUAN = "hunyuan"     # 腾讯混元 (新增)
+    DEEPSEEK = "deepseek"    # 深度求索
+    CLAUDE = "claude"        # Anthropic Claude
+    GEMINI = "gemini"        # Google Gemini
+    OPENAI = "openai"        # OpenAI
+    LOCAL = "local"          # 本地模型
 
 
 # ============ 数据类 ============
