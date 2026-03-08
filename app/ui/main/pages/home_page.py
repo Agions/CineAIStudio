@@ -251,20 +251,25 @@ class HomePage(BasePage):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(12)
 
-        # 主标题
+        # 主标题 - 使用渐变
         title = QLabel("欢迎使用 ClipFlowCut")
         title.setFont(QFont("", 32, QFont.Weight.Bold))
         title.setStyleSheet("""
             color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 #F0F6FC, stop:1 #C9D1D9);
+                stop:0 #6366F1, stop:0.5 #8B5CF6, stop:1 #A855F7);
         """)
         layout.addWidget(title)
 
         # 副标题
-        subtitle = QLabel("AI 驱动的专业视频创作工具")
-        subtitle.setFont(QFont("", 18))
-        subtitle.setStyleSheet("color: #8B949E;")
+        subtitle = QLabel("AI 驱动的专业视频创作工具 | 智能·高效·专业")
+        subtitle.setFont(QFont("", 16))
+        subtitle.setStyleSheet("color: #A1A1AA;")
         layout.addWidget(subtitle)
+        
+        # 快捷操作按钮
+        quick_actions = self._create_quick_actions()
+        layout.addSpacing(16)
+        layout.addWidget(quick_actions)
 
         # 分隔线
         layout.addSpacing(8)
@@ -273,6 +278,43 @@ class HomePage(BasePage):
         separator.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 transparent, stop:0.5 #21262D, stop:1 transparent); max-height: 1px;")
         layout.addWidget(separator)
 
+        return widget
+
+    def _create_quick_actions(self) -> QWidget:
+        """快捷操作按钮"""
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setSpacing(12)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        # 快捷操作
+        quick_btns = [
+            ("➕ 新建项目", "#10B981"),  # 绿色
+            ("📂 打开项目", "#3B82F6"),   # 蓝色
+            ("📥 导入素材", "#F59E0B"),  # 黄色
+            ("🎬 最近创作", "#8B5CF6"),   # 紫色
+        ]
+        
+        for text, color in quick_btns:
+            btn = QPushButton(text)
+            btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: {color}22;
+                    color: {color};
+                    border: 1px solid {color}44;
+                    border-radius: 8px;
+                    padding: 8px 16px;
+                    font-size: 13px;
+                }}
+                QPushButton:hover {{
+                    background: {color}33;
+                    border-color: {color};
+                }}
+            """)
+            layout.addWidget(btn)
+        
+        layout.addStretch()
         return widget
 
     def _create_template_grid(self) -> QGridLayout:
