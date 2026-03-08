@@ -592,9 +592,42 @@ class MainWindow(QMainWindow):
             if os.path.exists(style_path):
                 with open(style_path, "r", encoding="utf-8") as f:
                     qss = f.read()
-                    # 可以在这里做一些动态替换，比如基于配置的颜色
+                    
+                    # 3. 根据主题动态替换颜色
+                    if self.is_dark_theme:
+                        # 深色主题 - 使用默认变量
+                        qss = qss.replace("#0A0A0F", "#0A0A0F")  # 深色背景
+                        qss = qss.replace("#1A1A24", "#1A1A24")  # 表面
+                    else:
+                        # 浅色主题 - 替换为浅色变量
+                        light_bg = "#F5F5F7"
+                        light_surface = "#FFFFFF"
+                        light_text = "#1D1D1F"
+                        light_text_secondary = "#6E6E73"
+                        light_border = "#D2D2D7"
+                        
+                        # 替换背景色
+                        qss = qss.replace("#0A0A0F", light_bg)
+                        qss = qss.replace("#12121A", light_surface)
+                        qss = qss.replace("#1A1A24", light_surface)
+                        qss = qss.replace("#22222E", "#F0F0F2")
+                        qss = qss.replace("#2A2A38", "#E8E8ED")
+                        
+                        # 替换文字颜色
+                        qss = qss.replace("#E6EDF3", light_text)
+                        qss = qss.replace("#FFFFFF", light_text)
+                        qss = qss.replace("#A1A1AA", light_text_secondary)
+                        qss = qss.replace("#9CA3AF", light_text_secondary)
+                        qss = qss.replace("#71717A", light_text_secondary)
+                        qss = qss.replace("#8B949E", light_text_secondary)
+                        
+                        # 替换边框
+                        qss = qss.replace("rgba(255, 255, 255, 0.08)", "rgba(0, 0, 0, 0.08)")
+                        qss = qss.replace("rgba(255, 255, 255, 0.15)", "rgba(0, 0, 0, 0.15)")
+                        qss = qss.replace("#30363D", light_border)
+                        
                     self.setStyleSheet(qss)
-                self.logger.info(f"已加载样式表: {style_path}")
+                self.logger.info(f"已加载样式表: {style_path} (主题: {'深色' if self.is_dark_theme else '浅色'})")
             else:
                 self.logger.warning(f"样式表文件未找到: {style_path}")
                 

@@ -161,6 +161,11 @@ class SettingsPage(BasePage):
             }
         """)
         
+        # 连接主题切换信号到主窗口
+        main_window = self._get_main_window()
+        if main_window:
+            theme_toggle.theme_changed.connect(lambda name, is_dark: self._on_theme_changed(main_window, name, is_dark))
+        
         theme_desc = QLabel("选择应用主题和配色方案")
         theme_desc.setStyleSheet("color: #888; font-size: 12px; margin-bottom: 8px;")
         
@@ -400,3 +405,23 @@ class SettingsPage(BasePage):
         """页面停用时调用"""
         # 保存设置
         self._save_settings()
+
+    def _get_main_window(self):
+        """获取主窗口实例"""
+        from PyQt6.QtWidgets import QApplication
+        for widget in QApplication.topLevelWidgets():
+            if widget.objectName() == "MainWindow":
+                return widget
+        return None
+
+    def _on_theme_changed(self, main_window, theme_name: str, is_dark: bool):
+        """主题切换处理"""
+        try:
+            # 设置深色主题标志
+            main_window.is_dark_theme = is_dark
+            # 重新应用主题
+            main_window._apply_theme()
+            main_window._apply_style()
+            self.logger.info(f"主题已切换: {theme_name} (深色: {is_dark})")
+        except Exception as e:
+            self.logger.error(f"主题切换失败: {e}")
