@@ -73,6 +73,9 @@ class AnalysisConfig:
     extract_keyframes: bool = True   # 是否提取关键帧
     keyframe_dir: str = ""           # 关键帧保存目录
     analyze_audio: bool = True       # 是否分析音频
+    detection_method: str = "ffmpeg"  # 检测方法: ffmpeg/histogram/opencv
+    max_keyframes: int = 20          # 最大关键帧数量
+    similarity_threshold: float = 0.85  # 场景相似度阈值
 
 
 class SceneAnalyzer:
@@ -435,6 +438,129 @@ class SceneAnalyzer:
         selected.sort(key=lambda s: s.start)
         
         return selected
+    
+    def analyze_batch(
+        self,
+        video_paths: List[str],
+        progress_callback=None,
+    ) -> dict:
+        """
+        批量分析多个视频
+        
+        Args:
+            video_paths: 视频路径列表
+            progress_callback: 进度回调函数
+            
+        Returns:
+            dict: {video_path: scenes}
+        """
+        results = {}
+        total = len(video_paths)
+        
+        for i, video_path in enumerate(video_paths):
+            try:
+                scenes = self.analyze(video_path)
+                results[video_path] = scenes
+                
+                if progress_callback:
+                    progress_callback(i + 1, total, video_path)
+                    
+            except Exception as e:
+                self.logger.error(f"分析视频失败 {video_path}: {e}")
+                results[video_path] = []
+        
+        return results
+    
+    def export_analysis_report(
+        self,
+        scenes: List[SceneInfo],
+        output_path: str,
+        format: str = "json",
+    ) -> bool:
+        """
+        导出分析报告
+        
+        Args:
+            scenes: 场景列表
+            output_path: 输出路径
+            format: 输出格式 (json/markdown/html)
+        """
+        import json
+        from datetime import datetime
+        
+        report_data = {
+            "generated_at": datetime.now().isoformat(),
+            "total_scenes": len(scenes),
+            "total_duration": sum(s.duration for s in scenes),
+            "scenes": [
+                {
+                    "index": s.index,
+                    "start": s.start,
+                    "end": s.end,
+                    "duration": s.duration,
+                    "type": s.type.value,
+                    "suitability_score": s.suitability_score,
+                    "brightness": s.avg_brightness,
+                    "motion_level": s.motion_level,
+                }
+                for s in scenes
+            ],
+            "statistics": {
+                "avg_score": sum(s.suitability_score for s in scenes) / len(scenes) if scenes else 0,
+                "scene_types": self._count_scene_types(scenes),
+            }
+        }
+        
+        try:
+            if format == "json":
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    json.dump(report_data, f, indent=2, ensure_ascii=False)
+            elif format == "markdown":
+                self._export_markdown(report_data, output_path)
+                
+            return True
+        except Exception as e:
+            self.logger.error(f"导出报告失败: {e}")
+            return False
+    
+    def _count_scene_types(self, scenes: List[SceneInfo]) -> dict:
+        """统计场景类型"""
+        counts = {}
+        for scene in scenes:
+            scene_type = scene.type.value
+            counts[scene_type] = counts.get(scene_type, 0) + 1
+        return counts
+    
+    def _export_markdown(self, data: dict, output_path: str):
+        """导出 Markdown 格式报告"""
+        lines = [
+            "# 场景分析报告",
+            f"",
+            f"生成时间: {data['generated_at']}",
+            f"",
+            f"## 概览",
+            f"",
+            f"- 总场景数: {data['total_scenes']}",
+            f"- 总时长: {data['total_duration']:.2f}s",
+            f"- 平均评分: {data['statistics']['avg_score']:.1f}",
+            f"",
+            f"## 场景列表",
+            f"",
+            "| 序号 | 时间 | 时长 | 类型 | 评分 |",
+            f"| --- | --- | --- | --- | --- |",
+        ]
+        
+        for scene in data['scenes']:
+            lines.append(
+                f"| {scene['index']} | "
+                f"{scene['start']:.1f}-{scene['end']:.1f}s | "
+                f"{scene['duration']:.1f}s | "
+                f"{scene['type']} | "
+                f"{scene['suitability_score']:.1f} |"
+            )
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(lines))
 
 
 # =========== 便捷函数 ===========
