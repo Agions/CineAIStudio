@@ -8,7 +8,7 @@ LLM 管理器
 
 from typing import Dict, Optional, List, Any
 
-from .base_LLM_provider import (
+from .base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,

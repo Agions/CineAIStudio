@@ -40,7 +40,7 @@ from typing import Optional, List, Dict, Any, Union
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .base_LLM_provider import LLMRequest, LLMResponse, ProviderError
+from .base_llm_provider import LLMRequest, LLMResponse, ProviderError
 from .llm_manager import LLMManager, load_llm_config
 
 

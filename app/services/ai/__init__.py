@@ -9,7 +9,7 @@ ClipFlow AI 服务模块
 """
 
 # LLM 相关
-from .base_LLM_provider import (
+from .base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,

@@ -6,7 +6,7 @@ ClipFlow macOS 设计系统迁移工具
 自动将现有 UI 迁移到 macOS 设计系统
 
 使用说明:
-python macOS_migration.py --auto
+python macos_migration.py --auto
 """
 
 import os
@@ -914,7 +914,7 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         print("\n可用选项：")
-        print("  python macOS_migration.py --auto  # 自动执行完整迁移")
+        print("  python macos_migration.py --auto  # 自动执行完整迁移")
         print("\n手动步骤：")
         print("  1. 单独运行每个迁移步骤")
         print("  2. 编译 Qt 资源")
