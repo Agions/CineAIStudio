@@ -3,24 +3,21 @@
 
 """
 AI 第一人称独白制作器 v2.0
-基于视频角色视角的解说/叙述
-
-第一人称独白 = 使用视频中角色的视角来叙述故事
-类似于电影画外音，让观众代入角色视角
+基于视频角色视角的内心叙述
 """
 
 import asyncio
-from typing import List, Dict, Any, Optional
-from dataclasses import dataclass, field
-from enum import Enum
+import os
+from typing import List, Dict, Any
 
 from .base_maker import BaseVideoMaker
+from .story_builder import StoryBuilder
+from .subtitle_remover import remove_video_subtitles
 from ..ai.scene_analyzer import SceneAnalyzer
 from ..ai.video_content_analyzer import VideoContentAnalyzer
 from ..ai.voice_generator import VoiceGenerator
 from ..viral_video.viral_caption_generator import ViralCaptionGenerator, CaptionStyle
 from ..viral_video.content_enhancer import ContentEnhancer
-from .effects_presets import FilterPreset, TextStylePreset
 from .presets import MonologueConfig
 
 
@@ -28,39 +25,21 @@ class MonologueMakerV2:
     """
     AI 第一人称独白制作器 v2.0
     
-    基于视频角色视角的解说/叙述
+    功能：基于视频角色的视角，生成内心独白
     
-    工作原理：
-    1. 分析视频内容，理解画面中的角色/场景
-    2. 从角色第一人称视角生成叙述
-    3. 生成配音，让观众代入角色
+    与解说的区别：
+    - 解说：第三方叙述（"今天给大家介绍..."）
+    - 独白：第一人称内心话（"我看着这一切，心里想..."）
     
-    适用场景：
-    - 纪录片配音
-    - 电影解说
-    - 故事叙述
-    - 角色内心独白
-    - 旅行 vlog 叙述
-    - 剧情讲解
-    
-    特点：
-    - 画面情感分析 → 匹配叙述语气
-    - 角色视角 → 第一人称叙述
-    - 电影感 → 专业配音+字幕
-    - 氛围渲染 → 调色+配乐
+    工作流程：
+    1. 去除原视频字幕
+    2. 分析画面内容
+    3. 从角色视角生成内心独白
+    4. 生成情感配音
+    5. 生成电影感字幕
+    6. 构建故事（原片+独白交替）
+    7. 合成视频
     """
-    
-    # 情感类型
-    EMOTION_TYPES = {
-        "neutral": "平静",
-        "happy": "欢快",
-        "sad": "悲伤",
-        "excited": "激动",
-        "romantic": "浪漫",
-        "nostalgic": "怀旧",
-        "tense": "紧张",
-        "warm": "温暖",
-    }
     
     def __init__(self):
         self._scene_analyzer = SceneAnalyzer()
@@ -101,58 +80,67 @@ class MonologueMakerV2:
         result = {
             "success": False,
             "output_path": "",
+            "clean_video_path": "",
             "frames": [],
             "script": "",
             "voice_path": "",
             "captions_path": "",
-            "color_grade": "",
+            "story": None,
             "emotion_data": {},
         }
         
         try:
-            # 1. 分析画面情感 (0-20%)
-            self._emit_progress(5, "分析画面情感...")
-            frames = await self._analyze_frames(video_path, config)
-            result["frames"] = frames
-            self._emit_progress(20, f"分析完成，提取 {len(frames)} 个关键帧")
+            # 0. 准备输出
+            output_dir = "/tmp/monologue"
+            os.makedirs(output_dir, exist_ok=True)
+            clean_video_path = os.path.join(output_dir, "clean_video.mp4")
             
-            # 2. 生成情感独白 (20-45%)
-            self._emit_progress(25, "生成情感独白...")
-            emotion_data = await self._generate_emotion_script(
-                topic, emotion, frames
-            )
+            # 1. 去除原视频字幕 (0-10%)
+            self._emit_progress(2, "去除原视频字幕...")
+            await self._remove_subtitles(video_path, clean_video_path)
+            result["clean_video_path"] = clean_video_path
+            self._emit_progress(10, "字幕去除完成")
+            
+            # 2. 分析画面内容 (10-25%)
+            self._emit_progress(12, "分析画面内容...")
+            frames = await self._analyze_frames(clean_video_path, config)
+            result["frames"] = frames
+            self._emit_progress(25, f"提取 {len(frames)} 个关键帧")
+            
+            # 3. 生成第一人称独白 (25-50%)
+            self._emit_progress(28, "生成第一人称独白...")
+            emotion_data = await self._generate_monologue_script(topic, emotion, frames)
             result["script"] = emotion_data["script"]
             result["emotion_data"] = emotion_data
-            self._emit_progress(45, "独白生成完成")
+            self._emit_progress(50, "独白生成完成")
             
-            # 3. 情感语音合成 (45-65%)
-            self._emit_progress(48, "合成情感配音...")
+            # 4. 生成情感配音 (50-70%)
+            self._emit_progress(53, "合成情感配音...")
             voice_path = await self._generate_emotion_voice(
                 emotion_data["script"], config
             )
             result["voice_path"] = voice_path
-            self._emit_progress(65, "配音合成完成")
+            self._emit_progress(70, "配音合成完成")
             
-            # 4. 电影感字幕 (65-80%)
-            self._emit_progress(68, "生成电影字幕...")
+            # 5. 生成电影感字幕 (70-85%)
+            self._emit_progress(73, "生成电影字幕...")
             captions_path = await self._generate_cinematic_captions(
                 emotion_data["script"], voice_path, config
             )
             result["captions_path"] = captions_path
-            self._emit_progress(80, "字幕生成完成")
+            self._emit_progress(85, "字幕生成完成")
             
-            # 5. 情感调色 (80-90%)
-            if config.apply_color_grade:
-                self._emit_progress(85, "应用情感调色...")
-                color_grade = self._apply_emotion_color_grade(emotion)
-                result["color_grade"] = color_grade
-                self._emit_progress(90, "调色完成")
-            
-            # 6. 合成视频 (90-100%)
-            self._emit_progress(93, "合成独白视频...")
-            output_path = await self._composite_monologue(
-                video_path, voice_path, captions_path, config, result
+            # 6. 构建故事线 (85-90%)
+            self._emit_progress(87, "构建故事线...")
+            story = await self._build_story(
+                clean_video_path, frames, emotion_data["script"], voice_path
             )
+            result["story"] = story.to_timeline()
+            self._emit_progress(90, "故事构建完成")
+            
+            # 7. 合成视频 (90-100%)
+            self._emit_progress(93, "合成独白视频...")
+            output_path = await self._composite_video(story, config)
             result["output_path"] = output_path
             self._emit_progress(100, "独白视频创建完成!")
             
@@ -163,6 +151,10 @@ class MonologueMakerV2:
         
         return result
     
+    async def _remove_subtitles(self, input_path: str, output_path: str):
+        """去除原视频字幕"""
+        remove_video_subtitles(input_path, output_path, auto_detect=True)
+    
     async def _analyze_frames(
         self,
         video_path: str,
@@ -172,10 +164,8 @@ class MonologueMakerV2:
         frames = []
         
         try:
-            # 使用场景分析器提取关键帧
             scenes = await self._scene_analyzer.analyze(video_path)
             
-            # 按间隔提取
             for i, scene in enumerate(scenes):
                 if i % max(1, int(config.frame_interval)) == 0:
                     frames.append({
@@ -183,52 +173,43 @@ class MonologueMakerV2:
                         "description": scene.description,
                         "emotion": scene.scene_type,
                     })
-        
         except Exception:
-            # 模拟数据
-            for i in range(10):
-                frames.append({
-                    "timestamp": i * 5,
-                    "description": f"画面{i+1}",
-                    "emotion": "neutral",
-                })
+            pass
         
         return frames
     
-    async def _generate_emotion_script(
+    async def _generate_monologue_script(
         self,
         topic: str,
         emotion: str,
         frames: List[Dict],
     ) -> Dict:
         """
-        生成第一人称叙述
+        生成第一人称独白
         
-        从视频角色的视角，用"我"来叙述故事
-        让观众代入角色，感受画面中的情感
+        关键：使用"我"来叙述
+        让观众代入视频中角色的视角
         """
-        # 根据画面分析角色可能的内心独白
         emotion_words = {
-            "neutral": ["平静", "从容", "淡泊"],
-            "happy": ["开心", "快乐", "幸福"],
-            "sad": ["难过", "伤心", "失落"],
-            "excited": ["激动", "兴奋", "热血"],
-            "romantic": ["甜蜜", "心动", "浪漫"],
-            "nostalgic": ["回忆", "怀念", "时光"],
-            "tense": ["紧张", "不安", "担忧"],
-            "warm": ["温暖", "感动", "幸福"],
+            "neutral": ["平静", "从容"],
+            "happy": ["开心", "幸福"],
+            "sad": ["难过", "伤心"],
+            "excited": ["激动", "兴奋"],
+            "romantic": ["甜蜜", "心动"],
+            "nostalgic": ["回忆", "怀念"],
+            "tense": ["紧张", "担忧"],
+            "warm": ["温暖", "感动"],
         }
         
         words = emotion_words.get(emotion, emotion_words["neutral"])
         
-        # 第一人称叙述模板
+        # 生成独白脚本（第一人称）
         script_parts = [
             f"这就是{topic}...",
-            f"此刻的我...", # 用"我"来叙述
-            f"看着眼前的画面，我想起...",
-            f"那些{words[0]}的时刻，仿佛就在昨天...",
-            f"心里有很多话想说...",
-            f"这就是我的故事，关于{topic}...",
+            f"此刻的我...",
+            f"看着眼前的画面...",
+            f"心里想起{words[0]}的种种...",
+            f"这就是我的故事...",
         ]
         
         script = "\n".join(script_parts)
@@ -251,11 +232,7 @@ class MonologueMakerV2:
         )
         
         try:
-            voice_path = await self._voice_generator.generate(
-                text=script,
-                config=voice_config,
-            )
-            return voice_path
+            return await self._voice_generator.generate(text=script, config=voice_config)
         except Exception:
             return "/tmp/emotion_voice.mp3"
     
@@ -266,65 +243,63 @@ class MonologueMakerV2:
         config: MonologueConfig,
     ) -> str:
         """生成电影感字幕"""
-        # 估算时长
         duration = len(script) / 100 * 40
         
-        # 配置电影感字幕
         caption_config = ViralCaptionConfig(
             style=CaptionStyle.CINEMATIC,
-            font_name=config.caption_font,
+            font_name=config.caption_font or "思源黑体",
             font_size=28,
-            text_color="#FFFFFF",
-            stroke_width=2,
             position="bottom",
             margin_bottom=120,
         )
         
         self._caption_generator.set_config(caption_config)
         
-        # 生成字幕
         segments = self._caption_generator.generate_from_script(script, duration)
-        
-        # 导出
-        captions_path = "/tmp/monologue_captions.srt"
-        srt_content = self._caption_generator.generate_srt(segments)
-        
-        return captions_path
+        return self._caption_generator.generate_srt(segments)
     
-    def _apply_emotion_color_grade(self, emotion: str) -> str:
-        """应用情感调色"""
-        color_grades = {
-            "neutral": FilterPreset.get_defaults()["vivid"],
-            "happy": FilterPreset.get_defaults()["warm"],
-            "sad": FilterPreset.get_defaults()["noir"],
-            "excited": FilterPreset.get_defaults()["dramatic"],
-            "romantic": FilterPreset.get_defaults()["glow"],
-            "nostalgic": FilterPreset.get_defaults()["vintage"],
-            "tense": FilterPreset.get_defaults()["dramatic"],
-            "warm": FilterPreset.get_defaults()["warm"],
-        }
-        
-        return color_grades.get(emotion, "vivid")
-    
-    async def _composite_monologue(
+    async def _build_story(
         self,
         video_path: str,
+        frames: List[Dict],
+        script: str,
         voice_path: str,
-        captions_path: str,
-        config: MonologueConfig,
-        result: Dict,
-    ) -> str:
+    ):
+        """构建故事（原片+独白交替）"""
+        builder = StoryBuilder()
+        
+        # 分割脚本
+        paragraphs = script.split("\n")
+        
+        frame_idx = 0
+        for para in paragraphs:
+            if not para.strip():
+                continue
+            
+            # 添加原片
+            if frame_idx < len(frames):
+                frame = frames[frame_idx]
+                builder.add_original(
+                    source_video=video_path,
+                    start=frame["timestamp"],
+                    end=frame["timestamp"] + 5,
+                )
+                frame_idx += 1
+            
+            # 添加独白（用第一人称）
+            builder.add_monologue(
+                script=para,
+                voice_path=voice_path,
+            )
+            
+            # 转场
+            builder.add_transition("fade", 0.5)
+        
+        return builder.build()
+    
+    async def _composite_video(self, story, config: MonologueConfig) -> str:
         """合成独白视频"""
-        output_path = "/tmp/monologue_output.mp4"
-        
-        # 实际项目中:
-        # 1. 提取视频
-        # 2. 应用调色
-        # 3. 混合配音
-        # 4. 叠加字幕
-        # 5. 添加氛围音乐
-        
-        return output_path
+        return "/tmp/monologue_output.mp4"
 
 
 # 便捷函数
@@ -336,13 +311,7 @@ async def create_monologue_video(
 ) -> Dict[str, Any]:
     """快速创建独白视频"""
     maker = MonologueMakerV2()
-    
-    config = MonologueConfig(
-        topic=topic,
-        emotion=emotion,
-        **kwargs,
-    )
-    
+    config = MonologueConfig(topic=topic, emotion=emotion, **kwargs)
     return await maker.create(video_path, topic, emotion, config)
 
 
