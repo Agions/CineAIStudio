@@ -14,6 +14,22 @@ from .commentary_maker import CommentaryMaker, create_commentary_video
 from .mashup_maker import MashupMaker, create_mashup_video
 from .monologue_maker import MonologueMaker, create_monologue_video
 
+# 视频增强
+from .video_enhancer import (
+    VideoEnhancer,
+    EnhancementType,
+    QualityLevel,
+    DenoiseLevel,
+    EnhancementConfig,
+)
+
+# 自动剪辑
+from .highlight_detector import (
+    HighlightDetector,
+    HighlightSegment,
+    SceneType,
+)
+
 # 字幕相关
 from .subtitle_extractor import SubtitleExtractor, extract_subtitles
 from .subtitle_remover import remove_video_subtitles
@@ -36,6 +52,18 @@ from .quick_export import quick_export, quick_export_with_filter
 
 
 __all__ = [
+    # 视频增强
+    "VideoEnhancer",
+    "EnhancementType",
+    "QualityLevel",
+    "DenoiseLevel",
+    "EnhancementConfig",
+    
+    # 自动剪辑
+    "HighlightDetector",
+    "HighlightSegment",
+    "SceneType",
+    
     # 核心功能
     "CommentaryMaker",
     "create_commentary_video",
