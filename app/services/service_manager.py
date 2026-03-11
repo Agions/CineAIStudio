@@ -14,7 +14,7 @@ from app.services.ai.llm_manager import LLMManager
 from app.services.ai.scene_analyzer import SceneAnalyzer
 from app.services.ai.voice_generator import VoiceGenerator
 from app.services.ai.script_generator import ScriptGenerator
-from app.services.ai.subtitle_extractor import SubtitleExtractor
+from app.services.ai.secure_subtitle_extractor import SubtitleExtractor
 
 # 视频服务
 from app.services.video.commentary_maker import CommentaryMaker
