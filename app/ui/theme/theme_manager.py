@@ -212,6 +212,33 @@ class ThemeManager(QObject):
             light="#FFCCBC",
             dark="#BF360C"
         )
+
+        # 复古胶片主题 - Vintage Film Studio
+        vintage_film_colors = ThemeColors(
+            primary="#d4a574",
+            primary_end="#b8956a",
+            primary_light="#e8c9a8",
+            accent="#00ffff",
+            secondary="#c41e3a",
+            background="#080808",
+            surface="#141414",
+            card="#1a1a1a",
+            card_elevated="#242424",
+            text="#f5f5dc",
+            text_secondary="#b8b8a8",
+            text_tertiary="#6b6b5b",
+            border="rgba(212, 165, 116, 0.2)",
+            border_light="rgba(212, 165, 116, 0.3)",
+            divider="rgba(212, 165, 116, 0.1)",
+            error="#c41e3a",
+            warning="#ffa500",
+            success="#39ff14",
+            info="#00bfff",
+            accent_purple="#7b2cbf",
+            tertiary="#d4a574",
+            light="#e8c9a8",
+            dark="#a07850"
+        )
         
         # 添加主题预设
         self.theme_presets = [
@@ -220,7 +247,8 @@ class ThemeManager(QObject):
             ThemePreset("蓝调深色", "dark", blue_dark_colors),
             ThemePreset("森林绿色", "dark", forest_colors),
             ThemePreset("紫色主题", "dark", purple_colors),
-            ThemePreset("橙色主题", "dark", orange_colors)
+            ThemePreset("橙色主题", "dark", orange_colors),
+            ThemePreset("复古胶片", "dark", vintage_film_colors)
         ]
 
     def get_available_themes(self) -> List[str]:
