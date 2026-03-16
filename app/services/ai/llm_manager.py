@@ -8,7 +8,7 @@ LLM 管理器
 
 from typing import Dict, Optional, List, Any
 
-from .base_llm_provider import (
+from .base_LLM_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,
@@ -22,8 +22,6 @@ from .providers.claude import ClaudeProvider
 from .providers.gemini import GeminiProvider
 from .providers.local import LocalProvider
 from .providers.deepseek import DeepSeekProvider
-from .providers.doubao import DoubaoProvider
-from .providers.hunyuan import HunyuanProvider
 
 
 def _safe_import():
@@ -130,29 +128,6 @@ class LLMManager:
                 self.providers[ProviderType.DEEPSEEK] = DeepSeekProvider(
                     api_key=api_key,
                     base_url=deepseek_config.get("base_url", "https://api.deepseek.com"),
-                )
-
-        # 字节豆包 (Doubao)
-        doubao_config = llm_config.get("doubao", {})
-        if doubao_config.get("enabled", False):
-            api_key = doubao_config.get("api_key", "")
-            if api_key:
-                self.providers[ProviderType.DOUBAO] = DoubaoProvider(
-                    api_key=api_key,
-                    base_url=doubao_config.get("base_url", "https://ark.cn-beijing.volces.com/api/v3"),
-                )
-
-        # 腾讯混元 (Hunyuan)
-        hunyuan_config = llm_config.get("hunyuan", {})
-        if hunyuan_config.get("enabled", False):
-            api_key = hunyuan_config.get("api_key", "")
-            secret_id = hunyuan_config.get("secret_id", "")
-            secret_key = hunyuan_config.get("secret_key", "")
-            if api_key:
-                self.providers[ProviderType.HUNYUAN] = HunyuanProvider(
-                    api_key=api_key,
-                    secret_id=secret_id,
-                    secret_key=secret_key,
                 )
 
         # 设置默认提供商
@@ -273,7 +248,7 @@ class LLMManager:
     async def __aenter__(self):
         return self
 
-    async def __aexit__(self, exc_type, _exc_val, _exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close_all()
 
 

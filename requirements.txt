@@ -1,15 +1,4 @@
-# ClipFlowCut 依赖包
-#
-# ⚠️ 重要提示：
-# 本项目基于 PyQt6 开发，必须使用 PyQt6，不是 PySide6！
-#
-# 如果遇到以下错误：
-#   QLabel(...): argument 1 has unexpected type 'str'
-# 请检查是否安装了 PySide6，如果是请先卸载：
-#   pip uninstall PySide6
-# 然后确保安装的是 PyQt6：
-#   pip install PyQt6
-#
+# ClipFlow 依赖包
 
 ## 核心依赖
 PyQt6>=6.6.0

@@ -208,8 +208,3 @@ class DeepSeekProvider(BaseLLMProvider):
             return response.status_code == 200
         except Exception:
             return False
-
-    async def close(self):
-        """关闭 HTTP 客户端"""
-        if self.http_client:
-            await self.http_client.aclose()

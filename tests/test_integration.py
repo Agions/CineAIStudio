@@ -1,223 +1,315 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
-E2E 集成测试
-测试完整的工作流程
+集成测试 - LLM 提供商实际调用
+测试 LLMManager 和各提供商的真实 API 调用
 """
 
 import pytest
 import os
-import sys
-import tempfile
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from typing import Optional
 
-# 添加项目路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+# 需要真实 API 密钥才能运行这些测试
+# 使用 pytest -m "integration" 运行
+
+from app.services.ai.llm_manager import LLMManager
+from app.services.ai.providers.qwen import QwenProvider
+from app.services.ai.providers.kimi import KimiProvider
+from app.services.ai.providers.glm5 import GLM5Provider
+from app.services.ai.base_LLM_provider import LLMRequest, LLMResponse
 
 
-class TestProjectWorkflow:
-    """项目创建到导出完整流程测试"""
-    
+class SkipIfNoAPIKey:
+    """如果环境变量中没有 API 密钥则跳过测试"""
+
+    @staticmethod
+    def qwen() -> bool:
+        return bool(os.getenv("QWEN_API_KEY"))
+
+    @staticmethod
+    def kimi() -> bool:
+        return bool(os.getenv("KIMI_API_KEY"))
+
+    @staticmethod
+    def glm5() -> bool:
+        return bool(os.getenv("GLM5_API_KEY"))
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not SkipIfNoAPIKey.qwen(), reason="未设置 QWEN_API_KEY")
+class TestQwenProviderIntegration:
+    """通义千问提供商集成测试"""
+
     @pytest.fixture
-    def temp_dir(self):
-        """临时目录"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield tmpdir
-    
-    def test_project_creation_workflow(self, temp_dir):
-        """测试项目创建流程"""
-        from app.core.project import Project
-        
-        # 创建项目
-        project = Project(
-            name="Test Project",
-            project_path=temp_dir
+    async def provider(self) -> QwenProvider:
+        provider = QwenProvider(api_key=os.getenv("QWEN_API_KEY"))
+        assert "qwen" in provider.models
+        return provider
+
+    @pytest.mark.asyncio
+    async def test_basic_completion(self, provider: QwenProvider):
+        """测试基本补全"""
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "你好，请用一句话介绍自己"}],
+            model="qwen-plus",
+            max_tokens=100
         )
-        
-        assert project.name == "Test Project"
-        assert project.is_modified == False
-        
-        # 修改项目
-        project.is_modified = True
-        assert project.is_modified == True
-        
-    def test_project_save_load(self, temp_dir):
-        """测试项目保存和加载"""
-        from app.core.project import Project
-        
-        # 创建并保存
-        project = Project(name="SaveTest", project_path=temp_dir)
-        project.save()
-        
-        # 加载
-        loaded = Project.load(Path(temp_dir) / "project.json")
-        assert loaded.name == "SaveTest"
 
+        response: LLMResponse = await provider.complete(request)
 
-class TestAIVideoCreation:
-    """AI视频创作流程测试"""
-    
-    def test_commentary_workflow(self):
-        """测试解说视频制作流程"""
-        from app.services.video.commentary_maker import (
-            CommentaryMaker, CommentaryStyle
+        assert response.success is True
+        assert response.text is not None
+        assert len(response.text) > 0
+        assert response.model_name == "qwen-plus"
+
+    @pytest.mark.asyncio
+    async def test_with_temperature(self, provider: QwenProvider):
+        """测试温度参数"""
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "写一个简短的故事"}],
+            model="qwen-plus",
+            temperature=0.8,
+            max_tokens=200
         )
-        
-        # 创建 maker
-        maker = CommentaryMaker()
-        
-        # 验证初始化
-        assert maker is not None
-        assert hasattr(maker, 'voice_generator')
-        assert hasattr(maker, 'caption_generator')
-        
-    def test_mashup_workflow(self):
-        """测试混剪制作流程"""
-        from app.services.video.mashup_maker import MashupMaker
-        
-        maker = MashupMaker()
-        assert maker is not None
-        
-    def test_monologue_workflow(self):
-        """测试独白制作流程"""
-        from app.services.video.monologue_maker import MonologueMaker
-        
-        maker = MonologueMaker()
-        assert maker is not None
 
+        response = await provider.complete(request)
 
-class TestExportWorkflow:
-    """导出流程测试"""
-    
-    def test_export_to_mp4(self):
-        """测试导出为 MP4"""
-        from app.services.export.direct_video_exporter import (
-            DirectVideoExporter, VideoExportConfig, ExportPreset
+        assert response.success is True
+        assert len(response.text) > 0
+
+    @pytest.mark.asyncio
+    async def test_error_handling(self, provider: QwenProvider):
+        """测试错误处理 - 无效 API 密钥"""
+        bad_provider = QwenProvider(api_key="invalid_key")
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "测试"}],
+            model="qwen-plus"
         )
-        
-        config = ExportPreset.get_config(ExportPreset.BALANCED)
-        
-        assert config.resolution.value == (1920, 1080)
-        assert config.fps == 30.0
-        
-    def test_export_preset(self):
-        """测试导出预设"""
-        from app.services.export.direct_video_exporter import (
-            VideoExportConfig, ExportPreset
+
+        response = await bad_provider.complete(request)
+
+        assert response.success is False
+        assert response.error is not None
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not SkipIfNoAPIKey.kimi(), reason="未设置 KIMI_API_KEY")
+class TestKimiProviderIntegration:
+    """Kimi 提供商集成测试"""
+
+    @pytest.fixture
+    async def provider(self) -> KimiProvider:
+        provider = KimiProvider(api_key=os.getenv("KIMI_API_KEY"))
+        assert "moonshot-v1" in provider.models
+        return provider
+
+    @pytest.mark.asyncio
+    async def test_basic_completion(self, provider: KimiProvider):
+        """测试基本补全"""
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "你好"}],
+            model="moonshot-v1-8k",
+            max_tokens=100
         )
-        
-        bilibili = ExportPreset.get_config(ExportPreset.BILIBILI)
-        assert bilibili.fps == 60.0
-        
-        youtube = ExportPreset.get_config(ExportPreset.YOUTUBE)
-        assert youtube.resolution.value == (3840, 2160)
+
+        response: LLMResponse = await provider.complete(request)
+
+        assert response.success is True
+        assert response.text is not None
+        assert len(response.text) > 0
 
 
-class TestUIComponents:
-    """UI组件测试"""
-    
-    def test_theme_system(self):
-        """测试主题系统"""
-        from app.ui.theme.modern import ModernTheme
-        
-        # 验证主题存在
-        assert hasattr(ModernTheme, 'PRIMARY_COLOR')
-        
-    def test_pro_components_import(self):
-        """测试专业组件导入"""
-        try:
-            # 组件需要 PyQt6，可能会失败，但不应该有语法错误
-            pass
-        except ImportError:
-            pytest.skip("PyQt6 not available")
+@pytest.mark.integration
+@pytest.mark.skipif(not SkipIfNoAPIKey.glm5(), reason="未设置 GLM5_API_KEY")
+class TestGLM5ProviderIntegration:
+    """GLM-5 提供商集成测试"""
+
+    @pytest.fixture
+    async def provider(self) -> GLM5Provider:
+        provider = GLM5Provider(api_key=os.getenv("GLM5_API_KEY"))
+        assert "glm-5" in provider.models
+        return provider
+
+    @pytest.mark.asyncio
+    async def test_basic_completion(self, provider: GLM5Provider):
+        """测试基本补全"""
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "你好"}],
+            model="glm-5",
+            max_tokens=100
+        )
+
+        response: LLMResponse = await provider.complete(request)
+
+        assert response.success is True
+        assert response.text is not None
+        assert len(response.text) > 0
 
 
-class TestPerformance:
-    """性能相关测试"""
-    
-    def test_cache_functionality(self):
-        """测试缓存功能"""
-        from app.utils.performance import MemoryCache
-        
-        cache = MemoryCache(max_size=10, ttl=1)
-        
-        # 测试存入取出
-        cache.set("key1", "value1")
-        assert cache.get("key1") == "value1"
-        
-        # 测试不存在返回 None
-        assert cache.get("nonexistent") is None
-        
-    def test_cache_expiry(self):
-        """测试缓存过期"""
-        from app.utils.performance import MemoryCache
-        import time
-        
-        cache = MemoryCache(max_size=10, ttl=0)
-        cache.set("key1", "value1")
-        
-        # 等待过期
-        time.sleep(0.1)
-        
-        # 应该返回 None
-        assert cache.get("key1") is None
-        
-    def test_i18n_translation(self):
-        """测试国际化"""
-        from app.utils.i18n import I18n
-        
-        i18n = I18n("zh-CN")
-        
-        # 测试翻译
-        assert i18n.t("nav.home") == "首页"
-        assert i18n.t("common.save") == "保存"
-        
-    def test_i18n_fallback(self):
-        """测试翻译回退"""
-        from app.utils.i18n import I18n
-        
-        i18n = I18n("zh-CN")
-        
-        # 不存在的键应该返回原键
-        assert i18n.t("nonexistent.key") == "nonexistent.key"
+@pytest.mark.integration
+@pytest.mark.skipif(
+    not (SkipIfNoAPIKey.qwen() or SkipIfNoAPIKey.kimi() or SkipIfNoAPIKey.glm5()),
+    reason="未设置任何 API 密钥"
+)
+class TestLLMManagerIntegration:
+    """LLM 管理器集成测试"""
+
+    @pytest.fixture
+    async def manager(self) -> LLMManager:
+        providers = {}
+
+        if SkipIfNoAPIKey.qwen():
+            providers["qwen"] = QwenProvider(api_key=os.getenv("QWEN_API_KEY"))
+
+        if SkipIfNoAPIKey.kimi():
+            providers["kimi"] = KimiProvider(api_key=os.getenv("KIMI_API_KEY"))
+
+        if SkipIfNoAPIKey.glm5():
+            providers["glm5"] = GLM5Provider(api_key=os.getenv("GLM5_API_KEY"))
+
+        assert len(providers) > 0, "至少需要配置一个提供商"
+        return LLMManager(providers=providers, default_provider=list(providers.keys())[0])
+
+    @pytest.mark.asyncio
+    async def test_manager_completion(self, manager: LLMManager):
+        """测试管理器补全"""
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "你好"}],
+            max_tokens=100
+        )
+
+        response: LLMResponse = await manager.complete(request)
+
+        assert response.success is True
+        assert response.text is not None
+        assert len(response.text) > 0
+
+    @pytest.mark.asyncio
+    async def test_provider_switching(self, manager: LLMManager):
+        """测试提供商切换"""
+        if len(manager.available_providers()) < 2:
+            pytest.skip("需要至少两个提供商测试切换")
+
+        # 获取第一个提供商
+        first_provider = manager.available_providers()[0]
+
+        # 获取第二个提供商
+        second_provider = manager.available_providers()[1]
+
+        # 使用第一个提供商
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "测试提供商1"}],
+            max_tokens=50
+        )
+        response1 = await manager.complete(request, provider_name=first_provider)
+
+        assert response1.success is True
+
+        # 使用第二个提供商
+        request2 = LLMRequest(
+            messages=[{"role": "user", "content": "测试提供商2"}],
+            max_tokens=50
+        )
+        response2 = await manager.complete(request2, provider_name=second_provider)
+
+        assert response2.success is True
+
+    @pytest.mark.asyncio
+    async def test_auto_failover(self, manager: LLMManager):
+        """测试自动切换失败提供商"""
+
+        # 使用有效的请求
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "你好"}],
+            max_tokens=50
+        )
+
+        response = await manager.complete(request)
+
+        assert response.success is True
 
 
-class TestTaskManager:
-    """任务管理器测试"""
-    
-    def test_task_creation(self):
-        """测试任务创建"""
-        from app.utils.task_manager import Task, TaskStatus
-        
-        task = Task(id="test1", name="Test Task")
-        
-        assert task.id == "test1"
-        assert task.name == "Test Task"
-        assert task.status == TaskStatus.PENDING
-        assert task.progress == 0.0
+@pytest.mark.integration
+class TestScriptGeneratorIntegration:
+    """文案生成器集成测试"""
 
+    @pytest.fixture
+    async def manager(self) -> Optional[LLMManager]:
+        """创建 LLM 管理器（如果可用）"""
 
-class TestErrorHandling:
-    """错误处理测试"""
-    
-    def test_error_classification(self):
-        """测试错误分类"""
-        from app.utils.error_handler import classify_error, ErrorType
-        
-        # 网络错误
-        err = Exception("Connection timeout")
-        assert classify_error(err) == ErrorType.NETWORK
-        
-        # API 错误
-        err = Exception("API rate limit exceeded")
-        assert classify_error(err) == ErrorType.API
-        
-        # 文件错误
-        err = Exception("File not found")
-        assert classify_error(err) == ErrorType.FILE
+        providers = []
+        provider_names = []
+
+        if SkipIfNoAPIKey.qwen():
+            providers.append(QwenProvider(api_key=os.getenv("QWEN_API_KEY")))
+            provider_names.append("qwen")
+
+        if not providers:
+            return None
+
+        manager = LLMManager(
+            providers={name: p for name, p in zip(provider_names, providers)},
+            default_provider=provider_names[0]
+        )
+        return manager
+
+    @pytest.mark.asyncio
+    @pytest.mark.skipif(
+        not (SkipIfNoAPIKey.qwen() or SkipIfNoAPIKey.kimi() or SkipIfNoAPIKey.glm5()),
+        reason="未设置任何 API 密钥"
+    )
+    async def test_generate_commentary(self, manager: LLMManager):
+        """测试生成解说文案"""
+        from app.services.ai.script_generator import ScriptGenerator
+
+        # 确保有可用的 LLM 管理器
+        if manager.available_providers():
+            # 设置管理器到生成器中
+            from app.services.ai import llm_manager
+            llm_manager.manager = manager
+
+        generator = ScriptGenerator(use_llm_manager=True)
+
+        script = generator.generate_commentary(
+            "分析《流浪地球》的科学设定",
+            duration=60,
+            style="storytelling"
+        )
+
+        assert script is not None
+        assert script.text is not None
+        assert len(script.text) > 0
+        assert script.segments is not None
+
+    @pytest.mark.asyncio
+    @pytest.mark.skipif(
+        not (SkipIfNoAPIKey.qwen() or SkipIfNoAPIKey.kimi() or SkipIfNoAPIKey.glm5()),
+        reason="未设置任何 API 密钥"
+    )
+    async def test_generate_monologue(self, manager: LLMManager):
+        """测试生成独白文案"""
+        from app.services.ai.script_generator import ScriptGenerator
+
+        if manager.available_providers():
+            from app.services.ai import llm_manager
+            llm_manager.manager = manager
+
+        generator = ScriptGenerator(use_llm_manager=True)
+
+        script = generator.generate_monologue(
+            "深夜独自走在城市街头",
+            emotion="惆怅",
+            duration=30
+        )
+
+        assert script is not None
+        assert script.text is not None
+        assert len(script.text) > 0
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # 运行集成测试
+    pytest.main([
+        __file__,
+        "-v",
+        "-m", "integration",
+        "--tb=short"
+    ])

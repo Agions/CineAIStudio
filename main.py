@@ -11,60 +11,6 @@ import os
 import traceback
 from pathlib import Path
 
-# ==================== Qt 库检测 ====================
-def check_qt_library():
-    """检测 Qt 库安装是否正确"""
-    qt_lib = None
-    
-    # 检测已安装的 Qt 库
-    try:
-        import PyQt6
-        qt_lib = "PyQt6"
-    except ImportError:
-        pass
-    
-    try:
-        import PySide6
-        qt_lib = "PySide6"
-    except ImportError:
-        pass
-    
-    # 如果安装了 PySide6，报错并提示安装 PyQt6
-    if qt_lib == "PySide6":
-        print("=" * 60)
-        print("❌ 错误: 检测到 PySide6，但本项目需要 PyQt6!")
-        print("=" * 60)
-        print("")
-        print("📌 请卸载 PySide6 并安装 PyQt6:")
-        print("")
-        print("   # 卸载 PySide6")
-        print("   pip uninstall PySide6")
-        print("")
-        print("   # 安装 PyQt6")
-        print("   pip install PyQt6")
-        print("")
-        print("=" * 60)
-        sys.exit(1)
-    
-    # 如果都没安装
-    if qt_lib is None:
-        print("=" * 60)
-        print("❌ 错误: 未检测到 Qt 库!")
-        print("=" * 60)
-        print("")
-        print("📌 请安装 PyQt6:")
-        print("")
-        print("   pip install PyQt6")
-        print("")
-        print("=" * 60)
-        sys.exit(1)
-    
-    return qt_lib
-
-# 在导入其他模块之前先检测 Qt 库
-_qt_lib = check_qt_library()
-# ==================================================
-
 # Force imports to help PyInstaller
 try:
     from PyQt6 import sip

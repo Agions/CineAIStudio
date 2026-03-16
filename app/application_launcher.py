@@ -21,6 +21,7 @@ from .core.icon_manager import init_icon_manager
 from .core.project_manager import ProjectManager
 from .core.project_template_manager import ProjectTemplateManager
 from .core.project_settings_manager import ProjectSettingsManager
+from .core.project_version_manager import ProjectVersionManager
 from .utils.error_handler import handle_exception, show_error_dialog
 from .ui.main.main_window import MainWindow
 from .core.application import ApplicationState
@@ -344,8 +345,8 @@ class ApplicationLauncher:
             if app:
                 QMessageBox.critical(None, "启动失败",
                                    f"应用程序启动失败：\n\n{str(error)}\n\n请检查日志文件获取详细信息。")
-        except Exception as e:
-            pass  # UI 错误对话框显示失败，忽略
+        except Exception:
+            pass
 
 
 def main() -> int:

@@ -1,98 +1,58 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
-视频服务模块
+ClipFlow 视频处理服务模块
 
-核心功能:
+提供三大核心视频制作功能:
 - CommentaryMaker: AI 视频解说
 - MashupMaker: AI 视频混剪
 - MonologueMaker: AI 第一人称独白
+- TransitionEffects: 视频转场效果
+- ParallelProcessor: 并行处理器
+- BaseVideoMaker: 视频制作器基类
 """
 
-from .commentary_maker import CommentaryMaker, create_commentary_video
-from .mashup_maker import MashupMaker, create_mashup_video
-from .monologue_maker import MonologueMaker, create_monologue_video
-
-# 视频增强
-from .video_enhancer import (
-    VideoEnhancer,
-    EnhancementType,
-    QualityLevel,
-    DenoiseLevel,
-    EnhancementConfig,
-)
-
-# 自动剪辑
-from .highlight_detector import (
-    HighlightDetector,
-    HighlightSegment,
-    SceneType,
-)
-
-# 字幕相关
-from .subtitle_extractor import SubtitleExtractor, extract_subtitles
-from .subtitle_remover import remove_video_subtitles
-from .subtitle_analyzer import analyze_subtitle_content, sync_narration
-
-# 工具
-from .story_builder import StoryBuilder, StoryLine, create_story
-from .video_deduplicator import make_video_unique, differentiate_content
-
-# 预设
-from .presets import (
-    CommentaryConfig,
-    MashupConfig,
-    MonologueConfig,
-    PresetFactory,
-)
-
-# 导出
-from .quick_export import quick_export, quick_export_with_filter
+from .base_maker import BaseVideoMaker, BaseProject, ProgressMixin, merge_audio_files, composite_video_with_audio
+from .commentary_maker import CommentaryMaker, CommentaryProject, CommentaryStyle, CommentarySegment
+from .mashup_maker import MashupMaker, MashupProject, MashupStyle, ClipInfo, BeatInfo
+from .monologue_maker import MonologueMaker, MonologueProject, MonologueStyle, MonologueSegment, EmotionType
+from .transition_effects import TransitionEffects, TransitionType, TransitionConfig
+from .parallel_processor import ParallelProcessor, TaskResult, ProcessingStats
 
 
 __all__ = [
-    # 视频增强
-    "VideoEnhancer",
-    "EnhancementType",
-    "QualityLevel",
-    "DenoiseLevel",
-    "EnhancementConfig",
-    
-    # 自动剪辑
-    "HighlightDetector",
-    "HighlightSegment",
-    "SceneType",
-    
-    # 核心功能
+    # 基类
+    "BaseVideoMaker",
+    "BaseProject",
+    "ProgressMixin",
+    "merge_audio_files",
+    "composite_video_with_audio",
+
+    # 视频解说
     "CommentaryMaker",
-    "create_commentary_video",
-    "MashupMaker", 
-    "create_mashup_video",
+    "CommentaryProject",
+    "CommentaryStyle",
+    "CommentarySegment",
+
+    # 视频混剪
+    "MashupMaker",
+    "MashupProject",
+    "MashupStyle",
+    "ClipInfo",
+    "BeatInfo",
+
+    # 第一人称独白
     "MonologueMaker",
-    "create_monologue_video",
-    
-    # 字幕
-    "SubtitleExtractor",
-    "extract_subtitles",
-    "remove_video_subtitles",
-    "analyze_subtitle_content",
-    "sync_narration",
-    
-    # 工具
-    "StoryBuilder",
-    "StoryLine",
-    "create_story",
-    "make_video_unique",
-    "differentiate_content",
-    
-    # 预设
-    "CommentaryConfig",
-    "MashupConfig", 
-    "MonologueConfig",
-    "PresetFactory",
-    
-    # 导出
-    "quick_export",
-    "quick_export_with_filter",
+    "MonologueProject",
+    "MonologueStyle",
+    "MonologueSegment",
+    "EmotionType",
+
+    # 转场效果
+    "TransitionEffects",
+    "TransitionType",
+    "TransitionConfig",
+
+    # 并行处理
+    "ParallelProcessor",
+    "TaskResult",
+    "ProcessingStats",
 ]

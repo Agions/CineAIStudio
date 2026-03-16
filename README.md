@@ -1,224 +1,240 @@
-# 🎬 ClipFlowCut - AI 视频创作桌面应用
+<div align="center">
+
+<!-- 建议录制一个 30 秒的 Demo GIF 放在这里，展示 AI 视频解说/混剪效果 -->
+<!-- <img src="docs/images/demo.gif" alt="ClipFlowCut Demo" width="100%"> -->
+
+# 🎬 ClipFlowCut
+
+**AI-Powered Video Creation Desktop App · AI 驱动的视频创作桌面应用**
+
+*从素材到成片，全程 AI 自动化 · From raw footage to final cut, fully AI-automated*
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-3.0.0-blue.svg" alt="Version" />
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
-  <img src="https://img.shields.io/badge/Python-3.9+-3776ab?logo=python" alt="Python" />
-  <img src="https://img.shields.io/badge/PyQt6-6.0+-41cd52" alt="PyQt6" />
-  <img src="https://img.shields.io/badge/FFmpeg-required-007808" alt="FFmpeg" />
-  <img src="https://img.shields.io/badge/platform-macOS%20|%20Windows-lightgrey" alt="Platform" />
-  <img src="https://img.shields.io/badge/tests-58+-orange" alt="Tests" />
+  <a href="https://github.com/Agions/ClipFlowCut/stargazers"><img src="https://img.shields.io/github/stars/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=FFD700" alt="Stars"></a>
+  <a href="https://github.com/Agions/ClipFlowCut/forks"><img src="https://img.shields.io/github/forks/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=4CAF50" alt="Forks"></a>
+  <a href="https://github.com/Agions/ClipFlowCut/issues"><img src="https://img.shields.io/github/issues/Agions/ClipFlowCut?style=for-the-badge&color=FF6B6B" alt="Issues"></a>
+  <a href="https://github.com/Agions/ClipFlowCut/releases"><img src="https://img.shields.io/github/v/release/Agions/ClipFlowCut?style=for-the-badge&color=blue" alt="Release"></a>
 </p>
 
----
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.9+-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/PyQt6-6.0+-41cd52?style=flat-square" alt="PyQt6">
+  <img src="https://img.shields.io/badge/Platform-macOS%20|%20Windows-lightgrey?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/FFmpeg-Required-007808?style=flat-square" alt="FFmpeg">
+</p>
 
-## ✨ 简介
+<p align="center">
+  <a href="README.md">中文</a> · <a href="docs/README_EN.md">English</a> · <a href="https://agions.github.io/ClipFlowCut">文档</a> · <a href="https://github.com/Agions/ClipFlowCut/releases">下载</a> · <a href="https://github.com/Agions/ClipFlowCut/issues/new?template=bug_report.md">报告 Bug</a> · <a href="https://github.com/Agions/ClipFlowCut/issues/new?template=feature_request.md">功能建议</a>
+</p>
 
-ClipFlowCut 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统手动剪辑软件（如 Premiere、Final Cut），ClipFlowCut 通过 AI 实现自动化创作。
-
-基于 **PyQt6** 构建原生桌面界面，提供从视频理解到成片导出的完整创作能力。
-
----
-
-## 🎯 核心功能
-
-### 3 大 AI 创作模式
-
-| 模式                   | 说明                           | 工作流                                    |
-| ---------------------- | ------------------------------ | ----------------------------------------- |
-| 🎙️ **AI 视频解说**     | 原视频 + AI 配音 + 动态字幕    | 场景分析 → 文案生成 → AI 配音 → 字幕合成  |
-| 🎵 **AI 视频混剪**     | 多素材 + 节拍匹配 + 自动转场   | 素材分析 → BPM 检测 → 智能剪辑 → 转场合成 |
-| 🎭 **AI 第一人称独白** | 画面情感 + 情感独白 + 电影字幕 | 情感分析 → 独白生成 → 配音合成 → 电影字幕 |
-
-### 创作流程
-
-```
-素材导入 → AI 分析 → 模式选择 → 脚本生成 → 脚本编辑 → 时间轴编排 → AI 配音 → 预览 → 导出
-```
+</div>
 
 ---
 
-## 🤖 AI 能力
+## 🤔 为什么选择 ClipFlowCut？
 
-### 支持的 LLM (2026年3月最新)
+> 传统视频剪辑软件需要你手动完成每一步。ClipFlowCut 让 AI 替你完成。
 
-| 提供商        | 模型              | 文本 | 视觉 | 配音 |
-| ------------- | ----------------- | :--: | :--: | :--: |
-| **OpenAI**    | GPT-5.3           |  ✅  |  ✅  |  ✅  |
-| **Anthropic** | Claude Sonnet 4.5 |  ✅  |  ✅  |  ❌  |
-| **Google**    | Gemini 3.1 Flash  |  ✅  |  ✅  |  ❌  |
-| **阿里云**    | Qwen 3.5          |  ✅  |  ✅  |  ❌  |
-| **DeepSeek**  | R1 / V3.2         |  ✅  |  ❌  |  ❌  |
-| **智谱AI**    | GLM-5 Plus         |  ✅  |  ✅  |  ❌  |
-| **月之暗面**  | Kimi K2.5         |  ✅  |  ✅  |  ❌  |
-| **字节豆包**  | Doubao Pro         |  ✅  |  ✅  |  ✅  |
-| **腾讯混元**  | Hunyuan Pro       |  ✅  |  ❌  |  ✅  |
-| **Edge TTS**  | 微软语音          |  ❌  |  ❌  |  ✅  |
+| 功能 | Premiere / Final Cut | 剪映 | **ClipFlowCut** |
+|------|:---:|:---:|:---:|
+| AI 自动解说配音 | ❌ | 部分 | ✅ |
+| 多 LLM 自由切换 | ❌ | ❌ | ✅ 9+ 模型 |
+| 导出专业格式 | ✅ | ❌ | ✅ 全格式 |
+| 本地私有部署 | ❌ | ❌ | ✅ Ollama |
+| 开源免费 | ❌ | ❌ | ✅ MIT |
+| 跨平台桌面 | ✅ | 部分 | ✅ |
+| 节拍自动对齐 | 手动 | 部分 | ✅ AI 自动 |
 
-### 核心 AI 能力
+---
 
-| 能力            | 说明                               | 技术                    |
-| --------------- | ---------------------------------- | ----------------------- |
-| 🎬 **场景理解** | 视频内容分析、场景分割、关键帧提取 | FFmpeg + OpenCV         |
-| 📝 **文案生成** | 多风格文案创作（解说/独白/旁白）   | LLM (Qwen/Kimi/GLM/GPT) |
-| 🎙️ **语音合成** | AI 配音，多种声音风格              | Edge TTS / OpenAI TTS   |
-| 📄 **字幕生成** | 动态字幕，多样式风格               | 自研字幕引擎            |
-| 🎵 **音画同步** | BPM 检测，智能对齐                 | librosa 节拍检测        |
+## ✨ 核心功能
+
+### 🎙️ AI 视频解说
+> 上传视频 → AI 分析场景 → 自动生成解说文案 → AI 配音 → 动态字幕合成
+
+一键将任意视频变成专业解说视频，支持多种风格（科普、娱乐、纪录片...）
+
+### 🎵 AI 视频混剪
+> 多素材导入 → BPM 节拍检测 → 智能剪辑点 → 自动转场 → 成片导出
+
+卡点混剪从此不再需要手动对齐，AI 自动完成节拍匹配
+
+### 🎭 AI 第一人称独白
+> 画面情感分析 → 情感独白生成 → AI 配音 → 电影级字幕
+
+让你的 Vlog 拥有电影质感的内心独白
+
+---
+
+## 🤖 支持的 AI 模型
+
+| 提供商 | 模型 | 文本 | 视觉 | 配音 |
+|--------|------|:----:|:----:|:----:|
+| **OpenAI** | GPT-4o / GPT-5 | ✅ | ✅ | ✅ TTS |
+| **Anthropic** | Claude Sonnet 4.5 | ✅ | ✅ | — |
+| **Google** | Gemini 2.0 Flash | ✅ | ✅ | — |
+| **阿里云** | Qwen 3.5 | ✅ | ✅ | — |
+| **DeepSeek** | R1 / V3 | ✅ | — | — |
+| **智谱 AI** | GLM-5 | ✅ | — | — |
+| **月之暗面** | Kimi K2.5 | ✅ | ✅ | — |
+| **本地** | Ollama（任意模型） | ✅ | — | — |
+| **微软** | Edge TTS | — | — | ✅ 免费 |
 
 ---
 
 ## 📤 导出格式
 
-### 视频平台预设
+一次创作，多端使用：
 
-| 平台     | 分辨率 | 帧率 | 码率  | 用途         |
-| -------- | ------ | ---- | ------ | ------------ |
-| B站      | 1080P | 60fps | 8Mbps  | 高清投稿     |
-| YouTube | 4K     | 60fps | 25Mbps | 超清发布     |
-| Twitter | 1080P | 30fps | 4Mbps  | 压缩优化     |
-| TikTok  | 1080P | 30fps | 6Mbps  | 竖屏短视频   |
-| 微信     | 1080P | 30fps | 2Mbps  | 微信传输     |
-
-### 导出格式
-
-| 格式             | 文件类型        | 兼容软件            |
-| ---------------- | --------------- | ------------------- |
-| 📱 **剪映**      | Draft JSON      | 剪映                |
-| 🎬 **Premiere**  | XML             | Adobe Premiere Pro  |
-| 🍎 **Final Cut** | FCPXML          | Apple Final Cut Pro |
-| 🎞️ **DaVinci**   | DaVinci Resolve | DaVinci Resolve     |
-| 🎥 **MP4**       | H.264/H.265     | 所有播放器          |
-| 📄 **SRT/ASS**   | 字幕文件        | 播放器/编辑软件     |
-
----
-
-## 🎨 UI 特性
-
-### 专业设计
-
-- **V3.0 现代暗色主题** - 玻璃拟态 + 渐变背景
-- **可折叠导航栏** - 节省空间
-- **主题切换** - 深色/浅色模式
-- **丰富动画** - 流畅过渡效果
-
-### 组件库
-
-- GradientButton - 渐变按钮
-- GlassCard - 玻璃卡片
-- StatCard - 统计卡片
-- ProgressRing - 环形进度条
-- LoadingOverlay - 加载遮罩
-- SearchBar - 专业搜索栏
+```
+✅ 剪映草稿 (Draft JSON)   ✅ Adobe Premiere (XML)
+✅ Final Cut Pro (FCPXML)  ✅ DaVinci Resolve
+✅ MP4 (H.264/H.265)       ✅ SRT / ASS 字幕
+```
 
 ---
 
 ## 🚀 快速开始
 
-### 环境要求
+### 方式一：下载安装包（推荐）
 
-- Python 3.9+
-- FFmpeg（需加入系统 PATH）
-- macOS 10.15+ / Windows 10+
+前往 [Releases](https://github.com/Agions/ClipFlowCut/releases) 下载最新版本：
+- macOS：`ClipFlowCut-x.x.x.dmg`
+- Windows：`ClipFlowCut-x.x.x-setup.exe`
 
-### ⚠️ 重要：必须使用 PyQt6
+### 方式二：源码运行
 
-> **注意**：本项目基于 **PyQt6** 开发，**不是 PySide6**！
-> 
-> 如果你看到类似这样的错误：
-> ```
-> QLabel(...): argument 1 has unexpected type 'str'
-> ```
-> 说明你可能安装了错误的 Qt 库。
-
-### 安装步骤
+**环境要求：** Python 3.9+ · FFmpeg · macOS 10.15+ / Windows 10+
 
 ```bash
 # 1. 克隆项目
 git clone https://github.com/Agions/ClipFlowCut.git
 cd ClipFlowCut
 
-# 2. 创建虚拟环境（推荐）
+# 2. 创建虚拟环境
 python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# venv\Scripts\activate  # Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 3. 检查是否已安装 PySide6（如果有请先卸载！）
-pip uninstall PySide6  # 如果安装了的话
-
-# 4. 安装依赖（必须使用 PyQt6）
+# 3. 安装依赖
 pip install -r requirements.txt
 
-# 5. 配置 API 密钥
+# 4. 配置 API Key
 cp .env.example .env
-# 编辑 .env，填入所需的 API Key
+# 编辑 .env，填入至少一个 AI 服务的 API Key
 
-# 6. 运行应用
+# 5. 启动
 python main.py
 ```
 
+> 💡 **只需要一个 API Key 即可开始使用**，Edge TTS 配音完全免费无需 Key
+
 ---
 
-## 📁 项目结构
+## 📸 截图预览
+
+<!-- 建议添加以下截图：主界面、AI解说工作流、混剪界面、导出界面 -->
+<!-- <img src="docs/images/screenshot-main.png" width="49%"> <img src="docs/images/screenshot-workflow.png" width="49%"> -->
+
+> 📷 截图即将更新，欢迎提交你的使用截图！
+
+---
+
+## 🗺️ Roadmap
+
+- [x] AI 视频解说（v1.0）
+- [x] AI 视频混剪 + 节拍检测（v2.0）
+- [x] AI 第一人称独白（v2.0）
+- [x] 多 LLM 支持 + 国产模型（v2.0）
+- [x] 专业格式导出（v3.0）
+- [x] PyQt6 Fluent UI 重构（v3.0）
+- [ ] 🔄 Web 版本（浏览器直接使用）
+- [ ] 🔄 批量处理模式
+- [ ] 🔄 自定义 AI 提示词模板市场
+- [ ] 🔄 视频字幕翻译（多语言）
+- [ ] 🔄 插件系统
+
+---
+
+## 🏗️ 项目结构
 
 ```
 ClipFlowCut/
-├── app/                    # 应用主代码
-│   ├── core/              # 核心模块
-│   │   ├── project_*.py  # 项目管理
-│   │   └── logger.py      # 日志系统
-│   ├── services/          # 服务模块
-│   │   ├── ai/           # AI 服务
-│   │   ├── video/        # 视频处理
-│   │   ├── export/       # 导出模块
-│   │   └── viral_video/  # 爆款功能
-│   ├── ui/               # UI 模块
-│   │   ├── main/         # 主窗口
-│   │   ├── components/   # 组件库
-│   │   └── theme/        # 主题系统
-│   └── utils/            # 工具模块
-├── tests/                 # 测试文件
-├── docs/                  # 文档
-├── scripts/               # 构建脚本
-└── main.py               # 入口文件
+├── app/
+│   ├── core/          # 核心模块（项目管理、配置）
+│   ├── services/
+│   │   ├── ai/        # AI 服务（场景分析、文案生成、语音合成）
+│   │   ├── video/     # 视频处理（解说、混剪、独白）
+│   │   ├── audio/     # 音频处理（节拍检测、音画同步）
+│   │   └── export/    # 导出引擎（剪映/PR/FCPXML/DaVinci）
+│   └── ui/            # PyQt6 界面层
+├── tests/             # 测试套件
+├── docs/              # 文档
+└── resources/         # 资源文件
 ```
 
 ---
 
-## 🧪 测试
+## 🛠️ 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| GUI 框架 | PyQt6 + PyQt6-Fluent-Widgets |
+| 视频处理 | FFmpeg + OpenCV |
+| 音频分析 | librosa（节拍检测） |
+| AI 接入 | OpenAI SDK + 各厂商 API |
+| 语音合成 | Edge TTS（免费）/ OpenAI TTS |
+| 构建打包 | PyInstaller |
+
+---
+
+## 🤝 参与贡献
+
+欢迎任何形式的贡献！无论是 Bug 修复、新功能、文档改进还是翻译。
+
+👉 请先阅读 [贡献指南](CONTRIBUTING.md)
 
 ```bash
-# 运行所有测试
-pytest tests/ -v
+# Fork 后克隆你的仓库
+git clone https://github.com/YOUR_USERNAME/ClipFlowCut.git
 
-# 运行特定测试
-pytest tests/test_core.py -v
+# 创建功能分支
+git checkout -b feature/amazing-feature
 
-# 运行性能测试
-pytest tests/test_benchmark.py -v -s
+# 提交更改
+git commit -m 'feat: add amazing feature'
+
+# 推送并创建 PR
+git push origin feature/amazing-feature
 ```
 
 ---
 
-## 📚 文档
+## 📖 文档
 
-- [在线文档](https://agions.github.io/ClipFlowCut/)
-- [API 文档](./docs/api/)
-- [使用指南](./docs/guides/)
-
----
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
+- [快速开始](docs/getting-started.md)
+- [功能指南](docs/features.md)
+- [工作流程](docs/workflow.md)
+- [常见问题](docs/faq.md)
+- [更新日志](docs/CHANGELOG.md)
+- [English README](docs/README_EN.md)
 
 ---
 
 ## 📄 许可证
 
-MIT License
+[MIT License](LICENSE) © 2026 [Agions](https://github.com/Agions)
 
 ---
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Agions/ClipFlowCut&type=Date)](https://star-history.com/#Agions/ClipFlowCut&type=Date)
+如果这个项目对你有帮助，请给一个 Star ⭐ 支持一下！
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Agions/ClipFlowCut&type=Date)](https://star-history.com/#Agions/ClipFlowCut&Date)
+
+---
+
+<div align="center">
+  <sub>Made with ❤️ by <a href="https://github.com/Agions">Agions</a> · 如有问题欢迎 <a href="https://github.com/Agions/ClipFlowCut/issues">提 Issue</a></sub>
+</div>

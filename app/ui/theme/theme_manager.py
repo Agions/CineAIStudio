@@ -7,43 +7,28 @@ from dataclasses import dataclass
 
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QObject, pyqtSignal, QTimer
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QPalette, QColor
 
 from ...core.config_manager import ThemeConfig
 
 
 @dataclass
 class ThemeColors:
-    """主题颜色 - ClipFlowCut 现代暗色 V2"""
-    # 主色调渐变
-    primary: str = "#6366F1"
-    primary_end: str = "#8B5CF6"  # 渐变结束色
-    primary_light: str = "#818CF8"
-    
-    # 强调色
-    accent: str = "#06B6D4"  # 青色强调
-    
+    """主题颜色 - ClipFlowCut 现代暗色"""
+    primary: str = "#388BFD"
     secondary: str = "#1F6FEB"
-    background: str = "#0A0A0F"  # 最深背景
-    surface: str = "#12121A"     # 第二层
-    card: str = "#1A1A24"        # 卡片背景
-    card_elevated: str = "#22222E"  # 悬浮卡片
-    
+    background: str = "#0D1117"
+    surface: str = "#161B22"
+    card: str = "#161B22"
     text: str = "#E6EDF3"
     text_secondary: str = "#C9D1D9"
-    text_tertiary: str = "#8B949E"
-    
     border: str = "#30363D"
-    border_light: str = "#484F58"
     divider: str = "#21262D"
-    
-    # 状态色
     error: str = "#DA3633"
     warning: str = "#D29922"
     success: str = "#238636"
     info: str = "#388BFD"
-    
-    accent_purple: str = "#A371F7"
+    accent: str = "#A371F7"
     tertiary: str = "#8B5CF6"
     light: str = "#DBEAFE"
     dark: str = "#1E40AF"
@@ -81,28 +66,22 @@ class ThemeManager(QObject):
 
     def _initialize_theme_presets(self) -> None:
         """初始化主题预设"""
-        # 深色主题预设 - ClipFlowCut 现代暗色 V2
+        # 深色主题预设 - ClipFlowCut 现代暗色
         dark_colors = ThemeColors(
-            primary="#6366F1",
-            primary_end="#8B5CF6",
-            primary_light="#818CF8",
-            accent="#06B6D4",
+            primary="#388BFD",
             secondary="#1F6FEB",
-            background="#0A0A0F",
-            surface="#12121A",
-            card="#1A1A24",
-            card_elevated="#22222E",
+            background="#0D1117",
+            surface="#161B22",
+            card="#161B22",
             text="#E6EDF3",
             text_secondary="#C9D1D9",
-            text_tertiary="#8B949E",
             border="#30363D",
-            border_light="#484F58",
             divider="#21262D",
             error="#DA3633",
             warning="#D29922",
             success="#238636",
             info="#388BFD",
-            accent_purple="#A371F7",
+            accent="#A371F7",
             tertiary="#8B5CF6",
             light="#DBEAFE",
             dark="#1E40AF"
@@ -212,33 +191,6 @@ class ThemeManager(QObject):
             light="#FFCCBC",
             dark="#BF360C"
         )
-
-        # 复古胶片主题 - Vintage Film Studio
-        vintage_film_colors = ThemeColors(
-            primary="#d4a574",
-            primary_end="#b8956a",
-            primary_light="#e8c9a8",
-            accent="#00ffff",
-            secondary="#c41e3a",
-            background="#080808",
-            surface="#141414",
-            card="#1a1a1a",
-            card_elevated="#242424",
-            text="#f5f5dc",
-            text_secondary="#b8b8a8",
-            text_tertiary="#6b6b5b",
-            border="rgba(212, 165, 116, 0.2)",
-            border_light="rgba(212, 165, 116, 0.3)",
-            divider="rgba(212, 165, 116, 0.1)",
-            error="#c41e3a",
-            warning="#ffa500",
-            success="#39ff14",
-            info="#00bfff",
-            accent_purple="#7b2cbf",
-            tertiary="#d4a574",
-            light="#e8c9a8",
-            dark="#a07850"
-        )
         
         # 添加主题预设
         self.theme_presets = [
@@ -247,8 +199,7 @@ class ThemeManager(QObject):
             ThemePreset("蓝调深色", "dark", blue_dark_colors),
             ThemePreset("森林绿色", "dark", forest_colors),
             ThemePreset("紫色主题", "dark", purple_colors),
-            ThemePreset("橙色主题", "dark", orange_colors),
-            ThemePreset("复古胶片", "dark", vintage_film_colors)
+            ThemePreset("橙色主题", "dark", orange_colors)
         ]
 
     def get_available_themes(self) -> List[str]:
@@ -451,134 +402,3 @@ class ThemeManager(QObject):
             "colors": self.colors.__dict__,
             "available_themes": self.get_available_themes()
         }
-
-
-# ============ 样式生成器 - 整合自 design_system.py ============
-
-class StyleSheet:
-    """样式生成器 - ClipFlowCut 现代暗色主题"""
-
-    # 样式常量
-    COLORS = {
-        # 主色调渐变
-        "primary": "#6366F1",
-        "primary_end": "#8B5CF6",
-        "primary_light": "#818CF8",
-        
-        # 强调色
-        "accent": "#06B6D4",
-        
-        "primary_dark": "#4F46E5",
-        "success": "#238636",
-        "success_light": "#2EA043",
-        "warning": "#D29922",
-        "warning_light": "#E3B341",
-        "error": "#DA3633",
-        "error_light": "#F85149",
-        
-        # 背景层次
-        "background": "#0A0A0F",
-        "surface": "#12121A",
-        "card": "#1A1A24",
-        "card_elevated": "#22222E",
-        "card_hover": "#282832",
-        
-        "border": "#30363D",
-        "border_light": "#484F58",
-        "divider": "#21262D",
-        
-        "text": "#E6EDF3",
-        "text_secondary": "#C9D1D9",
-        "text_tertiary": "#8B949E",
-        "text_disabled": "#484F58",
-        
-        "accent_purple": "#A371F7",
-        "accent_light": "#BC8CFF",
-    }
-
-    BORDER_RADIUS = {"sm": 4, "md": 8, "lg": 12, "xl": 16, "full": 9999}
-    SPACING = {"xs": 4, "sm": 8, "md": 16, "lg": 24, "xl": 32, "2xl": 48}
-    FONT_SIZES = {"xs": 11, "sm": 12, "md": 14, "lg": 16, "xl": 18, "2xl": 24, "3xl": 32}
-
-    @staticmethod
-    def button(variant="primary"):
-        radius = StyleSheet.BORDER_RADIUS
-        spacing = StyleSheet.SPACING
-        variants = {
-            "primary": ("background-color: #238636;", "background-color: #2EA043;", "background-color: #238636;"),
-            "secondary": ("background-color: transparent; border: 1px solid #30363D; color: #C9D1D9;",
-                          "background-color: #21262D; border-color: #484F58;", "background-color: transparent;"),
-            "danger": ("background-color: #DA3633; color: #FFFFFF;", "background-color: #F85149;", "background-color: #DA3633;"),
-            "ghost": ("background-color: transparent; color: #8B949E;", "background-color: rgba(177, 186, 196, 0.08); color: #E6EDF3;", "background-color: transparent;"),
-        }
-        normal, hover, pressed = variants.get(variant, variants["primary"])
-        return f"""
-        QPushButton {{ {normal} border-radius: {radius['md']}px; padding: {spacing['sm'] + 2}px {spacing['md'] + 2}px; font-size: 13px; font-weight: 600; }}
-        QPushButton:hover {{ {hover} }}
-        QPushButton:pressed {{ {pressed} }}
-        QPushButton:disabled {{ background-color: #21262D; color: #484F58; border: none; }}
-        """
-
-    @staticmethod
-    def card():
-        colors = StyleSheet.COLORS
-        radius = StyleSheet.BORDER_RADIUS
-        return f"""
-        QWidget {{ background-color: {colors['card']}; border: 1px solid {colors['border']}; border-radius: {radius['lg']}px; }}
-        QWidget:hover {{ border-color: {colors['border_light']}; }}
-        """
-
-    @staticmethod
-    def input():
-        colors = StyleSheet.COLORS
-        radius = StyleSheet.BORDER_RADIUS
-        spacing = StyleSheet.SPACING
-        return f"""
-        QLineEdit, QTextEdit {{ background-color: {colors['background']}; color: {colors['text']}; border: 1px solid {colors['border']}; border-radius: {radius['md']}px; padding: {spacing['sm'] + 2}px {spacing['sm'] + 4}px; font-size: 14px; }}
-        QLineEdit:hover, QTextEdit:hover {{ border-color: {colors['border_light']}; }}
-        QLineEdit:focus, QTextEdit:focus {{ border-color: {colors['primary']}; background-color: {colors['surface']}; }}
-        """
-
-    @staticmethod
-    def label(secondary=False):
-        colors = StyleSheet.COLORS
-        color = colors["text_secondary"] if secondary else colors["text"]
-        return f"QLabel {{ color: {color}; font-size: 14px; }}"
-
-    @staticmethod
-    def panel():
-        colors = StyleSheet.COLORS
-        return f"QWidget {{ background-color: {colors['surface']}; }}"
-
-    @staticmethod
-    def progress_bar():
-        colors = StyleSheet.COLORS
-        radius = StyleSheet.BORDER_RADIUS
-        return f"""
-        QProgressBar {{ background-color: {colors['divider']}; border: none; border-radius: {radius['md']}px; text-align: center; color: {colors['text']}; font-size: 12px; font-weight: 600; }}
-        QProgressBar::chunk {{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #388BFD, stop:1 #79C0FF); border-radius: {radius['md']}px; }}
-        """
-
-    @staticmethod
-    def nav_button(selected=False):
-        radius = StyleSheet.BORDER_RADIUS
-        if selected:
-            bg, color = "rgba(56, 139, 253, 0.15)", "#388BFD"
-        else:
-            bg, color = "transparent", "#8B949E"
-        return f"""
-        QPushButton {{ text-align: left; background-color: {bg}; border: none; border-radius: {radius['md']}px; color: {color}; padding: 12px 16px; font-size: 14px; font-weight: 500; }}
-        QPushButton:hover {{ background-color: rgba(177, 186, 196, 0.08); color: #E6EDF3; }}
-        """
-
-    @staticmethod
-    def card_elevated():
-        colors = StyleSheet.COLORS
-        radius = StyleSheet.BORDER_RADIUS
-        return f"QWidget {{ background-color: {colors['card']}; border: 1px solid {colors['border']}; border-radius: {radius['lg']}px; }}"
-
-    @staticmethod
-    def tooltip():
-        colors = StyleSheet.COLORS
-        radius = StyleSheet.BORDER_RADIUS
-        return f"QToolTip {{ background-color: {colors['surface']}; color: {colors['text']}; border: 1px solid {colors['border']}; border-radius: {radius['md']}px; padding: 6px 10px; font-size: 12px; }}"

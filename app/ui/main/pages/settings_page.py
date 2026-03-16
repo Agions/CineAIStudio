@@ -21,7 +21,6 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont, QCursor
 
 from .base_page import BasePage
-from ...theme.theme_toggle import ThemeToggleButton
 
 
 class SettingRow(QFrame):
@@ -147,35 +146,6 @@ class SettingsPage(BasePage):
         title.setFont(QFont("", 24, QFont.Weight.Bold))
         title.setStyleSheet("color: #FFF;")
         content_layout.addWidget(title)
-
-        # ── 主题设置 ──
-        theme_card = SettingCard("外观主题", "🎨")
-        
-        theme_toggle = ThemeToggleButton()
-        theme_toggle.setStyleSheet("""
-            ThemeToggleButton {
-                background: #2A2A2A;
-                border: 1px solid #404040;
-                border-radius: 8px;
-                padding: 8px 16px;
-            }
-        """)
-        
-        # 连接主题切换信号到主窗口
-        main_window = self._get_main_window()
-        if main_window:
-            theme_toggle.theme_changed.connect(lambda name, is_dark: self._on_theme_changed(main_window, name, is_dark))
-        
-        theme_desc = QLabel("选择应用主题和配色方案")
-        theme_desc.setStyleSheet("color: #888; font-size: 12px; margin-bottom: 8px;")
-        
-        theme_row = QHBoxLayout()
-        theme_row.addWidget(theme_toggle)
-        theme_row.addStretch()
-        
-        theme_card.add_widget(theme_desc)
-        theme_card.add_layout(theme_row)
-        content_layout.addWidget(theme_card)
 
         # ── API Key 配置 ──
         api_card = SettingCard("API 密钥", "🔑")
@@ -405,23 +375,3 @@ class SettingsPage(BasePage):
         """页面停用时调用"""
         # 保存设置
         self._save_settings()
-
-    def _get_main_window(self):
-        """获取主窗口实例"""
-        from PyQt6.QtWidgets import QApplication
-        for widget in QApplication.topLevelWidgets():
-            if widget.objectName() == "MainWindow":
-                return widget
-        return None
-
-    def _on_theme_changed(self, main_window, theme_name: str, is_dark: bool):
-        """主题切换处理"""
-        try:
-            # 设置深色主题标志
-            main_window.is_dark_theme = is_dark
-            # 重新应用主题
-            main_window._apply_theme()
-            main_window._apply_style()
-            self.logger.info(f"主题已切换: {theme_name} (深色: {is_dark})")
-        except Exception as e:
-            self.logger.error(f"主题切换失败: {e}")

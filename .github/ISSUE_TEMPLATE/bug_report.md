@@ -1,34 +1,46 @@
 ---
-name: 🐛 Bug 报告
-about: 报告一个 bug 帮助我们改进
-title: "[Bug] "
+name: 🐛 Bug 报告 / Bug Report
+about: 报告一个问题帮助我们改进 / Report a bug to help us improve
+title: '[Bug] '
 labels: bug
 assignees: ''
-
 ---
 
-## Bug 描述
-清晰的描述 bug 是什么
+## 🐛 问题描述 / Bug Description
 
-## 复现步骤
+<!-- 清晰简洁地描述这个 bug / A clear and concise description of the bug -->
+
+## 🔄 复现步骤 / Steps to Reproduce
+
 1. 进入 '...'
 2. 点击 '...'
-3. 滚动到 '...'
-4. 看到错误
+3. 看到错误 '...'
 
-## 预期行为
-描述你期望发生的事情
+## ✅ 期望行为 / Expected Behavior
 
-## 实际行为
-描述实际发生的事情
+<!-- 描述你期望发生什么 / What you expected to happen -->
 
-## 屏幕截图
-如果有的话，添加截图帮助说明问题
+## ❌ 实际行为 / Actual Behavior
 
-## 环境信息:
- - OS: [例如 macOS 14.0]
- - Python 版本: [例如 3.11]
- - 应用版本: [例如 3.0.0]
+<!-- 描述实际发生了什么 / What actually happened -->
 
-## 附加上下文
-添加关于问题的其他上下文
+## 📸 截图 / Screenshots
+
+<!-- 如果有截图，请粘贴在这里 / If applicable, add screenshots -->
+
+## 🖥️ 环境信息 / Environment
+
+- OS: [e.g. macOS 14.0 / Windows 11]
+- Python 版本 / Python Version: [e.g. 3.11]
+- ClipFlowCut 版本 / Version: [e.g. 3.0.0]
+- 使用的 AI 模型 / AI Model: [e.g. GPT-4o]
+
+## 📋 错误日志 / Error Logs
+
+```
+粘贴错误日志 / Paste error logs here
+```
+
+## 📝 补充信息 / Additional Context
+
+<!-- 其他任何有助于理解问题的信息 / Any other context about the problem -->

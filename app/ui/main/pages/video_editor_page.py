@@ -11,12 +11,12 @@ from PyQt6.QtWidgets import (
     QFrame, QScrollArea, QStackedWidget, QProgressBar,
     QComboBox, QSlider, QTabWidget, QListWidget, QListWidgetItem,
     QLineEdit, QMessageBox, QFileDialog, QApplication,
-    QSizePolicy, QFormLayout, QPushButton
+    QToolBox, QSizePolicy, QFormLayout, QPushButton
 )
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
-from PyQt6.QtCore import Qt, pyqtSignal, QSize, QTimer, QUrl
-from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent
+from PyQt6.QtCore import Qt, pyqtSignal, QSize, QTimer, QUrl, QMimeData
+from PyQt6.QtGui import QIcon, QAction, QDragEnterEvent, QDropEvent
 
 from .base_page import BasePage
 from app.services.ai_service.mock_ai_service import MockAIService
@@ -314,7 +314,7 @@ class PreviewPanel(QWidget):
         control_layout.addWidget(self.play_btn)
 
         # 时间显示
-        self.time_label = MacLabel("00:00:00 / 00:00:00", None, "text-sm")
+        self.time_label = MacLabel("00:00:00 / 00:00:00", "text-sm")
         control_layout.addWidget(self.time_label)
 
         # 进度条
@@ -503,15 +503,15 @@ class PropertiesPanel(QWidget):
         info_layout.addWidget(info_title)
 
         # 分辨率
-        self.resolution_label = MacLabel("1920x1080", None, "text-sm")
+        self.resolution_label = MacLabel("1920x1080", "text-sm")
         info_layout.addWidget(self._create_info_row("分辨率:", self.resolution_label))
 
         # 时长
-        self.duration_label = MacLabel("00:05:30", None, "text-sm")
+        self.duration_label = MacLabel("00:05:30", "text-sm")
         info_layout.addWidget(self._create_info_row("时长:", self.duration_label))
 
         # 帧率
-        self.fps_label = MacLabel("30 fps", None, "text-sm")
+        self.fps_label = MacLabel("30 fps", "text-sm")
         info_layout.addWidget(self._create_info_row("帧率:", self.fps_label))
 
         layout.addWidget(info_card)
@@ -650,7 +650,7 @@ class PropertiesPanel(QWidget):
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(8)
 
-        label_widget = MacLabel(label, None, "text-secondary text-bold")
+        label_widget = MacLabel(label, "text-secondary text-bold")
         row_layout.addWidget(label_widget)
         row_layout.addWidget(value_widget)
         row_layout.addStretch()
@@ -669,7 +669,7 @@ class PropertiesPanel(QWidget):
         row_layout.addWidget(label_widget)
         row_layout.addWidget(slider, 1)
 
-        value_label = MacLabel("0", None, "text-sm text-muted")
+        value_label = MacLabel("0", "text-sm text-muted")
         slider.valueChanged.connect(lambda v: value_label.setNum(v))
         row_layout.addWidget(value_label)
 
@@ -790,7 +790,7 @@ class TimelinePanel(QWidget):
         track_layout = QHBoxLayout(video_track)
         track_layout.setContentsMargins(12, 8, 12, 8)
 
-        label = MacLabel("视频轨道", None, "text-sm text-bold")
+        label = MacLabel("视频轨道", "text-sm text-bold")
         track_layout.addWidget(label)
         track_layout.addStretch()
 
@@ -804,7 +804,7 @@ class TimelinePanel(QWidget):
         track_layout = QHBoxLayout(audio_track)
         track_layout.setContentsMargins(12, 8, 12, 8)
 
-        label = MacLabel("音频轨道", None, "text-sm text-bold")
+        label = MacLabel("音频轨道", "text-sm text-bold")
         track_layout.addWidget(label)
         track_layout.addStretch()
 

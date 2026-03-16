@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QSlider, QSizePolicy, QFrame, QToolButton, QStyle
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QUrl, QTimer
-from PyQt6.QtGui import QFont, QColor, QPixmap
+from PyQt6.QtGui import QFont, QColor, QPixmap, QImage
 
 try:
     from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput

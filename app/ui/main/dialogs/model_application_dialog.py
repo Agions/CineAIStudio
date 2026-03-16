@@ -16,19 +16,22 @@ from PyQt6.QtWidgets import (
     QPushButton, QLabel, QFrame, QSpacerItem,
     QSizePolicy, QGroupBox, QStackedWidget, QSplitter,
     QTabWidget, QLineEdit, QTextEdit, QComboBox, QSpinBox,
-    QDoubleSpinBox, QCheckBox, QFileDialog, QMessageBox,
-    QSlider, QTableWidget, QTableWidgetItem,
-    QListWidget, QListWidgetItem, QProgressBar,
+    QDoubleSpinBox, QCheckBox, QRadioButton, QButtonGroup,
+    QFileDialog, QColorDialog, QFontDialog, QMessageBox,
+    QSlider, QSpinBox, QTableWidget, QTableWidgetItem,
+    QHeaderView, QListWidget, QListWidgetItem, QProgressBar,
     QFormLayout, QToolButton, QDialogButtonBox,
-    QApplication, QStyle, QWizard, QWizardPage
+    QSystemTrayIcon, QMenu, QApplication, QStyle, QWizard, QWizardPage
 )
 from PyQt6.QtCore import (
-    Qt, QSize, QTimer, pyqtSignal, QPoint, QSettings,
-    QUrl, QThread, QPropertyAnimation, QEasingCurve
+    Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
+    QMimeData, QUrl, QEvent, QRectF, QThread, pyqtSlot,
+    QPropertyAnimation, QEasingCurve, QRegularExpression
 )
 from PyQt6.QtGui import (
-    QIcon, QPixmap, QFont, QColor, QCursor,
-    QPainter, QPen, QBrush, QPainterPath
+    QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
+    QPainter, QPen, QBrush, QPainterPath, QFontDatabase,
+    QDesktopServices, QTextCursor
 )
 
 from ....core.config_manager import ConfigManager

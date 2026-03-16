@@ -1,297 +1,309 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
-视频制作基类
-统一进度跟踪和错误处理
+视频制作器基类 (Base Video Maker)
+
+提供三大视频制作功能的公共抽象:
+- CommentaryMaker: AI 视频解说
+- MashupMaker: AI 视频混剪
+- MonologueMaker: AI 第一人称独白
 """
 
-import asyncio
+import os
+import uuid
+from pathlib import Path
+from typing import Optional, List, Dict, Any, Callable, TypeVar, Generic
 from abc import ABC, abstractmethod
-from typing import Optional, Callable, Dict, Any, List
 from dataclasses import dataclass, field
-from enum import Enum
-from datetime import datetime
-import logging
 
-
-class MakerStatus(Enum):
-    """制作状态"""
-    IDLE = "idle"
-    PREPARING = "preparing"
-    PROCESSING = "processing"
-    RENDERING = "rendering"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
+from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
+from ..export.jianying_exporter import (
+    JianyingExporter, JianyingDraft, JianyingConfig,
+    Track, TrackType, Segment, TimeRange,
+    VideoMaterial, AudioMaterial, TextMaterial,
+)
 
 
 @dataclass
-class MakerProgress:
-    """制作进度"""
-    status: MakerStatus = MakerStatus.IDLE
-    progress: float = 0.0
-    current_step: str = ""
-    message: str = ""
-    total_steps: int = 0
-    current_step_num: int = 0
-    elapsed_time: float = 0.0
-    eta: float = 0.0
-    error: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
-    def update(
-        self,
-        progress: float = None,
-        message: str = None,
-        step: str = None,
-    ):
-        """更新进度"""
-        if progress is not None:
-            self.progress = progress
-        if message is not None:
-            self.message = message
-        if step is not None:
-            self.current_step = step
+class BaseProject:
+    """项目基类"""
+    id: str = ""
+    name: str = "新建项目"
+    source_video: str = ""
+    video_duration: float = 0.0
+    output_dir: str = ""
+    scenes: List[SceneInfo] = field(default_factory=list)
 
 
-class BaseVideoMaker(ABC):
-    """
-    视频制作基类
-    
-    提供进度跟踪、错误处理、状态回调等通用功能
-    """
-    
+T = TypeVar("T", bound=BaseProject)
+
+
+class ProgressMixin:
+    """进度回调 Mixin"""
+
     def __init__(self):
-        self._progress = MakerProgress()
-        self._progress_callback: Optional[Callable] = None
-        self._cancel_requested = False
-        self._start_time: Optional[datetime] = None
-        self._logger = logging.getLogger(self.__class__.__name__)
-        
-    @property
-    def progress(self) -> MakerProgress:
-        """获取当前进度"""
-        return self._progress
-    
-    @property
-    def is_running(self) -> bool:
-        """是否正在运行"""
-        return self._progress.status in [
-            MakerStatus.PREPARING,
-            MakerStatus.PROCESSING,
-            MakerStatus.RENDERING,
-        ]
-    
-    @property
-    def is_cancelled(self) -> bool:
-        """是否已取消"""
-        return self._progress.status == MakerStatus.CANCELLED
-    
-    def set_progress_callback(self, callback: Callable[[MakerProgress], None]):
+        self._progress_callback: Optional[Callable[[str, float], None]] = None
+
+    def set_progress_callback(self, callback: Callable[[str, float], None]) -> None:
         """设置进度回调"""
         self._progress_callback = callback
-    
-    def _emit_progress(self, **kwargs):
-        """发送进度更新"""
-        self._progress.update(**kwargs)
-        
+
+    def _report_progress(self, stage: str, progress: float) -> None:
+        """报告进度"""
         if self._progress_callback:
-            self._progress_callback(self._progress)
-    
-    def _check_cancelled(self):
-        """检查是否取消"""
-        if self._cancel_requested:
-            self._progress.status = MakerStatus.CANCELLED
-            raise asyncio.CancelledError("制作已取消")
-    
-    def request_cancel(self):
-        """请求取消"""
-        self._cancel_requested = True
-        self._logger.info("Cancel requested")
-    
-    def reset(self):
-        """重置状态"""
-        self._progress = MakerProgress()
-        self._cancel_requested = False
-        self._start_time = None
-    
-    async def make(
+            self._progress_callback(stage, progress)
+
+
+class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
+    """
+    视频制作器基类
+
+    提供公共功能:
+    - 进度报告
+    - 视频分析
+    - 剪映导出
+    - FFmpeg 导出
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.scene_analyzer = SceneAnalyzer()
+        self.jianying_exporter = JianyingExporter()
+
+    @abstractmethod
+    def create_project(
         self,
-        input_path: str,
-        output_path: str,
-        options: Dict[str, Any] = None,
+        source_video: str,
+        name: Optional[str] = None,
+        output_dir: Optional[str] = None,
+        **kwargs,
+    ) -> T:
+        """创建项目（子类实现）"""
+        pass
+
+    def _init_project(
+        self,
+        project: T,
+        source_video: str,
+        name: Optional[str] = None,
+        output_dir: Optional[str] = None,
+    ) -> T:
+        """初始化项目公共属性"""
+        source_path = Path(source_video)
+        if not source_path.exists():
+            raise FileNotFoundError(f"视频文件不存在: {source_video}")
+
+        project.id = str(uuid.uuid4())[:8]
+        project.name = name or source_path.stem
+        project.source_video = str(source_path.absolute())
+        project.output_dir = output_dir or str(source_path.parent / "output")
+
+        # 分析场景
+        project.scenes = self.scene_analyzer.analyze(source_video)
+        project.video_duration = sum(s.duration for s in project.scenes) if project.scenes else 0
+
+        return project
+
+    def export_to_jianying(
+        self,
+        project: T,
+        jianying_drafts_dir: str,
     ) -> str:
         """
-        执行制作
-        
-        Args:
-            input_path: 输入路径
-            output_path: 输出路径
-            options: 选项
-            
-        Returns:
-            输出路径
+        导出到剪映草稿（基类实现）
+
+        子类可重写以自定义导出逻辑
         """
-        self.reset()
-        self._start_time = datetime.now()
-        options = options or {}
-        
-        try:
-            self._emit_progress(
-                status=MakerStatus.PREPARING,
-                progress=0,
-                message="准备中...",
-            )
-            
-            # 准备阶段
-            await self._prepare(input_path, output_path, options)
-            self._check_cancelled()
-            
-            # 处理阶段
-            self._emit_progress(
-                status=MakerStatus.PROCESSING,
-                progress=20,
-                message="处理中...",
-            )
-            
-            await self._process(input_path, output_path, options)
-            self._check_cancelled()
-            
-            # 渲染阶段
-            self._emit_progress(
-                status=MakerStatus.RENDERING,
-                progress=80,
-                message="渲染中...",
-            )
-            
-            await self._render(input_path, output_path, options)
-            self._check_cancelled()
-            
-            # 完成
-            self._emit_progress(
-                status=MakerStatus.COMPLETED,
-                progress=100,
-                message="完成!",
-            )
-            
-            return output_path
-            
-        except asyncio.CancelledError:
-            self._emit_progress(
-                status=MakerStatus.CANCELLED,
-                message="已取消",
-            )
-            raise
-            
-        except Exception as e:
-            self._logger.exception("制作失败")
-            self._emit_progress(
-                status=MakerStatus.FAILED,
-                error=str(e),
-                message="失败",
-            )
-            raise
-    
-    # 子类实现的方法
-    
-    @abstractmethod
-    async def _prepare(
-        self,
-        input_path: str,
-        output_path: str,
-        options: Dict,
-    ):
-        """准备阶段"""
+        self._report_progress("导出剪映", 0.0)
+
+        exporter = JianyingExporter(JianyingConfig(
+            canvas_ratio="9:16",
+            copy_materials=True,
+        ))
+
+        draft = exporter.create_draft(project.name)
+
+        # 子类可重写此方法来添加自定义轨道
+        self._build_jianying_tracks(draft, project)
+
+        draft_path = exporter.export(draft, jianying_drafts_dir)
+        self._report_progress("导出剪映", 1.0)
+
+        return draft_path
+
+    def _build_jianying_tracks(self, draft: JianyingDraft, project: T) -> None:
+        """
+        构建剪映轨道
+
+        子类重写此方法实现自定义轨道
+        """
         pass
-    
-    @abstractmethod
-    async def _process(
+
+    def _create_video_track(
         self,
-        input_path: str,
-        output_path: str,
-        options: Dict,
-    ):
-        """处理阶段"""
-        pass
-    
-    @abstractmethod
-    async def _render(
+        draft: JianyingDraft,
+        source_video: str,
+        duration: float,
+        segments_data: Optional[List[Dict]] = None,
+    ) -> Track:
+        """创建视频轨道"""
+        video_track = Track(type=TrackType.VIDEO, attribute=1)
+        draft.add_track(video_track)
+
+        video_material = VideoMaterial(
+            path=source_video,
+            duration=int(duration * 1_000_000),
+        )
+        draft.add_video(video_material)
+
+        if segments_data:
+            for seg in segments_data:
+                segment = Segment(
+                    material_id=video_material.id,
+                    source_timerange=TimeRange.from_seconds(
+                        seg.get("source_start", 0),
+                        seg.get("duration", 0),
+                    ),
+                    target_timerange=TimeRange.from_seconds(
+                        seg.get("target_start", 0),
+                        seg.get("duration", 0),
+                    ),
+                )
+                video_track.add_segment(segment)
+
+        return video_track
+
+    def _create_audio_track(
         self,
-        input_path: str,
-        output_path: str,
-        options: Dict,
-    ):
-        """渲染阶段"""
-        pass
-    
-    async def _estimate_time(self, progress: float) -> float:
-        """估算剩余时间"""
-        if not self._start_time:
-            return 0
-        
-        elapsed = (datetime.now() - self._start_time).total_seconds()
-        
-        if progress > 0:
-            total = elapsed / (progress / 100)
-            return max(0, total - elapsed)
-        return 0
+        draft: JianyingDraft,
+        audio_path: str,
+        duration: float,
+        segments_data: Optional[List[Dict]] = None,
+    ) -> Track:
+        """创建音频轨道"""
+        audio_track = Track(type=TrackType.AUDIO)
+        draft.add_track(audio_track)
+
+        audio_material = AudioMaterial(
+            path=audio_path,
+            duration=int(duration * 1_000_000),
+            name=Path(audio_path).stem,
+        )
+        draft.add_audio(audio_material)
+
+        if segments_data:
+            for seg in segments_data:
+                segment = Segment(
+                    material_id=audio_material.id,
+                    source_timerange=TimeRange.from_seconds(
+                        seg.get("source_start", 0),
+                        seg.get("duration", 0),
+                    ),
+                    target_timerange=TimeRange.from_seconds(
+                        seg.get("target_start", 0),
+                        seg.get("duration", 0),
+                    ),
+                )
+                audio_track.add_segment(segment)
+
+        return audio_track
+
+    def _create_text_track(
+        self,
+        draft: JianyingDraft,
+        captions: List[Dict],
+        caption_style: Optional[Dict] = None,
+    ) -> Track:
+        """创建字幕轨道"""
+        text_track = Track(type=TrackType.TEXT)
+        draft.add_track(text_track)
+
+        default_style = caption_style or {
+            "font_size": 6.0,
+            "font_color": "#FFFFFF",
+            "has_shadow": True,
+        }
+
+        for cap in captions:
+            text_material = TextMaterial(
+                content=cap.get("text", ""),
+                font_size=cap.get("font_size", default_style.get("font_size", 6.0)),
+                font_color=cap.get("font_color", default_style.get("font_color", "#FFFFFF")),
+                has_shadow=cap.get("has_shadow", default_style.get("has_shadow", True)),
+            )
+            draft.add_text(text_material)
+
+            text_segment = Segment(
+                material_id=text_material.id,
+                source_timerange=TimeRange.from_seconds(0, cap.get("duration", 0)),
+                target_timerange=TimeRange.from_seconds(
+                    cap.get("start", 0),
+                    cap.get("duration", 0),
+                ),
+            )
+            text_track.add_segment(text_segment)
+
+        return text_track
 
 
-class BatchVideoMaker(BaseVideoMaker):
-    """批量视频制作"""
-    
-    def __init__(self, max_concurrent: int = 2):
-        super().__init__()
-        self.max_concurrent = max_concurrent
-        self._results: List[Dict] = []
-    
-    async def make_batch(
-        self,
-        inputs: List[str],
-        output_dir: str,
-        options: Dict[str, Any] = None,
-    ) -> List[Dict]:
-        """
-        批量制作
-        
-        Args:
-            inputs: 输入路径列表
-            output_dir: 输出目录
-            options: 选项
-            
-        Returns:
-            结果列表
-        """
-        self.reset()
-        results = []
-        
-        # 使用信号量控制并发
-        semaphore = asyncio.Semaphore(self.max_concurrent)
-        
-        async def process_one(idx: int, input_path: str):
-            async with semaphore:
-                output_path = f"{output_dir}/output_{idx}.mp4"
-                try:
-                    await self.make(input_path, output_path, options)
-                    results.append({
-                        "input": input_path,
-                        "output": output_path,
-                        "status": "success",
-                    })
-                except Exception as e:
-                    results.append({
-                        "input": input_path,
-                        "error": str(e),
-                        "status": "failed",
-                    })
-        
-        # 并发执行
-        tasks = [
-            process_one(i, inp)
-            for i, inp in enumerate(inputs)
-        ]
-        
-        await asyncio.gather(*tasks, return_exceptions=True)
-        
-        return results
+# =========== 便捷函数 ===========
+
+def merge_audio_files(
+    audio_paths: List[str],
+    output_path: str,
+) -> str:
+    """合并多个音频文件"""
+    import subprocess
+
+    if not audio_paths:
+        raise ValueError("没有可用的音频文件")
+
+    # 如果只有一个文件，直接返回
+    if len(audio_paths) == 1:
+        return audio_paths[0]
+
+    # 创建临时列表文件
+    concat_list = Path(output_path).parent / "audio_concat.txt"
+    with open(concat_list, 'w') as f:
+        for audio in audio_paths:
+            f.write(f"file '{audio}'\n")
+
+    # 合并音频
+    cmd = [
+        'ffmpeg', '-y', '-f', 'concat', '-safe', '0',
+        '-i', str(concat_list),
+        '-c', 'copy', output_path
+    ]
+    subprocess.run(cmd, capture_output=True)
+
+    return output_path
+
+
+def composite_video_with_audio(
+    video_path: str,
+    audio_path: str,
+    output_path: str,
+) -> str:
+    """使用 FFmpeg 合成视频和音频"""
+    import subprocess
+
+    cmd = [
+        'ffmpeg', '-y',
+        '-i', video_path,
+        '-i', audio_path,
+        '-c:v', 'libx264', '-preset', 'medium',
+        '-c:a', 'aac',
+        '-map', '0:v:0', '-map', '1:a:0',
+        '-shortest',
+        output_path
+    ]
+    subprocess.run(cmd, capture_output=True)
+
+    return output_path
+
+
+__all__ = [
+    "BaseProject",
+    "BaseVideoMaker",
+    "ProgressMixin",
+    "merge_audio_files",
+    "composite_video_with_audio",
+]

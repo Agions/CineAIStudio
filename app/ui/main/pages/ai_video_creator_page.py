@@ -1033,9 +1033,6 @@ class AIVideoCreatorPage(BasePage):
         self.progress_bar.setValue(0)
         self.status_label.setText("正在创作中...")
         
-        # 记录任务类型
-        self.logger.info(f"Starting creation task: {task_type}")
-        
         def on_progress(stage: str, progress: float):
             self.progress_bar.setValue(int(progress * 100))
             self.status_label.setText(stage)

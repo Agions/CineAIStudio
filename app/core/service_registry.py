@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import (
     Dict, List, Type, Any, Optional, Callable, Set,
-    Union, TypeVar, Generic
+    Union, TypeVar, Generic, get_type_hints
 )
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 

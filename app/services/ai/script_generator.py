@@ -40,7 +40,7 @@ from typing import Optional, List, Dict, Any, Union
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .base_llm_provider import LLMRequest, LLMResponse, ProviderError
+from .base_LLM_provider import LLMRequest, LLMResponse, ProviderError
 from .llm_manager import LLMManager, load_llm_config
 
 
@@ -265,8 +265,7 @@ class ScriptGenerator:
                     self._generate_async(topic, config)
                 )
             finally:
-                if self.llm_manager:
-                    loop.run_until_complete(self.llm_manager.close_all())
+                loop.run_until_complete(self.llm_manager.close_all())
 
         else:
             # 传统方式
@@ -482,17 +481,12 @@ class ScriptGenerator:
         # 计算每段时长
         total_words = len(content.replace(' ', '').replace('\n', ''))
 
-        # 防止除零错误
-        words_per_second = config.words_per_second
-        if words_per_second <= 0:
-            words_per_second = 3.0  # 使用默认值
-
         segments = []
         current_time = 0.0
 
         for i, para in enumerate(paragraphs):
             para_words = len(para.replace(' ', ''))
-            para_duration = para_words / words_per_second
+            para_duration = para_words / config.words_per_second
 
             segment = ScriptSegment(
                 content=para,
@@ -517,7 +511,7 @@ class ScriptGenerator:
             segments=segments,
             style=config.style,
             word_count=total_words,
-            estimated_duration=total_words / words_per_second,
+            estimated_duration=total_words / config.words_per_second,
             hook=hook,
             keywords=config.keywords,
         )
@@ -558,7 +552,7 @@ class ScriptGenerator:
                 if part in '。！？，；':
                     current_text += part
 
-                    if len(current_text) >= max_chars:  # 至少 max_chars 个字才生成字幕
+                    if len(current_text) > 5:  # 至少5个字才生成字幕
                         word_count = len(current_text)
                         duration = (word_count / max(segment_words, 1)) * segment_duration
 

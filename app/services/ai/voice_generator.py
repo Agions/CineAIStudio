@@ -70,9 +70,6 @@ class VoiceConfig:
     
     # 语言
     language: str = "zh-CN"
-    
-    # 高级选项
-    provider: str = "edge"         # 提供商: edge/openai/azure/volcengine/tencent
 
 
 @dataclass
@@ -366,7 +363,7 @@ class VoiceGenerator:
         初始化配音生成器
         
         Args:
-            provider: 提供者 ("edge", "openai", "azure", "volcengine", "tencent")
+            provider: 提供者 ("edge", "openai", "azure")
             api_key: API Key（某些提供者需要）
         """
         self.provider_name = provider
@@ -378,18 +375,6 @@ class VoiceGenerator:
             if not key:
                 raise ValueError("OpenAI TTS 需要 API Key")
             self._provider = OpenAITTSProvider(key)
-        elif provider == "azure":
-            key = api_key or os.getenv("AZURE_SPEECH_KEY")
-            self._provider = AzureTTSProvider(key)
-        elif provider == "volcengine":
-            # 火山引擎 TTS
-            key = api_key or os.getenv("VOLCENGINE_API_KEY")
-            self._provider = VolcEngineTTSProvider(key)
-        elif provider == "tencent":
-            # 腾讯云 TTS
-            key = api_key or os.getenv("TENCENT_SECRET_ID")
-            secret = os.getenv("TENCENT_SECRET_KEY")
-            self._provider = TencentTTSProvider(key, secret)
         else:
             raise ValueError(f"不支持的提供者: {provider}")
     
@@ -534,152 +519,3 @@ def demo_generate():
 
 if __name__ == '__main__':
     demo_generate()
-
-
-# ============ 火山引擎 TTS ============
-
-class VolcEngineTTSProvider(TTSProvider):
-    """火山引擎 TTS 提供商"""
-    
-    VOICES = {
-        "xiaoyan": "青年女声",
-        "xiaoyu": "青年男声",
-        "jinger": "温柔女声",
-        "joker": "幽默男声",
-        "xiaomei": "可爱女声",
-    }
-    
-    def __init__(self, api_key: str = ""):
-        self.api_key = api_key
-        self.endpoint = "https://openspeech.bytedance.com/api/v2/tts"
-        
-    def generate(
-        self,
-        text: str,
-        output_path: str,
-        config: VoiceConfig,
-    ) -> GeneratedVoice:
-        """生成配音"""
-        import base64
-        import json
-        import hashlib
-        import hmac
-        import time
-        
-        if not self.api_key:
-            raise ValueError("需要火山引擎 API Key")
-        
-        voice_id = config.voice_id or "xiaoyan"
-        
-        # 构建请求
-        headers = {
-            "Authorization": f"Bearer; {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        
-        payload = {
-            "app": {"appid": "clipflow"},
-            "user": {"uid": "clipflow_user"},
-            "audio": {
-                "format": config.output_format,
-                "rate": config.sample_rate,
-                "bits": 16,
-                "channel": 1,
-                "codec": "raw",
-            },
-            "text": {"type": "plain", "text": text},
-            "voice": {
-                "voice_id": voice_id,
-                "speed": int(config.rate * 100),
-                "pitch": int(config.pitch * 100),
-                "volume": int(config.volume * 100),
-            },
-        }
-        
-        try:
-            import httpx
-            response = httpx.post(
-                self.endpoint,
-                json=payload,
-                headers=headers,
-                timeout=30,
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                audio_data = base64.b64decode(result["data"]["audio"])
-                
-                with open(output_path, "wb") as f:
-                    f.write(audio_data)
-                    
-                return GeneratedVoice(
-                    audio_path=output_path,
-                    duration=len(audio_data) / (config.sample_rate * 2),
-                    voice_id=voice_id,
-                )
-            else:
-                raise Exception(f"火山引擎 TTS 失败: {response.text}")
-                
-        except ImportError:
-            raise ImportError("需要安装 httpx: pip install httpx")
-        except Exception as e:
-            raise Exception(f"TTS 生成失败: {e}")
-
-
-# ============ 腾讯云 TTS ============
-
-class TencentTTSProvider(TTSProvider):
-    """腾讯云 TTS 提供商"""
-    
-    VOICES = {
-        "0": "青年女声",
-        "1": "青年男声",
-        "5": "情感女声",
-        "6": "情感男声",
-    }
-    
-    def __init__(self, secret_id: str = "", secret_key: str = ""):
-        self.secret_id = secret_id
-        self.secret_key = secret_key
-        self.endpoint = "tts.tencentcloudapi.com"
-        
-    def generate(
-        self,
-        text: str,
-        output_path: str,
-        config: VoiceConfig,
-    ) -> GeneratedVoice:
-        """生成配音"""
-        if not self.secret_id or not self.secret_key:
-            raise ValueError("需要腾讯云 SecretId 和 SecretKey")
-        
-        import hashlib
-        import hmac
-        import json
-        import time
-        from datetime import datetime
-        
-        voice_id = config.voice_id or "0"
-        
-        # 构建请求参数
-        params = {
-            "Text": text,
-            "SessionId": "clipflow_" + str(int(time.time())),
-            "ModelType": 1,
-            "VoiceType": int(voice_id) if voice_id.isdigit() else 0,
-            "Speed": int((config.rate - 1) * 100),
-            "Pitch": int((config.pitch - 1) * 100),
-            "Volume": int((config.volume - 1) * 100),
-            "SampleRate": str(config.sample_rate),
-            "Codec": "mp3",
-        }
-        
-        try:
-            # 简化实现：使用腾讯云 SDK
-            # 实际使用需要安装腾讯云 SDK
-            raise Exception("腾讯云 TTS 需要安装 tencentcloud-sdk-python")
-            
-        except Exception as e:
-            if "tencentcloud-sdk" in str(e):
-                raise Exception("需要安装腾讯云 SDK: pip install tencentcloud-sdk-python")
-            raise

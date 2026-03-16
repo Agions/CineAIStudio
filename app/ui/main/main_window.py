@@ -9,18 +9,21 @@ ClipFlowCut 主窗口 - 设置版本
 import os
 import sys
 from typing import Optional, Dict, Any
+from dataclasses import dataclass
+from enum import Enum
 
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget,
-    QStatusBar, QSplitter, QFrame, QLabel,
+    QToolBar, QStatusBar, QMenuBar, QSplitter, QFrame, QLabel,
     QSizePolicy, QApplication, QMessageBox, QPushButton
 )
 from PyQt6.QtCore import (
     Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
-    QUrl, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
+    QMimeData, QUrl, QEvent
 )
 from PyQt6.QtGui import (
-    QIcon, QPixmap, QFont, QColor, QCursor, QCloseEvent, QAction
+    QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
+    QAction, QFontDatabase, QCloseEvent, QKeySequence, QShortcut
 )
 
 
@@ -33,7 +36,28 @@ from ...core.application import Application, ApplicationState, ErrorInfo, ErrorT
 from ...utils.error_handler import ErrorHandler
 from ...utils.error_handler import handle_exception, show_error_dialog
 
-from .constants import PageType, WindowConfig
+
+class PageType(Enum):
+    """页面类型"""
+    HOME = "home"
+    SETTINGS = "settings"
+    PROJECTS = "projects"
+    VIDEO_EDITOR = "video_editor"
+    AI_VIDEO_CREATOR = "ai_video_creator"
+    AI_CONFIG = "ai_config"
+    AI_CHAT = "ai_chat"
+
+
+@dataclass
+class WindowConfig:
+    """窗口配置"""
+    title: str = "ClipFlowCut"
+    width: int = 1200
+    height: int = 800
+    min_width: int = 800
+    min_height: int = 600
+    icon_path: Optional[str] = None
+    style: str = "Fusion"
 
 
 class MainWindow(QMainWindow):
@@ -73,11 +97,6 @@ class MainWindow(QMainWindow):
         self.current_page = PageType.HOME
         self.is_dark_theme = True
         self.is_fullscreen = False
-        
-        # 导航栏折叠状态
-        self.is_nav_collapsed = False
-        self.nav_expanded_width = 200
-        self.nav_collapsed_width = 64
 
         # 窗口配置
         self.window_config = WindowConfig()
@@ -125,104 +144,79 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # 创建左侧导航面板 (可折叠)
+        # 创建左侧导航面板
         self.left_panel = QFrame()
         self.left_panel.setObjectName("left_panel")
-        self.left_panel.setFixedWidth(self.nav_expanded_width)
+        self.left_panel.setFixedWidth(200)
         
         # 左侧面板布局
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(0)
 
-        # 应用标题区域 (包含折叠按钮)
-        title_container = QWidget()
-        title_layout = QHBoxLayout(title_container)
-        title_layout.setContentsMargins(16, 16, 8, 16)
-        title_layout.setSpacing(8)
-        
+        # 应用标题
         self.app_title = QLabel("ClipFlowCut")
         self.app_title.setObjectName("app_title")
-        title_layout.addWidget(self.app_title)
-        
-        title_layout.addStretch()
-        
-        # 折叠/展开按钮
-        self.toggle_nav_btn = QPushButton("◀")
-        self.toggle_nav_btn.setObjectName("toggle_nav_btn")
-        self.toggle_nav_btn.setFixedSize(24, 24)
-        self.toggle_nav_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.toggle_nav_btn.clicked.connect(self._toggle_navigation)
-        title_layout.addWidget(self.toggle_nav_btn)
-        
-        left_layout.addWidget(title_container)
+        left_layout.addWidget(self.app_title)
 
         # 导航按钮容器
         nav_container = QWidget()
         nav_layout = QVBoxLayout(nav_container)
-        nav_layout.setContentsMargins(8, 8, 8, 8)
+        nav_layout.setContentsMargins(12, 12, 12, 12)
         nav_layout.setSpacing(4)
 
         # 导航按钮 - 安全地获取图标
         try:
             home_icon = get_icon("home", 20)
-            projects_icon = get_icon("projects", 20)
-            video_icon = get_icon("video", 20)
-            ai_icon = get_icon("ai", 20)
-            chat_icon = get_icon("chat", 20)
             settings_icon = get_icon("settings", 20)
+            video_icon = get_icon("video", 20)
+            ai_chat_icon = get_icon("chat", 20)
+            projects_icon = get_icon("projects", 20)
         except Exception:
+            # 如果图标获取失败，使用空图标
             home_icon = QIcon()
-            projects_icon = QIcon()
-            video_icon = QIcon()
-            ai_icon = QIcon()
-            chat_icon = QIcon()
             settings_icon = QIcon()
+            video_icon = QIcon()
+            ai_chat_icon = QIcon()
+            projects_icon = QIcon()
 
-        # 创建导航按钮 (5个入口)
+        # 创建导航按钮（3 个核心入口：首页 / 项目管理 / 设置）
         self.home_btn = QPushButton(home_icon, "  首页")
         self.projects_btn = QPushButton(projects_icon, "  项目管理")
-        self.editor_btn = QPushButton(video_icon, "  视频剪辑")
-        self.ai_video_btn = QPushButton(ai_icon, "  AI 创作")
-        self.ai_chat_btn = QPushButton(chat_icon, "  AI 对话")
         self.settings_btn = QPushButton(settings_icon, "  设置")
 
-        # 全部导航按钮
-        self.nav_buttons = [
-            self.home_btn, 
-            self.projects_btn, 
-            self.editor_btn,
-            self.ai_video_btn,
-            self.ai_chat_btn,
-            self.settings_btn
-        ]
-        
+        # 隐藏页面引用（通过代码跳转，不在导航显示）
+        self.editor_btn = QPushButton()
+        self.ai_video_btn = QPushButton()
+        self.ai_chat_btn = QPushButton()
+
+        # 设置按钮通用样式和属性
+        self.nav_buttons = [self.home_btn, self.projects_btn, self.settings_btn]
         for btn in self.nav_buttons:
             btn.setObjectName("nav_button")
             btn.setCheckable(True)
             btn.setIconSize(QSize(20, 20))
-            btn.setMinimumHeight(40)
-            btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            btn.setContentsMargins(8, 4, 8, 4)
 
         # 连接按钮信号
-        self.home_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.HOME))
-        self.projects_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.PROJECTS))
-        self.editor_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.VIDEO_EDITOR))
-        self.ai_video_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.AI_VIDEO_CREATOR))
-        self.ai_chat_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.AI_CHAT))
-        self.settings_btn.clicked.connect(lambda: self._on_nav_button_clicked(PageType.SETTINGS))
+        self.home_btn.clicked.connect(lambda: self.switch_to_page(PageType.HOME))
+        self.settings_btn.clicked.connect(lambda: self.switch_to_page(PageType.SETTINGS))
+        self.projects_btn.clicked.connect(lambda: self.switch_to_page(PageType.PROJECTS))
+        self.ai_video_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_VIDEO_CREATOR))
+        self.editor_btn.clicked.connect(lambda: self.switch_to_page(PageType.VIDEO_EDITOR))
+        self.ai_chat_btn.clicked.connect(lambda: self.switch_to_page(PageType.AI_CHAT))
 
         # 添加按钮到导航布局
+        # 导航按钮（首页 + 项目管理 + 设置）
         nav_layout.addWidget(self.home_btn)
         nav_layout.addWidget(self.projects_btn)
-        nav_layout.addWidget(self.editor_btn)
-        nav_layout.addWidget(self.ai_video_btn)
-        nav_layout.addWidget(self.ai_chat_btn)
-        
+
         nav_layout.addStretch()
-        
+
         # 设置放底部
         nav_layout.addWidget(self.settings_btn)
+        
+        nav_layout.addStretch()
 
         left_layout.addWidget(nav_container)
 
@@ -357,7 +351,6 @@ class MainWindow(QMainWindow):
             self.logger.info("开始加载首页...")
             self.home_page = HomePage(self.application)
             self.page_stack.addWidget(self.home_page)
-            self.page_stack.setCurrentWidget(self.home_page)  # 设置首页为当前页面
             self.pages_loading_status["home"] = True
             self.logger.info("首页初始化完成")
             
@@ -592,99 +585,14 @@ class MainWindow(QMainWindow):
             if os.path.exists(style_path):
                 with open(style_path, "r", encoding="utf-8") as f:
                     qss = f.read()
-                    
-                    # 3. 根据主题动态替换颜色
-                    if self.is_dark_theme:
-                        # 深色主题 - 使用默认变量
-                        qss = qss.replace("#0A0A0F", "#0A0A0F")  # 深色背景
-                        qss = qss.replace("#1A1A24", "#1A1A24")  # 表面
-                    else:
-                        # 浅色主题 - 替换为浅色变量
-                        light_bg = "#F5F5F7"
-                        light_surface = "#FFFFFF"
-                        light_text = "#1D1D1F"
-                        light_text_secondary = "#6E6E73"
-                        light_border = "#D2D2D7"
-                        
-                        # 替换背景色
-                        qss = qss.replace("#0A0A0F", light_bg)
-                        qss = qss.replace("#12121A", light_surface)
-                        qss = qss.replace("#1A1A24", light_surface)
-                        qss = qss.replace("#22222E", "#F0F0F2")
-                        qss = qss.replace("#2A2A38", "#E8E8ED")
-                        
-                        # 替换文字颜色
-                        qss = qss.replace("#E6EDF3", light_text)
-                        qss = qss.replace("#FFFFFF", light_text)
-                        qss = qss.replace("#A1A1AA", light_text_secondary)
-                        qss = qss.replace("#9CA3AF", light_text_secondary)
-                        qss = qss.replace("#71717A", light_text_secondary)
-                        qss = qss.replace("#8B949E", light_text_secondary)
-                        
-                        # 替换边框
-                        qss = qss.replace("rgba(255, 255, 255, 0.08)", "rgba(0, 0, 0, 0.08)")
-                        qss = qss.replace("rgba(255, 255, 255, 0.15)", "rgba(0, 0, 0, 0.15)")
-                        qss = qss.replace("#30363D", light_border)
-                        
+                    # 可以在这里做一些动态替换，比如基于配置的颜色
                     self.setStyleSheet(qss)
-                self.logger.info(f"已加载样式表: {style_path} (主题: {'深色' if self.is_dark_theme else '浅色'})")
+                self.logger.info(f"已加载样式表: {style_path}")
             else:
                 self.logger.warning(f"样式表文件未找到: {style_path}")
                 
         except Exception as e:
             self.logger.error(f"应用样式失败: {e}")
-    
-    def _toggle_navigation(self):
-        """切换导航栏折叠/展开状态"""
-        self.is_nav_collapsed = not self.is_nav_collapsed
-        
-        # 创建动画
-        target_width = self.nav_collapsed_width if self.is_nav_collapsed else self.nav_expanded_width
-        
-        self.nav_animation = QPropertyAnimation(self.left_panel, b"minimumWidth")
-        self.nav_animation.setDuration(200)
-        self.nav_animation.setStartValue(self.left_panel.width())
-        self.nav_animation.setEndValue(target_width)
-        self.nav_animation.setEasingCurve(QEasingCurve.Type.InOutQuad)
-        
-        # 同时动画 maximumWidth
-        self.nav_animation2 = QPropertyAnimation(self.left_panel, b"maximumWidth")
-        self.nav_animation2.setDuration(200)
-        self.nav_animation2.setStartValue(self.left_panel.width())
-        self.nav_animation2.setEndValue(target_width)
-        self.nav_animation2.setEasingCurve(QEasingCurve.Type.InOutQuad)
-        
-        # 并行动画
-        self.nav_group = QParallelAnimationGroup()
-        self.nav_group.addAnimation(self.nav_animation)
-        self.nav_group.addAnimation(self.nav_animation2)
-        self.nav_group.start()
-        
-        # 更新按钮文本和标题可见性
-        self.toggle_nav_btn.setText("▶" if self.is_nav_collapsed else "◀")
-        
-        # 隐藏/显示文字
-        for btn in self.nav_buttons:
-            text = btn.text().strip()
-            if self.is_nav_collapsed:
-                # 保留图标，只移除文字
-                if text:
-                    btn.setToolTip(text)  # 提示显示完整文字
-                btn.setText("")
-            else:
-                # 从 toolTip 恢复文字
-                btn.setText(f"  {btn.toolTip()}")
-                btn.setToolTip("")
-                
-        # 显示/隐藏标题
-        self.app_title.setVisible(not self.is_nav_collapsed)
-        
-        self.logger.info(f"导航栏切换: {'折叠' if self.is_nav_collapsed else '展开'}")
-            
-    def _on_nav_button_clicked(self, page_type: PageType):
-        """导航按钮点击处理"""
-        self.logger.info(f"导航按钮被点击: {page_type.value}")
-        self.switch_to_page(page_type)
             
     def _apply_theme(self):
         """应用主题设置"""
@@ -727,11 +635,6 @@ class MainWindow(QMainWindow):
                     target_page = ProjectsPage(self.application)
                     self.projects_page = target_page
                     self.page_stack.addWidget(target_page)
-                elif page_type == PageType.VIDEO_EDITOR:
-                    from .pages.video_editor_page import VideoEditorPage
-                    target_page = VideoEditorPage(self.application)
-                    self.video_editor_page = target_page
-                    self.page_stack.addWidget(target_page)
                 elif page_type == PageType.AI_VIDEO_CREATOR:
                     from .pages.ai_video_creator_page import AIVideoCreatorPage
                     target_page = AIVideoCreatorPage(self.application)
@@ -741,11 +644,6 @@ class MainWindow(QMainWindow):
                     from .pages.ai_chat_page import AIChatPage
                     target_page = AIChatPage(self.application)
                     self.ai_chat_page = target_page
-                    self.page_stack.addWidget(target_page)
-                elif page_type == PageType.SETTINGS:
-                    from .pages.settings_page import SettingsPage
-                    target_page = SettingsPage(self.application)
-                    self.settings_page = target_page
                     self.page_stack.addWidget(target_page)
                 
                 if target_page:
