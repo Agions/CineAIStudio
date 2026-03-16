@@ -24,17 +24,17 @@
 
 ## 🤔 Why ClipFlowCut?
 
-> Traditional video editors require you to do everything manually. ClipFlowCut lets AI do it for you.
+> Traditional video editing requires you to do everything manually. ClipFlowCut lets AI do it for you.
 
-| Feature | Premiere / Final Cut | CapCut | **ClipFlowCut** |
-|---------|:---:|:---:|:---:|
-| AI Auto Commentary | ❌ | Partial | ✅ |
-| Multiple LLM Support | ❌ | ❌ | ✅ 9+ Models |
-| Export Pro Formats | ✅ | ❌ | ✅ All Formats |
-| Local/Private Deploy | ❌ | ❌ | ✅ Ollama |
-| Open Source & Free | ❌ | ❌ | ✅ MIT |
-| Cross-platform Desktop | ✅ | Partial | ✅ |
-| Auto Beat Sync | Manual | Partial | ✅ AI Auto |
+| What ClipFlowCut Offers | |
+|---------|:---:|
+| 🤖 AI auto commentary & voiceover — one click to professional narration | ✅ |
+| 🔀 Switch freely between 9+ LLMs — no vendor lock-in | ✅ |
+| 📤 Export to all major formats — fits any professional workflow | ✅ |
+| 🏠 Local Ollama support — your data never leaves your machine | ✅ |
+| 🆓 MIT open source & free — no subscription, no limits | ✅ |
+| 💻 Native desktop app — macOS & Windows | ✅ |
+| 🎵 AI beat-sync for mashups — zero manual alignment | ✅ |
 
 ---
 
