@@ -4,6 +4,8 @@
 分析视频内容，识别场景变化、关键帧和内容类型。
 为 AI 解说和混剪提供素材分析支持。
 
+集成 PySceneDetect 提供高精度的场景检测能力。
+
 使用示例:
     from app.services.ai import SceneAnalyzer
     
@@ -56,7 +58,7 @@ class SceneInfo:
     keyframe_path: str = ""          # 关键帧图片路径
     avg_brightness: float = 0.0      # 平均亮度
     motion_level: float = 0.0        # 运动程度 (0-1)
-    audio_level: float = 0.0         # 音频音量
+    audio_level: float = 0.0          # 音频音量
     
     # 适用性评分
     suitability_score: float = 0.0   # 作为解说画面的适用性 (0-100)
@@ -69,23 +71,34 @@ class SceneInfo:
 class AnalysisConfig:
     """分析配置"""
     scene_threshold: float = 0.3     # 场景变化阈值 (0-1)
-    min_scene_duration: float = 0.5  # 最小场景时长（秒）
+    min_scene_duration: float = 0.5   # 最小场景时长（秒）
     extract_keyframes: bool = True   # 是否提取关键帧
     keyframe_dir: str = ""           # 关键帧保存目录
-    analyze_audio: bool = True       # 是否分析音频
+    analyze_audio: bool = True        # 是否分析音频
+    # PySceneDetect 专用配置
+    use_pyscenect: bool = True       # 是否优先使用 PySceneDetect
+    detector_type: str = "adaptive"   # 检测器类型: "content" 或 "adaptive" 或 "threshold"
 
 
 class SceneAnalyzer:
     """
     场景分析器
     
-    使用 FFmpeg 进行视频场景检测和分析
-    
-    参考 Skill: video-ffmpeg-expert
+    集成 PySceneDetect 和 FFmpeg 进行视频场景检测和分析。
+    优先使用 PySceneDetect（更准确），回退到 FFmpeg 方法。
     """
     
     def __init__(self, config: Optional[AnalysisConfig] = None):
         self.config = config or AnalysisConfig()
+        self._pyscenect_available = self._check_pyscenect()
+    
+    def _check_pyscenect(self) -> bool:
+        """检查 PySceneDetect 是否可用"""
+        try:
+            from scenedetect import detect, ContentDetector, AdaptiveDetector
+            return True
+        except ImportError:
+            return False
     
     def analyze(self, video_path: str) -> List[SceneInfo]:
         """
@@ -104,11 +117,14 @@ class SceneAnalyzer:
         # 获取视频时长
         duration = self._get_video_duration(str(video_path))
         
-        # 检测场景变化
-        scene_changes = self._detect_scene_changes(str(video_path))
+        # 检测场景变化 - 优先使用 PySceneDetect
+        if self.config.use_pyscenect and self._pyscenect_available:
+            scene_times = self._detect_scenes_pyscenect(str(video_path))
+        else:
+            scene_times = self._detect_scene_changes(str(video_path))
         
         # 构建场景列表
-        scenes = self._build_scenes(scene_changes, duration)
+        scenes = self._build_scenes(scene_times, duration)
         
         # 分析每个场景
         for scene in scenes:
@@ -138,11 +154,92 @@ class SceneAnalyzer:
         
         return 0.0
     
+    def _detect_scenes_pyscenect(self, video_path: str) -> List[float]:
+        """
+        使用 PySceneDetect 检测场景变化
+        
+        Args:
+            video_path: 视频文件路径
+            
+        Returns:
+            场景变化时间点列表（秒）
+        """
+        try:
+            from scenedetect import open_video, SceneManager
+            from scenedetect.detectors import ContentDetector, AdaptiveDetector, ThresholdDetector
+            
+            # 打开视频
+            video = open_video(video_path)
+            
+            # 创建场景管理器
+            scene_manager = SceneManager()
+            
+            # 根据配置选择检测器
+            threshold = self.config.scene_threshold
+            
+            if self.config.detector_type == "adaptive":
+                # 自适应检测器 - 适合有相机运动的视频
+                # threshold: 较低值 = 更敏感，检测到更多场景
+                # min_delta_hsv: 颜色变化阈值
+                # min_scene_length: 最小场景长度（帧数）
+                from scenedetect.detectors.adaptive_detector import AdaptiveDetector
+                scene_manager.add_detector(
+                    AdaptiveDetector(
+                        threshold=threshold * 50,  # PySceneDetect 使用不同范围
+                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15)  # 至少15帧
+                    )
+                )
+            elif self.config.detector_type == "threshold":
+                # 阈值检测器 - 适合检测渐变（淡入淡出）
+                scene_manager.add_detector(
+                    ThresholdDetector(threshold=int(threshold * 255))
+                )
+            else:
+                # 内容检测器 - 默认，适合大多数视频
+                scene_manager.add_detector(
+                    ContentDetector(
+                        threshold=threshold * 50,  # 缩放到 PySceneDetect 的范围
+                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15)
+                    )
+                )
+            
+            # 检测场景
+            # show_progress=True 会显示进度条
+            try:
+                scene_manager.detect_scenes(video, show_progress=False)
+            except Exception:
+                # 如果视频无法读取，回退
+                return [0.0]
+            
+            # 获取场景列表
+            scene_list = scene_manager.get_scene_list()
+            
+            if not scene_list:
+                return [0.0]
+            
+            # 提取时间点
+            scene_times = [0.0]
+            for scene in scene_list:
+                # scene[0] 是开始帧，scene[1] 是结束帧
+                start_time = scene[0].get_seconds()
+                scene_times.append(start_time)
+            
+            return scene_times
+            
+        except ImportError as e:
+            print(f"PySceneDetect 导入失败: {e}")
+            self._pyscenect_available = False
+            return self._detect_scene_changes(video_path)
+        except Exception as e:
+            print(f"PySceneDetect 场景检测失败: {e}")
+            # 回退到 FFmpeg 方法
+            return self._detect_scene_changes(video_path)
+    
     def _detect_scene_changes(self, video_path: str) -> List[float]:
         """
-        检测场景变化时间点
+        使用 FFmpeg 检测场景变化时间点
         
-        使用 FFmpeg select 滤镜检测场景变化
+        这是回退方法，当 PySceneDetect 不可用时使用
         """
         threshold = self.config.scene_threshold
         
@@ -180,6 +277,9 @@ class SceneAnalyzer:
     def _build_scenes(self, scene_times: List[float], total_duration: float) -> List[SceneInfo]:
         """根据场景变化时间点构建场景列表"""
         scenes = []
+        
+        # 确保 scene_times 是排序的
+        scene_times = sorted(set(scene_times))
         
         for i in range(len(scene_times)):
             start = scene_times[i]
@@ -226,7 +326,6 @@ class SceneAnalyzer:
     
     def _get_avg_brightness(self, video_path: str, start: float, duration: float) -> float:
         """获取场景平均亮度"""
-        # 简化实现：使用 signalstats 滤镜
         try:
             cmd = [
                 'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
@@ -253,7 +352,6 @@ class SceneAnalyzer:
         
         基于帧间差异估算运动强度
         """
-        # 简化实现：使用场景检测得分作为运动指标
         try:
             cmd = [
                 'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
@@ -334,7 +432,6 @@ class SceneAnalyzer:
     
     def _infer_scene_type(self, scene: SceneInfo) -> SceneType:
         """根据特征推断场景类型"""
-        # 基于简单规则推断
         if scene.audio_level > 0.7 and scene.motion_level < 0.3:
             return SceneType.TALKING_HEAD
         elif scene.motion_level > 0.7:
@@ -435,6 +532,56 @@ class SceneAnalyzer:
         selected.sort(key=lambda s: s.start)
         
         return selected
+    
+    def split_video_by_scenes(
+        self,
+        video_path: str,
+        output_dir: str,
+        scenes: Optional[List[SceneInfo]] = None,
+    ) -> List[str]:
+        """
+        将视频按场景分割
+        
+        Args:
+            video_path: 源视频路径
+            output_dir: 输出目录
+            scenes: 场景列表（如果为 None，将自动检测）
+            
+        Returns:
+            分割后的视频文件路径列表
+        """
+        if scenes is None:
+            scenes = self.analyze(video_path)
+        
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        video_stem = Path(video_path).stem
+        output_paths = []
+        
+        for scene in scenes:
+            output_path = output_dir / f"{video_stem}_scene_{scene.index:03d}.mp4"
+            
+            try:
+                cmd = [
+                    'ffmpeg', '-y',
+                    '-ss', str(scene.start),
+                    '-t', str(scene.duration),
+                    '-i', video_path,
+                    '-c', 'copy',
+                    '-avoid_negative_ts', 'make_zero',
+                    str(output_path)
+                ]
+                
+                result = subprocess.run(cmd, capture_output=True, timeout=60)
+                
+                if result.returncode == 0:
+                    output_paths.append(str(output_path))
+                    
+            except Exception as e:
+                print(f"分割场景失败 (场景 {scene.index}): {e}")
+        
+        return output_paths
 
 
 # =========== 便捷函数 ===========
@@ -460,7 +607,10 @@ def demo_analyze():
         scene_threshold=0.3,
         min_scene_duration=0.5,
         extract_keyframes=True,
+        use_pyscenect=True,
     ))
+    
+    print(f"PySceneDetect 可用: {analyzer._pyscenect_available}")
     
     scenes = analyzer.analyze("input.mp4")
     

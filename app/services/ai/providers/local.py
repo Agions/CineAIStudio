@@ -8,9 +8,10 @@
 使用公共混入类减少重复代码
 """
 
+import httpx
 from typing import List, Dict, Any
 
-from ..base_LLM_provider import (
+from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,
@@ -31,8 +32,8 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     - 其他 OpenAI 兼容的本地服务
     """
 
-    # 模型管理混入需要
-    COMMON_MODELS = {
+    # 模型列表
+    MODELS = {
         "llama3.2": {
             "name": "Llama 3.2",
             "description": "Meta Llama 3.2 (Ollama)",
@@ -58,8 +59,6 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "context_length": 16000,
         },
     }
-    # 别名映射
-    MODELS = COMMON_MODELS
     DEFAULT_MODEL = "llama3.2"
 
     def __init__(
@@ -226,7 +225,7 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 raise ProviderError(f"获取模型列表失败: {str(e)}")
         else:
             return [{"name": name, "description": info["description"]}
-                    for name, info in self.COMMON_MODELS.items()]
+                    for name, info in self.MODELS.items()]
 
     async def pull_model(self, model: str) -> bool:
         """拉取模型（仅 Ollama）"""
@@ -249,11 +248,11 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     def get_available_models(self) -> List[str]:
         """获取可用模型列表"""
-        return list(self.COMMON_MODELS.keys())
+        return list(self.MODELS.keys())
 
     def get_model_info(self, model: str) -> Dict[str, Any]:
         """获取模型信息"""
-        return self.COMMON_MODELS.get(model, {})
+        return self.MODELS.get(model, {})
 
     async def close(self):
         """关闭HTTP客户端"""
@@ -264,7 +263,3 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
-
-
-# 需要导入httpx用于类型提示
-import httpx

@@ -12,7 +12,7 @@ from typing import List, Dict, Any
 import base64
 from pathlib import Path
 
-from ..base_LLM_provider import (
+from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,

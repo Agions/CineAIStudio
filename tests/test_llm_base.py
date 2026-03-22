@@ -4,7 +4,7 @@
 import pytest
 from dataclasses import asdict
 
-from app.services.ai.base_LLM_provider import (
+from app.services.ai.base_llm_provider import (
     LLMRequest,
     LLMResponse,
     ProviderError,

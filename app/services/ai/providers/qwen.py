@@ -8,9 +8,10 @@
 使用公共混入类减少重复代码
 """
 
+import httpx
 from typing import List, Dict, Any
 
-from ..base_LLM_provider import (
+from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,
@@ -140,7 +141,3 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
-
-
-# 需要导入httpx用于类型提示
-import httpx

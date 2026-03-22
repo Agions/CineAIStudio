@@ -32,7 +32,7 @@ from enum import Enum
 
 from .video_content_analyzer import VideoContentAnalyzer, VideoAnalysisResult
 from .llm_manager import LLMManager, load_llm_config, ProviderType
-from .base_LLM_provider import LLMRequest
+from .base_llm_provider import LLMRequest
 
 
 class SummaryStyle(Enum):

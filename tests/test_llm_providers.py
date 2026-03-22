@@ -12,7 +12,7 @@ import sys
 # 添加项目路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.services.ai.base_LLM_provider import LLMRequest, LLMResponse
+from app.services.ai.base_llm_provider import LLMRequest, LLMResponse
 
 
 class TestLLMRequest:

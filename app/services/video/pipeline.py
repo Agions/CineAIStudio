@@ -316,8 +316,8 @@ class VideoPipeline:
             from ..ai.voice_generator import VoiceGenerator, VoiceConfig
             generator = VoiceGenerator()
             voice_config = VoiceConfig(
-                voice=config.voice,
-                speed=config.voice_speed,
+                voice_id=config.voice,
+                rate=config.voice_speed,
             )
             return await generator.generate(script, voice_config)
         except Exception as e:
@@ -417,7 +417,7 @@ class VideoPipeline:
         try:
             from ..ai.voice_generator import VoiceGenerator, VoiceConfig
             generator = VoiceGenerator()
-            voice_config = VoiceConfig(voice=config.voice)
+            voice_config = VoiceConfig(voice_id=config.voice)
             return await generator.generate(script, voice_config)
         except Exception:
             return "/tmp/monologue_voice.mp3"

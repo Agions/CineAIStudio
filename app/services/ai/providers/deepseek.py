@@ -6,13 +6,20 @@ DeepSeek 提供商
 支持 DeepSeek R1, V3.2 和 Chat 系列模型 (2026年3月最新)
 """
 
-from typing import List, Dict, Any
 import httpx
+from typing import List, Dict, Any
 
-from ..base_LLM_provider import BaseLLMProvider, LLMRequest, LLMResponse, ProviderError
+from ..base_llm_provider import (
+    BaseLLMProvider,
+    LLMRequest,
+    LLMResponse,
+    ProviderError,
+    HTTPClientMixin,
+    ModelManagerMixin,
+)
 
 
-class DeepSeekProvider(BaseLLMProvider):
+class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     """
     DeepSeek 提供商
 
@@ -74,22 +81,15 @@ class DeepSeekProvider(BaseLLMProvider):
             api_key: API 密钥
             base_url: API 基础 URL
         """
-        super().__init__(api_key, base_url)
-        self.http_client = httpx.AsyncClient(
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            timeout=60.0,
-        )
+        # 调用父类初始化
+        BaseLLMProvider.__init__(self, api_key, base_url)
+        HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
 
-    def _get_model_name(self, model: str) -> str:
-        """获取模型实际名称"""
-        if model == "default":
-            return self.DEFAULT_MODEL
-        if model in self.MODELS:
-            return model
-        raise ValueError(f"Unknown model: {model}")
+        # 初始化HTTP客户端
+        self._init_http_client({
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        })
 
     def _is_reasoning_model(self, model: str) -> bool:
         """检查是否是推理模型"""
@@ -109,11 +109,8 @@ class DeepSeekProvider(BaseLLMProvider):
         model = self._get_model_name(request.model)
         is_reasoning = self._is_reasoning_model(model)
 
-        # 构建消息
-        messages = []
-        if request.system_prompt:
-            messages.append({"role": "system", "content": request.system_prompt})
-        messages.append({"role": "user", "content": request.prompt})
+        # 使用混入类的方法构建消息
+        messages = self._build_messages(request)
 
         # 构建请求
         api_request = {
@@ -137,42 +134,20 @@ class DeepSeekProvider(BaseLLMProvider):
 
             data = response.json()
 
-            # 解析响应
-            if "error" in data:
-                raise ProviderError(data["error"]["message"])
+            # 解析响应（使用混入类的方法）
+            result = self._parse_response(data, model)
 
-            choice = data["choices"][0]
-            message = choice["message"]
+            # DeepSeek R1 返回的 thinking 内容在不同的字段
+            # 需要从 raw_response 中提取并合并
+            if is_reasoning and hasattr(result, 'raw_response') and result.raw_response:
+                result.raw_response["is_reasoning_model"] = True
+            elif is_reasoning:
+                result.raw_response = {"is_reasoning_model": True}
 
-            # 提取推理内容（如果是推理模型）
-            reasoning_content = message.get("thinking", "") or message.get("reasoning_content", "")
-
-            content = message.get("content", "")
-
-            # 构建元数据
-            metadata = {}
-            if reasoning_content:
-                metadata["reasoning"] = reasoning_content
-            if is_reasoning:
-                metadata["is_reasoning_model"] = True
-
-            return LLMResponse(
-                content=content,
-                model=model,
-                tokens_used=data.get("usage", {}).get("total_tokens", 0),
-                finish_reason=choice.get("finish_reason", "stop"),
-                metadata=metadata,
-            )
+            return result
 
         except httpx.HTTPStatusError as e:
-            error_msg = f"HTTP 错误: {e.response.status_code}"
-            try:
-                error_data = e.response.json()
-                if "error" in error_data:
-                    error_msg = f"{error_msg} - {error_data['error']['message']}"
-            except Exception:
-                pass
-            raise ProviderError(error_msg)
+            raise self._handle_http_error(e)
         except Exception as e:
             raise ProviderError(f"生成失败: {str(e)}")
 
@@ -190,21 +165,12 @@ class DeepSeekProvider(BaseLLMProvider):
         other_chars = len(text) - chinese_chars
         return int(chinese_chars * 1.5 + other_chars * 0.25)
 
-    async def get_available_models(self) -> List[str]:
-        """获取可用模型列表"""
-        return list(self.MODELS.keys())
+    async def close(self):
+        """关闭 HTTP 客户端"""
+        await self._close_http_client()
 
-    async def health_check(self) -> bool:
-        """健康检查"""
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/chat/completions",
-                json={
-                    "model": "deepseek-chat",
-                    "messages": [{"role": "user", "content": "ping"}],
-                    "max_tokens": 1,
-                },
-            )
-            return response.status_code == 200
-        except Exception:
-            return False
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()

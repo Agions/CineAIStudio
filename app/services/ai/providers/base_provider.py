@@ -12,7 +12,7 @@ import httpx
 from typing import Optional, Dict, Any, AsyncGenerator, List
 from abc import ABC, abstractmethod
 
-from ..base_LLM_provider import (
+from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,

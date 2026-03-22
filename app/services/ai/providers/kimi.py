@@ -10,7 +10,7 @@ Kimi (月之暗面 Moonshot AI) 提供商
 
 from typing import List, Dict, Any
 
-from ..base_LLM_provider import (
+from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,

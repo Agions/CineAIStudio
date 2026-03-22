@@ -8,6 +8,7 @@ ClipFlow 服务模块
 - export: 导出服务（剪映、PR、FCP、DaVinci）
 - viral_video: 病毒视频处理（字幕、节奏分析）
 - core: 核心功能（工作流、撤销管理）
+- publish: 多平台发布 [暂时关闭]
 """
 
 # 子模块
@@ -17,6 +18,9 @@ from . import audio
 from . import export
 from . import viral_video
 from . import core
+
+# 多平台发布功能暂时关闭
+# from . import publish
 
 # 兼容层
 from .ai_service_manager import AIServiceManager, ServiceStatus, get_ai_service_manager
@@ -30,6 +34,7 @@ __all__ = [
     "export",
     "viral_video",
     "core",
+    # publish,  # 暂时关闭
     # 兼容层
     "AIServiceManager",
     "ServiceStatus",

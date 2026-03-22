@@ -17,6 +17,18 @@ ffmpeg-python==0.2.0
 ## 音频分析
 librosa>=0.10.0
 soundfile>=0.12.0
+edge-tts>=6.1.0
+pydub>=0.25.0
+
+## 场景检测（推荐使用 PySceneDetect）
+scenedetect>=0.6.0
+
+## Whisper 语音识别（本地模式需要）
+openai-whisper>=20231117
+
+## 翻译功能（可选）
+deepl>=1.18.0           # DeepL 翻译（高质量）
+googletrans>=4.0.0     # Google 翻译（备用）
 
 ## 网络请求
 requests>=2.31.0

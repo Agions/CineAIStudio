@@ -13,6 +13,7 @@ from typing import Optional, List
 from .beat_detector import (
     BeatDetector,
     BeatInfo,
+    BeatSyncCutpoint,
     AudioAnalysisResult,
 )
 from .sync_engine import (
@@ -80,6 +81,7 @@ __all__ = [
     # Beat Detector
     "BeatDetector",
     "BeatInfo",
+    "BeatSyncCutpoint",
     "BeatStrength",
     "MusicSection",
     "SectionInfo",

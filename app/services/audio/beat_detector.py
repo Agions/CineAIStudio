@@ -10,6 +10,7 @@
 - 节拍点提取（强拍/弱拍）
 - 能量包络（onset detection）
 - 音乐段落分析（intro/verse/chorus/outro）
+- Beat-sync 剪辑点建议
 """
 
 import subprocess
@@ -43,6 +44,20 @@ class BeatInfo:
 
 
 @dataclass
+class BeatSyncCutpoint:
+    """
+    Beat-sync 剪辑点
+    
+    建议的剪辑时间点，基于节拍对齐
+    """
+    timestamp: float          # 剪辑时间点
+    strength: BeatStrength   # 节拍强度
+    beat_position: int       # 在小节中的位置
+    suggested_cut_before: bool = True  # 是否建议在此点前剪辑
+    energy: float = 0.0      # 该时刻的能量 (0-1)
+
+
+@dataclass
 class SectionInfo:
     """音乐段落"""
     start: float
@@ -60,6 +75,7 @@ class AudioAnalysisResult:
 
     # BPM
     bpm: float = 0.0
+    beat_interval: float = 0.0  # 节拍间隔（秒）
 
     # 节拍
     beats: List[BeatInfo] = field(default_factory=list)
@@ -75,6 +91,9 @@ class AudioAnalysisResult:
 
     # 频谱特征
     spectral_centroid_mean: float = 0.0  # 平均频谱质心（亮度感）
+    
+    # Beat-sync 剪辑点
+    beat_sync_cutpoints: List[BeatSyncCutpoint] = field(default_factory=list)
 
 
 class BeatDetector:
@@ -185,6 +204,13 @@ class BeatDetector:
         # 5. 段落分析
         if extract_sections:
             result.sections = self._detect_sections(y, sr, duration, rms)
+        
+        # 6. 计算节拍间隔
+        if result.bpm > 0:
+            result.beat_interval = 60.0 / result.bpm
+        
+        # 7. 生成 Beat-sync 剪辑点
+        result.beat_sync_cutpoints = self.get_beat_sync_cutpoints(result)
 
         return result
 
@@ -249,6 +275,119 @@ class BeatDetector:
             ))
 
         return sections
+    
+    def get_beat_sync_cutpoints(
+        self,
+        result: AudioAnalysisResult,
+        min_interval: float = 0.5,
+        prefer_strong_beats: bool = True,
+        energy_threshold: float = 0.3,
+    ) -> List[BeatSyncCutpoint]:
+        """
+        获取 Beat-sync 剪辑点
+        
+        基于节拍和能量分析，生成建议的剪辑时间点。
+        这些时间点适合进行视频切换，以配合音乐节奏。
+        
+        Args:
+            result: 音频分析结果
+            min_interval: 最小剪辑间隔（秒）
+            prefer_strong_beats: 是否优先使用强拍
+            energy_threshold: 能量阈值，低于此值的节拍会被过滤
+            
+        Returns:
+            Beat-sync 剪辑点列表
+        """
+        cutpoints = []
+        
+        # 计算节拍间隔
+        if result.beat_interval > 0:
+            beat_interval = result.beat_interval
+        elif result.bpm > 0:
+            beat_interval = 60.0 / result.bpm
+        else:
+            beat_interval = 0.5  # 默认 120 BPM
+        
+        # 构建能量查找表
+        energy_lookup = {}
+        for time, energy in result.energy_curve:
+            energy_lookup[int(time * 10) / 10] = energy  # 保留一位小数
+        
+        last_cut_time = -min_interval  # 确保第一个节拍可以用
+        
+        for beat in result.beats:
+            # 检查最小间隔
+            if beat.timestamp - last_cut_time < min_interval:
+                continue
+            
+            # 获取该时刻的能量
+            key = int(beat.timestamp * 10) / 10
+            energy = energy_lookup.get(key, 0.5)
+            
+            # 过滤低能量点
+            if energy < energy_threshold:
+                continue
+            
+            # 强拍优先模式
+            if prefer_strong_beats and beat.strength != BeatStrength.STRONG:
+                # 检查是否是强拍附近（前后半拍内）
+                nearby_strong = False
+                for other in result.beats:
+                    if other.strength == BeatStrength.STRONG:
+                        diff = abs(other.timestamp - beat.timestamp)
+                        if diff < beat_interval * 0.6:
+                            nearby_strong = True
+                            break
+                if nearby_strong:
+                    continue
+            
+            cutpoint = BeatSyncCutpoint(
+                timestamp=beat.timestamp,
+                strength=beat.strength,
+                beat_position=beat.bar_position,
+                suggested_cut_before=True,
+                energy=energy,
+            )
+            cutpoints.append(cutpoint)
+            last_cut_time = beat.timestamp
+        
+        return cutpoints
+    
+    def sync_analysis(self, result: AudioAnalysisResult) -> Dict[str, any]:
+        """
+        生成节拍同步分析报告
+        
+        用于混剪时的参考信息
+        """
+        report = {
+            "bpm": result.bpm,
+            "beat_interval_seconds": result.beat_interval,
+            "total_beats": len(result.beats),
+            "total_sections": len(result.sections),
+            "sections_summary": [],
+            "recommended_cutpoints": len(self.get_beat_sync_cutpoints(result)),
+        }
+        
+        # 段落摘要
+        for section in result.sections:
+            report["sections_summary"].append({
+                "type": section.section_type.value,
+                "start": section.start,
+                "end": section.end,
+                "duration": section.end - section.start,
+                "energy": section.energy,
+            })
+        
+        # 能量分析
+        if result.energy_curve:
+            energies = [e for _, e in result.energy_curve]
+            report["energy_stats"] = {
+                "min": min(energies),
+                "max": max(energies),
+                "avg": sum(energies) / len(energies),
+            }
+        
+        return report
 
     def extract_audio_from_video(self, video_path: str,
                                   output_path: Optional[str] = None) -> str:
