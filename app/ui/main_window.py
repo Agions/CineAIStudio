@@ -1,25 +1,27 @@
 """
-ClipFlow 主窗口 UI - 简化版
+ClipFlow 主窗口 - 重构版
 
-AI 优先的极简界面设计
+结构:
+- 首页: 项目列表
+- 设置: 主题/临时文件/API Key
+- 编辑面板: 在项目管理中内嵌，不单独页面
 """
 
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence, QPalette, QColor
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QDockWidget, QToolBar, QMenuBar, QMenu,
-    QStatusBar, QLabel, QPushButton,
-    QFrame, QGroupBox, QTabWidget, QListWidget,
-    QFileDialog, QMessageBox, QLineEdit,
-    QComboBox, QCheckBox, QSpinBox, QSlider, QProgressBar,
-    QStackedWidget, QScrollArea,
+    QToolBar, QMenuBar, QMenu, QStatusBar,
+    QLabel, QPushButton, QFrame, QGroupBox,
+    QLineEdit, QComboBox, QCheckBox, QSpinBox,
+    QDialog, QStackedWidget, QScrollArea,
+    QFileDialog, QMessageBox, QListWidget, QListWidgetItem,
+    QGridLayout as QtGridLayout,
 )
 
 
 class ClipFlowTheme:
-    """ClipFlow 主题 - 极简深色"""
-    
+    """ClipFlow 主题"""
     BG = "#0A0A0B"
     BG_ELEVATED = "#141416"
     BG_CARD = "#1A1A1D"
@@ -29,35 +31,444 @@ class ClipFlowTheme:
     ACCENT = "#00D4FF"
     ACCENT_DIM = "rgba(0, 212, 255, 0.15)"
     SUCCESS = "#22C55E"
+    ERROR = "#EF4444"
     RADIUS = 12
+
+
+class HomePage(QWidget):
+    """首页 - 项目列表"""
+    
+    new_project_clicked = pyqtSignal()
+    edit_project_clicked = pyqtSignal(int)  # project_id
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._init_ui()
+    
+    def _init_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(48, 48, 48, 48)
+        
+        # 标题栏
+        header = QWidget()
+        header_layout = QHBoxLayout(header)
+        
+        title = QLabel("我的项目")
+        title.setStyleSheet("font-size: 24px; font-weight: bold;")
+        header_layout.addWidget(title)
+        
+        btn_new = QPushButton("+ 新建项目")
+        btn_new.setObjectName("primary")
+        btn_new.setStyleSheet(f"""
+            QPushButton#primary {{
+                background-color: {ClipFlowTheme.ACCENT};
+                color: #000;
+                border: none;
+                border-radius: {ClipFlowTheme.RADIUS}px;
+                padding: 10px 20px;
+                font-weight: bold;
+            }}
+            QPushButton#primary:hover {{ opacity: 0.9; }}
+        """)
+        btn_new.clicked.connect(self.new_project_clicked.emit)
+        header_layout.addWidget(btn_new)
+        
+        layout.addWidget(header)
+        
+        # 项目列表
+        self.project_list = QListWidget()
+        self.project_list.setStyleSheet(f"""
+            QListWidget {{
+                background: transparent;
+                border: none;
+                outline: none;
+            }}
+        """)
+        layout.addWidget(self.project_list)
+    
+    def load_projects(self, projects):
+        """加载项目列表"""
+        self.project_list.clear()
+        for p in projects:
+            self._add_project_item(p)
+    
+    def _add_project_item(self, project):
+        """添加项目项"""
+        item = QListWidgetItem()
+        item.setData(Qt.UserRole, project["id"])
+        
+        widget = QFrame()
+        widget.setStyleSheet(f"""
+            QFrame {{
+                background-color: {ClipFlowTheme.BG_CARD};
+                border: 1px solid {ClipFlowTheme.BORDER};
+                border-radius: {ClipFlowTheme.RADIUS}px;
+                padding: 16px;
+            }}
+            QFrame:hover {{
+                border-color: {ClipFlowTheme.ACCENT};
+            }}
+        """)
+        
+        layout = QVBoxLayout(widget)
+        
+        # 项目信息
+        info_layout = QHBoxLayout()
+        
+        thumb = QLabel("🎬")
+        thumb.setStyleSheet("font-size: 24px;")
+        info_layout.addWidget(thumb)
+        
+        info = QWidget()
+        info_layout2 = QVBoxLayout(info)
+        info_layout2.setContentsMargins(0, 0, 0, 0)
+        
+        name = QLabel(project.get("name", "未命名"))
+        name.setStyleSheet("font-size: 14px; font-weight: 600;")
+        info_layout2.addWidget(name)
+        
+        meta = QLabel(project.get("meta", ""))
+        meta.setStyleSheet(f"font-size: 12px; color: {ClipFlowTheme.TEXT_DIM};")
+        info_layout2.addWidget(meta)
+        
+        info_layout.addWidget(info, 1)
+        
+        # 操作按钮
+        btn_edit = QPushButton("编辑")
+        btn_edit.setStyleSheet(f"""
+            QPushButton {{
+                background: {ClipFlowTheme.BG_ELEVATED};
+                border: 1px solid {ClipFlowTheme.BORDER};
+                border-radius: 6px;
+                padding: 6px 16px;
+                font-size: 12px;
+            }}
+            QPushButton:hover {{ border-color: {ClipFlowTheme.ACCENT}; }}
+        """)
+        btn_edit.clicked.connect(lambda: self.edit_project_clicked.emit(project["id"]))
+        
+        btn_delete = QPushButton("删除")
+        btn_delete.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent;
+                border: 1px solid {ClipFlowTheme.ERROR};
+                color: {ClipFlowTheme.ERROR};
+                border-radius: 6px;
+                padding: 6px 16px;
+                font-size: 12px;
+            }}
+            QPushButton:hover {{ background: {ClipFlowTheme.ERROR}; color: #fff; }}
+        """)
+        
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(btn_edit)
+        btn_layout.addWidget(btn_delete)
+        
+        layout.addLayout(info_layout)
+        layout.addLayout(btn_layout)
+        
+        item.setSizeHint(widget.sizeHint())
+        self.project_list.addItem(item)
+        self.project_list.setItemWidget(item, widget)
+
+
+class SettingsPage(QWidget):
+    """设置页面"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._init_ui()
+    
+    def _init_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(48, 48, 48, 48)
+        
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("border: none;")
+        
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        
+        # 外观设置
+        section = self._create_section("外观")
+        self._add_setting_item(section, "主题", "应用界面配色方案", 
+                              QComboBox(), ["深色", "浅色", "跟随系统"])
+        container_layout.addWidget(section)
+        
+        # 文件设置
+        section = self._create_section("文件")
+        self._add_setting_item(section, "临时文件位置", "缓存文件存放目录",
+                              QLineEdit("/tmp/clipflow"))
+        toggle = QCheckBox()
+        toggle.setChecked(True)
+        self._add_setting_item(section, "自动清理临时文件", "退出时自动删除缓存", toggle)
+        container_layout.addWidget(section)
+        
+        # AI 服务设置
+        section = self._create_section("AI 服务")
+        self._add_setting_item(section, "大模型 API", "用于生成解说和字幕翻译",
+                              QComboBox(), ["OpenAI GPT-4", "DeepSeek", "智谱 GLM", "阿里通义"])
+        self._add_setting_item(section, "API Key", "你的 API 密钥",
+                              QLineEdit())
+        self._add_setting_item(section, "语音合成", "用于生成解说配音",
+                              QComboBox(), ["Edge TTS（免费）", "Azure TTS"])
+        container_layout.addWidget(section)
+        
+        # 导出设置
+        section = self._create_section("导出")
+        self._add_setting_item(section, "默认导出格式", "新建项目时的默认格式",
+                              QComboBox(), ["MP4", "MOV", "SRT"])
+        self._add_setting_item(section, "默认分辨率", "视频输出分辨率",
+                              QComboBox(), ["1920×1080", "1280×720", "3840×2160"])
+        container_layout.addWidget(section)
+        
+        container_layout.addStretch()
+        scroll.setWidget(container)
+        layout.addWidget(scroll)
+    
+    def _create_section(self, title):
+        group = QGroupBox(title)
+        group.setStyleSheet(f"""
+            QGroupBox {{
+                font-size: 13px;
+                color: {ClipFlowTheme.TEXT_DIM};
+                border: 1px solid {ClipFlowTheme.BORDER};
+                border-radius: {ClipFlowTheme.RADIUS}px;
+                margin-top: 16px;
+                padding-top: 16px;
+            }}
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 4px;
+            }}
+        """)
+        layout = QVBoxLayout(group)
+        layout.setContentsMargins(0, 0, 0, 0)
+        return group
+    
+    def _add_setting_item(self, group, label, desc, widget, items=None):
+        item = QFrame()
+        item.setStyleSheet(f"""
+            QFrame {{
+                border-bottom: 1px solid {ClipFlowTheme.BORDER};
+                padding: 12px 16px;
+            }}
+            QFrame:last-child {{ border-bottom: none; }}
+        """)
+        layout = QHBoxLayout(item)
+        
+        info = QWidget()
+        info_layout = QVBoxLayout(info)
+        info_layout.setContentsMargins(0, 0, 0, 0)
+        
+        name = QLabel(label)
+        name.setStyleSheet("font-size: 14px;")
+        info_layout.addWidget(name)
+        
+        desc_label = QLabel(desc)
+        desc_label.setStyleSheet(f"font-size: 12px; color: {ClipFlowTheme.TEXT_DIM};")
+        info_layout.addWidget(desc_label)
+        
+        layout.addWidget(info, 1)
+        
+        if items and isinstance(widget, QComboBox):
+            widget.addItems(items)
+            widget.setStyleSheet(f"""
+                QComboBox {{
+                    background: {ClipFlowTheme.BG_ELEVATED};
+                    border: 1px solid {ClipFlowTheme.BORDER};
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    min-width: 150px;
+                }}
+            """)
+        
+        if isinstance(widget, QLineEdit):
+            widget.setPlaceholderText(desc)
+            widget.setStyleSheet(f"""
+                QLineEdit {{
+                    background: {ClipFlowTheme.BG_ELEVATED};
+                    border: 1px solid {ClipFlowTheme.BORDER};
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    min-width: 200px;
+                }}
+            """)
+        
+        if isinstance(widget, QCheckBox):
+            widget.setFixedWidth(44)
+            widget.setFixedHeight(24)
+        
+        layout.addWidget(widget)
+        
+        group.layout().addWidget(item)
+
+
+class EditPanel(QDialog):
+    """编辑面板 - 全屏对话框"""
+    
+    saved = pyqtSignal(dict)  # project data
+    closed = pyqtSignal()
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("编辑项目")
+        self.resize(1200, 700)
+        self.setModal(True)
+        self._init_ui()
+    
+    def _init_ui(self):
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # 顶部栏
+        header = QWidget()
+        header.setStyleSheet(f"background: {ClipFlowTheme.BG}; border-bottom: 1px solid {ClipFlowTheme.BORDER};")
+        header_layout = QHBoxLayout(header)
+        
+        self.title = QLabel("新建项目")
+        self.title.setStyleSheet("font-size: 18px; font-weight: bold;")
+        header_layout.addWidget(self.title)
+        
+        header_layout.addStretch()
+        
+        btn_cancel = QPushButton("取消")
+        btn_cancel.clicked.connect(self.reject)
+        header_layout.addWidget(btn_cancel)
+        
+        main_layout.addWidget(header)
+        
+        # 内容区
+        content = QWidget()
+        content_layout = QHBoxLayout(content)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # 左侧预览
+        preview = QWidget()
+        preview.setStyleSheet(f"background: {ClipFlowTheme.BG_ELEVATED}; border-right: 1px solid {ClipFlowTheme.BORDER};")
+        preview_layout = QVBoxLayout(preview)
+        preview_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        self.preview_box = QFrame()
+        self.preview_box.setMinimumSize(600, 400)
+        self.preview_box.setStyleSheet(f"""
+            QFrame {{
+                background: {ClipFlowTheme.BG_CARD};
+                border: 2px dashed {ClipFlowTheme.BORDER};
+                border-radius: {ClipFlowTheme.RADIUS}px;
+            }}
+        """)
+        preview_box_layout = QVBoxLayout(self.preview_box)
+        preview_box_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        self.preview_icon = QLabel("📹")
+        self.preview_icon.setStyleSheet("font-size: 48px;")
+        preview_box_layout.addWidget(self.preview_icon)
+        
+        self.preview_text = QLabel("点击选择视频")
+        self.preview_text.setStyleSheet(f"color: {ClipFlowTheme.TEXT_DIM};")
+        preview_box_layout.addWidget(self.preview_text)
+        
+        preview_layout.addWidget(self.preview_box)
+        
+        # 右侧AI功能
+        sidebar = QWidget()
+        sidebar_layout = QVBoxLayout(sidebar)
+        sidebar_layout.setContentsMargins(24, 24, 24, 24)
+        
+        # AI功能卡片
+        self._create_ai_card("🎙️", "AI 解说", "分析视频生成解说词并配音")
+        self._create_ai_card("📝", "字幕生成", "Whisper语音识别生成字幕")
+        self._create_ai_card("🎵", "Beat-Sync", "自动对齐节拍制作混剪")
+        self._create_ai_card("🔍", "质量分析", "检测视频问题")
+        
+        sidebar_layout.addStretch()
+        
+        # 表单
+        form_group = QGroupBox("项目设置")
+        form_layout = QVBoxLayout(form_group)
+        
+        name_layout = QHBoxLayout()
+        name_layout.addWidget(QLabel("项目名称"))
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("输入项目名称")
+        name_layout.addWidget(self.name_input)
+        form_layout.addLayout(name_layout)
+        
+        template_layout = QHBoxLayout()
+        template_layout.addWidget(QLabel("解说模板"))
+        self.template_combo = QComboBox()
+        self.template_combo.addItems(["B站知识解说", "电影解说", "产品测评", "自定义"])
+        template_layout.addWidget(self.template_combo)
+        form_layout.addLayout(template_layout)
+        
+        sidebar_layout.addWidget(form_group)
+        
+        content_layout.addWidget(preview, 1)
+        content_layout.addWidget(sidebar, 400)
+        
+        main_layout.addWidget(content)
+        
+        # 底部栏
+        footer = QWidget()
+        footer.setStyleSheet(f"background: {ClipFlowTheme.BG}; border-top: 1px solid {ClipFlowTheme.BORDER};")
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.addStretch()
+        
+        btn_save = QPushButton("保存项目")
+        btn_save.setObjectName("primary")
+        btn_save.setStyleSheet(f"""
+            QPushButton#primary {{
+                background: {ClipFlowTheme.ACCENT};
+                color: #000;
+                border: none;
+                border-radius: {ClipFlowTheme.RADIUS}px;
+                padding: 10px 24px;
+                font-weight: bold;
+            }}
+        """)
+        btn_save.clicked.connect(self._on_save)
+        footer_layout.addWidget(btn_save)
+        
+        main_layout.addWidget(footer)
+    
+    def _create_ai_card(self, icon, title, desc):
+        card = QFrame()
+        card.setStyleSheet(f"""
+            QFrame {{
+                background: {ClipFlowTheme.BG_CARD};
+                border: 1px solid {ClipFlowTheme.BORDER};
+                border-radius: {ClipFlowTheme.RADIUS}px;
+                padding: 12px;
+            }}
+            QFrame:hover {{ border-color: {ClipFlowTheme.ACCENT}; }}
+        """)
+        
+        layout = QVBoxLayout(card)
+        
+        header = QHBoxLayout()
+        header.addWidget(QLabel(icon))
+        header.addWidget(QLabel(title))
+        layout.addLayout(header)
+        
+        desc_label = QLabel(desc)
+        desc_label.setStyleSheet(f"font-size: 12px; color: {ClipFlowTheme.TEXT_DIM};")
+        layout.addWidget(desc_label)
+        
+        self.parent().findChild(QWidget).parent().findChild(QWidget).layout().insertWidget(0, card)
 
 
 class ClipFlowMainWindow(QMainWindow):
     """
-    ClipFlow 主窗口 - 简化版
+    ClipFlow 主窗口
     
-    布局:
-    ┌──────────────────────────────────────────────────┐
-    │  Logo   [AI创作] [项目] [设置]              保存  │
-    ├─────────────────────────────┬────────────────────┤
-    │                             │                    │
-    │     视频预览/拖拽区         │   AI 功能卡片       │
-    │                             │                    │
-    │     [拖拽视频到这里]        │   🎙️ AI解说       │
-    │                             │   📝 字幕生成      │
-    │                             │   🎵 Beat-Sync     │
-    │                             │   🔍 质量分析      │
-    │                             │                    │
-    │                             │   [模板] [配音]     │
-    │                             │                    │
-    │                             │   [导出按钮]       │
-    └─────────────────────────────┴────────────────────┘
+    结构:
+    - 首页: 项目列表
+    - 设置: 主题/临时文件/API Key
+    - 编辑面板: 在项目管理中内嵌（对话框形式）
     """
-    
-    # 信号
-    media_imported = pyqtSignal(list)
-    ai_task_started = pyqtSignal(str)
-    ai_task_finished = pyqtSignal(str, bool)
     
     def __init__(self):
         super().__init__()
@@ -68,348 +479,94 @@ class ClipFlowMainWindow(QMainWindow):
         self._apply_theme()
         self._init_ui()
         self._init_menu()
-        self._init_connections()
         
-        self.current_file = None
-        self.is_processing = False
+        # 加载示例项目
+        self._load_demo_projects()
     
     def _apply_theme(self):
-        """应用极简深色主题"""
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(self.BG))
-        palette.setColor(QPalette.ColorRole.WindowText, QColor(self.TEXT))
-        palette.setColor(QPalette.ColorRole.Base, QColor(self.BG_ELEVATED))
-        palette.setColor(QPalette.ColorRole.Text, QColor(self.TEXT))
-        palette.setColor(QPalette.ColorRole.Button, QColor(self.BG_CARD))
-        palette.setColor(QPalette.ColorRole.ButtonText, QColor(self.TEXT))
-        palette.setColor(QPalette.ColorRole.Highlight, QColor(self.ACCENT))
+        palette.setColor(QPalette.ColorRole.Window, QColor(ClipFlowTheme.BG))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(ClipFlowTheme.TEXT))
+        palette.setColor(QPalette.ColorRole.Base, QColor(ClipFlowTheme.BG_ELEVATED))
+        palette.setColor(QPalette.ColorRole.Text, QColor(ClipFlowTheme.TEXT))
         self.setPalette(palette)
-        
-        self.setStyleSheet(f"""
-            QMainWindow {{ background-color: {self.BG}; }}
-            QMenuBar {{ background-color: {self.BG}; color: {self.TEXT}; border-bottom: 1px solid {self.BORDER}; }}
-            QMenuBar::item:selected {{ background-color: {self.BG_ELEVATED}; }}
-            QMenu {{ background-color: {self.BG_ELEVATED}; color: {self.TEXT}; border: 1px solid {self.BORDER}; }}
-            QMenu::item:selected {{ background-color: {self.BG_CARD}; }}
-            QPushButton {{ background-color: {self.BG_CARD}; color: {self.TEXT}; border: 1px solid {self.BORDER}; border-radius: {self.RADIUS}px; padding: 10px 20px; }}
-            QPushButton:hover {{ border-color: {self.ACCENT}; }}
-            QPushButton#primary {{ background-color: {self.ACCENT}; color: #000; border: none; font-weight: bold; }}
-            QPushButton#primary:hover {{ opacity: 0.9; }}
-            QLabel {{ color: {self.TEXT}; }}
-            QDockWidget {{ color: {self.TEXT}; border: 1px solid {self.BORDER}; }}
-            QDockWidget::title {{ background-color: {self.BG_ELEVATED}; padding: 8px; }}
-            QStatusBar {{ background-color: {self.BG}; color: {self.TEXT_DIM}; border-top: 1px solid {self.BORDER}; }}
-            QGroupBox {{ color: {self.TEXT_DIM}; border: 1px solid {self.BORDER}; border-radius: {self.RADIUS}px; margin-top: 12px; font-size: 13px; }}
-            QGroupBox::title {{ subcontrol-origin: margin; left: 12px; padding: 0 4px; }}
-            QLineEdit, QComboBox, QSpinBox {{ background-color: {self.BG_ELEVATED}; color: {self.TEXT}; border: 1px solid {self.BORDER}; border-radius: 8px; padding: 8px 12px; }}
-            QLineEdit:focus, QComboBox:focus {{ border-color: {self.ACCENT}; }}
-        """)
     
     def _init_ui(self):
-        """初始化UI"""
-        # 中央部件 - 工作区
-        self.central = self._create_workspace()
-        self.setCentralWidget(self.central)
+        # 堆叠窗口
+        self.stack = QStackedWidget()
+        self.setCentralWidget(self.stack)
         
-        # 右侧面板 - AI 功能
-        self.ai_panel = self._create_ai_panel()
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.ai_panel)
+        # 首页
+        self.home_page = HomePage()
+        self.home_page.new_project_clicked.connect(self._show_new_project)
+        self.home_page.edit_project_clicked.connect(self._show_edit_project)
+        self.stack.addWidget(self.home_page)
         
-        # 状态栏
+        # 设置页
+        self.settings_page = SettingsPage()
+        self.stack.addWidget(self.settings_page)
+        
+        # 底部导航（用工具栏模拟）
+        toolbar = QToolBar()
+        toolbar.setMovable(False)
+        self.addToolBar(Qt.ToolBarArea.BottomToolBarArea, toolbar)
+        
+        btn_home = QPushButton("首页")
+        btn_home.setCheckable(True)
+        btn_home.setChecked(True)
+        btn_home.clicked.connect(lambda: self._show_page(0))
+        toolbar.addWidget(btn_home)
+        
+        btn_settings = QPushButton("设置")
+        btn_settings.setCheckable(True)
+        btn_settings.clicked.connect(lambda: self._show_page(1))
+        toolbar.addWidget(btn_settings)
+        
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("就绪")
     
-    def _create_workspace(self) -> QWidget:
-        """创建工作区"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(40, 40, 40, 40)
-        
-        # 拖拽区域
-        self.drop_zone = QFrame()
-        self.drop_zone.setMinimumSize(600, 400)
-        self.drop_zone.setStyleSheet(f"""
-            QFrame {{
-                background-color: {self.BG_ELEVATED};
-                border: 2px dashed {self.BORDER};
-                border-radius: {self.RADIUS}px;
-            }}
-            QFrame:hover {{
-                border-color: {self.ACCENT};
-                background-color: {self.ACCENT_DIM};
-            }}
-        """)
-        
-        drop_layout = QVBoxLayout(self.drop_zone)
-        drop_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        self.drop_icon = QLabel("📹")
-        self.drop_icon.setStyleSheet("font-size: 48px; opacity: 0.5;")
-        drop_layout.addWidget(self.drop_icon)
-        
-        self.drop_text = QLabel("拖拽视频到这里\n或点击选择文件")
-        self.drop_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.drop_text.setStyleSheet(f"color: {self.TEXT_DIM}; font-size: 14px;")
-        drop_layout.addWidget(self.drop_text)
-        
-        # 文件信息（隐藏直到选择文件）
-        self.file_info = QWidget()
-        self.file_info.setVisible(False)
-        file_layout = QVBoxLayout(self.file_info)
-        file_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        self.file_name = QLabel("video.mp4")
-        self.file_name.setStyleSheet("font-size: 16px; font-weight: bold;")
-        file_layout.addWidget(self.file_name)
-        
-        self.file_meta = QLabel("1920×1080 • 02:34 • 45MB")
-        self.file_meta.setStyleSheet(f"color: {self.TEXT_DIM}; font-size: 13px;")
-        file_layout.addWidget(self.file_meta)
-        
-        drop_layout.addWidget(self.file_info)
-        
-        # 点击选择文件
-        self.drop_zone.mousePressEvent = lambda e: self._import_media()
-        
-        layout.addWidget(self.drop_zone, alignment=Qt.AlignmentFlag.AlignCenter)
-        
-        return widget
-    
-    def _create_ai_panel(self) -> QDockWidget:
-        """创建AI功能面板"""
-        dock = QDockWidget("AI 功能", self)
-        dock.setMinimumWidth(320)
-        
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(16, 16, 16, 16)
-        
-        # AI 功能卡片
-        self.ai_cards = QWidget()
-        cards_layout = QVBoxLayout(self.ai_cards)
-        cards_layout.setSpacing(12)
-        
-        # AI 解说
-        self.card_commentary = self._create_ai_card("🎙️", "AI 解说", "分析视频内容，自动生成解说词并配音")
-        cards_layout.addWidget(self.card_commentary)
-        
-        # 字幕生成
-        self.card_subtitle = self._create_ai_card("📝", "字幕生成", "Whisper 语音识别，自动生成字幕")
-        cards_layout.addWidget(self.card_subtitle)
-        
-        # Beat-Sync
-        self.card_beatsync = self._create_ai_card("🎵", "Beat-Sync 混剪", "自动对齐节拍，制作节奏感强的混剪")
-        cards_layout.addWidget(self.card_beatsync)
-        
-        # 质量分析
-        self.card_analysis = self._create_ai_card("🔍", "质量分析", "检测分辨率、亮度、音频等问题")
-        cards_layout.addWidget(self.card_analysis)
-        
-        layout.addWidget(self.ai_cards)
-        
-        # 设置区域
-        settings_group = QGroupBox("设置")
-        settings_layout = QGridLayout()
-        
-        settings_layout.addWidget(QLabel("模板"), 0, 0)
-        self.template_combo = QComboBox()
-        self.template_combo.addItems(["B站知识解说", "电影解说", "产品测评", "自定义"])
-        settings_layout.addWidget(self.template_combo, 0, 1)
-        
-        settings_layout.addWidget(QLabel("配音"), 1, 0)
-        self.voice_combo = QComboBox()
-        self.voice_combo.addItems(["晓雅（女声）", "云飞（男声）"])
-        settings_layout.addWidget(self.voice_combo, 1, 1)
-        
-        settings_group.setLayout(settings_layout)
-        layout.addWidget(settings_group)
-        
-        layout.addStretch()
-        
-        # 导出选项
-        export_group = QGroupBox("导出")
-        export_layout = QVBoxLayout(export_group)
-        
-        format_layout = QHBoxLayout()
-        self.format_btns = []
-        for fmt in ["MP4", "SRT", "TXT", "剪映"]:
-            btn = QPushButton(fmt)
-            btn.setCheckable(True)
-            if fmt == "MP4":
-                btn.setChecked(True)
-            btn.setStyleSheet(f"""
-                QPushButton {{ background-color: {self.BG_ELEVATED}; 
-                              border: 1px solid {self.BORDER}; 
-                              border-radius: 6px; padding: 8px; min-width: 0; }}
-                QPushButton:checked {{ background-color: {self.ACCENT_DIM}; 
-                                      border-color: {self.ACCENT}; color: {self.ACCENT}; }}
-            """)
-            self.format_btns.append(btn)
-            format_layout.addWidget(btn)
-        
-        export_layout.addLayout(format_layout)
-        
-        self.btn_export = QPushButton("导出视频")
-        self.btn_export.setObjectName("primary")
-        self.btn_export.setStyleSheet(f"""
-            QPushButton#primary {{ 
-                background-color: {self.ACCENT}; color: #000; border: none; 
-                border-radius: {self.RADIUS}px; padding: 12px; font-weight: bold; 
-            }}
-            QPushButton#primary:hover {{ opacity: 0.9; }}
-        """)
-        export_layout.addWidget(self.btn_export)
-        
-        layout.addWidget(export_group)
-        
-        dock.setWidget(widget)
-        return dock
-    
-    def _create_ai_card(self, icon: str, title: str, desc: str) -> QFrame:
-        """创建AI功能卡片"""
-        frame = QFrame()
-        frame.setStyleSheet(f"""
-            QFrame {{
-                background-color: {self.BG_CARD};
-                border: 1px solid {self.BORDER};
-                border-radius: {self.RADIUS}px;
-                padding: 16px;
-            }}
-            QFrame:hover {{
-                border-color: {self.ACCENT};
-            }}
-        """)
-        
-        layout = QVBoxLayout(frame)
-        layout.setSpacing(8)
-        layout.setContentsMargins(0, 0, 0, 0)
-        
-        header = QHBoxLayout()
-        icon_label = QLabel(icon)
-        icon_label.setStyleSheet("font-size: 20px;")
-        header.addWidget(icon_label)
-        
-        title_label = QLabel(title)
-        title_label.setStyleSheet("font-size: 14px; font-weight: 600;")
-        header.addWidget(title_label)
-        
-        header.addStretch()
-        layout.addLayout(header)
-        
-        desc_label = QLabel(desc)
-        desc_label.setStyleSheet(f"color: {self.TEXT_DIM}; font-size: 12px;")
-        layout.addWidget(desc_label)
-        
-        return frame
+    def _show_page(self, index):
+        self.stack.setCurrentIndex(index)
     
     def _init_menu(self):
-        """初始化菜单"""
         menubar = self.menuBar()
         
-        # 文件菜单
         file_menu = menubar.addMenu("文件")
-        file_menu.addAction("导入媒体", self._import_media, QKeySequence("Ctrl+I"))
-        file_menu.addAction("保存项目", self._save_project, QKeySequence("Ctrl+S"))
+        file_menu.addAction("新建项目", self._show_new_project, QKeySequence("Ctrl+N"))
         file_menu.addSeparator()
         file_menu.addAction("退出", self.close)
         
-        # AI 菜单
-        ai_menu = menubar.addMenu("AI 功能")
-        ai_menu.addAction("AI 解说", lambda: self._run_ai_task("commentary"))
-        ai_menu.addAction("字幕生成", lambda: self._run_ai_task("subtitle"))
-        ai_menu.addAction("Beat-Sync", lambda: self._run_ai_task("beatsync"))
-        ai_menu.addAction("质量分析", lambda: self._run_ai_task("analysis"))
-        
-        # 帮助菜单
         help_menu = menubar.addMenu("帮助")
         help_menu.addAction("关于", self._show_about)
     
-    def _init_connections(self):
-        """初始化连接"""
-        self.btn_export.clicked.connect(self._export)
-        
-        # AI 卡片点击
-        self.card_commentary.mousePressEvent = lambda e: self._run_ai_task("commentary")
-        self.card_subtitle.mousePressEvent = lambda e: self._run_ai_task("subtitle")
-        self.card_beatsync.mousePressEvent = lambda e: self._run_ai_task("beatsync")
-        self.card_analysis.mousePressEvent = lambda e: self._run_ai_task("analysis")
+    def _show_new_project(self):
+        dialog = EditPanel(self)
+        dialog.title.setText("新建项目")
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.status_bar.showMessage("项目已创建")
     
-    def _import_media(self):
-        """导入媒体"""
-        path, _ = QFileDialog.getOpenFileName(
-            self, "选择视频",
-            "", "视频文件 (*.mp4 *.mov *.avi *.mkv);;所有文件 (*.*)"
-        )
-        
-        if path:
-            self.current_file = path
-            from pathlib import Path
-            name = Path(path).name
-            
-            self.drop_zone.setStyleSheet(f"""
-                QFrame {{
-                    background-color: {self.BG_ELEVATED};
-                    border: 2px solid {self.SUCCESS};
-                    border-radius: {self.RADIUS}px;
-                }}
-            """)
-            self.drop_icon.setVisible(False)
-            self.drop_text.setVisible(False)
-            
-            self.file_name.setText(name)
-            self.file_meta.setText("1920×1080 • 02:34 • 45MB")
-            self.file_info.setVisible(True)
-            
-            self.status_bar.showMessage(f"已导入: {name}")
-    
-    def _run_ai_task(self, task: str):
-        """运行AI任务"""
-        if not self.current_file:
-            QMessageBox.information(self, "提示", "请先导入视频文件")
-            return
-        
-        task_names = {
-            "commentary": "AI 解说生成",
-            "subtitle": "字幕生成",
-            "beatsync": "Beat-Sync 混剪",
-            "analysis": "质量分析"
-        }
-        
-        self.status_bar.showMessage(f"正在处理: {task_names.get(task, task)}...")
-        self.ai_task_started.emit(task)
-    
-    def _export(self):
-        """导出"""
-        if not self.current_file:
-            QMessageBox.information(self, "提示", "请先导入视频并处理")
-            return
-        
-        # 获取选中的格式
-        selected_fmt = "MP4"
-        for btn in self.format_btns:
-            if btn.isChecked():
-                selected_fmt = btn.text()
-                break
-        
-        self.status_bar.showMessage(f"正在导出 {selected_fmt}...")
-    
-    def _save_project(self):
-        """保存项目"""
-        self.status_bar.showMessage("项目已保存")
+    def _show_edit_project(self, project_id):
+        dialog = EditPanel(self)
+        dialog.title.setText("编辑项目")
+        dialog.name_input.setText(f"项目 {project_id}")
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.status_bar.showMessage("项目已保存")
     
     def _show_about(self):
-        """显示关于"""
-        QMessageBox.about(
-            self, "关于 ClipFlow",
-            "<h3>ClipFlow</h3>"
-            "<p>AI 驱动的视频创作工具</p>"
-            "<p>版本 2.0.0</p>"
-        )
+        QMessageBox.about(self, "关于", "<h3>ClipFlow</h3><p>AI 驱动的视频创作工具</p><p>版本 2.0.0</p>")
+    
+    def _load_demo_projects(self):
+        """加载示例项目"""
+        projects = [
+            {"id": 1, "name": "B站知识解说模板", "meta": "2024-01-15 • 视频: 1个"},
+            {"id": 2, "name": "Beat-Sync 混剪", "meta": "2024-01-14 • 视频: 5个"},
+            {"id": 3, "name": "字幕翻译项目", "meta": "2024-01-13 • 视频: 3个"},
+        ]
+        self.home_page.load_projects(projects)
 
 
 def demo():
-    """演示"""
     import sys
     from PyQt6.QtWidgets import QApplication
     
