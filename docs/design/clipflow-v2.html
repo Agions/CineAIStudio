@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClipFlow - AI 视频创作</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090B;
+            --bg-2: #111113;
+            --bg-3: #18181B;
+            --bg-4: #27272A;
+            --border: #3F3F46;
+            --border-light: #52525B;
+            --text: #FAFAFA;
+            --text-2: #A1A1AA;
+            --text-3: #71717A;
+            --accent: #10B981;
+            --accent-hover: #059669;
+            --accent-dim: rgba(16, 185, 129, 0.15);
+            --accent-2: #6366F1;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ====== 顶部导航 ====== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            height: 56px;
+            background: var(--bg-2);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            margin-left: 48px;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            font-size: 14px;
+            color: var(--text-3);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .nav-tab:hover { color: var(--text); background: var(--bg-3); }
+        .nav-tab.active { color: var(--accent); background: var(--accent-dim); }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ====== 主内容区 ====== */
+        .main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .page { display: none; flex: 1; overflow: hidden; }
+        .page.active { display: flex; }
+
+        /* ====== 首页 - 项目列表 ====== */
+        .home-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* 项目网格 */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .project-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .project-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .project-thumb {
+            aspect-ratio: 16/9;
+            background: var(--bg-3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--text-3);
+        }
+
+        .project-info {
+            padding: 16px;
+        }
+
+        .project-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .project-meta {
+            font-size: 12px;
+            color: var(--text-3);
+            margin-bottom: 12px;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-2);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { border-color: var(--text-2); color: var(--text); }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+
+        /* 新建项目卡片 */
+        .new-project-card {
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            min-height: 200px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-3);
+        }
+
+        .new-project-card:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .new-project-icon { font-size: 32px; }
+        .new-project-text { font-size: 14px; }
+
+        /* ====== 设置页 ====== */
+        .settings-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            max-width: 720px;
+        }
+
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .settings-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-item:last-child { border-bottom: none; }
+
+        .settings-item-left {}
+        .settings-item-label { font-size: 14px; margin-bottom: 2px; }
+        .settings-item-desc { font-size: 12px; color: var(--text-3); }
+
+        .settings-item-right {}
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 8px 12px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            width: 200px;
+        }
+
+        input:focus { outline: none; border-color: var(--accent); }
+
+        select {
+            padding: 8px 12px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 140px;
+        }
+
+        /* 开关 */
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background: var(--bg-4);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle.on { background: var(--accent); }
+        .toggle::after {
+            content: '';
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: all 0.2s;
+        }
+        .toggle.on::after { left: 23px; }
+
+        /* ====== 编辑面板 ====== */
+        .edit-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .edit-overlay.active { display: flex; }
+
+        .edit-header {
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            height: 56px;
+            background: var(--bg-2);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .edit-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .edit-header-right {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        .edit-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            overflow: hidden;
+        }
+
+        /* 视频预览区 */
+        .edit-preview {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .video-dropzone {
+            width: 80%;
+            max-width: 720px;
+            aspect-ratio: 16/9;
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .video-dropzone:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .video-dropzone.has-video {
+            border-style: solid;
+            border-color: var(--accent);
+            background: var(--bg-3);
+        }
+
+        .dropzone-icon { font-size: 48px; color: var(--text-3); }
+        .dropzone-text { font-size: 14px; color: var(--text-3); }
+
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .video-progress {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+        }
+
+        .video-progress-fill {
+            width: 35%;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .video-time {
+            font-size: 12px;
+            font-family: monospace;
+            color: var(--text-2);
+        }
+
+        /* 右侧工具栏 */
+        .edit-sidebar {
+            background: var(--bg-2);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 12px;
+            font-size: 13px;
+            color: var(--text-3);
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar-tab:hover { color: var(--text); }
+        .sidebar-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        /* AI 工具卡片 */
+        .ai-tool-card {
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .ai-tool-card:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .ai-tool-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .ai-tool-icon { font-size: 18px; }
+        .ai-tool-title { font-size: 14px; font-weight: 500; }
+        .ai-tool-status {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--bg-4);
+            color: var(--text-3);
+        }
+
+        .ai-tool-card.done .ai-tool-status {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .ai-tool-card.processing .ai-tool-status {
+            background: var(--warning);
+            color: #000;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .ai-tool-desc { font-size: 12px; color: var(--text-3); }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-3);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 编辑底部 */
+        .edit-footer {
+            padding: 16px 24px;
+            background: var(--bg-2);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 导出选项 */
+        .export-formats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .format-btn {
+            padding: 10px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            text-align: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .format-btn:hover { border-color: var(--text-2); }
+        .format-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+        /* 状态栏 */
+        .statusbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 24px;
+            background: var(--bg-2);
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-3);
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="topbar">
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <span>ClipFlow</span>
+        </div>
+
+        <nav class="nav-tabs">
+            <div class="nav-tab active" data-page="home">首页</div>
+            <div class="nav-tab" data-page="settings">设置</div>
+        </nav>
+
+        <div class="topbar-right">
+            <button class="btn btn-primary" onclick="openEdit('new')">+ 新建项目</button>
+        </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="main">
+        <!-- 首页 -->
+        <div class="page active" id="pageHome">
+            <div class="home-content">
+                <div class="page-header">
+                    <h1 class="page-title">我的项目</h1>
+                </div>
+
+                <div class="project-grid">
+                    <!-- 新建项目卡片 -->
+                    <div class="new-project-card" onclick="openEdit('new')">
+                        <div class="new-project-icon">+</div>
+                        <div class="new-project-text">新建项目</div>
+                    </div>
+
+                    <!-- 项目卡片 -->
+                    <div class="project-card" onclick="openEdit('edit', 1)">
+                        <div class="project-thumb">🎬</div>
+                        <div class="project-info">
+                            <div class="project-name">B站知识解说</div>
+                            <div class="project-meta">2024-01-15 • 视频: 1个</div>
+                            <div class="project-actions" onclick="event.stopPropagation()">
+                                <button class="btn btn-sm btn-ghost" onclick="openEdit('edit', 1)">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProject(this)">删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 项目卡片 -->
+                    <div class="project-card" onclick="openEdit('edit', 2)">
+                        <div class="project-thumb">🎵</div>
+                        <div class="project-info">
+                            <div class="project-name">Beat-Sync 混剪</div>
+                            <div class="project-meta">2024-01-14 • 视频: 5个</div>
+                            <div class="project-actions" onclick="event.stopPropagation()">
+                                <button class="btn btn-sm btn-ghost" onclick="openEdit('edit', 2)">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProject(this)">删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 项目卡片 -->
+                    <div class="project-card" onclick="openEdit('edit', 3)">
+                        <div class="project-thumb">📝</div>
+                        <div class="project-info">
+                            <div class="project-name">字幕翻译</div>
+                            <div class="project-meta">2024-01-13 • 视频: 3个</div>
+                            <div class="project-actions" onclick="event.stopPropagation()">
+                                <button class="btn btn-sm btn-ghost" onclick="openEdit('edit', 3)">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProject(this)">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置页 -->
+        <div class="page" id="pageSettings">
+            <div class="settings-content">
+                <div class="settings-section">
+                    <div class="settings-section-title">外观</div>
+                    <div class="settings-card">
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">主题</div>
+                                <div class="settings-item-desc">应用界面配色方案</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <select>
+                                    <option>深色</option>
+                                    <option>浅色</option>
+                                    <option>跟随系统</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">文件</div>
+                    <div class="settings-card">
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">临时文件位置</div>
+                                <div class="settings-item-desc">缓存和临时文件存放目录</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <input type="text" value="/tmp/clipflow">
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">自动清理临时文件</div>
+                                <div class="settings-item-desc">退出时自动删除缓存</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">AI 服务</div>
+                    <div class="settings-card">
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">大模型</div>
+                                <div class="settings-item-desc">用于生成解说和字幕翻译</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <select>
+                                    <option>GPT-4 (OpenAI)</option>
+                                    <option>DeepSeek</option>
+                                    <option>智谱 GLM</option>
+                                    <option>阿里通义</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">API Key</div>
+                                <div class="settings-item-desc">你的 API 密钥</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <input type="password" placeholder="sk-...">
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">语音合成</div>
+                                <div class="settings-item-desc">用于生成解说配音</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <select>
+                                    <option>Edge TTS（免费）</option>
+                                    <option>Azure TTS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">导出</div>
+                    <div class="settings-card">
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">默认格式</div>
+                                <div class="settings-item-desc">新建项目时的导出格式</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <select>
+                                    <option>MP4</option>
+                                    <option>MOV</option>
+                                    <option>SRT 字幕</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-left">
+                                <div class="settings-item-label">默认分辨率</div>
+                                <div class="settings-item-desc">视频输出分辨率</div>
+                            </div>
+                            <div class="settings-item-right">
+                                <select>
+                                    <option>1920×1080 (1080P)</option>
+                                    <option>1280×720 (720P)</option>
+                                    <option>3840×2160 (4K)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 状态栏 -->
+    <footer class="statusbar">
+        <span>就绪</span>
+        <span>ClipFlow v2.0</span>
+    </footer>
+
+    <!-- 编辑面板 -->
+    <div class="edit-overlay" id="editOverlay">
+        <header class="edit-header">
+            <div class="edit-title" id="editTitle">新建项目</div>
+            <div class="edit-header-right">
+                <button class="btn btn-ghost" onclick="closeEdit()">取消</button>
+                <button class="btn btn-primary" onclick="saveProject()">保存</button>
+            </div>
+        </header>
+
+        <div class="edit-body">
+            <!-- 视频预览 -->
+            <div class="edit-preview">
+                <div class="video-dropzone" id="videoDropzone" onclick="selectVideo()">
+                    <div class="dropzone-icon">📹</div>
+                    <div class="dropzone-text">点击选择视频或拖拽到此处</div>
+                </div>
+
+                <div class="video-controls">
+                    <span style="font-size: 18px;">▶</span>
+                    <div class="video-progress">
+                        <div class="video-progress-fill"></div>
+                    </div>
+                    <span class="video-time">00:00:00 / 00:02:34</span>
+                </div>
+            </div>
+
+            <!-- 右侧工具栏 -->
+            <div class="edit-sidebar">
+                <div class="sidebar-tabs">
+                    <div class="sidebar-tab active">AI 工具</div>
+                    <div class="sidebar-tab">设置</div>
+                </div>
+
+                <div class="sidebar-content">
+                    <!-- AI 工具 -->
+                    <div id="aiTools">
+                        <div class="ai-tool-card" onclick="runAI('commentary')">
+                            <div class="ai-tool-header">
+                                <span class="ai-tool-icon">🎙️</span>
+                                <span class="ai-tool-title">AI 解说</span>
+                                <span class="ai-tool-status">未开始</span>
+                            </div>
+                            <div class="ai-tool-desc">分析视频内容，生成解说词并配音</div>
+                        </div>
+
+                        <div class="ai-tool-card" onclick="runAI('subtitle')">
+                            <div class="ai-tool-header">
+                                <span class="ai-tool-icon">📝</span>
+                                <span class="ai-tool-title">字幕生成</span>
+                                <span class="ai-tool-status">未开始</span>
+                            </div>
+                            <div class="ai-tool-desc">Whisper 语音识别，自动生成字幕</div>
+                        </div>
+
+                        <div class="ai-tool-card" onclick="runAI('beatsync')">
+                            <div class="ai-tool-header">
+                                <span class="ai-tool-icon">🎵</span>
+                                <span class="ai-tool-title">Beat-Sync</span>
+                                <span class="ai-tool-status">未开始</span>
+                            </div>
+                            <div class="ai-tool-desc">自动对齐节拍，制作节奏混剪</div>
+                        </div>
+
+                        <div class="ai-tool-card" onclick="runAI('analysis')">
+                            <div class="ai-tool-header">
+                                <span class="ai-tool-icon">🔍</span>
+                                <span class="ai-tool-title">质量分析</span>
+                                <span class="ai-tool-status">未开始</span>
+                            </div>
+                            <div class="ai-tool-desc">检测分辨率、亮度、音频等问题</div>
+                        </div>
+                    </div>
+
+                    <!-- 项目设置 -->
+                    <div id="projectSettings" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">项目名称</label>
+                            <input type="text" class="form-input" id="projectName" placeholder="输入项目名称">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">解说模板</label>
+                            <select class="form-select">
+                                <option>B站知识解说</option>
+                                <option>电影解说</option>
+                                <option>产品测评</option>
+                                <option>自定义</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">配音</label>
+                            <select class="form-select">
+                                <option>晓雅（女声）</option>
+                                <option>云飞（男声）</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">导出格式</label>
+                            <div class="export-formats">
+                                <div class="format-btn active">MP4</div>
+                                <div class="format-btn">MOV</div>
+                                <div class="format-btn">SRT</div>
+                                <div class="format-btn">剪映</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="edit-footer">
+            <button class="btn btn-ghost" onclick="closeEdit()">取消</button>
+            <button class="btn btn-primary" onclick="saveProject()">保存项目</button>
+        </footer>
+    </div>
+
+    <script>
+        // 页面切换
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('page' + capitalize(tab.dataset.page)).classList.add('active');
+            });
+        });
+
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        // 编辑面板
+        function openEdit(mode, id) {
+            const overlay = document.getElementById('editOverlay');
+            const title = document.getElementById('editTitle');
+            const nameInput = document.getElementById('projectName');
+            const dropzone = document.getElementById('videoDropzone');
+
+            if (mode === 'new') {
+                title.textContent = '新建项目';
+                nameInput.value = '';
+                dropzone.classList.remove('has-video');
+            } else {
+                title.textContent = '编辑项目';
+                nameInput.value = '项目 ' + id;
+                dropzone.classList.add('has-video');
+            }
+
+            // 重置AI工具状态
+            document.querySelectorAll('.ai-tool-card').forEach(card => {
+                card.classList.remove('done', 'processing');
+                card.querySelector('.ai-tool-status').textContent = '未开始';
+            });
+
+            // 切换到AI工具标签
+            document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.sidebar-tab').classList.add('active');
+            document.getElementById('aiTools').style.display = 'block';
+            document.getElementById('projectSettings').style.display = 'none';
+
+            overlay.classList.add('active');
+        }
+
+        function closeEdit() {
+            document.getElementById('editOverlay').classList.remove('active');
+        }
+
+        function saveProject() {
+            closeEdit();
+            // 保存逻辑
+        }
+
+        // 侧边栏标签切换
+        document.querySelectorAll('.sidebar-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const index = Array.from(tab.parentNode.children).indexOf(tab);
+                document.getElementById('aiTools').style.display = index === 0 ? 'block' : 'none';
+                document.getElementById('projectSettings').style.display = index === 1 ? 'block' : 'none';
+            });
+        });
+
+        // AI 工具
+        function runAI(type) {
+            const card = event.currentTarget;
+            const status = card.querySelector('.ai-tool-status');
+
+            card.classList.add('processing');
+            status.textContent = '处理中...';
+
+            // 模拟处理
+            setTimeout(() => {
+                card.classList.remove('processing');
+                card.classList.add('done');
+                status.textContent = '已完成';
+            }, 2000);
+        }
+
+        // 选择视频
+        function selectVideo() {
+            const dropzone = document.getElementById('videoDropzone');
+            dropzone.classList.add('has-video');
+        }
+
+        // 删除项目
+        function deleteProject(btn) {
+            const card = btn.closest('.project-card');
+            if (confirm('确定要删除这个项目吗？')) {
+                card.remove();
+            }
+        }
+
+        // 格式化按钮
+        document.querySelectorAll('.format-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // 开关
+        document.querySelectorAll('.toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => toggle.classList.toggle('on'));
+        });
+    </script>
+</body>
+</html>
