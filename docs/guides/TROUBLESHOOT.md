@@ -306,7 +306,7 @@ pytest tests/ -v
 
 - [GitHub Issues](https://github.com/Agions/ClipFlowCut/issues)
 - [INSTALL.md](INSTALL.md) - 安装指南
-- [DEVELOPER.md](DEVELOPER.md) - 开发指南
+- [DEVELOPER.md](../../DEVELOPER.md) - 开发指南
 
 ### 报告新问题
 

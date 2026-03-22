@@ -346,3 +346,11 @@ docs/dev/
 htmlcov/
 .coverage
 cov.xml
+
+# VitePress
+docs/.vitepress/dist/
+
+# pnpm
+node_modules/
+pnpm-lock.yaml
+

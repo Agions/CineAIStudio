@@ -109,7 +109,7 @@ LLM:
     api_key: ${GEMINI_API_KEY}
 ```
 
-支持的模型详见 [架构文档](../ARCHITECTURE.md)。
+支持的模型详见 [架构文档](../../ARCHITECTURE.md)。
 
 ## 打包
 

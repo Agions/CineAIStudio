@@ -371,7 +371,7 @@ DEFAULT_LLM_MODEL=gpt-5.2
 ## 📚 相关文档
 
 - [AI 视频创作指南](AI_VIDEO_GUIDE.md)
-- [模型更新日志](../ai/MODEL_UPDATES_2026_02.md)
+- [模型更新日志](../../ai/MODEL_UPDATES_2026_02.md)
 - [故障排除](TROUBLESHOOT.md)
 
 ---

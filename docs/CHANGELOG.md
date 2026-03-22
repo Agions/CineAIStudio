@@ -276,7 +276,7 @@ None (backward compatible)
 
 ## Contributing
 
-欢迎贡献！请参考 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
+欢迎贡献！请参考 [CONTRIBUTING.md](../CONTRIBUTING.md) 了解详情。
 
 ## License
 
