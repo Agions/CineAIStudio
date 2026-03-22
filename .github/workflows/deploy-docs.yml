@@ -38,12 +38,12 @@ jobs:
       - name: Install dependencies
         run: |
           cd docs
-          npm install
+          pnpm install
 
       - name: Build
         run: |
           cd docs
-          npm run docs:build
+          pnpm run docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

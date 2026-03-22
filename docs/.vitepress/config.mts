@@ -4,7 +4,7 @@ export default defineConfig({
   title: "ClipFlowCut",
   description: "AI-Driven Video Creation Desktop Application",
   head: [
-    ['link', {', href: '/ rel: 'iconfavicon.ico' }]
+    ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
   themeConfig: {
     logo: '/logo.png',
