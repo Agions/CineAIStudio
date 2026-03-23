@@ -1,0 +1,9 @@
+- [首页](/)
+- 新手入门
+  - [快速开始](getting-started.md)
+  - [常见问题](faq.md)
+- 功能指南
+  - [核心功能](features.md)
+  - [工作流程](workflow.md)
+- 变更日志
+  - [更新日志](CHANGELOG.md)
