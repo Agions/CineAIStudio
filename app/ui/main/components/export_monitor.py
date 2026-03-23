@@ -8,12 +8,12 @@
 
 import time
 from typing import Dict, List, Optional, Any
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QPushButton, QProgressBar, QTableWidget,
                             QTableWidgetItem, QFrame, QSplitter, QGroupBox,
                             QTextEdit, QScrollArea)
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread, QRect
-from PyQt6.QtGui import QFont, QPalette, QColor, QPainter, QPen
+from PySide6.QtCore import Qt, QTimer, pyqtSignal, QThread, QRect
+from PySide6.QtGui import QFont, QPalette, QColor, QPainter, QPen
 
 from ...export.export_system import ExportTask, ExportStatus
 from ...core.logger import Logger
@@ -608,7 +608,7 @@ class ExportProgressDialog(QDialog):
     def on_export_failed(self, task_id: str, error_message: str):
         """导出失败事件"""
         # 显示错误通知
-        from PyQt6.QtWidgets import QMessageBox
+        from PySide6.QtWidgets import QMessageBox
         QMessageBox.critical(
             self,
             "导出失败",

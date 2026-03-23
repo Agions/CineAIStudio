@@ -11,11 +11,11 @@ import os
 import webbrowser
 from typing import Dict, List, Optional, Any
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QGridLayout, QMessageBox
 )
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PySide6.QtCore import Qt, QTimer, pyqtSignal
 
 from app.core.config_manager import ConfigManager
 from app.core.logger import Logger

@@ -12,7 +12,7 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
     QPushButton, QLabel, QFrame, QSpacerItem,
     QSizePolicy, QGroupBox, QStackedWidget, QSplitter,
@@ -24,11 +24,11 @@ from PyQt6.QtWidgets import (
     QFormLayout, QToolButton, QDialog, QDialogButtonBox,
     QSystemTrayIcon, QMenu, QApplication, QStyle
 )
-from PyQt6.QtCore import (
+from PySide6.QtCore import (
     Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
     QMimeData, QUrl, QEvent, QRectF, QThread, pyqtSlot
 )
-from PyQt6.QtGui import (
+from PySide6.QtGui import (
     QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
     QPainter, QPen, QBrush, QPainterPath, QFontDatabase,
     QDesktopServices, QRegularExpression

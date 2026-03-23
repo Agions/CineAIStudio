@@ -8,10 +8,10 @@
 
 import os
 from typing import Optional, Callable
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton, QFrame
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QUrl, QSize
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PyQt6.QtMultimediaWidgets import QVideoWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton, QFrame
+from PySide6.QtCore import Qt, QTimer, pyqtSignal, QUrl, QSize
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PySide6.QtMultimediaWidgets import QVideoWidget
 
 
 class VideoPlayer(QWidget):

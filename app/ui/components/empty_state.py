@@ -4,11 +4,11 @@ ClipFlowCut 空状态组件 - 品牌升级版
 """
 
 from typing import Optional, List, Callable
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QSize
-from PyQt6.QtGui import QFont, QPainter, QColor, QLinearGradient, QPainterPath, QPixmap
+from PySide6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtGui import QFont, QPainter, QColor, QLinearGradient, QPainterPath, QPixmap
 
 # 色彩系统 - ClipFlowCut 现代暗色主题
 COLORS = {

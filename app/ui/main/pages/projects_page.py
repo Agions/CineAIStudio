@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
     QScrollArea, QFrame, QSplitter, QStackedWidget, QProgressBar,
     QMessageBox, QDialog, QFileDialog, QLineEdit, QTextEdit,
@@ -20,8 +20,8 @@ from PyQt6.QtWidgets import (
     QInputDialog, QListWidget, QListWidgetItem, QToolButton,
     QMenu, QDialogButtonBox, QFormLayout, QSlider, QSpacerItem, QSizePolicy
 )
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QSize, QPoint
-from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QColor, QBrush
+from PySide6.QtCore import Qt, QTimer, pyqtSignal, QSize, QPoint
+from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QColor, QBrush
 
 from .base_page import BasePage
 from app.core.icon_manager import get_icon

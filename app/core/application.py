@@ -12,8 +12,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QTimer, pyqtSignal, QObject, QSettings
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QTimer, pyqtSignal, QObject, QSettings
 
 
 class ApplicationState(Enum):

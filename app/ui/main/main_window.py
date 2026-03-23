@@ -12,16 +12,16 @@ from typing import Optional, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget,
     QToolBar, QStatusBar, QMenuBar, QSplitter, QFrame, QLabel,
     QSizePolicy, QApplication, QMessageBox, QPushButton
 )
-from PyQt6.QtCore import (
+from PySide6.QtCore import (
     Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
     QMimeData, QUrl, QEvent
 )
-from PyQt6.QtGui import (
+from PySide6.QtGui import (
     QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
     QAction, QFontDatabase, QCloseEvent, QKeySequence, QShortcut
 )
@@ -358,7 +358,7 @@ class MainWindow(QMainWindow):
             self.show_status_message("正在加载其他页面...")
             
             # 使用QTimer异步加载其他页面，避免阻塞主线程
-            from PyQt6.QtCore import QTimer
+            from PySide6.QtCore import QTimer
             
             # 延迟加载其他页面，给予主窗口更多初始化时间
             QTimer.singleShot(500, self._load_remaining_pages)
@@ -437,7 +437,7 @@ class MainWindow(QMainWindow):
                     
                     # 单个页面加载失败不影响其他页面
                     if self.error_handler:
-                        from PyQt6.QtWidgets import QApplication
+                        from PySide6.QtWidgets import QApplication
                         import time
                         error_info = ErrorInfo(
                             error_type=ErrorType.UI,
@@ -662,7 +662,7 @@ class MainWindow(QMainWindow):
                 target_page.activate()
             
             # 使用更丰富的页面切换动画
-            from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
+            from PySide6.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
             
             animation_group = QParallelAnimationGroup()
             

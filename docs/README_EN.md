@@ -11,6 +11,7 @@
   <a href="https://github.com/Agions/ClipFlowCut/forks"><img src="https://img.shields.io/github/forks/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=4CAF50" alt="Forks"></a>
   <a href="https://github.com/Agions/ClipFlowCut/releases"><img src="https://img.shields.io/github/v/release/Agions/ClipFlowCut?style=for-the-badge&color=blue" alt="Release"></a>
   <img src="https://img.shields.io/badge/Python-3.9+-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/PySide6-6.6+-41cd52?style=flat-square" alt="PySide6">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
 </p>
 
@@ -29,7 +30,7 @@
 | What ClipFlowCut Offers | |
 |---------|:---:|
 | 🤖 AI auto commentary & voiceover — one click to professional narration | ✅ |
-| 🔀 Switch freely between 9+ LLMs — no vendor lock-in | ✅ |
+| 🔀 Switch freely between 10+ LLMs — no vendor lock-in | ✅ |
 | 📤 Export to all major formats — fits any professional workflow | ✅ |
 | 🏠 Local Ollama support — your data never leaves your machine | ✅ |
 | 🆓 MIT open source & free — no subscription, no limits | ✅ |
@@ -63,11 +64,13 @@ Give your Vlog a cinematic inner-voice feel.
 |----------|-------|:----:|:------:|:---:|
 | **OpenAI** | GPT-4o / GPT-5 | ✅ | ✅ | ✅ |
 | **Anthropic** | Claude Sonnet 4.5 | ✅ | ✅ | — |
-| **Google** | Gemini 2.0 Flash | ✅ | ✅ | — |
+| **Google** | Gemini 3.1 Flash/Pro | ✅ | ✅ | — |
 | **Alibaba** | Qwen 3.5 | ✅ | ✅ | — |
-| **DeepSeek** | R1 / V3 | ✅ | — | — |
+| **DeepSeek** | R1 / V3.2 | ✅ | — | — |
 | **Zhipu AI** | GLM-5 | ✅ | — | — |
 | **Moonshot** | Kimi K2.5 | ✅ | ✅ | — |
+| **ByteDance** | Doubao Pro | ✅ | — | — |
+| **Tencent** | Hunyuan | ✅ | ✅ | — |
 | **Local** | Ollama (any model) | ✅ | — | — |
 | **Microsoft** | Edge TTS | — | — | ✅ Free |
 
@@ -118,12 +121,26 @@ python main.py
 - [x] AI First-Person Monologue (v2.0)
 - [x] Multi-LLM Support (v2.0)
 - [x] Professional Format Export (v3.0)
-- [x] PyQt6 Fluent UI Redesign (v3.0)
+- [x] PySide6 UI Redesign (v3.0) ← Updated
 - [ ] 🔄 Web Version
 - [ ] 🔄 Batch Processing Mode
 - [ ] 🔄 Custom AI Prompt Template Marketplace
 - [ ] 🔄 Multi-language Subtitle Translation
 - [ ] 🔄 Plugin System
+
+---
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
+|----------|------------|
+| GUI Framework | **PySide6** (LGPL License) |
+| Video Processing | FFmpeg, OpenCV |
+| Audio Analysis | librosa |
+| AI Integration | OpenAI SDK + Vendor APIs |
+| Speech Synthesis | Edge TTS (free) / OpenAI TTS |
+| Security | cryptography (Fernet) |
+| Build | PyInstaller |
 
 ---
 
@@ -137,7 +154,7 @@ Contributions are welcome! Bug fixes, new features, docs improvements, translati
 
 ## 📄 License
 
-[MIT License](../LICENSE) © 2026 [Agions](https://github.com/Agions)
+[MIT License](../LICENSE) © 2025-2026 [Agions](https://github.com/Agions)
 
 ---
 

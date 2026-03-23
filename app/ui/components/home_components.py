@@ -5,12 +5,12 @@
 首页组件 - 专业视频创作应用
 """
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, 
     QFrame, QPushButton, QScrollArea, QSpacerItem, QSizePolicy
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QSize, QPropertyAnimation, QEasingCurve
-from PyQt6.QtGui import QFont, QCursor, QLinearGradient, QColor, QPainter
+from PySide6.QtCore import Qt, pyqtSignal, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtGui import QFont, QCursor, QLinearGradient, QColor, QPainter
 
 from ..pro_components import GlassCard, StatCard, GradientButton
 

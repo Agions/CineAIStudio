@@ -11,9 +11,9 @@ import os
 from typing import Optional, Dict
 from pathlib import Path
 
-from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import QSize
-from PyQt6.QtWidgets import QApplication
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QApplication
 
 
 # PyQt 标准图标映射
@@ -92,7 +92,7 @@ class IconManager:
 
     def _get_standard_icon(self, icon_name: str, size: int) -> QIcon:
         """获取 PyQt 标准图标"""
-        from PyQt6.QtWidgets import QStyle
+        from PySide6.QtWidgets import QStyle
 
         if not QApplication.instance():
             return QIcon()

@@ -15,7 +15,7 @@ from enum import Enum
 from pathlib import Path
 import logging
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, pyqtSignal
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager

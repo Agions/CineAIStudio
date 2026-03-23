@@ -5,14 +5,14 @@
 视频编辑器 - 预览面板组件
 """
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
     QSlider, QPushButton, QFrame
 )
-from PyQt6.QtCore import Qt, QUrl, QTimer
-from PyQt6.QtGui import QFont, QIcon, QCursor
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PyQt6.QtMultimediaWidgets import QVideoWidget
+from PySide6.QtCore import Qt, QUrl, QTimer
+from PySide6.QtGui import QFont, QIcon, QCursor
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PySide6.QtMultimediaWidgets import QVideoWidget
 
 
 class PreviewPanel(QWidget):

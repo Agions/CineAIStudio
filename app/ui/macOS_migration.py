@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 # PyQt6 导入
-from PyQt6.QtCore import QFile, QTextStream
+from PySide6.QtCore import QFile, QTextStream
 
 class MigrationManager:
     """迁移管理器 - 负责UI迁移"""
@@ -142,9 +142,9 @@ macOS 主题管理器 - 负责应用和切换 macOS 设计系统
 import os
 from pathlib import Path
 from typing import Optional, Callable
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QFile, QTextStream, pyqtSignal, QObject
-from PyQt6.QtGui import QFont
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QFile, QTextStream, pyqtSignal, QObject
+from PySide6.QtGui import QFont
 
 
 class macOS_ThemeManager(QObject):
@@ -442,12 +442,12 @@ __all__ = ["macOS_ThemeManager", "get_theme_manager", "apply_macos_theme"]
         content = self.nav_bar_path.read_text(encoding='utf-8')
 
         # 替换 NavigationButton 类 - 移除内联样式
-        old_nav_button = '''from PyQt6.QtWidgets import (
+        old_nav_button = '''from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel,
     QFrame, QSizePolicy, QSpacerItem
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QSize
-from PyQt6.QtGui import QFont, QColor, QPalette
+from PySide6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtGui import QFont, QColor, QPalette
 
 
 class NavigationButtonStyle:
@@ -530,11 +530,11 @@ class NavigationButton(QPushButton):
         \"\"\"释放事件\"\"\"
         self._update_style()'''
 
-        new_nav_button = '''from PyQt6.QtWidgets import (
+        new_nav_button = '''from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel,
     QFrame, QSizePolicy, QSpacerItem
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtCore import Qt, pyqtSignal, QSize
 
 
 class NavigationButton(QPushButton):

@@ -6,17 +6,17 @@
 import os
 from typing import Optional, Dict, Any, List
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLabel,
     QFrame, QScrollArea, QStackedWidget, QProgressBar,
     QComboBox, QSlider, QTabWidget, QListWidget, QListWidgetItem,
     QLineEdit, QMessageBox, QFileDialog, QApplication,
     QToolBox, QSizePolicy, QFormLayout, QPushButton
 )
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PyQt6.QtMultimediaWidgets import QVideoWidget
-from PyQt6.QtCore import Qt, pyqtSignal, QSize, QTimer, QUrl, QMimeData
-from PyQt6.QtGui import QIcon, QAction, QDragEnterEvent, QDropEvent
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PySide6.QtMultimediaWidgets import QVideoWidget
+from PySide6.QtCore import Qt, pyqtSignal, QSize, QTimer, QUrl, QMimeData
+from PySide6.QtGui import QIcon, QAction, QDragEnterEvent, QDropEvent
 
 from .base_page import BasePage
 from app.services.ai_service.mock_ai_service import MockAIService

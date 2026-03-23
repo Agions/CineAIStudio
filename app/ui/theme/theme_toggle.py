@@ -2,10 +2,10 @@
 主题切换组件 - 快速切换主题
 """
 
-from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel, 
                              QPushButton, QMenu, QFrame)
-from PyQt6.QtCore import Qt, pyqtSignal, QPoint
-from PyQt6.QtGui import QFont, QColor, QPainter, QLinearGradient
+from PySide6.QtCore import Qt, pyqtSignal, QPoint
+from PySide6.QtGui import QFont, QColor, QPainter, QLinearGradient
 
 from .theme_optimizer import ThemePresets
 
@@ -268,7 +268,7 @@ class ThemePreviewCard(QWidget):
             painter.fillRect(10 + i * 30, 60, 24, 12, QColor(color))
             
         # 绘制主题名称
-        from PyQt6.QtGui import QFont
+        from PySide6.QtGui import QFont
         painter.setPen(QColor(self._colors.get("text", "#E6EDF3")))
         font = QFont()
         font.setPointSize(10)

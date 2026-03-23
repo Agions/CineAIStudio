@@ -7,13 +7,13 @@ ClipFlowCut 时间线组件
 """
 
 from typing import Optional, List, Dict, Any
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea,
     QFrame, QPushButton, QSlider, QToolButton, QSizePolicy,
     QMenu, QToolTip
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QRect, QPoint
-from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QMouseEvent, QPaintEvent
+from PySide6.QtCore import Qt, pyqtSignal, QTimer, QRect, QPoint
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QMouseEvent, QPaintEvent
 
 
 class TimelineClip:

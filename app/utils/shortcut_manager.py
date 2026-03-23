@@ -7,9 +7,9 @@ import logging
 from typing import Dict, Callable, Optional, List, Any
 from dataclasses import dataclass, field
 from enum import Enum
-from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QKeySequence, QShortcut, QKeyEvent
+from PySide6.QtCore import QObject, pyqtSignal
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QKeySequence, QShortcut, QKeyEvent
 
 logger = logging.getLogger(__name__)
 

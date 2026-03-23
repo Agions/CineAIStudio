@@ -7,9 +7,9 @@ ClipFlow 主窗口 - 全新设计
 - 编辑面板: 全屏对话框
 """
 
-from PyQt6.QtCore import Qt, QSize, pyqtSignal, QTimer
-from PyQt6.QtGui import QAction, QKeySequence, QPalette, QColor
-from PyQt6.QtWidgets import (
+from PySide6.QtCore import Qt, QSize, pyqtSignal, QTimer
+from PySide6.QtGui import QAction, QKeySequence, QPalette, QColor
+from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QToolBar, QMenuBar, QMenu, QStatusBar,
     QLabel, QPushButton, QFrame, QGroupBox,
@@ -647,7 +647,7 @@ class ClipFlowMainWindow(QMainWindow):
 
 def main():
     import sys
-    from PyQt6.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication
     
     app = QApplication(sys.argv)
     window = ClipFlowMainWindow()

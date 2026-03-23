@@ -3,9 +3,9 @@ ClipFlowCut 启动画面 - 品牌升级版
 渐变 Logo 动画 + 加载动画 + 版本显示
 """
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
-from PyQt6.QtGui import QPainter, QPixmap, QFont, QColor, QLinearGradient, QPainterPath
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide6.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QLinearGradient, QPainterPath
 
 # 色彩系统 - ClipFlowCut 现代暗色主题
 COLORS = {

@@ -6,13 +6,13 @@
 视频创作应用专用组件
 """
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QFrame, QVBoxLayout, 
     QHBoxLayout, QScrollArea, QStackedWidget, QProgressBar,
     QComboBox, QLineEdit
 )
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
-from PyQt6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor, QPixmap
+from PySide6.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor, QPixmap
 
 
 class GradientButton(QPushButton):

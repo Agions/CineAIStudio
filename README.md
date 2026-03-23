@@ -1,8 +1,5 @@
 <div align="center">
 
-<!-- 建议录制一个 30 秒的 Demo GIF 放在这里，展示 AI 视频解说/混剪效果 -->
-<!-- <img src="docs/images/demo.gif" alt="ClipFlowCut Demo" width="100%"> -->
-
 # 🎬 ClipFlowCut
 
 **AI-Powered Video Creation Desktop App · AI 驱动的视频创作桌面应用**
@@ -12,13 +9,13 @@
 <p align="center">
   <a href="https://github.com/Agions/ClipFlowCut/stargazers"><img src="https://img.shields.io/github/stars/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=FFD700" alt="Stars"></a>
   <a href="https://github.com/Agions/ClipFlowCut/forks"><img src="https://img.shields.io/github/forks/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=4CAF50" alt="Forks"></a>
-  <a href="https://github.com/Agions/ClipFlowCut/issues"><img src="https://img.shields.io/github/issues/Agions/ClipFlowCut?style=for-the-badge&color=FF6B6B" alt="Issues"></a>
+  <a href="https://github.com/Agions/ClipFlowCut/issues"><img src="https://img.shields.io/github/issues/ClipFlowCut?style=for-the-badge&color=FF6B6B" alt="Issues"></a>
   <a href="https://github.com/Agions/ClipFlowCut/releases"><img src="https://img.shields.io/github/v/release/Agions/ClipFlowCut?style=for-the-badge&color=blue" alt="Release"></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.9+-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/PyQt6-6.0+-41cd52?style=flat-square" alt="PyQt6">
+  <img src="https://img.shields.io/badge/PySide6-6.6+-41cd52?style=flat-square" alt="PySide6">
   <img src="https://img.shields.io/badge/Platform-macOS%20|%20Windows-lightgrey?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/FFmpeg-Required-007808?style=flat-square" alt="FFmpeg">
@@ -73,11 +70,13 @@
 |--------|------|:----:|:----:|:----:|
 | **OpenAI** | GPT-4o / GPT-5 | ✅ | ✅ | ✅ TTS |
 | **Anthropic** | Claude Sonnet 4.5 | ✅ | ✅ | — |
-| **Google** | Gemini 2.0 Flash | ✅ | ✅ | — |
+| **Google** | Gemini 3.1 Flash/Pro | ✅ | ✅ | — |
 | **阿里云** | Qwen 3.5 | ✅ | ✅ | — |
-| **DeepSeek** | R1 / V3 | ✅ | — | — |
+| **DeepSeek** | R1 / V3.2 | ✅ | — | — |
 | **智谱 AI** | GLM-5 | ✅ | — | — |
 | **月之暗面** | Kimi K2.5 | ✅ | ✅ | — |
+| **字节豆包** | Doubao Pro | ✅ | — | — |
+| **腾讯混元** | Hunyuan | ✅ | ✅ | — |
 | **本地** | Ollama（任意模型） | ✅ | — | — |
 | **微软** | Edge TTS | — | — | ✅ 免费 |
 
@@ -131,15 +130,6 @@ python main.py
 
 ---
 
-## 📸 截图预览
-
-<!-- 建议添加以下截图：主界面、AI解说工作流、混剪界面、导出界面 -->
-<!-- <img src="docs/images/screenshot-main.png" width="49%"> <img src="docs/images/screenshot-workflow.png" width="49%"> -->
-
-> 📷 截图即将更新，欢迎提交你的使用截图！
-
----
-
 ## 🗺️ Roadmap
 
 - [x] AI 视频解说（v1.0）
@@ -147,7 +137,7 @@ python main.py
 - [x] AI 第一人称独白（v2.0）
 - [x] 多 LLM 支持 + 国产模型（v2.0）
 - [x] 专业格式导出（v3.0）
-- [x] PyQt6 Fluent UI 重构（v3.0）
+- [x] PySide6 Fluent UI 重构（v3.0）← 更新
 - [ ] 🔄 Web 版本（浏览器直接使用）
 - [ ] 🔄 批量处理模式
 - [ ] 🔄 自定义 AI 提示词模板市场
@@ -161,16 +151,22 @@ python main.py
 ```
 ClipFlowCut/
 ├── app/
-│   ├── core/          # 核心模块（项目管理、配置）
+│   ├── core/          # 核心模块（应用、配置、日志、事件）
 │   ├── services/
-│   │   ├── ai/        # AI 服务（场景分析、文案生成、语音合成）
+│   │   ├── ai/       # AI 服务（场景分析、文案生成、语音合成）
+│   │   │   └── providers/  # LLM 提供商（Qwen/Claude/Gemini/DeepSeek...）
 │   │   ├── video/     # 视频处理（解说、混剪、独白）
 │   │   ├── audio/     # 音频处理（节拍检测、音画同步）
 │   │   └── export/    # 导出引擎（剪映/PR/FCPXML/DaVinci）
-│   └── ui/            # PyQt6 界面层
+│   ├── plugins/       # 插件系统
+│   └── ui/           # PySide6 界面层
+│       ├── components/    # 通用组件
+│       ├── main/          # 主窗口与页面
+│       └── theme/        # 主题管理
 ├── tests/             # 测试套件
 ├── docs/              # 文档
-└── resources/         # 资源文件
+├── scripts/           # 工具脚本
+└── resources/        # 资源文件
 ```
 
 ---
@@ -179,11 +175,12 @@ ClipFlowCut/
 
 | 类别 | 技术 |
 |------|------|
-| GUI 框架 | PyQt6 + PyQt6-Fluent-Widgets |
+| GUI 框架 | **PySide6** (LGPL 授权) |
 | 视频处理 | FFmpeg + OpenCV |
 | 音频分析 | librosa（节拍检测） |
 | AI 接入 | OpenAI SDK + 各厂商 API |
 | 语音合成 | Edge TTS（免费）/ OpenAI TTS |
+| 安全加密 | cryptography (Fernet) |
 | 构建打包 | PyInstaller |
 
 ---
@@ -223,7 +220,7 @@ git push origin feature/amazing-feature
 
 ## 📄 许可证
 
-[MIT License](LICENSE) © 2026 [Agions](https://github.com/Agions)
+[MIT License](LICENSE) © 2025-2026 [Agions](https://github.com/Agions)
 
 ---
 

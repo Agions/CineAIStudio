@@ -3,10 +3,10 @@
 用于在应用中随时展示功能介绍
 """
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QFrame, QScrollArea)
-from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtSignal, QTimer
-from PyQt6.QtGui import QFont, QColor, QPainter, QLinearGradient
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtSignal, QTimer
+from PySide6.QtGui import QFont, QColor, QPainter, QLinearGradient
 
 # 色彩系统
 COLORS = {

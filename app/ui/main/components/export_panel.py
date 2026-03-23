@@ -9,14 +9,14 @@
 import os
 import json
 from typing import Dict, List, Any, Optional
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QPushButton, QComboBox, QSpinBox, QDoubleSpinBox,
                             QProgressBar, QTableWidget, QTableWidgetItem,
                             QFileDialog, QMessageBox, QTabWidget, QGroupBox,
                             QLineEdit, QTextEdit, QCheckBox, QSlider, QDialog,
                             QDialogButtonBox, QFormLayout, QScrollArea)
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread
-from PyQt6.QtGui import QFont, QPalette, QColor
+from PySide6.QtCore import Qt, QTimer, pyqtSignal, QThread
+from PySide6.QtGui import QFont, QPalette, QColor
 
 from ...export.export_system import ExportSystem, ExportTask, ExportPreset
 from ...export.jianying_draft_generator import JianyingDraftGenerator

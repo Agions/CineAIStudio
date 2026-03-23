@@ -6,12 +6,12 @@ ClipFlowCut 设计系统 - 统一 UI 组件
 """
 
 from typing import Optional
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QPushButton, QLabel, QLineEdit, QTextEdit, 
     QFrame, QProgressBar, QSlider, QCheckBox, QScrollArea
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
 
 
 class DesignSystem:

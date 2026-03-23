@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import logging
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, pyqtSignal
 
 
 @dataclass

@@ -5,9 +5,9 @@
 项目管理页面 - 项目卡片组件
 """
 
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont, QCursor, QPixmap, QPainter, QLinearGradient, QColor
+from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel
+from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtGui import QFont, QCursor, QPixmap, QPainter, QLinearGradient, QColor
 
 
 class ProjectCard(QFrame):

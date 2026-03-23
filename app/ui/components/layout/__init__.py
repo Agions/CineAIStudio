@@ -3,11 +3,11 @@
 """
 
 from typing import Optional, List
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QScrollArea, QFrame, QPushButton, QLabel
 )
-from PyQt6.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, pyqtSignal
 
 
 class MacScrollArea(QScrollArea):
@@ -50,7 +50,7 @@ class MacPageToolbar(QWidget):
         self._setup_ui(title, actions)
 
     def _setup_ui(self, title: str = "", actions: Optional[List] = None):
-        from PyQt6.QtGui import QFont
+        from PySide6.QtGui import QFont
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(16, 8, 16, 8)
@@ -72,7 +72,7 @@ class MacPageToolbar(QWidget):
         self.right_layout.setSpacing(8)
 
         if actions:
-            from PyQt6.QtWidgets import QPushButton
+            from PySide6.QtWidgets import QPushButton
             for icon, tooltip, callback in actions:
                 btn = QPushButton(icon)
                 btn.setToolTip(tooltip)

@@ -2,8 +2,8 @@
 媒体库组件（占位符）
 """
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QListWidget, QListWidgetItem
-from PyQt6.QtCore import pyqtSignal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QListWidget, QListWidgetItem
+from PySide6.QtCore import pyqtSignal
 
 
 class MediaLibrary(QWidget):

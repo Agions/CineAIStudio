@@ -3,8 +3,8 @@
 """
 
 from typing import Optional
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLineEdit
-from PyQt6.QtCore import Qt, pyqtSignal
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLineEdit
+from PySide6.QtCore import Qt, pyqtSignal
 
 
 class MacSearchBox(QWidget):
@@ -19,7 +19,7 @@ class MacSearchBox(QWidget):
         self._setup_ui()
 
     def _setup_ui(self):
-        from PyQt6.QtWidgets import QVBoxLayout
+        from PySide6.QtWidgets import QVBoxLayout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 

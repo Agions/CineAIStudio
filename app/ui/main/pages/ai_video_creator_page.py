@@ -15,7 +15,7 @@ from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
 from enum import Enum
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QPushButton, QTextEdit, QLineEdit,
     QFileDialog, QProgressBar, QComboBox, QSpinBox,
@@ -23,10 +23,10 @@ from PyQt6.QtWidgets import (
     QGroupBox, QSlider, QCheckBox, QFrame, QScrollArea,
     QMessageBox, QStackedWidget, QSizePolicy, QApplication
 )
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize, QTimer, QUrl
-from PyQt6.QtGui import QFont, QIcon, QPixmap, QDragEnterEvent, QDropEvent
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PyQt6.QtMultimediaWidgets import QVideoWidget
+from PySide6.QtCore import Qt, QThread, pyqtSignal, QSize, QTimer, QUrl
+from PySide6.QtGui import QFont, QIcon, QPixmap, QDragEnterEvent, QDropEvent
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PySide6.QtMultimediaWidgets import QVideoWidget
 
 from .base_page import BasePage
 from app.ui.components import (

@@ -1,12 +1,11 @@
 # ClipFlow 依赖包
 
-## 核心依赖
-PyQt6>=6.6.0
-PyQt6-Qt6>=6.6.0
-PyQt6-sip>=13.6.0
+## 核心依赖 (PySide6 - LGPL 授权，商业友好)
+PySide6>=6.6.0
+Shiboken6>=6.6.0
 
-## UI 组件库
-PyQt6-Fluent-Widgets>=1.11.0
+## UI 组件库 (如果使用 Qt-Fluent-Widgets)
+# PySide6-Fluent-Widgets>=1.11.0  # 暂不支持 PySide6
 
 ## 图像/视频处理
 opencv-python>=4.8.1
@@ -75,3 +74,4 @@ isort>=5.12.0
 types-requests>=2.31.0
 types-PyYAML>=6.0.0
 types-python-dotenv>=1.0.0
+types-PySide6>=6.6.0

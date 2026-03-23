@@ -3,8 +3,8 @@
 """
 
 from typing import Optional
-from PyQt6.QtWidgets import QFrame, QVBoxLayout
-from PyQt6.QtCore import Qt
+from PySide6.QtWidgets import QFrame, QVBoxLayout
+from PySide6.QtCore import Qt
 
 
 class MacCard(QFrame):
@@ -49,8 +49,8 @@ class MacSection(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        from PyQt6.QtWidgets import QVBoxLayout, QLabel
-        from PyQt6.QtGui import QFont
+        from PySide6.QtWidgets import QVBoxLayout, QLabel
+        from PySide6.QtGui import QFont
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

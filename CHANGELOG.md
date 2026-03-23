@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.1.0] - 2026-03-23
+
+### Changed
+- **UI 框架迁移**: PyQt6 → PySide6 (LGPL 授权，商业友好)
+- **依赖更新**: 
+  - PyQt6 → PySide6>=6.6.0
+  - 新增 Shiboken6>=6.6.0
+
+### Fixed
+- **代码审核修复**:
+  - `EventBus.subscribe()` bug (访问未定义变量)
+  - `SecureKeyManager` 无限循环问题
+  - `ServiceContainer` 无效异常处理
+  - 所有 LLM Provider 添加 `response.raise_for_status()`
+  - 修复 `LLMResponse` 字段错误 (`usage` → `tokens_used`)
+  - 修复安全模块无效转义序列
+  
+- **合规化修复**:
+  - 删除重复文件 (`macos_theme_manager.py`, `macos_components.py`)
+  - 187 个文件添加 MIT 版权头
+  - PBKDF2 迭代次数提升至 480,000 (OWASP 标准)
+  - DEBUG print 语句替换为 `logger.debug()`
+
+### Security
+- PBKDF2HMAC iterations: 100,000 → 480,000
+- 添加 `__slots__` 建议到文档
+- 完善异常处理和安全验证
+
+### Documentation
+- 更新 README.md (PySide6)
+- 更新 ARCHITECTURE.md
+- 更新 docs/README_EN.md
+- 更新 docs/getting-started.md
+- 更新 docs/features.md
+- 添加合规化检测报告
+
+---
+
 ## [3.0.0] - 2026-03-08
 
 ### Added
@@ -16,16 +54,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 🎭 AI 第一人称独白 (Monologue Maker)
 
 - **AI 模型支持**
-  - OpenAI GPT-5.3
+  - OpenAI GPT-4o / GPT-5
   - Anthropic Claude Sonnet 4.5
-  - Google Gemini 3.1 Flash
-  - 阿里云 Qwen 3.5
+  - Google Gemini 3.1 Flash/Pro
+  - 阿里云 Qwen 3.5 / Max
   - DeepSeek R1 / V3.2
-  - 智谱 GLM-5 Plus
+  - 智谱 GLM-5
   - 月之暗面 Kimi K2.5
-  - 字节豆包 Doubao Pro
+  - 字节豆包 Doubao Pro/Lite
   - 腾讯混元 Hunyuan Pro
-  - Edge TTS / Azure TTS / 火山引擎 TTS / 腾讯云 TTS
+  - Edge TTS / OpenAI TTS
 
 - **导出预设**
   - B站 (1080P 60fps)

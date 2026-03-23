@@ -15,8 +15,8 @@ from app.ui.components.layout import MacScrollArea, MacGrid, MacPageToolbar, Mac
 
 # 保留自定义辅助函数
 from typing import Optional, List
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
-from PyQt6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
+from PySide6.QtCore import Qt
 
 
 def create_icon_text_row(icon: str, text: str, parent: Optional[QWidget] = None) -> QWidget:

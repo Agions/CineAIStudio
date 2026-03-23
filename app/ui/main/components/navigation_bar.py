@@ -7,11 +7,11 @@ from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel,
     QFrame, QSizePolicy, QSpacerItem
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtCore import Qt, pyqtSignal, QSize
 
 
 class NavigationButton(QPushButton):

@@ -12,13 +12,13 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QFrame, QScrollArea, QFileDialog, QMessageBox,
     QSizePolicy, QSpacerItem
 )
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont, QCursor
+from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtGui import QFont, QCursor
 
 from .base_page import BasePage
 

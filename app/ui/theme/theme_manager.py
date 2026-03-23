@@ -5,9 +5,9 @@
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QObject, pyqtSignal, QTimer
-from PyQt6.QtGui import QPalette, QColor
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QObject, pyqtSignal, QTimer
+from PySide6.QtGui import QPalette, QColor
 
 from ...core.config_manager import ThemeConfig
 
@@ -338,7 +338,7 @@ class ThemeManager(QObject):
 
     def _apply_to_application(self) -> None:
         """将主题应用到整个应用程序"""
-        from PyQt6.QtWidgets import QApplication
+        from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
         if app:
             # 获取样式表

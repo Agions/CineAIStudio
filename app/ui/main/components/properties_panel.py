@@ -7,13 +7,13 @@ ClipFlowCut 属性面板
 """
 
 from typing import Optional, Dict, Any
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QDoubleSpinBox, QComboBox, QTextEdit, QGroupBox,
     QFormLayout, QFrame, QScrollArea, QPushButton, QSlider,
     QCheckBox
 )
-from PyQt6.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, pyqtSignal
 
 
 class PropertiesPanel(QWidget):

@@ -10,7 +10,7 @@ import sys
 import traceback
 from typing import Optional, Callable, Any
 from dataclasses import dataclass
-from PyQt6.QtWidgets import QMessageBox, QWidget
+from PySide6.QtWidgets import QMessageBox, QWidget
 
 
 @dataclass

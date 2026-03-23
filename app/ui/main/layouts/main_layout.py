@@ -2,11 +2,11 @@
 主窗口布局 - 负责管理主窗口的整体布局
 """
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSpacerItem,
     QSizePolicy, QStackedWidget
 )
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 
 
 class MainLayout(QVBoxLayout):

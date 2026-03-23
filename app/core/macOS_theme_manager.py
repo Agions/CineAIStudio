@@ -9,9 +9,9 @@ macOS 主题管理器 - 负责应用和切换 macOS 设计系统
 import os
 from pathlib import Path
 from typing import Optional, Callable
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QFile, QTextStream, pyqtSignal, QObject
-from PyQt6.QtGui import QFont
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QFile, QTextStream, pyqtSignal, QObject
+from PySide6.QtGui import QFont
 
 
 class macOS_ThemeManager(QObject):

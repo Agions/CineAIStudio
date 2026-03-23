@@ -5,12 +5,12 @@
 from typing import Optional, Dict, Any
 from datetime import datetime
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QStatusBar, QLabel, QProgressBar, QWidget, QHBoxLayout,
     QSizePolicy
 )
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QFont, QColor, QPalette
+from PySide6.QtCore import Qt, QTimer, pyqtSignal
+from PySide6.QtGui import QFont, QColor, QPalette
 
 
 class StatusBar(QStatusBar):

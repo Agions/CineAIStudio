@@ -31,7 +31,7 @@ def main():
     try:
         from app.ui.main.main_window import MainWindow
         from app.core.application import Application
-        from PyQt6.QtWidgets import QApplication
+        from PySide6.QtWidgets import QApplication
 
         qt_app = QApplication(sys.argv)
         qt_app.setApplicationName("ClipFlow")

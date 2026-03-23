@@ -3,11 +3,11 @@
 引导用户完成初始设置
 """
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QFrame, QComboBox, QCheckBox,
                              QLineEdit, QScrollArea)
-from PyQt6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve
-from PyQt6.QtGui import QFont, QColor, QLinearGradient, QPainter
+from PySide6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve
+from PySide6.QtGui import QFont, QColor, QLinearGradient, QPainter
 
 # 色彩系统
 COLORS = {

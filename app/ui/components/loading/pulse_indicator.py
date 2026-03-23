@@ -6,15 +6,15 @@
 用于显示加载状态的脉冲动画效果
 """
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QFrame, QLabel, QVBoxLayout, QHBoxLayout, 
     QSizePolicy
 )
-from PyQt6.QtCore import (
+from PySide6.QtCore import (
     Qt, QTimer, QPropertyAnimation, QEasingCurve, 
     QSize, QPoint
 )
-from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont
 
 
 class PulseIndicator(QFrame):

@@ -90,7 +90,7 @@ class SecureKeyManager:
                     algorithm=hashes.SHA256(),
                     length=32,
                     salt=salt,
-                    iterations=100000,
+                    iterations=480000,  # OWASP 建议最低 480,000 次
                 )
                 self._encryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 

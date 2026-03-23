@@ -6,8 +6,8 @@
 from typing import Optional, Dict, Any
 from typing import Any as TypingAny
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from PyQt6.QtCore import Qt, pyqtSignal, QObject
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from PySide6.QtCore import Qt, pyqtSignal, QObject
 
 
 class BasePage(QWidget):

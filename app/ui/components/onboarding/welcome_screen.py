@@ -3,10 +3,10 @@
 介绍 ClipFlowCut 的核心功能
 """
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QScrollArea, QFrame)
-from PyQt6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
-from PyQt6.QtGui import QFont, QPixmap, QPainter, QLinearGradient, QColor
+from PySide6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtGui import QFont, QPixmap, QPainter, QLinearGradient, QColor
 
 # 色彩系统
 COLORS = {

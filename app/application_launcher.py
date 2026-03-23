@@ -11,9 +11,9 @@ import os
 import traceback
 from typing import List, Optional
 
-from PyQt6.QtWidgets import QApplication, QSplashScreen, QMessageBox
-from PyQt6.QtCore import QTimer, QThread, pyqtSignal, Qt
-from PyQt6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
+from PySide6.QtWidgets import QApplication, QSplashScreen, QMessageBox
+from PySide6.QtCore import QTimer, QThread, pyqtSignal, Qt
+from PySide6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
 
 from .core.config_manager import ConfigManager
 from .core.logger import Logger

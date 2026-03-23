@@ -7,11 +7,11 @@ from typing import Optional, Dict, Any, List
 import json
 from datetime import datetime
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLabel,
     QTextEdit, QLineEdit, QPushButton, QFrame, QListWidget
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QTimer
+from PySide6.QtCore import Qt, pyqtSignal, QTimer
 
 from .base_page import BasePage
 from app.core.icon_manager import get_icon
@@ -201,7 +201,7 @@ class SettingsPanel(QWidget):
 
     def _on_clear_chat(self):
         """清空聊天信号"""
-        from PyQt6.QtWidgets import QMessageBox
+        from PySide6.QtWidgets import QMessageBox
         if QMessageBox.question(
             None, "确认清空", "确定要清空所有聊天记录吗？",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
@@ -495,7 +495,7 @@ class AIChatPage(BasePage):
         """导出聊天记录"""
         try:
             import json
-            from PyQt6.QtWidgets import QFileDialog
+            from PySide6.QtWidgets import QFileDialog
 
             file_path, _ = QFileDialog.getSaveFileName(
                 self, "导出聊天记录", "", "JSON文件 (*.json)"
@@ -537,7 +537,7 @@ class MockAIService:
             time.sleep(1)  # 模拟延迟
             response = self._generate_response(message)
 
-            from PyQt6.QtCore import QMetaObject, Qt
+            from PySide6.QtCore import QMetaObject, Qt
             QMetaObject.invokeMethod(
                 None,
                 lambda: callback(response),

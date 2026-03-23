@@ -8,16 +8,16 @@ ClipFlowCut 视频预览组件
 
 import os
 from typing import Optional
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QSlider, QSizePolicy, QFrame, QToolButton, QStyle
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QUrl, QTimer
-from PyQt6.QtGui import QFont, QColor, QPixmap, QImage
+from PySide6.QtCore import Qt, pyqtSignal, QUrl, QTimer
+from PySide6.QtGui import QFont, QColor, QPixmap, QImage
 
 try:
-    from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-    from PyQt6.QtMultimediaWidgets import QVideoWidget
+    from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+    from PySide6.QtMultimediaWidgets import QVideoWidget
     HAS_MULTIMEDIA = True
 except ImportError:
     HAS_MULTIMEDIA = False

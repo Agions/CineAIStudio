@@ -3,9 +3,9 @@
 包含多种配色方案
 """
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QFrame
-from PyQt6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve
-from PyQt6.QtGui import QFont, QColor, QLinearGradient, QPainter
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QFrame
+from PySide6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve
+from PySide6.QtGui import QFont, QColor, QLinearGradient, QPainter
 
 
 # 预定义主题配色方案

@@ -18,7 +18,7 @@ from pathlib import Path
 from enum import Enum
 import logging
 
-from PyQt6.QtCore import QObject, pyqtSignal, QSettings
+from PySide6.QtCore import QObject, pyqtSignal, QSettings
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager
@@ -366,7 +366,7 @@ class ProjectManager(QObject):
 
     def _setup_auto_save(self) -> None:
         """设置自动保存"""
-        from PyQt6.QtCore import QTimer
+        from PySide6.QtCore import QTimer
 
         self.auto_save_timer = QTimer()
         self.auto_save_timer.timeout.connect(self._auto_save)

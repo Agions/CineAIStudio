@@ -2,9 +2,9 @@
 动效工具类 - 提供各种动画效果
 """
 
-from PyQt6.QtWidgets import QWidget, QGraphicsOpacityEffect
-from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, QTimer, Qt
-from PyQt6.QtGui import QPainter, QColor, QLinearGradient
+from PySide6.QtWidgets import QWidget, QGraphicsOpacityEffect
+from PySide6.QtCore import QPropertyAnimation, QEasingCurve, QTimer, Qt
+from PySide6.QtGui import QPainter, QColor, QLinearGradient
 
 
 class AnimationHelper:
@@ -283,8 +283,8 @@ class LoadingAnimation:
     @staticmethod
     def create_loading_dots(parent, count: int = 3, color: str = "#6366F1"):
         """创建加载点动画"""
-        from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
-        from PyQt6.QtCore import QTimer
+        from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
+        from PySide6.QtCore import QTimer
         
         container = QWidget(parent)
         layout = QHBoxLayout(container)
