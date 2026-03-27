@@ -189,10 +189,9 @@ class SecureKeyManager:
                 key_data_str = keyring.get_password(service_name, "api_key")
                 if key_data_str:
                     key_data = json.loads(key_data_str)
-                    self.logger.debug(f"Retrieved API key for {provider} from system keyring")
                     return key_data
             except Exception as e:
-                self.logger.debug(f"System keyring retrieval failed: {e}")
+                pass
 
             # 降级到加密文件
             return self._get_encrypted_key(provider)
@@ -220,7 +219,6 @@ class SecureKeyManager:
             decrypted_data = cipher.decrypt(encrypted_data)
             key_data = json.loads(decrypted_data.decode())
 
-            self.logger.debug(f"Retrieved API key for {provider} from encrypted file")
             return key_data
 
         except Exception as e:
@@ -239,7 +237,7 @@ class SecureKeyManager:
                 success = True
                 self.logger.info(f"Deleted API key for {provider} from system keyring")
             except Exception as e:
-                self.logger.debug(f"System keyring deletion failed: {e}")
+                pass
 
             # 删除加密文件
             try:

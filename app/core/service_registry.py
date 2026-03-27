@@ -263,7 +263,6 @@ class ServiceRegistry:
             raise ServiceNotFoundError(f"Service {service_name} not registered")
 
         if self._states.get(service_name) == ServiceState.RUNNING:
-            self._logger.debug(f"Service {service_name} already running")
             return True
 
         definition = self._definitions[service_name]
@@ -464,7 +463,7 @@ class ServiceRegistry:
                 try:
                     dependencies[dep.service_name] = self.get(dep.service_name)
                 except ServiceNotFoundError:
-                    self._logger.debug(f"Optional dependency {dep.service_name} not found")
+                    pass
             else:
                 dependencies[dep.service_name] = self.get(dep.service_name)
 

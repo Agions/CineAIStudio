@@ -185,10 +185,8 @@ class ProjectTemplateManager(QObject):
 
     def _load_builtin_templates(self) -> None:
         """加载内置模板"""
-        self.logger.debug(f"Loading builtin templates from {self.builtin_templates_dir}")
         try:
             if not self.builtin_templates_dir.exists():
-                self.logger.debug("Builtin templates directory does not exist")
                 return
 
             # 扫描内置模板目录
