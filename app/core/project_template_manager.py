@@ -139,12 +139,8 @@ class ProjectTemplateManager(QObject):
 
         # 初始化
         self._init_categories()
-        print(f"[DEBUG] Before _load_templates")
         self._load_templates()
-        print(f"[DEBUG] After _load_templates")
-        print(f"[DEBUG] Before _load_builtin_templates")
         self._load_builtin_templates()
-        print(f"[DEBUG] After _load_builtin_templates")
 
     def _ensure_directories(self) -> None:
         """确保所需目录存在"""
@@ -189,11 +185,10 @@ class ProjectTemplateManager(QObject):
 
     def _load_builtin_templates(self) -> None:
         """加载内置模板"""
-        print(f"[DEBUG] _load_builtin_templates called")
-        print(f"[DEBUG] builtin_templates_dir: {self.builtin_templates_dir}")
-        print(f"[DEBUG] builtin_templates_dir exists: {self.builtin_templates_dir.exists()}")
+        self.logger.debug(f"Loading builtin templates from {self.builtin_templates_dir}")
         try:
             if not self.builtin_templates_dir.exists():
+                self.logger.debug("Builtin templates directory does not exist")
                 return
 
             # 扫描内置模板目录
@@ -218,9 +213,6 @@ class ProjectTemplateManager(QObject):
             self.logger.info(f"Loaded {len([t for t in self.templates.values() if t.is_builtin])} builtin templates")
 
         except Exception as e:
-            print(f"[DEBUG] Exception in _load_builtin_templates: {e}")
-            import traceback
-            traceback.print_exc()
             self.logger.error(f"Failed to load builtin templates: {e}")
 
     def _save_templates(self) -> None:

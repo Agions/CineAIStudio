@@ -7,6 +7,7 @@ ClipFlowCut 项目管理页面 - macOS 设计系统优化版
 """
 
 import os
+import logging
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 from pathlib import Path
@@ -56,6 +57,9 @@ class ProjectsPage(BasePage):
 
     def __init__(self, application):
         super().__init__("projects", "项目管理", application)
+        
+        # 日志器
+        self.logger = logging.getLogger(__name__)
 
         # 初始化管理器
         self.project_manager: Optional[ProjectManager] = application.get_service_by_name("project_manager")
@@ -610,25 +614,23 @@ class ProjectsPage(BasePage):
 
     def _on_new_project(self):
         """新建项目"""
-        print(f"[DEBUG] _on_new_project called")
-        print(f"[DEBUG] template_manager: {self.template_manager}")
-        print(f"[DEBUG] project_manager: {self.project_manager}")
+        logger.debug(f"_on_new_project called, template_manager={self.template_manager}, project_manager={self.project_manager}")
         # 检查模板管理器是否可用
         if not self.template_manager:
-            print("[DEBUG] template_manager is None, showing warning")
+            logger.warning("template_manager is None, showing warning")
             QMessageBox.warning(self, "错误", "模板管理器不可用，无法创建项目")
             return
 
         # 检查项目管理器是否可用
         if not self.project_manager:
-            print("[DEBUG] project_manager is None, showing warning")
+            logger.warning("project_manager is None, showing warning")
             QMessageBox.warning(self, "错误", "项目管理器不可用，无法创建项目")
             return
 
         try:
-            print("[DEBUG] Creating CreateProjectDialog")
+            logger.debug("Creating CreateProjectDialog")
             dialog = CreateProjectDialog(self.template_manager, self)
-            print(f"[DEBUG] Dialog created, showing dialog")
+            logger.debug("Dialog created, showing dialog")
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 project_info = dialog.get_project_info()
 
@@ -648,7 +650,7 @@ class ProjectsPage(BasePage):
                 else:
                     QMessageBox.warning(self, "失败", "无法创建项目")
         except Exception as e:
-            print(f"[DEBUG] Exception: {e}")
+            logger.error(f"Exception creating project: {e}")
             import traceback
             traceback.print_exc()
             QMessageBox.critical(self, "错误", f"创建项目时发生错误: {str(e)}")
