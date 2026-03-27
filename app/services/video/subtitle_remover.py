@@ -9,6 +9,8 @@
 from typing import Optional, List, Dict, Tuple
 import subprocess
 import os
+import logging
+logger = logging.getLogger(__name__)
 
 
 class SubtitleRemover:
@@ -170,7 +172,7 @@ class SubtitleRemover:
                     "confidence": 0.85,
                 }
         except Exception:
-            pass  # TODO: add logging
+            logger.debug("Operation failed")
         
         # 默认返回 1080p 的字幕区域
         return {

@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+import logging
+logger = logging.getLogger(__name__)
 
 
 class NarrativeStructure(Enum):
@@ -200,7 +202,7 @@ class VideoUnderstandingEngine:
             try:
                 genai.delete_file(video_file.name)
             except Exception:
-                pass  # TODO: add logging
+                logger.debug("Operation failed")
 
             return self._parse_response(video_path, response.text)
 

@@ -380,7 +380,7 @@ class HomePage(BasePage):
                         if isinstance(f, str)
                     ]
         except Exception:
-            pass  # TODO: add logging
+            self.logger.debug("Operation failed")
         return []
 
     def _on_template_clicked(self, template_id: str):

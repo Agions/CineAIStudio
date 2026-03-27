@@ -30,6 +30,8 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum
+import logging
+logger = logging.getLogger(__name__)
 
 
 class TransitionType(Enum):
@@ -175,7 +177,7 @@ class TransitionEffects:
                     height = int(dims[1]) if len(dims) > 1 and dims[1] else 1080
                     return duration, width, height
         except Exception:
-            pass  # TODO: add logging
+            logger.debug("Operation failed")
         
         return 10.0, 1920, 1080  # 默认值
     

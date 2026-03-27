@@ -13,6 +13,8 @@ from typing import Dict, List, Any, Optional, Set
 from dataclasses import dataclass, field
 from pathlib import Path
 from collections import defaultdict
+import logging
+logger = logging.getLogger(__name__)
 
 from .plugin_interface import PluginInfo, PluginType, PluginStatus
 
@@ -574,4 +576,4 @@ class PluginRegistry:
                 json.dump(registry_data, f, indent=2, ensure_ascii=False)
 
         except Exception:
-            pass  # TODO: add logging
+            logger.debug("Operation failed")
