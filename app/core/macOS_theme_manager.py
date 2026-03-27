@@ -7,6 +7,7 @@ macOS 主题管理器 - 负责应用和切换 macOS 设计系统
 """
 
 import os
+import logging
 from pathlib import Path
 from typing import Optional, Callable
 from PySide6.QtWidgets import QApplication
@@ -28,18 +29,19 @@ class macOS_ThemeManager(QObject):
         self.current_theme = "dark"
         self._cache = {}
         self._fallback_stylesheet = ""
+        self.logger = logging.getLogger(__name__)
 
         # 获取项目根目录
         self.project_root = Path(__file__).parent.parent.parent
         self.styles_dir = self.project_root / "resources" / "styles" / "macOS"
 
-        print(f"🖥️  macOS Theme Manager 初始化")
-        print(f"   工作目录: {self.project_root}")
-        print(f"   样式目录: {self.styles_dir}")
+        self.logger.info(f"macOS Theme Manager 初始化")
+        self.logger.debug(f"  工作目录: {self.project_root}")
+        self.logger.debug(f"  样式目录: {self.styles_dir}")
 
     def load_system(self, theme: str = "dark") -> bool:
         """加载 macOS 设计系统"""
-        print(f"\n🎨 加载 macOS 设计系统 ({theme} 模式)")
+        self.logger.info(f"加载 macOS 设计系统 ({theme} 模式)")
 
         self.before_apply.emit()
 
@@ -53,7 +55,7 @@ class macOS_ThemeManager(QObject):
 
             # 如果依然失败，使用回退样式
             if not stylesheet:
-                print("⚠️  无法加载样式，使用回退样式")
+                self.logger.warning("无法加载样式，使用回退样式")
                 stylesheet = self._get_fallback_style()
 
             # 应用样式
@@ -66,14 +68,14 @@ class macOS_ThemeManager(QObject):
             self.after_apply.emit()
             self.theme_changed.emit(theme)
 
-            print("✅ macOS 设计系统应用成功")
-            print("   - 色彩系统已配置")
-            print("   - 排版系统已配置")
-            print("   - 组件样式已应用")
+            self.logger.info("macOS 设计系统应用成功")
+            self.logger.debug("  - 色彩系统已配置")
+            self.logger.debug("  - 排版系统已配置")
+            self.logger.debug("  - 组件样式已应用")
             return True
 
         except Exception as e:
-            print(f"❌ 设计系统应用失败: {e}")
+            self.logger.error(f"设计系统应用失败: {e}")
             return False
 
     def _load_from_resources(self, theme: str) -> str:
@@ -91,7 +93,7 @@ class macOS_ThemeManager(QObject):
             content = QTextStream(file).readAll()
             file.close()
             self._cache[resource_path] = content
-            print(f"  ✅ 从资源加载: {resource_path}")
+            self.logger.debug(f"从资源加载: {resource_path}")
             return content
 
         return ""
@@ -106,10 +108,10 @@ class macOS_ThemeManager(QObject):
         if file_path.exists():
             content = file_path.read_text(encoding='utf-8')
             self._cache[str(file_path)] = content
-            print(f"  ✅ 从文件加载: {file_path}")
+            self.logger.debug(f"从文件加载: {file_path}")
             return content
 
-        print(f"  ❌ 文件不存在: {file_path}")
+        self.logger.warning(f"文件不存在: {file_path}")
         return ""
 
     def _set_app_font(self):
@@ -118,7 +120,7 @@ class macOS_ThemeManager(QObject):
         font.setFamily("-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif")
         font.setPixelSize(13)  # macOS 默认字号
         self.app.setFont(font)
-        print("  ✅ 字体已设置: macOS 系统字体")
+        self.logger.debug("字体已设置: macOS 系统字体")
 
     def _get_fallback_style(self) -> str:
         """获取回退样式"""
