@@ -13,6 +13,9 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class VisionAnalysisResult:
@@ -255,7 +258,7 @@ class VisionAnalyzerFactory:
                 return provider.analyze_image(image_base64, prompt)
             except Exception as e:
                 last_error = e
-                print(f"⚠️ {provider.get_name()} 分析失败: {e}")
+                logger.error(f"{provider.get_name()} 分析失败: {e}")
                 continue
 
         if last_error:

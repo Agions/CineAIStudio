@@ -608,7 +608,7 @@ def demo_quality_analysis():
             subprocess.run(cmd, capture_output=True, timeout=30)
             print("测试视频已生成")
         except Exception as e:
-            print(f"生成测试视频失败: {e}")
+            logger.error(f"生成测试视频失败: {e}")
             return
     
     # 分析

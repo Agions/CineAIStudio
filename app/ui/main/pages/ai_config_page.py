@@ -12,6 +12,9 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
 
+import logging
+logger = logging.getLogger(__name__)
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
     QPushButton, QLabel, QFrame, QSpacerItem,
@@ -443,7 +446,7 @@ class ServicePanel(QWidget):
                 parent = parent.parent()
 
         except Exception as e:
-            print(f"加载模型失败: {e}")
+            logger.error(f"加载模型失败: {e}")
 
     def _add_model_widget(self, model_id: str, model_info: Dict[str, Any]):
         """添加模型配置部件"""
