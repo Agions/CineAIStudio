@@ -13,6 +13,9 @@ from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class TemplateCategory(Enum):
     """模板分类"""
@@ -246,4 +249,4 @@ class TemplateManager:
                 template = ProjectTemplate.from_dict(data)
                 self._user_templates[template.id] = template
             except Exception as e:
-                print(f"加载模板 {path} 失败: {e}")
+                logger.error(f"加载模板 {path} 失败: {e}")

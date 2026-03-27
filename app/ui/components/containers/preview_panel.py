@@ -6,6 +6,9 @@
 """
 
 from PySide6.QtWidgets import (
+
+import logging
+logger = logging.getLogger(__name__)
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
     QSlider, QPushButton, QFrame
 )
@@ -199,7 +202,7 @@ class PreviewPanel(QWidget):
             self._placeholder.hide()
             return True
         except Exception as e:
-            print(f"加载视频失败: {e}")
+            logger.error(f"加载视频失败: {e}")
             return False
             
     def _init_media_player(self):

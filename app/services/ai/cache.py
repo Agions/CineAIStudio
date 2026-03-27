@@ -14,6 +14,9 @@ from functools import wraps
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class LLMMemoryCache:
     """LLM 响应内存缓存"""
@@ -273,7 +276,7 @@ class LLMPerformanceMonitor:
         print("=" * 50)
         print(f"总请求数: {stats['total_requests']}")
         print(f"成功请求: {stats['successful_requests']}")
-        print(f"失败请求: {stats['failed_requests']}")
+        logger.warning(f"失败请求: {stats['failed_requests']}")
 
         if "success_rate" in stats:
             print(f"成功率: {stats['success_rate']:.1%}")
