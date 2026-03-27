@@ -303,7 +303,7 @@ class QualityAnalyzer:
         except ImportError:
             pass
         except Exception as e:
-            logger.debug(f"亮度分析失败: {e}")
+            pass
         
         return {"avg": 0.5, "std": 0.1, "contrast": 0.3}
     
@@ -332,7 +332,7 @@ class QualityAnalyzer:
                 result["peak_db"] = float(peak_match.group(1))
                 
         except Exception as e:
-            logger.debug(f"音频分析失败: {e}")
+            pass
         
         return result
     

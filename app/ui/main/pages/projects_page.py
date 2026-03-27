@@ -614,7 +614,6 @@ class ProjectsPage(BasePage):
 
     def _on_new_project(self):
         """新建项目"""
-        logger.debug(f"_on_new_project called, template_manager={self.template_manager}, project_manager={self.project_manager}")
         # 检查模板管理器是否可用
         if not self.template_manager:
             logger.warning("template_manager is None, showing warning")
@@ -628,9 +627,7 @@ class ProjectsPage(BasePage):
             return
 
         try:
-            logger.debug("Creating CreateProjectDialog")
             dialog = CreateProjectDialog(self.template_manager, self)
-            logger.debug("Dialog created, showing dialog")
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 project_info = dialog.get_project_info()
 

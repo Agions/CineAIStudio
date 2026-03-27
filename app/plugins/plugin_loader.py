@@ -93,7 +93,6 @@ class PluginLoader:
 
         except Exception as e:
             self.logger.error(f"Failed to load plugin {plugin_id}: {e}")
-            self.logger.debug(f"Plugin load error details:\n{traceback.format_exc()}")
             self.registry.update_plugin_status(
                 plugin_id, PluginStatus.ERROR,
                 str(e)
@@ -327,7 +326,6 @@ class PluginLoader:
 
         except Exception as e:
             self.logger.error(f"Failed to load plugin module {entry.info.id}: {e}")
-            self.logger.debug(f"Module load error details:\n{traceback.format_exc()}")
             return None
 
     def _find_plugin_class(self, module: Any, plugin_id: str) -> Optional[Type[PluginInterface]]:

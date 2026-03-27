@@ -229,7 +229,6 @@ class QuickAIConfigWidget(QWidget):
         try:
             self._refresh_status_section()
             self._refresh_recent_section()
-            self.logger.debug("刷新AI配置状态")
         except Exception as e:
             self.logger.error(f"刷新状态失败: {e}")
 
