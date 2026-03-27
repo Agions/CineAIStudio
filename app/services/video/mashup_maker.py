@@ -2,6 +2,8 @@
 AI 视频混剪制作器 (Mashup Maker)
 
 功能：多素材智能剪辑 + 节奏匹配 + 背景音乐
+import logging
+logger = logging.getLogger(__name__)
 
 工作流程:
     1. 分析多个素材视频
@@ -305,7 +307,7 @@ class MashupMaker(ProgressMixin):
             project.beats = self._generate_simple_beats(project.target_duration)
         
         except Exception as e:
-            print(f"节拍分析失败: {e}")
+            logger.error(f"节拍分析失败: {e}")
             project.beats = self._generate_simple_beats(project.target_duration)
         
         self._report_progress("分析音乐", 1.0)

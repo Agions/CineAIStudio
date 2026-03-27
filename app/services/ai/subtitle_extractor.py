@@ -668,7 +668,7 @@ class SubtitleTranslator:
             return translated
             
         except Exception as e:
-            print(f"DeepL 翻译失败: {e}")
+            logger.error(f"DeepL 翻译失败: {e}")
             return texts
     
     def _translate_google(self, texts: List[str],
