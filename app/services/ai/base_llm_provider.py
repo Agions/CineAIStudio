@@ -18,6 +18,8 @@ from typing import Dict, List, Optional, Any, TypeVar
 from dataclasses import dataclass, field
 from enum import Enum
 import httpx
+import logging
+logger = logging.getLogger(__name__)
 
 
 T = TypeVar("T")
@@ -135,7 +137,7 @@ class HTTPClientMixin:
             if "error" in error_data:
                 error_msg = f"{error_msg} - {error_data['error']['message']}"
         except Exception:
-            pass  # TODO: add logging
+            logger.debug("Operation failed")
         return ProviderError(error_msg)
 
 
