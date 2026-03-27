@@ -13,6 +13,9 @@
 import os
 import json
 import subprocess
+import logging
+
+logger = logging.getLogger(__name__)
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -111,7 +114,7 @@ class OCRSubtitleExtractor:
                     segments[-1].end = timestamp + sample_interval
 
             except Exception as e:
-                print(f"OCR 帧 {timestamp:.1f}s 失败: {e}")
+                logger.error(f"OCR 帧 {timestamp:.1f}s 失败: {e}")
 
         # 清理临时文件
         for _, fp in frames:
@@ -690,7 +693,7 @@ class SubtitleTranslator:
                     result = translator.translate(text)
                     translated.append(result)
                 except Exception as e:
-                    print(f"Google 翻译失败 '{text[:20]}...': {e}")
+                    logger.error(f"Google 翻译失败 '{text[:20]}...': {e}")
                     translated.append(text)
             
             return translated
@@ -705,7 +708,7 @@ class SubtitleTranslator:
                     result = translator.translate(text, src=source_lang, dest=target_lang)
                     translated.append(result.text)
                 except Exception as e:
-                    print(f"Google 翻译失败 '{text[:20]}...': {e}")
+                    logger.error(f"Google 翻译失败 '{text[:20]}...': {e}")
                     translated.append(text)
             
             return translated
