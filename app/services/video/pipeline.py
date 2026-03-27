@@ -106,8 +106,8 @@ class VideoPipeline:
         for cb in self._callbacks:
             try:
                 cb(stage, progress or 0)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"回调执行失败: {e}")
     
     async def run_commentary(
         self,
