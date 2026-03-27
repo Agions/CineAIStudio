@@ -574,4 +574,4 @@ class PluginRegistry:
                 json.dump(registry_data, f, indent=2, ensure_ascii=False)
 
         except Exception:
-            pass
+            pass  # TODO: add logging

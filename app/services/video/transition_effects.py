@@ -175,7 +175,7 @@ class TransitionEffects:
                     height = int(dims[1]) if len(dims) > 1 and dims[1] else 1080
                     return duration, width, height
         except Exception:
-            pass
+            pass  # TODO: add logging
         
         return 10.0, 1920, 1080  # 默认值
     

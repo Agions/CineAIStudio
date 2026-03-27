@@ -200,7 +200,7 @@ class VideoUnderstandingEngine:
             try:
                 genai.delete_file(video_file.name)
             except Exception:
-                pass
+                pass  # TODO: add logging
 
             return self._parse_response(video_path, response.text)
 

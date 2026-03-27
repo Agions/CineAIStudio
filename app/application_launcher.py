@@ -346,7 +346,7 @@ class ApplicationLauncher:
                 QMessageBox.critical(None, "启动失败",
                                    f"应用程序启动失败：\n\n{str(error)}\n\n请检查日志文件获取详细信息。")
         except Exception:
-            pass
+            pass  # TODO: add logging
 
 
 def main() -> int:
