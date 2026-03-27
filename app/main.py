@@ -6,23 +6,33 @@ ClipFlow 主程序入口
 
 import sys
 import os
+import logging
 from pathlib import Path
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# 设置日志
+logger = logging.getLogger("ClipFlow")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s | %(levelname)-8s | %(message)s', datefmt='%H:%M:%S'
+    ))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
 
 def main():
     """主函数"""
     from app.utils.version import __version__
 
-    print("=" * 50)
-    print("🎬 ClipFlow - AI 视频创作工具")
-    print("=" * 50)
-    print(f"\n版本: {__version__}")
-    print("作者: Agions")
-    print()
+    logger.info("=" * 50)
+    logger.info("🎬 ClipFlow - AI 视频创作工具")
+    logger.info("=" * 50)
+    logger.info(f"版本: {__version__}")
+    logger.info("作者: Agions")
 
     # 检查依赖
     check_dependencies()
@@ -44,12 +54,12 @@ def main():
         
         # 初始化应用程序服务
         if not application.initialize(sys.argv):
-            print("应用程序初始化失败")
+            logger.error("应用程序初始化失败")
             sys.exit(1)
             
         # 启动应用程序
         if not application.start():
-            print("应用程序启动失败")
+            logger.error("应用程序启动失败")
             sys.exit(1)
         
         # 创建主窗口并注入 application 实例
@@ -64,14 +74,14 @@ def main():
         sys.exit(exit_code)
         
     except ImportError as e:
-        print(f"\n⚠️ GUI 模块未找到: {e}")
-        print("正在启动命令行模式...\n")
+        logger.warning(f"GUI 模块未找到: {e}")
+        logger.info("正在启动命令行模式...")
         run_cli_mode()
 
 
 def check_dependencies():
     """检查依赖"""
-    print("检查依赖...")
+    logger.info("检查依赖...")
     
     required = {
         'ffmpeg': 'FFmpeg 视频处理',
@@ -83,16 +93,14 @@ def check_dependencies():
     missing = []
     for cmd, desc in required.items():
         if shutil.which(cmd):
-            print(f"  ✅ {desc}")
+            logger.info(f"  ✅ {desc}")
         else:
-            print(f"  ❌ {desc} - 未找到")
+            logger.error(f"  ❌ {desc} - 未找到")
             missing.append(cmd)
     
     if missing:
-        print(f"\n⚠️ 缺少依赖: {', '.join(missing)}")
-        print("请安装 FFmpeg: https://ffmpeg.org/download.html")
-    
-    print()
+        logger.warning(f"缺少依赖: {', '.join(missing)}")
+        logger.info("请安装 FFmpeg: https://ffmpeg.org/download.html")
 
 
 def run_cli_mode():
