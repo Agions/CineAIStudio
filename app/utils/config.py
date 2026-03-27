@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
+import logging
+logger = logging.getLogger(__name__)
 统一配置管理
 集中管理所有配置项
 """
@@ -127,7 +129,7 @@ class ConfigManager:
                     data = json.load(f)
                 return AppConfig(**data)
             except Exception:
-                pass
+                logger.debug("Config operation failed")
         
         return AppConfig()
     
@@ -164,7 +166,7 @@ class ConfigManager:
                     if not getattr(keys, key, ""):  # 环境变量已设置的值不覆盖
                         setattr(keys, key, value)
             except Exception:
-                pass
+                logger.debug("Config operation failed")
         
         return keys
     

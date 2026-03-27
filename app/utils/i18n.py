@@ -9,6 +9,8 @@
 import os
 from typing import Dict, Optional, List
 from pathlib import Path
+import logging
+logger = logging.getLogger(__name__)
 
 
 class I18n:
@@ -591,7 +593,7 @@ class I18n:
             try:
                 text = text.format(**kwargs)
             except Exception:
-                pass
+                logger.debug("Operation failed")
                 
         return text
     

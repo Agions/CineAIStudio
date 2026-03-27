@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any, Generic, TypeVar
 from dataclasses import dataclass, field
 from datetime import datetime
+import logging
+logger = logging.getLogger(__name__)
 
 
 # ========== 时间处理工具 ==========
@@ -159,7 +161,7 @@ def get_video_duration(video_path: str) -> float:
             data = json.loads(result.stdout)
             return float(data.get('format', {}).get('duration', 0))
     except Exception:
-        pass
+        logger.debug("Operation failed")
     return 0.0
 
 
@@ -181,7 +183,7 @@ def get_video_resolution(video_path: str) -> tuple:
                 if stream.get('codec_type') == 'video':
                     return (stream.get('width', 1920), stream.get('height', 1080))
     except Exception:
-        pass
+        logger.debug("Operation failed")
     return (1920, 1080)
 
 

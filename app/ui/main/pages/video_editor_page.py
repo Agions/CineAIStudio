@@ -5,6 +5,8 @@
 
 import os
 from typing import Optional, Dict, Any, List
+import logging
+logger = logging.getLogger(__name__)
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLabel,
@@ -213,7 +215,7 @@ class MediaLibraryPanel(QWidget):
                     item.setToolTip(f"时长: {duration_str}\n分辨率: {width}x{height}\n{os.path.basename(file_path)}")
                     break
         except Exception:
-            pass
+            logger.debug("Operation failed")
 
     def _on_file_double_clicked(self, item):
         """文件双击事件"""

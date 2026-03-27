@@ -32,6 +32,8 @@ from typing import List, Dict, Optional, Any, Callable
 from dataclasses import dataclass
 from enum import Enum
 import json
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Resolution(Enum):
@@ -507,7 +509,7 @@ class DirectVideoExporter:
                 if result.returncode == 0:
                     return HWAccel.NVIDIA
             except Exception:
-                pass
+                logger.debug("Operation failed")
 
             # 检测 Intel
             try:
@@ -519,7 +521,7 @@ class DirectVideoExporter:
                 if "Intel" in result.stdout:
                     return HWAccel.INTEL
             except Exception:
-                pass
+                logger.debug("Operation failed")
         elif system == "Linux":
             return HWAccel.VAAPI
 
