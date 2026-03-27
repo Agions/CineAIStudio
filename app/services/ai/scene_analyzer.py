@@ -3,6 +3,8 @@
 
 分析视频内容，识别场景变化、关键帧和内容类型。
 为 AI 解说和混剪提供素材分析支持。
+import logging
+logger = logging.getLogger(__name__)
 
 集成 PySceneDetect 提供高精度的场景检测能力。
 
@@ -268,7 +270,7 @@ class SceneAnalyzer:
             return scene_times
             
         except subprocess.TimeoutExpired:
-            print("场景检测超时")
+            logger.warning("场景检测超时")
             return [0.0]
         except Exception as e:
             print(f"场景检测失败: {e}")
