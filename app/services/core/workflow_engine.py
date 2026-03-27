@@ -18,6 +18,8 @@ import subprocess
 from enum import Enum
 from typing import Optional, Dict, Any, List, Callable
 from dataclasses import dataclass, field
+import logging
+logger = logging.getLogger(__name__)
 
 
 # ============ 枚举 ============
@@ -229,7 +231,7 @@ class WorkflowEngine:
                                 source.fps = float(rfr)
                             break
             except Exception:
-                pass
+                logger.debug("Operation failed")
 
             sources.append(source)
             self._update(progress=5 + (i + 1) / len(video_paths) * 10)
@@ -516,7 +518,7 @@ class WorkflowEngine:
                             clip["beat_aligned"] = True
                             clip["beat_time"] = beat_time
             except Exception:
-                pass
+                logger.debug("Operation failed")
 
         self._state.voiceover = voiceover
         self._update(progress=92)

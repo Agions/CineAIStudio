@@ -489,7 +489,7 @@ class ExportMonitorWidget(QWidget):
         try:
             self.update_timer.stop()
         except Exception:
-            pass
+            logger.debug("Operation failed")
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""

@@ -27,6 +27,8 @@ from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod
+import logging
+logger = logging.getLogger(__name__)
 
 
 class VoiceStyle(Enum):
@@ -223,7 +225,7 @@ class EdgeTTSProvider(TTSProvider):
             if result.returncode == 0:
                 return float(result.stdout.strip())
         except Exception:
-            pass
+            logger.debug("Operation failed")
         
         return 0.0
     
@@ -321,7 +323,7 @@ class OpenAITTSProvider(TTSProvider):
             if result.returncode == 0:
                 return float(result.stdout.strip())
         except Exception:
-            pass
+            logger.debug("Operation failed")
         return 0.0
     
     def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
