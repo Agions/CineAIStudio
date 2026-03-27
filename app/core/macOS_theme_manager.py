@@ -36,8 +36,6 @@ class macOS_ThemeManager(QObject):
         self.styles_dir = self.project_root / "resources" / "styles" / "macOS"
 
         self.logger.info(f"macOS Theme Manager 初始化")
-        self.logger.debug(f"  工作目录: {self.project_root}")
-        self.logger.debug(f"  样式目录: {self.styles_dir}")
 
     def load_system(self, theme: str = "dark") -> bool:
         """加载 macOS 设计系统"""
@@ -69,9 +67,6 @@ class macOS_ThemeManager(QObject):
             self.theme_changed.emit(theme)
 
             self.logger.info("macOS 设计系统应用成功")
-            self.logger.debug("  - 色彩系统已配置")
-            self.logger.debug("  - 排版系统已配置")
-            self.logger.debug("  - 组件样式已应用")
             return True
 
         except Exception as e:
@@ -93,7 +88,6 @@ class macOS_ThemeManager(QObject):
             content = QTextStream(file).readAll()
             file.close()
             self._cache[resource_path] = content
-            self.logger.debug(f"从资源加载: {resource_path}")
             return content
 
         return ""
@@ -108,7 +102,6 @@ class macOS_ThemeManager(QObject):
         if file_path.exists():
             content = file_path.read_text(encoding='utf-8')
             self._cache[str(file_path)] = content
-            self.logger.debug(f"从文件加载: {file_path}")
             return content
 
         self.logger.warning(f"文件不存在: {file_path}")
@@ -120,7 +113,6 @@ class macOS_ThemeManager(QObject):
         font.setFamily("-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif")
         font.setPixelSize(13)  # macOS 默认字号
         self.app.setFont(font)
-        self.logger.debug("字体已设置: macOS 系统字体")
 
     def _get_fallback_style(self) -> str:
         """获取回退样式"""

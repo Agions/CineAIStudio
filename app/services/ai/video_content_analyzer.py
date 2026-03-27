@@ -20,7 +20,6 @@
     
     logger.info(f"视频主题: {result.summary}")
     for frame in result.keyframes:
-        logger.debug(f"  帧 {frame.timestamp}s: {frame.description}")
 """
 
 import os

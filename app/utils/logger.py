@@ -96,7 +96,8 @@ default_logger = setup_logger()
 
 # 便捷函数
 def debug(msg: str, *args, **kwargs):
-    default_logger.debug(msg, *args, **kwargs)
+    """已禁用 DEBUG 日志"""
+    pass
 
 
 def info(msg: str, *args, **kwargs):
