@@ -278,7 +278,7 @@ class VideoSummarizer:
             return self._parse_summary_response(content)
 
         except Exception as e:
-            print(f"OpenAI 生成失败: {e}")
+            logger.error(f"OpenAI 生成失败: {e}")
             return self._generate_fallback_summary(analysis)
 
     def _build_summary_prompt(
@@ -381,7 +381,7 @@ class VideoSummarizer:
             }
 
         except json.JSONDecodeError as e:
-            print(f"JSON 解析失败: {e}")
+            logger.error(f"JSON 解析失败: {e}")
             # 返回简化版本
             return {
                 "title": "视频摘要",

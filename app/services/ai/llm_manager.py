@@ -6,7 +6,10 @@ LLM 管理器
 统一管理所有 LLM 提供商，支持自动切换和负载均衡
 """
 
+import logging
 from typing import Dict, Optional, List, Any
+
+logger = logging.getLogger(__name__)
 
 from .base_llm_provider import (
     BaseLLMProvider,
@@ -169,7 +172,7 @@ class LLMManager:
 
         except ProviderError as e:
             # 自动切换到下一个可用的提供商
-            print(f"⚠️  提供商 {provider.value} 失败: {e}")
+            logger.warning(f"提供商 {provider.value} 失败: {e}")
             return await self._try_fallback(request, exclude=[provider])
 
     async def _try_fallback(
@@ -193,10 +196,10 @@ class LLMManager:
         for provider_type, provider_instance in self.providers.items():
             if provider_type not in exclude:
                 try:
-                    print(f"🔄 尝试备用提供商: {provider_type.value}")
+                    logger.info(f"尝试备用提供商: {provider_type.value}")
                     return await provider_instance.generate(request)
                 except ProviderError as e:
-                    print(f"⚠️  提供商 {provider_type.value} 失败: {e}")
+                    logger.warning(f"提供商 {provider_type.value} 失败: {e}")
                     continue
 
         raise ProviderError("所有提供商均失败")
