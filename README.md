@@ -137,12 +137,39 @@ python main.py
 - [x] AI 第一人称独白（v2.0）
 - [x] 多 LLM 支持 + 国产模型（v2.0）
 - [x] 专业格式导出（v3.0）
-- [x] PySide6 Fluent UI 重构（v3.0）← 更新
+- [x] PySide6 Fluent UI 重构（v3.0）
+- [x] macOS 设计系统支持（v3.0.1）
+- [x] **代码优化与重构（v3.0.2）** ← 更新
 - [ ] 🔄 Web 版本（浏览器直接使用）
 - [ ] 🔄 批量处理模式
 - [ ] 🔄 自定义 AI 提示词模板市场
 - [ ] 🔄 视频字幕翻译（多语言）
 - [ ] 🔄 插件系统
+
+---
+
+## 📊 v3.0.2 优化
+
+### 代码质量提升
+
+| 优化项 | 改进 |
+|--------|------|
+| **EventBus 线程安全** | 添加 RLock，支持一次性订阅 |
+| **Logger 懒加载** | DEBUG 日志仅在启用时计算 |
+| **projects_page.py 重构** | 1610行 → 789行 (-51%) |
+| **print → logger** | ~95% 完成，便于生产调试 |
+| **DEBUG prints** | 13 → 0 (-100%) |
+| **命名规范统一** | macos_ → macOS_ |
+
+### PR 记录
+
+- [#18](https://github.com/Agions/ClipFlowCut/issues/18) 修复 v3.0.2 bug
+- [#20](https://github.com/Agions/ClipFlowCut/pull/20) EventBus 线程安全 + Logger 懒加载
+- [#21](https://github.com/Agions/ClipFlowCut/pull/21) main.py 日志优化
+- [#22](https://github.com/Agions/ClipFlowCut/pull/22) projects_page.py 重构
+- [#23](https://github.com/Agions/ClipFlowCut/pull/23) DEBUG prints 移除
+- [#24](https://github.com/Agions/ClipFlowCut/pull/24) macos_ 重复文件删除
+- [#25-29](https://github.com/Agions/ClipFlowCut/pulls?q=is%3Apr+sort%3Aupdated-desc) 核心模块日志优化
 
 ---
 
