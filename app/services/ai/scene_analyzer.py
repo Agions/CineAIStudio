@@ -152,7 +152,7 @@ class SceneAnalyzer:
             if result.returncode == 0:
                 return float(result.stdout.strip())
         except Exception as e:
-            print(f"获取视频时长失败: {e}")
+            logger.error(f"获取视频时长失败: {e}")
         
         return 0.0
     
@@ -229,11 +229,11 @@ class SceneAnalyzer:
             return scene_times
             
         except ImportError as e:
-            print(f"PySceneDetect 导入失败: {e}")
+            logger.warning(f"PySceneDetect 导入失败: {e}")
             self._pyscenect_available = False
             return self._detect_scene_changes(video_path)
         except Exception as e:
-            print(f"PySceneDetect 场景检测失败: {e}")
+            logger.error(f"PySceneDetect 场景检测失败: {e}")
             # 回退到 FFmpeg 方法
             return self._detect_scene_changes(video_path)
     
@@ -273,7 +273,7 @@ class SceneAnalyzer:
             logger.warning("场景检测超时")
             return [0.0]
         except Exception as e:
-            print(f"场景检测失败: {e}")
+            logger.error(f"场景检测失败: {e}")
             return [0.0]
     
     def _build_scenes(self, scene_times: List[float], total_duration: float) -> List[SceneInfo]:
@@ -474,7 +474,7 @@ class SceneAnalyzer:
                     scene.keyframe_path = str(output_path)
                     
             except Exception as e:
-                print(f"提取关键帧失败 (场景 {scene.index}): {e}")
+                logger.error(f"提取关键帧失败 (场景 {scene.index}): {e}")
     
     def get_best_scenes(
         self,
@@ -581,7 +581,7 @@ class SceneAnalyzer:
                     output_paths.append(str(output_path))
                     
             except Exception as e:
-                print(f"分割场景失败 (场景 {scene.index}): {e}")
+                logger.error(f"分割场景失败 (场景 {scene.index}): {e}")
         
         return output_paths
 
