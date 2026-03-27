@@ -456,13 +456,13 @@ class BeatSyncMashupMaker:
             try:
                 f.unlink()
             except Exception:
-                pass
+                logger.debug("Operation failed")
         
         try:
             concat_list.unlink()
             temp_dir.rmdir()
         except Exception:
-            pass
+            logger.debug("Operation failed")
         
         return str(output_path)
     

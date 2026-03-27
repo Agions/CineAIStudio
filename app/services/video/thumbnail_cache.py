@@ -101,7 +101,7 @@ class VideoThumbnailCache:
                     os.remove(info.thumbnail_path)
                     del self._memory_cache[key]
                 except Exception:
-                    pass
+                    logger.debug(f"Operation failed")
                     
             logger.info(f"清理了 {delete_count} 个旧缩略图缓存")
 
@@ -207,7 +207,7 @@ class VideoThumbnailCache:
                 if result:
                     results.append(result)
             except Exception:
-                pass
+                logger.debug(f"Operation failed")
                 
         return results
 
@@ -247,7 +247,7 @@ class VideoThumbnailCache:
                 if os.path.exists(info.thumbnail_path):
                     os.remove(info.thumbnail_path)
             except Exception:
-                pass
+                logger.debug(f"Operation failed")
         
         self._memory_cache.clear()
         

@@ -344,7 +344,7 @@ class SceneAnalyzer:
                 return float(match.group(1)) / 255.0  # 归一化到 0-1
                 
         except Exception:
-            pass
+            logger.debug(f"Operation failed")
         
         return 0.5  # 默认中等亮度
     
@@ -371,7 +371,7 @@ class SceneAnalyzer:
                 return min(1.0, avg_score * 2)  # 归一化
                 
         except Exception:
-            pass
+            logger.debug(f"Operation failed")
         
         return 0.3  # 默认中等运动
     
@@ -395,7 +395,7 @@ class SceneAnalyzer:
                 return max(0, min(1, (db + 60) / 60))
                 
         except Exception:
-            pass
+            logger.debug(f"Operation failed")
         
         return 0.5
     

@@ -517,7 +517,7 @@ class DiskCache(ICache):
                         if fnmatch.fnmatch(key, pattern):
                             keys.append(key)
             except Exception:
-                pass
+                logger.debug(f"Cache operation failed")
         return keys
     
     def cleanup_expired(self) -> int:
@@ -536,7 +536,7 @@ class DiskCache(ICache):
                         self._delete_files(cache_path, meta_file)
                         count += 1
             except Exception:
-                pass
+                logger.debug(f"Cache operation failed")
         return count
     
     def _delete_files(self, cache_path: Path, meta_path: Path) -> None:
@@ -547,7 +547,7 @@ class DiskCache(ICache):
             if meta_path.exists():
                 meta_path.unlink()
         except Exception:
-            pass
+            logger.debug(f"Cache operation failed")
     
     def _evict_if_needed(self, required_bytes: int) -> None:
         """如果需要则清理空间"""
@@ -569,7 +569,7 @@ class DiskCache(ICache):
                         oldest_time = mtime
                         oldest_file = meta_file
                 except Exception:
-                    pass
+                    logger.debug(f"Cache operation failed")
             
             if oldest_file is None:
                 break
