@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import logging
+logger = logging.getLogger(__name__)
 """
 AI 视频摘要生成器 (Video Summarizer)
 
@@ -184,11 +186,11 @@ class VideoSummarizer:
         config = config or SummarizerConfig()
 
         # 1. 分析视频内容
-        print("正在分析视频内容...")
+        logger.info("正在分析视频内容...")
         analysis = self.video_analyzer.analyze(video_path)
 
         # 2. 生成摘要
-        print("正在生成摘要...")
+        logger.info("正在生成摘要...")
         if self.use_llm_manager and self.llm_manager:
             summary_data = await self._generate_with_llm_manager(analysis, config)
         else:

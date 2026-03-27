@@ -18,12 +18,13 @@
     # 分析视频
     result = analyzer.analyze("video.mp4")
     
-    print(f"视频主题: {result.summary}")
+    logger.info(f"视频主题: {result.summary}")
     for frame in result.keyframes:
-        print(f"  帧 {frame.timestamp}s: {frame.description}")
+        logger.debug(f"  帧 {frame.timestamp}s: {frame.description}")
 """
 
 import os
+import logging
 import subprocess
 import base64
 import json
@@ -32,6 +33,8 @@ from typing import Optional, List, Dict, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor
+
+logger = logging.getLogger(__name__)
 
 
 class ContentType(Enum):
@@ -236,7 +239,7 @@ class VideoContentAnalyzer:
                 
                 return duration, width, height, fps
         except Exception as e:
-            print(f"获取视频信息失败: {e}")
+            logger.error(f"获取视频信息失败: {e}")
         
         return 0.0, 1920, 1080, 30.0
     
@@ -327,7 +330,7 @@ class VideoContentAnalyzer:
             keyframe.color_tone = analysis.get("color_tone", "neutral")
             
         except Exception as e:
-            print(f"分析帧 {keyframe.index} 失败: {e}")
+            logger.warning(f"分析帧 {keyframe.index} 失败: {e}")
     
     def _analyze_with_openai(self, image_base64: str) -> Dict[str, Any]:
         """使用 OpenAI Vision API 分析"""
@@ -387,7 +390,7 @@ class VideoContentAnalyzer:
                 return {"description": content}
             
         except Exception as e:
-            print(f"OpenAI Vision 分析失败: {e}")
+            logger.error(f"OpenAI Vision 分析失败: {e}")
             return {}
     
     def _analyze_with_local(self, image_path: str) -> Dict[str, Any]:
@@ -595,7 +598,7 @@ class VideoContentAnalyzer:
             return response.choices[0].message.content
             
         except Exception as e:
-            print(f"生成脚本建议失败: {e}")
+            logger.error(f"生成脚本建议失败: {e}")
             return ""
     
     def cleanup(self) -> None:

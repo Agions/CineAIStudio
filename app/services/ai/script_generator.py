@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import logging
+logger = logging.getLogger(__name__)
 """
 AI 文案生成器 (Script Generator)
 
@@ -637,7 +639,7 @@ def demo_generate():
         print()
 
     except Exception as e:
-        print(f"生成失败: {e}")
+        logger.error(f"生成失败: {e}")
         import traceback
         traceback.print_exc()
 

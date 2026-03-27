@@ -456,13 +456,13 @@ class BeatSyncMashupMaker:
             try:
                 f.unlink()
             except Exception:
-                pass
+                logger.debug(f"清理临时文件失败: {f}")
         
         try:
             concat_list.unlink()
             temp_dir.rmdir()
         except Exception:
-            pass
+            logger.debug("清理临时目录失败")
         
         return str(output_path)
     
