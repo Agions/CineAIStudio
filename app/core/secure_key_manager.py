@@ -289,7 +289,7 @@ class SecureKeyManager:
             try:
                 keyring.delete_password(self.app_name, "master_key")
             except Exception:
-                pass
+                logger.debug("Operation failed")
 
             # 重新存储所有密钥（使用新的主密钥）
             for provider, key_data in stored_keys.items():

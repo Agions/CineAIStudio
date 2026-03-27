@@ -456,7 +456,7 @@ class VideoContentAnalyzer:
             if match:
                 return float(match.group(1)) / 255.0
         except Exception:
-            pass
+            logger.debug("Operation failed")
         
         return 0.5
     
