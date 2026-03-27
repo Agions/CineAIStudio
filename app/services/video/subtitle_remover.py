@@ -170,7 +170,7 @@ class SubtitleRemover:
                     "confidence": 0.85,
                 }
         except Exception:
-            pass
+            pass  # TODO: add logging
         
         # 默认返回 1080p 的字幕区域
         return {

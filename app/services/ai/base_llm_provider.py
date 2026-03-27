@@ -135,7 +135,7 @@ class HTTPClientMixin:
             if "error" in error_data:
                 error_msg = f"{error_msg} - {error_data['error']['message']}"
         except Exception:
-            pass
+            pass  # TODO: add logging
         return ProviderError(error_msg)
 
 
