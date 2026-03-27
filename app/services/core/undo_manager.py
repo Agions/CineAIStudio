@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
+import logging
+logger = logging.getLogger(__name__)
 撤销/重做管理器 (Undo Manager)
 
 实现命令模式，支持无限级撤销和重做。
@@ -526,7 +528,7 @@ class UndoManager:
 
             return True
         except Exception as e:
-            print(f"保存历史失败: {e}")
+            logger.error(f"保存历史失败: {e}")
             return False
 
     def load_history(self, path: Optional[str] = None) -> bool:
@@ -551,7 +553,7 @@ class UndoManager:
             # 实际应用中可能需要更复杂的序列化
             return True
         except Exception as e:
-            print(f"加载历史失败: {e}")
+            logger.error(f"加载历史失败: {e}")
             return False
 
     def get_statistics(self) -> Dict[str, Any]:

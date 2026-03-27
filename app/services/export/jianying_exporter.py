@@ -2,6 +2,8 @@
 剪映草稿导出器 (Jianying Exporter)
 
 将 ClipFlow 项目导出为剪映草稿格式，实现与剪映的完美对接。
+import logging
+logger = logging.getLogger(__name__)
 
 剪映草稿结构:
     drafts/
@@ -668,7 +670,7 @@ class JianyingExporter:
                         }
             
         except Exception as e:
-            print(f"获取视频信息失败: {e}")
+            logger.error(f"获取视频信息失败: {e}")
         
         return {'width': 1920, 'height': 1080, 'duration': 0}
 

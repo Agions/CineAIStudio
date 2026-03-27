@@ -135,7 +135,7 @@ class MemoryCache(ICache):
                 return True
                 
         except Exception as e:
-            print(f"缓存设置失败: {e}")
+            logger.error(f"缓存设置失败: {e}")
             return False
     
     def delete(self, key: str) -> bool:
@@ -363,7 +363,7 @@ class DiskCache(ICache):
             return value
             
         except Exception as e:
-            print(f"读取缓存失败: {e}")
+            logger.error(f"读取缓存失败: {e}")
             self._miss_count += 1
             return None
     
@@ -403,7 +403,7 @@ class DiskCache(ICache):
             return True
             
         except Exception as e:
-            print(f"写入缓存失败: {e}")
+            logger.error(f"写入缓存失败: {e}")
             return False
     
     def delete(self, key: str) -> bool:

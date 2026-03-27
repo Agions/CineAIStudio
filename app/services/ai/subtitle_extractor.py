@@ -615,7 +615,7 @@ class SubtitleTranslator:
                     translated.append(line)
                     
             except Exception as e:
-                print(f"OpenAI 翻译批次 {i//batch_size + 1} 失败: {e}")
+                logger.error(f"OpenAI 翻译批次 {i//batch_size + 1} 失败: {e}")
                 # 失败时返回原文
                 translated.extend(batch)
         

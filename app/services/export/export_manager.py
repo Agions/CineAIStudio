@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
+import logging
+logger = logging.getLogger(__name__)
 统一导出管理器
 提供一键导出到多种格式的能力
 """
@@ -87,7 +89,7 @@ class ExportManager:
         try:
             return exporter.export(project_data, config)
         except Exception as e:
-            print(f"导出失败: {e}")
+            logger.error(f"导出失败: {e}")
             return False
     
     def _generate_output_path(self, config: ExportConfig) -> str:
