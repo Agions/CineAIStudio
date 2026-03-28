@@ -9,5 +9,5 @@
 - 🎵 音视频同步处理
 - 📤 多格式导出
 
-[GitHub](https://github.com/agions/clip-flow-cut)
+[GitHub](https://github.com/Agions/VideoForge)
 [快速开始](getting-started.md)
