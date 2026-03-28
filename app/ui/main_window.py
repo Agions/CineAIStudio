@@ -193,7 +193,7 @@ class SettingsPage(QWidget):
         
         # 文件
         container_layout.addWidget(self._make_section("文件", [
-            ("临时文件位置", "缓存和临时文件存放目录", "text", ["/tmp/clipflow"]),
+            ("临时文件位置", "缓存和临时文件存放目录", "text", ["/tmp/videoforge"]),
             ("自动清理临时文件", "退出时自动删除缓存", "toggle", [True]),
         ]))
         

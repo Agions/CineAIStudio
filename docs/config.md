@@ -54,7 +54,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 ```env
 # Logging
 LOG_LEVEL=INFO
-LOG_FILE=clipflow.log
+LOG_FILE=videoforge.log
 
 # Theme
 THEME=dark  # dark or light
@@ -78,7 +78,7 @@ window:
 
 cache:
   enabled: true
-  directory: ~/.clipflow/cache
+  directory: ~/.videoforge/cache
   max_size: 1GB
 
 projects:

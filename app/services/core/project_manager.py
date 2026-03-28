@@ -4,7 +4,7 @@
 """
 VideoForge 项目文件管理
 
-支持 .clipflow 项目文件的保存、加载和管理。
+支持 .videoforge 项目文件的保存、加载和管理。
 
 项目文件格式：
 - JSON 格式，易于阅读和调试
@@ -17,10 +17,10 @@ VideoForge 项目文件管理
     manager = ProjectManager()
     
     # 保存项目
-    manager.save(project, "my_video.clipflow")
+    manager.save(project, "my_video.videoforge")
     
     # 加载项目
-    project = manager.load("my_video.clipflow")
+    project = manager.load("my_video.videoforge")
 """
 
 import json
@@ -145,7 +145,7 @@ class ProjectManager:
     """
     
     # 支持的文件扩展名
-    PROJECT_EXTENSIONS = [".clipflow", ".cfproj"]
+    PROJECT_EXTENSIONS = [".videoforge", ".vfproj"]
     
     def __init__(self):
         self.current_project: Optional[VideoForgeProject] = None
@@ -198,7 +198,7 @@ class ProjectManager:
         
         # 确保扩展名正确
         if output_path.suffix.lower() not in self.PROJECT_EXTENSIONS:
-            output_path = output_path.with_suffix(".clipflow")
+            output_path = output_path.with_suffix(".videoforge")
         
         # 更新修改时间
         project.metadata.modified_at = datetime.now().isoformat()
@@ -531,7 +531,7 @@ def demo_project_management():
     project.config.target_platform = "bilibili"
     
     # 保存项目
-    save_path = manager.save(project, "./demo_project.clipflow")
+    save_path = manager.save(project, "./demo_project.videoforge")
     print(f"项目已保存: {save_path}")
     
     # 加载项目

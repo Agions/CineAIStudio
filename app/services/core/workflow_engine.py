@@ -466,7 +466,7 @@ class WorkflowEngine:
             raise ValueError("没有脚本内容")
 
         if not output_dir:
-            output_dir = os.path.join(os.path.expanduser("~"), ".clipflow", "audio")
+            output_dir = os.path.join(os.path.expanduser("~"), ".videoforge", "audio")
         os.makedirs(output_dir, exist_ok=True)
 
         voiceover = VoiceoverData(voice_style=voice, beat_sync=beat_sync)
@@ -554,7 +554,7 @@ class WorkflowEngine:
         self._update(step=WorkflowStep.EXPORT, progress=96)
 
         if not output_dir:
-            output_dir = os.path.join(os.path.expanduser("~"), ".clipflow", "exports")
+            output_dir = os.path.join(os.path.expanduser("~"), ".videoforge", "exports")
         os.makedirs(output_dir, exist_ok=True)
 
         pid = self._state.project_id
@@ -563,40 +563,40 @@ class WorkflowEngine:
 
         try:
             if fmt == ExportFormat.SRT:
-                output_path = os.path.join(output_dir, f"clipflow_{pid}_{ts}.srt")
+                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.srt")
                 self._export_srt(output_path)
 
             elif fmt == ExportFormat.ASS:
-                output_path = os.path.join(output_dir, f"clipflow_{pid}_{ts}.ass")
+                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.ass")
                 self._export_ass(output_path)
 
             elif fmt == ExportFormat.JIANYING:
                 from ..export.jianying_exporter import JianyingExporter
-                output_path = os.path.join(output_dir, f"clipflow_{pid}_{ts}")
+                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}")
                 exporter = JianyingExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             elif fmt == ExportFormat.PREMIERE:
                 from ..export.premiere_exporter import PremiereExporter
-                output_path = os.path.join(output_dir, f"clipflow_{pid}_{ts}.xml")
+                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.xml")
                 exporter = PremiereExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             elif fmt == ExportFormat.FINALCUT:
                 from ..export.finalcut_exporter import FinalCutExporter
-                output_path = os.path.join(output_dir, f"clipflow_{pid}_{ts}.fcpxml")
+                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.fcpxml")
                 exporter = FinalCutExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             elif fmt == ExportFormat.DAVINCI:
                 from ..export.davinci_exporter import DaVinciExporter
-                output_path = os.path.join(output_dir, f"clipflow_{pid}_{ts}.fcpxml")
+                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.fcpxml")
                 exporter = DaVinciExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             else:  # MP4
                 from ..export.direct_video_exporter import DirectVideoExporter
-                output_path = os.path.join(output_dir, f"clipflow_{pid}_{ts}.mp4")
+                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.mp4")
                 exporter = DirectVideoExporter()
                 exporter.export(self._build_export_data(), output_path, quality=quality)
 

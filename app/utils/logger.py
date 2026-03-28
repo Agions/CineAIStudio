@@ -38,7 +38,7 @@ class LogFormatter(logging.Formatter):
 
 
 def setup_logger(
-    name: str = "clipflowcut",
+    name: str = "videoforge",
     level: int = logging.INFO,
     log_file: Optional[str] = None,
     format_string: Optional[str] = None,
@@ -87,7 +87,7 @@ def setup_logger(
 
 def get_logger(name: str) -> logging.Logger:
     """获取日志器"""
-    return logging.getLogger(f"clipflowcut.{name}")
+    return logging.getLogger(f"videoforge.{name}")
 
 
 # 默认日志器

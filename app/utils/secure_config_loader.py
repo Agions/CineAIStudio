@@ -31,9 +31,9 @@ class SecureConfigLoader:
             allowed_dirs: 允许加载配置的目录列表
         """
         self.allowed_dirs = allowed_dirs or [
-            os.path.expanduser("~/.clipflowcut"),
+            os.path.expanduser("~/.videoforge"),
             os.path.expanduser("~/VideoForge"),
-            "/etc/clipflowcut",
+            "/etc/videoforge",
             os.path.join(os.path.dirname(__file__), '..', '..', 'config')
         ]
         self.allowed_dirs = [os.path.abspath(d) for d in self.allowed_dirs]

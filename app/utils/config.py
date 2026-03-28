@@ -90,7 +90,7 @@ class ConfigManager:
         if config_dir:
             self.config_dir = Path(config_dir)
         else:
-            self.config_dir = Path.home() / ".clipflowcut"
+            self.config_dir = Path.home() / ".videoforge"
         
         self.config_dir.mkdir(parents=True, exist_ok=True)
         
