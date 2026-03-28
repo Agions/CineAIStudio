@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 插件系统
+VideoForge 插件系统
 提供插件管理、加载和扩展功能
 """
 

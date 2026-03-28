@@ -144,7 +144,7 @@ def update_pyproject(filepath: Path) -> bool:
         return False
 
 def main():
-    project_root = Path('/root/.openclaw/workspace/ClipFlowCut')
+    project_root = Path('/root/.openclaw/workspace/VideoForge')
     app_dir = project_root / 'app'
     
     print("🔄 开始 PyQt6 → PySide6 迁移...")

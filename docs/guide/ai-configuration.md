@@ -1,6 +1,6 @@
 # AI Configuration
 
- powerConfigure AI providers to ClipFlowCut's intelligent features.
+ powerConfigure AI providers to VideoForge's intelligent features.
 
 ## Supported AI Providers
 
@@ -56,7 +56,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ## Using Multiple Providers
 
-ClipFlowCut supports multiple AI providers simultaneously. You can:
+VideoForge supports multiple AI providers simultaneously. You can:
 
 1. Set keys for all providers you want to use
 2. Select your preferred provider in the UI

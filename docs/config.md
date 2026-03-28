@@ -1,10 +1,10 @@
 # Configuration
 
-Learn how to configure ClipFlowCut for your needs.
+Learn how to configure VideoForge for your needs.
 
 ## Configuration Files
 
-ClipFlowCut uses multiple configuration sources:
+VideoForge uses multiple configuration sources:
 
 | File | Purpose |
 |------|---------|
@@ -67,7 +67,7 @@ LANGUAGE=zh-CN
 
 ```yaml
 application:
-  name: ClipFlowCut
+  name: VideoForge
   version: 3.0.0
   debug: false
 
@@ -82,7 +82,7 @@ cache:
   max_size: 1GB
 
 projects:
-  default_directory: ~/Documents/ClipFlowCut
+  default_directory: ~/Documents/VideoForge
   auto_save: true
   auto_save_interval: 300  # seconds
 ```

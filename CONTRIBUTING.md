@@ -1,13 +1,13 @@
 # 贡献指南 · Contributing Guide
 
-感谢你对 ClipFlowCut 的关注！我们欢迎任何形式的贡献 🎉
+感谢你对 VideoForge 的关注！我们欢迎任何形式的贡献 🎉
 
 ---
 
 ## 🌟 贡献方式
 
-- 🐛 **报告 Bug** — [提交 Issue](https://github.com/Agions/ClipFlowCut/issues/new?template=bug_report.md)
-- 💡 **功能建议** — [提交 Feature Request](https://github.com/Agions/ClipFlowCut/issues/new?template=feature_request.md)
+- 🐛 **报告 Bug** — [提交 Issue](https://github.com/Agions/VideoForge/issues/new?template=bug_report.md)
+- 💡 **功能建议** — [提交 Feature Request](https://github.com/Agions/VideoForge/issues/new?template=feature_request.md)
 - 📝 **改进文档** — 修正错别字、补充说明、翻译
 - 🔧 **提交代码** — Bug 修复、新功能实现
 - ⭐ **推广项目** — 分享给更多人
@@ -18,8 +18,8 @@
 
 ```bash
 # 1. Fork 并克隆
-git clone https://github.com/YOUR_USERNAME/ClipFlowCut.git
-cd ClipFlowCut
+git clone https://github.com/YOUR_USERNAME/VideoForge.git
+cd VideoForge
 
 # 2. 创建虚拟环境
 python -m venv venv
@@ -100,8 +100,8 @@ git push origin feature/your-feature-name
 
 ## 💬 交流
 
-- 提问和讨论：[GitHub Discussions](https://github.com/Agions/ClipFlowCut/discussions)
-- Bug 报告：[GitHub Issues](https://github.com/Agions/ClipFlowCut/issues)
+- 提问和讨论：[GitHub Discussions](https://github.com/Agions/VideoForge/discussions)
+- Bug 报告：[GitHub Issues](https://github.com/Agions/VideoForge/issues)
 
 ---
 

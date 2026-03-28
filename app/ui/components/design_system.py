@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlowCut 设计系统 - 统一 UI 组件
+VideoForge 设计系统 - 统一 UI 组件
 """
 
 from typing import Optional
@@ -15,7 +15,7 @@ from PySide6.QtGui import QFont
 
 
 class DesignSystem:
-    """设计系统常量 - ClipFlowCut 现代暗色主题"""
+    """设计系统常量 - VideoForge 现代暗色主题"""
 
     COLORS = {
         # 主色调 - GitHub 风格暗色
@@ -101,7 +101,7 @@ class DesignSystem:
 
 
 class StyleSheet:
-    """样式生成器 - ClipFlowCut 现代暗色主题"""
+    """样式生成器 - VideoForge 现代暗色主题"""
 
     @staticmethod
     def button(variant="primary"):
@@ -258,7 +258,7 @@ class StyleSheet:
 
 
 class CFButton(QPushButton):
-    """ClipFlowCut 按钮"""
+    """VideoForge 按钮"""
     
     def __init__(self, text="", variant="primary", icon="", parent=None):
         super().__init__(text, parent)
@@ -269,7 +269,7 @@ class CFButton(QPushButton):
 
 
 class CFLabel(QLabel):
-    """ClipFlowCut 标签"""
+    """VideoForge 标签"""
     
     def __init__(self, text="", secondary=False, parent=None):
         super().__init__(text, parent)
@@ -277,7 +277,7 @@ class CFLabel(QLabel):
 
 
 class CFCard(QWidget):
-    """ClipFlowCut 卡片"""
+    """VideoForge 卡片"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -285,7 +285,7 @@ class CFCard(QWidget):
 
 
 class CFPanel(QWidget):
-    """ClipFlowCut 面板"""
+    """VideoForge 面板"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -293,7 +293,7 @@ class CFPanel(QWidget):
 
 
 class CFInput(QLineEdit):
-    """ClipFlowCut 输入框"""
+    """VideoForge 输入框"""
     
     def __init__(self, placeholder="", parent=None):
         super().__init__(parent)
@@ -302,7 +302,7 @@ class CFInput(QLineEdit):
 
 
 class CFProgressBar(QProgressBar):
-    """ClipFlowCut 进度条"""
+    """VideoForge 进度条"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -310,7 +310,7 @@ class CFProgressBar(QProgressBar):
 
 
 class CFNavButton(CFButton):
-    """ClipFlowCut 导航按钮"""
+    """VideoForge 导航按钮"""
     
     def __init__(self, text="", icon="", selected=False, parent=None):
         super().__init__(text, variant="ghost", parent=parent)

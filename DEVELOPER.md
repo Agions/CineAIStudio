@@ -1,15 +1,15 @@
 # Developer Guide
 
-> ClipFlowCut Developer Documentation
+> VideoForge Developer Documentation
 
 ## Overview
 
-ClipFlowCut is an AI-driven video creation desktop application built with Python and PyQt6.
+VideoForge is an AI-driven video creation desktop application built with Python and PyQt6.
 
 ## Project Structure
 
 ```
-ClipFlowCut/
+VideoForge/
 ├── app/              # Application source code
 ├── core/             # Core business logic
 ├── ui/               # User interface (PyQt6)

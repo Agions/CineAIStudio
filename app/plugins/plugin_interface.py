@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 插件接口定义
+VideoForge 插件接口定义
 定义插件必须实现的标准接口
 """
 

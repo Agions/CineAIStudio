@@ -1,6 +1,6 @@
 """
 首次使用引导 - 欢迎页面
-介绍 ClipFlowCut 的核心功能
+介绍 VideoForge 的核心功能
 """
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
@@ -149,7 +149,7 @@ class WelcomeScreen(QWidget):
     get_started = pyqtSignal()  # 开始使用信号
     skip = pyqtSignal()  # 跳过信号
     
-    def __init__(self, app_name: str = "ClipFlowCut", version: str = "v2.0.0", parent=None):
+    def __init__(self, app_name: str = "VideoForge", version: str = "v2.0.0", parent=None):
         super().__init__(parent)
         self._app_name = app_name
         self._version = version

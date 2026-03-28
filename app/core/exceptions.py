@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 错误处理和异常模块
+VideoForge 错误处理和异常模块
 提供自定义异常和错误处理功能
 """
 
@@ -44,8 +44,8 @@ class ErrorCode(Enum):
     UNKNOWN_ERROR = "UNK001"
 
 
-class ClipFlowError(Exception):
-    """ClipFlow 基础异常类"""
+class VideoForgeError(Exception):
+    """VideoForge 基础异常类"""
 
     def __init__(
         self,
@@ -73,7 +73,7 @@ class ClipFlowError(Exception):
         return result
 
 
-class LLMError(ClipFlowError):
+class LLMError(VideoForgeError):
     """LLM 错误"""
 
     def __init__(
@@ -113,7 +113,7 @@ class LLMError(ClipFlowError):
         )
 
 
-class ConfigError(ClipFlowError):
+class ConfigError(VideoForgeError):
     """配置错误"""
 
     def __init__(self, message: str, key: Optional[str] = None):
@@ -128,7 +128,7 @@ class ConfigError(ClipFlowError):
         )
 
 
-class FileError(ClipFlowError):
+class FileError(VideoForgeError):
     """文件操作错误"""
 
     def __init__(
@@ -156,7 +156,7 @@ class FileError(ClipFlowError):
         )
 
 
-class VideoError(ClipFlowError):
+class VideoError(VideoForgeError):
     """视频处理错误"""
 
     def __init__(self, message: str, video_path: Optional[str] = None):
@@ -170,7 +170,7 @@ class VideoError(ClipFlowError):
         )
 
 
-class TTSError(ClipFlowError):
+class TTSError(VideoForgeError):
     """语音合成错误"""
 
     def __init__(self, message: str, voice: Optional[str] = None):
@@ -187,7 +187,7 @@ class TTSError(ClipFlowError):
 def format_error_message(error: Exception) -> str:
     """格式化错误消息，用于用户界面显示"""
 
-    if isinstance(error, ClipFlowError):
+    if isinstance(error, VideoForgeError):
         return str(error)
 
     # 处理其他异常

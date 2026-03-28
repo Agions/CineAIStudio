@@ -1,6 +1,6 @@
-# 欢迎使用 ClipFlowCut
+# 欢迎使用 VideoForge
 
-ClipFlowCut 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统手动剪辑软件，ClipFlowCut 通过 AI 实现自动化创作。
+VideoForge 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统手动剪辑软件，VideoForge 通过 AI 实现自动化创作。
 
 ## 🚀 快速开始
 

@@ -2,6 +2,6 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlowCut UI组件库
+VideoForge UI组件库
 提供统一的UI组件接口
 """

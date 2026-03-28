@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow LLM 缓存和重试机制
+VideoForge LLM 缓存和重试机制
 提高 LLM API 调用性能和可靠性
 """
 

@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to ClipFlowCut! This guide will help you get up and running with the AI-powered video creation application.
+Welcome to VideoForge! This guide will help you get up and running with the AI-powered video creation application.
 
 ## Prerequisites
 
@@ -14,8 +14,8 @@ Before you begin, ensure you have the following:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Agions/ClipFlowCut.git
-cd ClipFlowCut
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
 
 # Create virtual environment
 python -m venv venv
@@ -38,7 +38,7 @@ python main.py
 2. Configure your AI provider API keys in the settings
 3. Import your video素材
 4. Choose an AI creation mode
-5. Let ClipFlowCut do the magic! ✨
+5. Let VideoForge do the magic! ✨
 
 ## AI Creation Modes
 

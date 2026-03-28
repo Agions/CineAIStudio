@@ -74,7 +74,7 @@ class ProjectTemplate:
     ai: AIPreset = field(default_factory=AIPreset)
 
     # 元数据
-    author: str = "ClipFlow"
+    author: str = "VideoForge"
     version: str = "1.0"
     created_at: float = field(default_factory=time.time)
 

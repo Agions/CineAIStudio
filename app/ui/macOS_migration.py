@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow macOS 设计系统迁移工具
+VideoForge macOS 设计系统迁移工具
 自动将现有 UI 迁移到 macOS 设计系统
 
 使用说明:
@@ -35,7 +35,7 @@ class MigrationManager:
     def execute_migration(self) -> bool:
         """执行完整迁移"""
         print("=" * 60)
-        print("🚀 ClipFlow macOS 设计系统迁移工具")
+        print("🚀 VideoForge macOS 设计系统迁移工具")
         print("=" * 60)
 
         steps = [
@@ -627,7 +627,7 @@ class NavigationButton(QPushButton):
         layout.setSpacing(10)
 
         # Logo
-        logo_label = QLabel(\"🎬\")\n        logo_label.setStyleSheet(\"font-size: 24px;\")\n        layout.addWidget(logo_label)\n\n        # 标题\n        title_label = QLabel(\"ClipFlow\")\n        title_label.setStyleSheet(\"\"\"\n            QLabel {\n                color: #FFFFFF;\n                font-size: 18px;\n                font-weight: bold;\n            }\n        \"\"\")\n        layout.addWidget(title_label)\n\n        return layout'''
+        logo_label = QLabel(\"🎬\")\n        logo_label.setStyleSheet(\"font-size: 24px;\")\n        layout.addWidget(logo_label)\n\n        # 标题\n        title_label = QLabel(\"VideoForge\")\n        title_label.setStyleSheet(\"\"\"\n            QLabel {\n                color: #FFFFFF;\n                font-size: 18px;\n                font-weight: bold;\n            }\n        \"\"\")\n        layout.addWidget(title_label)\n\n        return layout'''
 
         new_left = '''    def _create_left_section(self) -> QHBoxLayout:
         """创建左侧区域 - 应用 macOS 样式"""
@@ -636,7 +636,7 @@ class NavigationButton(QPushButton):
         layout.setSpacing(10)
 
         # Logo
-        logo_label = QLabel(\"🎬\")\n        logo_label.setProperty("class", "app-icon")\n        layout.addWidget(logo_label)\n\n        # 标题\n        title_label = QLabel(\"ClipFlow\")\n        title_label.setProperty("class", "app-title")\n        layout.addWidget(title_label)\n\n        return layout'''
+        logo_label = QLabel(\"🎬\")\n        logo_label.setProperty("class", "app-icon")\n        layout.addWidget(logo_label)\n\n        # 标题\n        title_label = QLabel(\"VideoForge\")\n        title_label.setProperty("class", "app-title")\n        layout.addWidget(title_label)\n\n        return layout'''
 
         content = content.replace(old_left, new_left)
 
@@ -676,7 +676,7 @@ class NavigationButton(QPushButton):
         def replace_title(match):
             old_code = match.group(1)
             return old_code + '''# 主标题
-        title_label = QLabel("ClipFlowCut")
+        title_label = QLabel("VideoForge")
         title_label.setProperty("class", "title-4xl")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("")  # 清除旧样式，使用类名
@@ -698,7 +698,7 @@ class NavigationButton(QPushButton):
         # 这里的替换逻辑需要调整，因为原有代码结构复杂
         # 简化成直接替换核心部分
         old_title_styles = '''        # 主标题
-        title_label = QLabel("ClipFlowCut")
+        title_label = QLabel("VideoForge")
         title_label.setObjectName("mainTitle")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet(\"\"\"
@@ -723,7 +723,7 @@ class NavigationButton(QPushButton):
         \"\"\")'''
 
         new_title_styles = '''        # 主标题
-        title_label = QLabel("ClipFlowCut")
+        title_label = QLabel("VideoForge")
         title_label.setProperty("class", "title-4xl")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -883,7 +883,7 @@ from app.core.macOS_theme_manager import apply_macos_theme  # 新主题管理器
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="ClipFlow macOS 设计系统迁移工具")
+    parser = argparse.ArgumentParser(description="VideoForge macOS 设计系统迁移工具")
     parser.add_argument("--project", default=".", help="项目根目录路径")
     parser.add_argument("--auto", action="store_true", help="自动执行完整迁移")
 

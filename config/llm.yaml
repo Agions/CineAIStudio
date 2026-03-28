@@ -1,4 +1,4 @@
-# ClipFlowCut AI LLM 配置 (2026年3月最新)
+# VideoForge AI LLM 配置 (2026年3月最新)
 
 LLM:
   # 默认提供商 (qwen | kimi | glm5 | openai | deepseek | claude | gemini | local)

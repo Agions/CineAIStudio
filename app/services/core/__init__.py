@@ -34,7 +34,7 @@ from .project_manager import (
     ProjectMetadata,
     ProjectSource,
     ProjectConfig,
-    ClipFlowProject,
+    VideoForgeProject,
     save_project,
     load_project,
 )
@@ -94,7 +94,7 @@ __all__ = [
     'ProjectMetadata',
     'ProjectSource',
     'ProjectConfig',
-    'ClipFlowProject',
+    'VideoForgeProject',
     'save_project',
     'load_project',
     

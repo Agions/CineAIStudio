@@ -130,7 +130,7 @@ class TestMainConstants:
         
         config = WindowConfig()
         
-        assert config.title == "ClipFlowCut"
+        assert config.title == "VideoForge"
         assert config.width == 1200
         assert config.height == 800
         assert config.min_width == 800

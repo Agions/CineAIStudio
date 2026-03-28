@@ -1,66 +1,130 @@
 <div align="center">
 
-# 🎬 ClipFlowCut
+# 🎬 VideoForge
 
 **AI-Powered Video Creation Desktop App · AI 驱动的视频创作桌面应用**
 
 *从素材到成片，全程 AI 自动化 · From raw footage to final cut, fully AI-automated*
 
-<p align="center">
-  <a href="https://github.com/Agions/ClipFlowCut/stargazers"><img src="https://img.shields.io/github/stars/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=FFD700" alt="Stars"></a>
-  <a href="https://github.com/Agions/ClipFlowCut/forks"><img src="https://img.shields.io/github/forks/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=4CAF50" alt="Forks"></a>
-  <a href="https://github.com/Agions/ClipFlowCut/issues"><img src="https://img.shields.io/github/issues/ClipFlowCut?style=for-the-badge&color=FF6B6B" alt="Issues"></a>
-  <a href="https://github.com/Agions/ClipFlowCut/releases"><img src="https://img.shields.io/github/v/release/Agions/ClipFlowCut?style=for-the-badge&color=blue" alt="Release"></a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.9+-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/PySide6-6.6+-41cd52?style=flat-square" alt="PySide6">
-  <img src="https://img.shields.io/badge/Platform-macOS%20|%20Windows-lightgrey?style=flat-square" alt="Platform">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
-  <img src="https://img.shields.io/badge/FFmpeg-Required-007808?style=flat-square" alt="FFmpeg">
-</p>
-
-<p align="center">
-  <a href="README.md">中文</a> · <a href="docs/README_EN.md">English</a> · <a href="https://agions.github.io/ClipFlowCut">文档</a> · <a href="https://github.com/Agions/ClipFlowCut/releases">下载</a> · <a href="https://github.com/Agions/ClipFlowCut/issues/new?template=bug_report.md">报告 Bug</a> · <a href="https://github.com/Agions/ClipFlowCut/issues/new?template=feature_request.md">功能建议</a>
-</p>
-
-</div>
+[![GitHub stars](https://img.shields.io/github/stars/Agions/VideoForge?style=for-the-badge&logo=github&color=FFD700)](https://github.com/Agions/VideoForge/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Agions/VideoForge?style=for-the-badge&logo=github&color=4CAF50)](https://github.com/Agions/VideoForge/forks)
+[![GitHub issues](https://img.shields.io/github/issues/VideoForge?style=for-the-badge&color=FF6B6B)](https://github.com/Agions/VideoForge/issues)
+[![GitHub release](https://img.shields.io/github/v/release/Agions/VideoForge?style=for-the-badge&color=blue)](https://github.com/Agions/VideoForge/releases)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 ---
 
-## 🤔 为什么选择 ClipFlowCut？
+### ✨ 一句话介绍
 
-> 传统视频剪辑需要你手动完成每一步。ClipFlowCut 让 AI 替你完成。
+> VideoForge 是一款**AI 驱动的视频创作工具**，支持剧情分析、智能剪辑、解说配音、多素材混剪，让视频制作变得前所未有的简单。
 
-| ClipFlowCut 能做什么 | |
-|------|:---:|
-| 🤖 AI 自动解说配音，一键生成专业旁白 | ✅ |
-| 🔀 自由切换 9+ 主流 LLM，不锁定单一服务商 | ✅ |
-| 📤 导出全格式，兼容主流专业工作流 | ✅ |
-| 🏠 支持本地 Ollama 私有部署，数据不出本机 | ✅ |
-| 🆓 MIT 开源免费，无订阅无限制 | ✅ |
-| 💻 跨平台桌面应用，macOS & Windows 原生体验 | ✅ |
-| 🎵 AI 节拍自动对齐，卡点混剪零手动 | ✅ |
+### 🎯 核心特性
+
+| 特性 | 说明 |
+|------|:----:|
+| 🤖 **AI 剧情分析** | 智能分析视频叙事结构、情感曲线、高光时刻 |
+| 🎬 **剧情剪辑模式** | 基于故事弧线自动生成剪辑点建议 |
+| 🎙️ **AI 解说配音** | 一键生成专业旁白，支持多种音色 |
+| 🎵 **智能混剪** | BPM 节拍检测，自动卡点混剪 |
+| 🎭 **AI 独白** | 画面情感分析，生成电影级内心独白 |
+| 📤 **全格式导出** | 剪映/PR/FCPXML/DaVinci/RAW |
 
 ---
 
-## ✨ 核心功能
+## 🚀 快速开始
 
-### 🎙️ AI 视频解说
-> 上传视频 → AI 分析场景 → 自动生成解说文案 → AI 配音 → 动态字幕合成
+### 下载安装包（推荐）
 
-一键将任意视频变成专业解说视频，支持多种风格（科普、娱乐、纪录片...）
+| 平台 | 下载地址 |
+|------|----------|
+| macOS | [VideoForge-x.x.x.dmg](https://github.com/Agions/VideoForge/releases) |
+| Windows | [VideoForge-x.x.x-setup.exe](https://github.com/Agions/VideoForge/releases) |
 
-### 🎵 AI 视频混剪
-> 多素材导入 → BPM 节拍检测 → 智能剪辑点 → 自动转场 → 成片导出
+### 源码运行
 
-卡点混剪从此不再需要手动对齐，AI 自动完成节拍匹配
+```bash
+# 1. 克隆项目
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
 
-### 🎭 AI 第一人称独白
-> 画面情感分析 → 情感独白生成 → AI 配音 → 电影级字幕
+# 2. 创建虚拟环境
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-让你的 Vlog 拥有电影质感的内心独白
+# 3. 安装依赖
+pip install -r requirements.txt
+
+# 4. 配置 API Key
+cp .env.example .env
+# 编辑 .env，填入 AI 服务密钥
+
+# 5. 启动
+python main.py
+```
+
+> 💡 **只需要一个 API Key 即可开始** · Edge TTS 配音完全免费
+
+---
+
+## 🎨 剪辑模式
+
+VideoForge 提供四种 AI 剪辑模式，适应不同创作需求：
+
+### 1️⃣ 剧情分析模式 🆕
+
+```
+视频输入 → AI 剧情分析 → 故事结构识别 → 智能剪辑建议
+```
+
+**核心能力：**
+- 📊 分析叙事结构（起承转合）
+- 🎭 识别情感曲线和关键时刻
+- ✂️ 生成基于故事的剪辑点
+- 🎬 支持叙事/高光/预告片三种风格
+
+**适用场景：** 电影解说、故事类短视频、Vlog 整理
+
+### 2️⃣ AI 解说模式
+
+```
+视频输入 → 场景分析 → 文案生成 → 配音合成 → 字幕匹配
+```
+
+**核心能力：**
+- 🎙️ 多音色 AI 配音（支持中文/英文/方言）
+- 📝 自动生成解说文案
+- 🔄 音画自动同步
+- 🎨 多种解说风格可选
+
+**适用场景：** 科普视频、知识分享、产品介绍
+
+### 3️⃣ 智能混剪模式
+
+```
+多素材 → BPM 检测 → 节奏分析 → 自动卡点 → 成片导出
+```
+
+**核心能力：**
+- 🎵 节拍精准检测（librosa 音频分析）
+- 🔀 智能转场匹配
+- ⚡ 并行处理多素材
+- 📋 批量导出
+
+**适用场景：** 音乐剪辑、舞蹈视频、节奏类内容
+
+### 4️⃣ AI 独白模式
+
+```
+视频输入 → 情感分析 → 独白生成 → 电影级字幕
+```
+
+**核心能力：**
+- 😊 画面情感识别
+- 💭 AI 内心独白生成
+- 🎬 电影感字幕设计
+- 🎭 多种情感风格
+
+**适用场景：** Vlog 内心独白、纪录片旁白、电影感视频
 
 ---
 
@@ -84,181 +148,117 @@
 
 ## 📤 导出格式
 
-一次创作，多端使用：
-
-```
-✅ 剪映草稿 (Draft JSON)   ✅ Adobe Premiere (XML)
-✅ Final Cut Pro (FCPXML)  ✅ DaVinci Resolve
-✅ MP4 (H.264/H.265)       ✅ SRT / ASS 字幕
-```
-
----
-
-## 🚀 快速开始
-
-### 方式一：下载安装包（推荐）
-
-前往 [Releases](https://github.com/Agions/ClipFlowCut/releases) 下载最新版本：
-- macOS：`ClipFlowCut-x.x.x.dmg`
-- Windows：`ClipFlowCut-x.x.x-setup.exe`
-
-### 方式二：源码运行
-
-**环境要求：** Python 3.9+ · FFmpeg · macOS 10.15+ / Windows 10+
-
-```bash
-# 1. 克隆项目
-git clone https://github.com/Agions/ClipFlowCut.git
-cd ClipFlowCut
-
-# 2. 创建虚拟环境
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 3. 安装依赖
-pip install -r requirements.txt
-
-# 4. 配置 API Key
-cp .env.example .env
-# 编辑 .env，填入至少一个 AI 服务的 API Key
-
-# 5. 启动
-python main.py
-```
-
-> 💡 **只需要一个 API Key 即可开始使用**，Edge TTS 配音完全免费无需 Key
+| 格式 | 说明 | 兼容性 |
+|------|------|--------|
+| 📱 **剪映草稿** | Draft JSON | 剪映 App/专业版 |
+| 🎬 **Premiere Pro** | .prproj | Adobe Premiere |
+| ✂️ **Final Cut Pro** | .fcpxml | Final Cut Pro X |
+| 🎞️ **DaVinci Resolve** | .drp | DaVinci Resolve |
+| 📹 **EDL** | CMX 3600 | 通用剪辑软件 |
+| 🎥 **RAW Video** | MP4/MOV | 全平台 |
+| 📝 **字幕** | SRT / ASS | 通用 |
 
 ---
 
-## 🗺️ Roadmap
-
-- [x] AI 视频解说（v1.0）
-- [x] AI 视频混剪 + 节拍检测（v2.0）
-- [x] AI 第一人称独白（v2.0）
-- [x] 多 LLM 支持 + 国产模型（v2.0）
-- [x] 专业格式导出（v3.0）
-- [x] PySide6 Fluent UI 重构（v3.0）
-- [x] macOS 设计系统支持（v3.0.1）
-- [x] **代码优化与重构（v3.0.2）** ← 更新
-- [ ] 🔄 Web 版本（浏览器直接使用）
-- [ ] 🔄 批量处理模式
-- [ ] 🔄 自定义 AI 提示词模板市场
-- [ ] 🔄 视频字幕翻译（多语言）
-- [ ] 🔄 插件系统
-
----
-
-## 📊 v3.0.2 优化
-
-### 代码质量提升
-
-| 优化项 | 改进 |
-|--------|------|
-| **EventBus 线程安全** | 添加 RLock，支持一次性订阅 |
-| **Logger 懒加载** | DEBUG 日志仅在启用时计算 |
-| **projects_page.py 重构** | 1610行 → 789行 (-51%) |
-| **print → logger** | ~95% 完成，便于生产调试 |
-| **DEBUG prints** | 13 → 0 (-100%) |
-| **命名规范统一** | macos_ → macOS_ |
-
-### PR 记录
-
-- [#18](https://github.com/Agions/ClipFlowCut/issues/18) 修复 v3.0.2 bug
-- [#20](https://github.com/Agions/ClipFlowCut/pull/20) EventBus 线程安全 + Logger 懒加载
-- [#21](https://github.com/Agions/ClipFlowCut/pull/21) main.py 日志优化
-- [#22](https://github.com/Agions/ClipFlowCut/pull/22) projects_page.py 重构
-- [#23](https://github.com/Agions/ClipFlowCut/pull/23) DEBUG prints 移除
-- [#24](https://github.com/Agions/ClipFlowCut/pull/24) macos_ 重复文件删除
-- [#25-29](https://github.com/Agions/ClipFlowCut/pulls?q=is%3Apr+sort%3Aupdated-desc) 核心模块日志优化
-
----
-
-## 🏗️ 项目结构
+## 🏗️ 项目架构
 
 ```
-ClipFlowCut/
+VideoForge/
 ├── app/
-│   ├── core/          # 核心模块（应用、配置、日志、事件）
+│   ├── core/                 # 核心模块（应用、配置、日志、事件）
 │   ├── services/
-│   │   ├── ai/       # AI 服务（场景分析、文案生成、语音合成）
-│   │   │   └── providers/  # LLM 提供商（Qwen/Claude/Gemini/DeepSeek...）
-│   │   ├── video/     # 视频处理（解说、混剪、独白）
-│   │   ├── audio/     # 音频处理（节拍检测、音画同步）
-│   │   └── export/    # 导出引擎（剪映/PR/FCPXML/DaVinci）
-│   ├── plugins/       # 插件系统
-│   └── ui/           # PySide6 界面层
-│       ├── components/    # 通用组件
-│       ├── main/          # 主窗口与页面
-│       └── theme/        # 主题管理
-├── tests/             # 测试套件
-├── docs/              # 文档
-├── scripts/           # 工具脚本
-└── resources/        # 资源文件
+│   │   ├── ai/              # AI 服务
+│   │   │   ├── providers/   # LLM 提供商
+│   │   │   ├── story_analyzer.py   # 🆕 剧情分析
+│   │   │   ├── scene_analyzer.py   # 场景分析
+│   │   │   ├── script_generator.py # 文案生成
+│   │   │   └── voice_generator.py  # 语音合成
+│   │   ├── video/           # 视频处理
+│   │   ├── audio/           # 音频处理
+│   │   └── export/          # 导出引擎
+│   ├── ui/                  # PySide6 界面层
+│   └── plugins/             # 插件系统
+├── tests/                   # 测试套件
+├── docs/                    # 完整文档
+├── scripts/                 # 构建脚本
+└── resources/              # 资源文件
 ```
 
 ---
 
 ## 🛠️ 技术栈
 
-| 类别 | 技术 |
-|------|------|
-| GUI 框架 | **PySide6** (LGPL 授权) |
-| 视频处理 | FFmpeg + OpenCV |
-| 音频分析 | librosa（节拍检测） |
-| AI 接入 | OpenAI SDK + 各厂商 API |
-| 语音合成 | Edge TTS（免费）/ OpenAI TTS |
-| 安全加密 | cryptography (Fernet) |
-| 构建打包 | PyInstaller |
-
----
-
-## 🤝 参与贡献
-
-欢迎任何形式的贡献！无论是 Bug 修复、新功能、文档改进还是翻译。
-
-👉 请先阅读 [贡献指南](CONTRIBUTING.md)
-
-```bash
-# Fork 后克隆你的仓库
-git clone https://github.com/YOUR_USERNAME/ClipFlowCut.git
-
-# 创建功能分支
-git checkout -b feature/amazing-feature
-
-# 提交更改
-git commit -m 'feat: add amazing feature'
-
-# 推送并创建 PR
-git push origin feature/amazing-feature
-```
+| 类别 | 技术选型 |
+|------|----------|
+| **GUI 框架** | PySide6 (LGPL) |
+| **视频处理** | FFmpeg + OpenCV |
+| **音频分析** | librosa |
+| **AI 接入** | OpenAI SDK + 各厂商 API |
+| **语音合成** | Edge TTS / OpenAI TTS |
+| **构建打包** | PyInstaller |
 
 ---
 
 ## 📖 文档
 
-- [快速开始](docs/getting-started.md)
-- [功能指南](docs/features.md)
-- [工作流程](docs/workflow.md)
-- [常见问题](docs/faq.md)
-- [更新日志](docs/CHANGELOG.md)
-- [English README](docs/README_EN.md)
+| 文档 | 说明 |
+|------|------|
+| [快速开始](docs/getting-started.md) | 5 分钟快速上手 |
+| [功能指南](docs/features.md) | 全部功能详解 |
+| [AI 配置](docs/guides/AI_CONFIGURATION.md) | API Key 配置教程 |
+| [常见问题](docs/faq.md) | FAQ 故障排查 |
+| [开发指南](docs/guides/INSTALL.md) | 开发者环境搭建 |
+
+---
+
+## 🗺️ Roadmap
+
+| 版本 | 计划 |
+|------|------|
+| v4.0 | 🆕 剧情分析剪辑模式正式上线 |
+| v4.0 | Web 版本（浏览器直接使用） |
+| v4.1 | 批量处理模式 |
+| v4.2 | 自定义 AI 提示词模板 |
+| v4.3 | 视频字幕翻译（多语言） |
+| v4.5 | 插件系统 |
+
+---
+
+## 🤝 贡献
+
+欢迎提交 PR 和 Issue！
+
+```bash
+# Fork 后克隆
+git clone https://github.com/YOUR_USERNAME/VideoForge.git
+cd VideoForge
+
+# 创建分支
+git checkout -b feature/amazing-feature
+
+# 提交
+git commit -m 'feat: add amazing feature'
+
+# 推送
+git push origin feature/amazing-feature
+```
 
 ---
 
 ## 📄 许可证
 
-[MIT License](LICENSE) © 2025-2026 [Agions](https://github.com/Agions)
+[MIT License](LICENSE) · Copyright (c) 2025-2026 [Agions](https://github.com/Agions)
 
 ---
 
-## ⭐ Star History
+## ⭐ 如果对你有帮助，请给一个 Star
 
-如果这个项目对你有帮助，请给一个 Star ⭐ 支持一下！
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Agions/ClipFlowCut&type=Date)](https://star-history.com/#Agions/ClipFlowCut&Date)
+[![Star History](https://api.star-history.com/svg?repos=Agions/VideoForge&type=Date)](https://star-history.com/#Agions/VideoForge&Date)
 
 ---
 
 <div align="center">
-  <sub>Made with ❤️ by <a href="https://github.com/Agions">Agions</a> · 如有问题欢迎 <a href="https://github.com/Agions/ClipFlowCut/issues">提 Issue</a></sub>
+  <sub>Made with ❤️ by <a href="https://github.com/Agions">Agions</a></sub>
+</div>
+
 </div>

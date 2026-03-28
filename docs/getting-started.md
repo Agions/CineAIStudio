@@ -1,6 +1,6 @@
 # 快速开始
 
-本指南将帮助您快速上手 ClipFlowCut。
+本指南将帮助您快速上手 VideoForge。
 
 ## 环境要求
 
@@ -12,8 +12,8 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/Agions/ClipFlowCut.git
-cd ClipFlowCut
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
 
 # 2. 创建虚拟环境（推荐）
 python -m venv venv
@@ -48,7 +48,7 @@ python main.py
 
 ## API 密钥说明
 
-ClipFlowCut 支持以下 AI 服务商：
+VideoForge 支持以下 AI 服务商：
 
 | 服务商 | 用途 | 是否免费 |
 |--------|------|----------|

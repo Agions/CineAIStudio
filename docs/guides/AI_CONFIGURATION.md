@@ -1,6 +1,6 @@
 # AI 服务配置指南
 
-本指南将帮助你配置 ClipFlow 的 AI 服务，包括各种 LLM 提供商的 API 密钥设置。
+本指南将帮助你配置 VideoForge 的 AI 服务，包括各种 LLM 提供商的 API 密钥设置。
 
 ## 📋 目录
 
@@ -14,7 +14,7 @@
 
 ## 🤖 支持的 AI 服务
 
-ClipFlow 支持以下 AI 服务提供商（2026年2月最新版本）：
+VideoForge 支持以下 AI 服务提供商（2026年2月最新版本）：
 
 | 提供商 | 模型 | 功能 | 费用 |
 |--------|------|------|------|
@@ -67,7 +67,7 @@ KIMI_BASE_URL=https://api.moonshot.cn/v1
 
 ### 方法 2: 图形界面配置
 
-1. 启动 ClipFlow
+1. 启动 VideoForge
 2. 点击左侧导航栏的 **⚙️ 设置**
 3. 选择 **AI 模型配置**
 4. 填入各提供商的 API 密钥
@@ -336,7 +336,7 @@ DEFAULT_LLM_MODEL=gpt-5.2
 ### Q4: 可以同时使用多个提供商吗？
 
 **A**: 
-可以！ClipFlow 支持多提供商配置，会自动选择最佳模型或进行 fallback。
+可以！VideoForge 支持多提供商配置，会自动选择最佳模型或进行 fallback。
 
 ### Q5: 本地模型性能如何？
 
@@ -378,4 +378,4 @@ DEFAULT_LLM_MODEL=gpt-5.2
 
 **更新日期**: 2026-02-22  
 **版本**: 3.0.0  
-**维护者**: ClipFlow 团队
+**维护者**: VideoForge 团队

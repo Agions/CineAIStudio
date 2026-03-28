@@ -1,7 +1,7 @@
 {
   "name": "clipflowcut-docs",
   "version": "3.0.0",
-  "description": "ClipFlowCut Documentation",
+  "description": "VideoForge Documentation",
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev docs",

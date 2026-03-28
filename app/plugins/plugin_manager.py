@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 插件管理器
+VideoForge 插件管理器
 提供完整的插件系统管理功能
 """
 

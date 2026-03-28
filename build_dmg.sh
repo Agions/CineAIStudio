@@ -1,11 +1,11 @@
 #!/bin/bash
-# ClipFlowCut DMG 打包脚本
+# VideoForge DMG 打包脚本
 # 使用方法: ./build_dmg.sh
 
 set -e
 
 # 配置
-APP_NAME="ClipFlowCut"
+APP_NAME="VideoForge"
 APP_BUNDLE="${APP_NAME}.app"
 VERSION="3.0.0"
 DMG_NAME="${APP_NAME}-${VERSION}-macOS.dmg"
@@ -13,7 +13,7 @@ TEMP_DIR="/tmp/${APP_NAME}_build"
  RESOURCES_DIR="resources/icons"
 
 echo "========================================"
-echo "  ClipFlowCut DMG 打包工具"
+echo "  VideoForge DMG 打包工具"
 echo "========================================"
 echo ""
 
@@ -68,8 +68,8 @@ cp -r "dist/${APP_NAME}/"* "${APP_BUNDLE}/Contents/MacOS/"
 cp -r resources "${APP_BUNDLE}/Contents/"
 
 # 复制图标
-if [ -f "${RESOURCES_DIR}/ClipFlowCut.icns" ]; then
-    cp "${RESOURCES_DIR}/ClipFlowCut.icns" "${APP_BUNDLE}/Contents/Resources/"
+if [ -f "${RESOURCES_DIR}/VideoForge.icns" ]; then
+    cp "${RESOURCES_DIR}/VideoForge.icns" "${APP_BUNDLE}/Contents/Resources/"
 fi
 
 # 创建 Info.plist
@@ -81,15 +81,15 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
     <key>CFBundleDevelopmentRegion</key>
     <string>zh_CN</string>
     <key>CFBundleExecutable</key>
-    <string>ClipFlowCut</string>
+    <string>VideoForge</string>
     <key>CFBundleIconFile</key>
-    <string>ClipFlowCut</string>
+    <string>VideoForge</string>
     <key>CFBundleIdentifier</key>
-    <string>com.clipflow.ClipFlowCut</string>
+    <string>com.clipflow.VideoForge</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>ClipFlowCut</string>
+    <string>VideoForge</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -109,7 +109,7 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
 EOF
 
 # 使用 Notes 图标作为临时替代
-if [ ! -f "${RESOURCES_DIR}/ClipFlowCut.icns" ]; then
+if [ ! -f "${RESOURCES_DIR}/VideoForge.icns" ]; then
     echo "警告: 未找到 ICNS 文件，将使用默认图标"
 fi
 
@@ -122,7 +122,7 @@ echo "[5/6] 创建 DMG..."
 if command -v create-dmg &> /dev/null; then
     create-dmg \
         --volname "${APP_NAME}" \
-        --volicon "${RESOURCES_DIR}/ClipFlowCut.icns" \
+        --volicon "${RESOURCES_DIR}/VideoForge.icns" \
         --window-pos 200 120 \
         --window-size 600 400 \
         --icon-size 100 \

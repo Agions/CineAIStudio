@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 插件服务
+VideoForge 插件服务
 将插件系统集成到核心服务中
 """
 

@@ -4,7 +4,7 @@
 """
 Adobe Premiere Pro 项目导出器 (Premiere Exporter)
 
-将 ClipFlow 项目导出为 Premiere Pro 项目文件 (.prproj)
+将 VideoForge 项目导出为 Premiere Pro 项目文件 (.prproj)
 
 Premiere Pro 项目文件是 XML 格式的，包含：
 - 项目设置
@@ -98,7 +98,7 @@ class PremiereSequence:
 class PremiereProject:
     """Premiere 项目"""
     id: str = field(default_factory=lambda: str(uuid.uuid4()).upper())
-    name: str = "ClipFlow Project"
+    name: str = "VideoForge Project"
     version: PremiereVersion = PremiereVersion.CC2024
     sequences: List[PremiereSequence] = field(default_factory=list)
     clips: List[PremiereClip] = field(default_factory=list)

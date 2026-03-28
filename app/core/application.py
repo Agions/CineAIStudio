@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 应用程序核心类
+VideoForge 应用程序核心类
 负责应用程序的生命周期管理、服务管理和状态控制
 """
 
@@ -57,7 +57,7 @@ class ErrorInfo:
 
 
 class Application(QObject):
-    """ClipFlow 应用程序核心类"""
+    """VideoForge 应用程序核心类"""
 
     # 信号定义
     state_changed = pyqtSignal(ApplicationState)        # 应用程序状态变化信号
@@ -312,7 +312,7 @@ class Application(QObject):
             from .logger import Logger
 
             # 创建日志服务
-            logger = Logger("ClipFlow")
+            logger = Logger("VideoForge")
             self.register_service("logger", logger)
 
             # 设置应用程序日志
@@ -445,7 +445,7 @@ class Application(QObject):
         """加载配置"""
         try:
             # 从文件或注册表加载配置
-            settings = QSettings("ClipFlow", "Application")
+            settings = QSettings("VideoForge", "Application")
 
             # 加载应用程序配置
             self.logger.info("配置加载完成")
@@ -457,7 +457,7 @@ class Application(QObject):
         """保存配置"""
         try:
             # 保存配置到文件或注册表
-            settings = QSettings("ClipFlow", "Application")
+            settings = QSettings("VideoForge", "Application")
 
             self.logger.info("配置保存完成")
 

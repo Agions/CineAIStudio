@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 项目管理器
+VideoForge 项目管理器
 提供完整的项目生命周期管理功能
 """
 
@@ -36,11 +36,21 @@ class ProjectStatus(Enum):
 
 class ProjectType(Enum):
     """项目类型枚举"""
-    VIDEO_EDITING = "video_editing"
-    AI_ENHANCEMENT = "ai_enhancement"
-    COMPILATION = "compilation"
-    COMMENTARY = "commentary"
-    MULTIMEDIA = "multimedia"
+    VIDEO_EDITING = ("video_editing", "视频剪辑", "基础视频剪辑模式")
+    AI_ENHANCEMENT = ("ai_enhancement", "AI 增强", "AI 智能增强画质和音效")
+    COMPILATION = ("compilation", "混剪合成", "多素材智能混剪")
+    COMMENTARY = ("commentary", "AI 解说", "自动生成解说配音")
+    STORY_ANALYSIS = ("story_analysis", "剧情分析", "AI 分析视频剧情并智能剪辑")
+    MULTIMEDIA = ("multimedia", "多媒体", "综合多媒体项目")
+
+    def __init__(self, value: str, display_name: str, description: str):
+        self._value_ = value
+        self.display_name = display_name
+        self.description = description
+
+    @property
+    def value(self) -> str:
+        return self._value_
 
 
 @dataclass
@@ -327,9 +337,9 @@ class ProjectManager(QObject):
         self.templates: Dict[str, Project] = {}
 
         # 项目目录
-        self.projects_dir = os.path.expanduser("~/ClipFlow/Projects")
-        self.templates_dir = os.path.expanduser("~/ClipFlow/Templates")
-        self.temp_dir = os.path.expanduser("~/ClipFlow/Temp")
+        self.projects_dir = os.path.expanduser("~/VideoForge/Projects")
+        self.templates_dir = os.path.expanduser("~/VideoForge/Templates")
+        self.temp_dir = os.path.expanduser("~/VideoForge/Temp")
 
         # 确保目录存在
         self._ensure_directories()

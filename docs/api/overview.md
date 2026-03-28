@@ -1,10 +1,10 @@
 # API Overview
 
-This section provides detailed API documentation for ClipFlowCut's core modules.
+This section provides detailed API documentation for VideoForge's core modules.
 
 ## Core Modules
 
-ClipFlowCut is organized into several core modules:
+VideoForge is organized into several core modules:
 
 | Module | Description |
 |--------|-------------|

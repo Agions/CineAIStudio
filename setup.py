@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow - AI Video Editor
+VideoForge - AI Video Editor
 Copyright (c) 2025 Agions. All rights reserved.
 Licensed under the MIT License.
 """

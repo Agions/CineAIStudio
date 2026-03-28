@@ -112,8 +112,18 @@ class CreateProjectDialog(QDialog):
 
         self.type_combo = QComboBox()
         self.type_combo.setProperty("class", "input")
-        self.type_combo.addItems([pt.value for pt in ProjectType])
+        # 显示用户友好的名称
+        self.type_combo.addItems([pt.display_name for pt in ProjectType])
         type_layout.addWidget(self.type_combo)
+        content_layout.addWidget(type_card)
+
+        # 类型说明标签
+        self.type_desc_label = MacLabel(ProjectType.VIDEO_EDITING.description)
+        self.type_desc_label.setProperty("class", "text-muted")
+        type_layout.addWidget(self.type_desc_label)
+
+        # 类型选择变化时更新说明
+        self.type_combo.currentIndexChanged.connect(self._on_type_changed)
         content_layout.addWidget(type_card)
 
         # 项目描述
@@ -231,6 +241,12 @@ class CreateProjectDialog(QDialog):
             self.template_cards[template_id].set_selected(True)
             self.selected_template = template_id
 
+    def _on_type_changed(self, index: int):
+        """类型选择变化时更新说明"""
+        if 0 <= index < len(ProjectType):
+            selected_type = list(ProjectType)[index]
+            self.type_desc_label.setText(selected_type.description)
+
     def _create_project(self):
         """创建项目"""
         project_name = self.name_edit.text().strip()
@@ -238,16 +254,20 @@ class CreateProjectDialog(QDialog):
             QMessageBox.warning(self, "警告", "请输入项目名称")
             return
 
-        project_type = ProjectType(self.type_combo.currentText())
+        # 通过显示名称查找对应的 ProjectType
+        display_name = self.type_combo.currentText()
+        project_type = next((pt for pt in ProjectType if pt.display_name == display_name), ProjectType.VIDEO_EDITING)
         description = self.desc_edit.toPlainText().strip()
 
         self.accept()
 
     def get_project_info(self):
         """获取项目信息"""
+        display_name = self.type_combo.currentText()
+        project_type = next((pt for pt in ProjectType if pt.display_name == display_name), ProjectType.VIDEO_EDITING)
         return {
             'name': self.name_edit.text().strip(),
-            'type': ProjectType(self.type_combo.currentText()),
+            'type': project_type,
             'description': self.desc_edit.toPlainText().strip(),
             'template_id': self.selected_template
         }

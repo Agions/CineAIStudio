@@ -94,7 +94,7 @@ class ExportManager:
     
     def _generate_output_path(self, config: ExportConfig) -> str:
         """生成输出路径"""
-        output_dir = Path.home() / "ClipFlowCut" / "exports"
+        output_dir = Path.home() / "VideoForge" / "exports"
         output_dir.mkdir(parents=True, exist_ok=True)
         
         suffix = config.format.value

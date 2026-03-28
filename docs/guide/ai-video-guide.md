@@ -1,10 +1,10 @@
 # AI Video Guide
 
-Learn how to create stunning AI-powered videos with ClipFlowCut.
+Learn how to create stunning AI-powered videos with VideoForge.
 
 ## Three AI Creation Modes
 
-ClipFlowCut offers three distinct AI-powered video creation modes, each designed for different content types and creative workflows.
+VideoForge offers three distinct AI-powered video creation modes, each designed for different content types and creative workflows.
 
 ---
 

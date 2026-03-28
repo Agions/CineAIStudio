@@ -1,5 +1,5 @@
 """
-ClipFlow 主窗口 - 全新设计
+VideoForge 主窗口 - 全新设计
 
 结构:
 - 首页: 项目列表（增删改查）
@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 
 
 class Theme:
-    """ClipFlow 主题 - 现代简洁风格"""
+    """VideoForge 主题 - 现代简洁风格"""
     BG = "#09090B"
     BG_2 = "#111113"
     BG_3 = "#18181B"
@@ -518,12 +518,12 @@ class EditDialog(QDialog):
         self.accept()
 
 
-class ClipFlowMainWindow(QMainWindow):
-    """ClipFlow 主窗口"""
+class VideoForgeMainWindow(QMainWindow):
+    """VideoForge 主窗口"""
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ClipFlow - AI 视频创作")
+        self.setWindowTitle("VideoForge - AI 视频创作")
         self.setMinimumSize(1000, 600)
         self.resize(1200, 700)
         
@@ -634,7 +634,7 @@ class ClipFlowMainWindow(QMainWindow):
             self.status_bar.showMessage("项目已保存")
     
     def _show_about(self):
-        QMessageBox.about(self, "关于", "<h3>ClipFlow</h3><p>AI 驱动的视频创作工具</p><p>版本 2.0.0</p>")
+        QMessageBox.about(self, "关于", "<h3>VideoForge</h3><p>AI 驱动的视频创作工具</p><p>版本 2.0.0</p>")
     
     def _load_projects(self):
         projects = [
@@ -650,7 +650,7 @@ def main():
     from PySide6.QtWidgets import QApplication
     
     app = QApplication(sys.argv)
-    window = ClipFlowMainWindow()
+    window = VideoForgeMainWindow()
     window.show()
     sys.exit(app.exec())
 

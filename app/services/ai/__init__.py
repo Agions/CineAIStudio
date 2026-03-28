@@ -1,5 +1,5 @@
 """
-ClipFlow AI 服务模块
+VideoForge AI 服务模块
 
 提供AI能力:
 - LLM: 大语言模型支持
@@ -29,6 +29,7 @@ from .scene_analyzer import SceneAnalyzer, SceneInfo
 from .video_understanding import VideoUnderstanding
 from .video_summarizer import VideoSummarizer
 from .script_generator import ScriptGenerator
+from .story_analyzer import StoryAnalyzer, StoryAnalysisResult, PlotType, SceneType
 
 # 缓存
 from .cache import LLMMemoryCache
@@ -58,6 +59,10 @@ __all__ = [
     "VideoUnderstanding",
     "VideoSummarizer",
     "ScriptGenerator",
+    "StoryAnalyzer",
+    "StoryAnalysisResult",
+    "PlotType",
+    "SceneType",
 
     # Cache
     "LLMMemoryCache",

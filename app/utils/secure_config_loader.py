@@ -32,7 +32,7 @@ class SecureConfigLoader:
         """
         self.allowed_dirs = allowed_dirs or [
             os.path.expanduser("~/.clipflowcut"),
-            os.path.expanduser("~/ClipFlowCut"),
+            os.path.expanduser("~/VideoForge"),
             "/etc/clipflowcut",
             os.path.join(os.path.dirname(__file__), '..', '..', 'config')
         ]

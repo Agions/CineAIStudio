@@ -498,7 +498,7 @@ def demo_generate():
     
     # 生成配音
     text = """
-    欢迎来到 ClipFlow！
+    欢迎来到 VideoForge！
     这是一款 AI 驱动的视频创作工具。
     让我们一起创作爆款视频吧！
     """

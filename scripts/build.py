@@ -86,7 +86,7 @@ def build_exe(platform="auto"):
     cmd = [
         "pyinstaller",
         "main.py",
-        "--name=ClipFlowCut",
+        "--name=VideoForge",
         "--onedir",
         "--windowed",
         "--icon=resources/icon.ico",
@@ -100,7 +100,7 @@ def build_exe(platform="auto"):
         cmd.append("--icon=resources/icon.icns")
         
     subprocess.run(cmd)
-    print(f"✓ 构建完成: dist/{platform}/ClipFlowCut")
+    print(f"✓ 构建完成: dist/{platform}/VideoForge")
 
 
 def create_portable():
@@ -110,11 +110,11 @@ def create_portable():
     import zipfile
     
     version = "1.0.0"
-    archive_name = f"ClipFlowCut-{version}-portable.zip"
+    archive_name = f"VideoForge-{version}-portable.zip"
     
     with zipfile.ZipFile(archive_name, 'w', zipfile.ZIP_DEFLATED) as zf:
         # 添加可执行文件
-        dist_path = Path("dist/windows/ClipFlowCut")
+        dist_path = Path("dist/windows/VideoForge")
         if dist_path.exists():
             for f in dist_path.rglob("*"):
                 if f.is_file():
@@ -170,7 +170,7 @@ def main():
     """主函数"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="ClipFlowCut 构建工具")
+    parser = argparse.ArgumentParser(description="VideoForge 构建工具")
     parser.add_argument("action", choices=["check", "clean", "build", "test", "publish", "all"])
     parser.add_argument("--platform", default="auto")
     

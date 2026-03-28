@@ -4,7 +4,7 @@
 """
 EDL (Edit Decision List) 导出器
 
-将 ClipFlow 项目导出为 CMX 3600 格式的 EDL 文件。
+将 VideoForge 项目导出为 CMX 3600 格式的 EDL 文件。
 
 EDL 格式说明:
 - CMX 3600 是最广泛支持的 EDL 格式
@@ -77,12 +77,12 @@ class EDLClip:
 @dataclass
 class EDLConfig:
     """EDL 导出配置"""
-    title: str = "ClipFlow Project"  # 项目标题
+    title: str = "VideoForge Project"  # 项目标题
     frame_rate: float = 30.0         # 帧率 (23.976, 24, 25, 29.97, 30, 60)
     video_reel: str = "AX"          # 视频默认磁带名
     audio_reel: str = "AA"         # 音频默认磁带名
     timecode_format: str = "ms"     # "ms"=毫秒, "tc"=时间码
-    version: str = "ClipFlow v2.0"  # 生成版本
+    version: str = "VideoForge v2.0"  # 生成版本
 
 
 class EDLExporter:
@@ -475,7 +475,7 @@ class EDLExporter:
 def export_to_edl(
     project: Any,
     output_path: str,
-    title: str = "ClipFlow Project",
+    title: str = "VideoForge Project",
     frame_rate: float = 30.0,
 ) -> str:
     """

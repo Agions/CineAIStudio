@@ -117,7 +117,7 @@ class WelcomeStep(StepContent):
         layout.addWidget(icon_label)
         
         # 标题
-        title = QLabel("欢迎使用 ClipFlowCut")
+        title = QLabel("欢迎使用 VideoForge")
         title_font = QFont()
         title_font.setPointSize(24)
         title_font.setWeight(QFont.Weight.Bold)

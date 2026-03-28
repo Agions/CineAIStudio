@@ -1,5 +1,5 @@
 """
-ClipFlow 视频处理服务模块
+VideoForge 视频处理服务模块
 
 提供三大核心视频制作功能:
 - CommentaryMaker: AI 视频解说

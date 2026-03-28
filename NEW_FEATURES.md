@@ -1,4 +1,4 @@
-# ClipFlowCut 新功能开发计划
+# VideoForge 新功能开发计划
 
 ## 1. 视频增强模块 (Video Enhancement)
 

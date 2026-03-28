@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ClipFlowCut 文件命名结构化改造脚本
+VideoForge 文件命名结构化改造脚本
 
 修复以下问题:
 1. 删除重复/废弃文件
@@ -13,7 +13,7 @@ import os
 import shutil
 from pathlib import Path
 
-PROJECT_ROOT = Path('/root/.openclaw/workspace/ClipFlowCut')
+PROJECT_ROOT = Path('/root/.openclaw/workspace/VideoForge')
 
 # 需要删除的文件
 FILES_TO_DELETE = [
@@ -79,7 +79,7 @@ def remove_empty_dirs() -> None:
                 pass
 
 def main():
-    print("🔄 ClipFlowCut 文件命名结构化改造")
+    print("🔄 VideoForge 文件命名结构化改造")
     print("=" * 50)
     
     # 1. 删除废弃文件

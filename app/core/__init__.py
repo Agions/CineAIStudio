@@ -1,5 +1,5 @@
 """
-ClipFlow 核心模块
+VideoForge 核心模块
 
 新增（v2.0 架构优化）：
 - async_bridge: 异步桥接，解决 PyQt6 同步 UI 与 async 服务的交互

@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Solutions to common issues you may encounter when using ClipFlowCut.
+Solutions to common issues you may encounter when using VideoForge.
 
 ## Installation Issues
 
@@ -108,7 +108,7 @@ Make sure to select the correct format in export settings:
 If you're still stuck:
 
 1. Check the [FAQ](../faq)
-2. Search [GitHub Issues](https://github.com/Agions/ClipFlowCut/issues)
+2. Search [GitHub Issues](https://github.com/Agions/VideoForge/issues)
 3. Create a new issue with:
    - Your OS and version
    - Python version

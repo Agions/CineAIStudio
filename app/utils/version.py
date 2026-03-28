@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 版本管理
+VideoForge 版本管理
 从 pyproject.toml 读取版本信息
 """
 

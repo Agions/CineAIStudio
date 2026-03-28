@@ -1,6 +1,6 @@
 # Installation Guide
 
-This guide covers the complete installation process for ClipFlowCut.
+This guide covers the complete installation process for VideoForge.
 
 ## System Requirements
 
@@ -13,7 +13,7 @@ This guide covers the complete installation process for ClipFlowCut.
 
 ## ⚠️ Important: PyQt6 Requirement
 
-ClipFlowCut is built on **PyQt6**, NOT PySide6!
+VideoForge is built on **PyQt6**, NOT PySide6!
 
 If you see errors like:
 ```
@@ -52,8 +52,8 @@ ffmpeg -version
 ### 2. Clone the Project
 
 ```bash
-git clone https://github.com/Agions/ClipFlowCut.git
-cd ClipFlowCut
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
 ```
 
 ### 3. Create Virtual Environment
@@ -111,8 +111,8 @@ python main.py
 For development:
 
 ```bash
-git clone https://github.com/Agions/ClipFlowCut.git
-cd ClipFlowCut
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt

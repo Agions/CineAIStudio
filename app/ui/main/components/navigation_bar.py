@@ -150,7 +150,7 @@ class NavigationBar(QWidget):
         layout.addWidget(logo_label)
 
         # 标题
-        title_label = QLabel("ClipFlowCut")
+        title_label = QLabel("VideoForge")
         title_label.setProperty("class", "app-title")
         layout.addWidget(title_label)
 

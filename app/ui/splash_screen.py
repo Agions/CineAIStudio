@@ -1,5 +1,5 @@
 """
-ClipFlowCut 启动画面 - 品牌升级版
+VideoForge 启动画面 - 品牌升级版
 渐变 Logo 动画 + 加载动画 + 版本显示
 """
 
@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
 from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QLinearGradient, QPainterPath
 
-# 色彩系统 - ClipFlowCut 现代暗色主题
+# 色彩系统 - VideoForge 现代暗色主题
 COLORS = {
     "primary": "#6366F1",
     "primary_end": "#8B5CF6",
@@ -178,7 +178,7 @@ class SplashScreenWidget(QWidget):
     # 加载完成信号
     loading_finished = pyqtSignal()
     
-    def __init__(self, app_name: str = "ClipFlowCut", version: str = "v2.0.0", parent=None):
+    def __init__(self, app_name: str = "VideoForge", version: str = "v2.0.0", parent=None):
         super().__init__(parent)
         self._app_name = app_name
         self._version = version
@@ -283,7 +283,7 @@ class AnimatedSplashScreen(QWidget):
     
     finished = pyqtSignal()
     
-    def __init__(self, app_name: str = "ClipFlowCut", version: str = "v2.0.0", parent=None):
+    def __init__(self, app_name: str = "VideoForge", version: str = "v2.0.0", parent=None):
         super().__init__(parent)
         self._app_name = app_name
         self._version = version

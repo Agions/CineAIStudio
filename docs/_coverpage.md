@@ -1,6 +1,6 @@
 ![logo](_media/logo.png)
 
-# ClipFlowCut
+# VideoForge
 
 > AI 驱动的智能视频创作桌面应用
 

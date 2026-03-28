@@ -20,7 +20,7 @@ from datetime import datetime
 class AppConfig:
     """应用配置"""
     # 应用信息
-    name: str = "ClipFlowCut"
+    name: str = "VideoForge"
     version: str = "3.0.0"
     debug: bool = False
     

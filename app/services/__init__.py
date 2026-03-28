@@ -1,5 +1,5 @@
 """
-ClipFlow 服务模块
+VideoForge 服务模块
 
 提供以下核心服务:
 - ai: AI大模型、视觉、语音服务

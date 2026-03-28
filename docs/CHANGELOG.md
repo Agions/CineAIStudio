@@ -1,6 +1,6 @@
 # Change Log
 
-> ClipFlowCut AI 版本更新日志
+> VideoForge AI 版本更新日志
 
 All notable changes to this project are documented in this file.
 
@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### 项目重命名
 
-- 🎉 **项目更名** - CineFlow → ClipFlowCut
+- 🎉 **项目更名** - CineFlow → VideoForge
 - 📝 更新 README.md
 - 📝 更新所有文档
 

@@ -1,6 +1,6 @@
 # 万星增长策略 · Growth Strategy
 
-> ClipFlowCut 从 0 到 10,000 Stars 的完整路线图
+> VideoForge 从 0 到 10,000 Stars 的完整路线图
 
 ---
 
@@ -52,7 +52,7 @@
 |------|---------|---------|
 | **V2EX** | 发帖：「做了个 AI 视频创作工具，支持解说/混剪/独白，开源免费」| 高质量开发者流量 |
 | **掘金** | 技术文章：「用 PyQt6 + 多 LLM 打造 AI 视频创作工具的实践」| 开发者 + Star |
-| **少数派** | 产品介绍：「ClipFlowCut：让 AI 替你剪视频」| 普通用户 + 传播 |
+| **少数派** | 产品介绍：「VideoForge：让 AI 替你剪视频」| 普通用户 + 传播 |
 | **微信公众号** | 推文：功能演示 + 使用教程 | 长尾流量 |
 | **知乎** | 回答：「有哪些好用的 AI 视频工具？」| 搜索流量 |
 | **B站** | 视频：功能演示 + 使用教程 | 最大流量来源 |
@@ -61,7 +61,7 @@
 
 | 平台 | 内容形式 | 最佳时机 |
 |------|---------|---------|
-| **Hacker News** | Show HN: ClipFlowCut – AI video creation desktop app | 周一-周三 上午 9-11 点（美东时间）|
+| **Hacker News** | Show HN: VideoForge – AI video creation desktop app | 周一-周三 上午 9-11 点（美东时间）|
 | **Reddit** | r/Python, r/MachineLearning, r/VideoEditing | 周末 |
 | **Product Hunt** | 正式发布，需要提前准备 Hunter | 周二-周四 |
 | **Twitter/X** | 功能演示 GIF + 简介 | 随时 |
@@ -74,15 +74,15 @@
 ### 内容营销
 
 1. **系列教程**
-   - 「用 ClipFlowCut 制作 B 站解说视频」
+   - 「用 VideoForge 制作 B 站解说视频」
    - 「AI 混剪卡点视频完全指南」
    - 「零成本 AI 配音方案」
 
 2. **对比测评**
-   - 「ClipFlowCut vs 剪映 AI：哪个更适合创作者？」
+   - 「VideoForge vs 剪映 AI：哪个更适合创作者？」
 
 3. **用户案例**
-   - 收集用户用 ClipFlowCut 制作的视频，展示在 README
+   - 收集用户用 VideoForge 制作的视频，展示在 README
 
 ### 社区建设
 

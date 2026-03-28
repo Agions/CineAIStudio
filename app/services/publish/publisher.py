@@ -625,7 +625,7 @@ def quick_publish(
 def demo_publishing():
     """演示视频发布"""
     print("=" * 50)
-    print("ClipFlow 多平台发布演示")
+    print("VideoForge 多平台发布演示")
     print("=" * 50)
     
     # 创建发布器

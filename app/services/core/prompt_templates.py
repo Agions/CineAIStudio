@@ -648,7 +648,7 @@ def render_template(template_id: str, **kwargs) -> Dict[str, str]:
 def demo_templates():
     """演示提示词模板"""
     print("=" * 50)
-    print("ClipFlow 提示词模板演示")
+    print("VideoForge 提示词模板演示")
     print("=" * 50)
     
     manager = PromptTemplateManager()

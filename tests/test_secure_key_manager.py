@@ -18,7 +18,7 @@ class TestSecureKeyManager:
         
         manager = SecureKeyManager()
         
-        assert manager.app_name == "ClipFlow"
+        assert manager.app_name == "VideoForge"
         assert manager._encryption_key is None
         assert manager._master_password is None
 

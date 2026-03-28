@@ -1,4 +1,4 @@
-# ClipFlowCut AI 故障排查手册
+# VideoForge AI 故障排查手册
 
 > 常见问题解决指南
 
@@ -23,7 +23,7 @@ ValueError: mutable default <class 'PyQt6.QtGui.QColor'> for field background_co
 
 ```bash
 # 拉取最新代码
-cd ClipFlowCut
+cd VideoForge
 git pull origin main
 
 # 删除旧环境
@@ -304,7 +304,7 @@ pytest tests/ -v
 
 在解决之前，先搜索是否有相同问题:
 
-- [GitHub Issues](https://github.com/Agions/ClipFlowCut/issues)
+- [GitHub Issues](https://github.com/Agions/VideoForge/issues)
 - [INSTALL.md](INSTALL.md) - 安装指南
 - [DEVELOPER.md](../../DEVELOPER.md) - 开发指南
 

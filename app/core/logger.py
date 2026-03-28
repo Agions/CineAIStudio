@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 日志记录器模块
+VideoForge 日志记录器模块
 提供日志记录和管理功能
 """
 
@@ -136,7 +136,7 @@ def setup_logging(
             log_dir.mkdir(exist_ok=True)
 
             file_handler = logging.FileHandler(
-                log_dir / "ClipFlow.log",
+                log_dir / "VideoForge.log",
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)

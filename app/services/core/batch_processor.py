@@ -501,7 +501,7 @@ def batch_transcode(
 def demo_batch_processing():
     """演示批量处理"""
     print("=" * 50)
-    print("ClipFlow 批量处理演示")
+    print("VideoForge 批量处理演示")
     print("=" * 50)
     
     # 创建处理器

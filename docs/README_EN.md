@@ -1,33 +1,33 @@
 <div align="center">
 
-# 🎬 ClipFlowCut
+# 🎬 VideoForge
 
 **AI-Powered Video Creation Desktop App**
 
 *From raw footage to final cut, fully AI-automated*
 
 <p align="center">
-  <a href="https://github.com/Agions/ClipFlowCut/stargazers"><img src="https://img.shields.io/github/stars/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=FFD700" alt="Stars"></a>
-  <a href="https://github.com/Agions/ClipFlowCut/forks"><img src="https://img.shields.io/github/forks/Agions/ClipFlowCut?style=for-the-badge&logo=github&color=4CAF50" alt="Forks"></a>
-  <a href="https://github.com/Agions/ClipFlowCut/releases"><img src="https://img.shields.io/github/v/release/Agions/ClipFlowCut?style=for-the-badge&color=blue" alt="Release"></a>
+  <a href="https://github.com/Agions/VideoForge/stargazers"><img src="https://img.shields.io/github/stars/Agions/VideoForge?style=for-the-badge&logo=github&color=FFD700" alt="Stars"></a>
+  <a href="https://github.com/Agions/VideoForge/forks"><img src="https://img.shields.io/github/forks/Agions/VideoForge?style=for-the-badge&logo=github&color=4CAF50" alt="Forks"></a>
+  <a href="https://github.com/Agions/VideoForge/releases"><img src="https://img.shields.io/github/v/release/Agions/VideoForge?style=for-the-badge&color=blue" alt="Release"></a>
   <img src="https://img.shields.io/badge/Python-3.9+-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/PySide6-6.6+-41cd52?style=flat-square" alt="PySide6">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
 </p>
 
 <p align="center">
-  <a href="../README.md">中文</a> · <b>English</b> · <a href="https://agions.github.io/ClipFlowCut">Docs</a> · <a href="https://github.com/Agions/ClipFlowCut/releases">Download</a>
+  <a href="../README.md">中文</a> · <b>English</b> · <a href="https://agions.github.io/VideoForge">Docs</a> · <a href="https://github.com/Agions/VideoForge/releases">Download</a>
 </p>
 
 </div>
 
 ---
 
-## 🤔 Why ClipFlowCut?
+## 🤔 Why VideoForge?
 
-> Traditional video editing requires you to do everything manually. ClipFlowCut lets AI do it for you.
+> Traditional video editing requires you to do everything manually. VideoForge lets AI do it for you.
 
-| What ClipFlowCut Offers | |
+| What VideoForge Offers | |
 |---------|:---:|
 | 🤖 AI auto commentary & voiceover — one click to professional narration | ✅ |
 | 🔀 Switch freely between 10+ LLMs — no vendor lock-in | ✅ |
@@ -92,8 +92,8 @@ Give your Vlog a cinematic inner-voice feel.
 
 ```bash
 # Clone the repo
-git clone https://github.com/Agions/ClipFlowCut.git
-cd ClipFlowCut
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
 
 # Create virtual environment
 python -m venv venv

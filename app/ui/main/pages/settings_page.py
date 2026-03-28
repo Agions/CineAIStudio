@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlowCut 设置页面
+VideoForge 设置页面
 简洁实用，包含：API Key 配置、路径设置、快捷跳转
 """
 
@@ -212,8 +212,8 @@ class SettingsPage(BasePage):
         path_card = SettingCard("路径设置", "📂")
 
         # 1. 项目存储位置
-        default_project_dir = str(Path.home() / "ClipFlowCut" / "Projects")
-        row1 = SettingRow("项目文件存储位置", "ClipFlowCut 创建的项目文件保存位置")
+        default_project_dir = str(Path.home() / "VideoForge" / "Projects")
+        row1 = SettingRow("项目文件存储位置", "VideoForge 创建的项目文件保存位置")
         self._inputs["project_dir"] = self._create_path_input(
             row1, default_project_dir)
         path_card.add_widget(row1)
@@ -236,7 +236,7 @@ class SettingsPage(BasePage):
             ("📁 打开配置目录", lambda: self._open_path(
                 str(Path(__file__).parent.parent.parent.parent.parent / "config"))),
             ("📄 查看日志", lambda: self._open_path(
-                str(Path.home() / "ClipFlowCut" / "logs"))),
+                str(Path.home() / "VideoForge" / "logs"))),
         ]
 
         for name, handler in shortcuts:

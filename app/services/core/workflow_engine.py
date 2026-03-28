@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 统一工作流引擎
+VideoForge 统一工作流引擎
 
 将所有创作模式统一为标准化的 9 步流水线：
   上传 → AI分析 → 模式选择 → 脚本生成 → 编辑 → 时间轴 → 配音 → 导出
 
-与 ClipFlow Web 版 (clip-flow) 的 workflow.service.ts 对齐。
+与 VideoForge Web 版 (clip-flow) 的 workflow.service.ts 对齐。
 """
 
 import os
@@ -152,7 +152,7 @@ class WorkflowCallbacks:
 
 class WorkflowEngine:
     """
-    ClipFlow 统一工作流引擎
+    VideoForge 统一工作流引擎
     9 步流水线，每步有明确的输入/处理/输出。
     """
 
@@ -647,7 +647,7 @@ class WorkflowEngine:
         if not self._state.timeline:
             return
         with open(path, "w", encoding="utf-8") as f:
-            f.write("[Script Info]\nTitle: ClipFlow Export\nScriptType: v4.00+\n\n")
+            f.write("[Script Info]\nTitle: VideoForge Export\nScriptType: v4.00+\n\n")
             f.write("[V4+ Styles]\nFormat: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding\n")
             f.write("Style: Default,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,1,2,10,10,10,1\n\n")
             f.write("[Events]\nFormat: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text\n")

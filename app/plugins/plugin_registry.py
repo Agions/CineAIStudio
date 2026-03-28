@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ClipFlow 插件注册表
+VideoForge 插件注册表
 管理插件的注册、发现和元数据
 """
 

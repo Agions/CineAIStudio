@@ -1,5 +1,5 @@
 """
-ClipFlow 音频分析服务
+VideoForge 音频分析服务
 
 提供音频处理能力:
 - BeatDetector: 节拍检测
