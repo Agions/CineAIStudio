@@ -29,7 +29,7 @@ MANIFEST
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-*.spec
+# !*.spec is tracked for CI/CD builds
 
 # Installer logs
 pip-log.txt
@@ -326,10 +326,10 @@ docs/build/
 *.seed
 *.pid.lock
 
-# CI/CD
-.github/workflows/
-.gitlab-ci.yml
-Jenkinsfile
+# CI/CD - workflows are tracked
+# !.github/workflows/ is tracked for CI/CD builds
+# .gitlab-ci.yml
+# Jenkinsfile
 
 # Local development
 .devcontainer/
