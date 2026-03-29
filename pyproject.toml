@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "clipflow-ai"
-version = "3.0.0"
-description = "VideoForge - Professional Video Creation with AI"
+name = "videoforge"
+version = "4.0.0"
+description = "VideoForge - AI-Powered Video Creation Desktop App"
 license = {text = "MIT"}
 authors = [
     {name = "Agions", email = "agions@qq.com"}

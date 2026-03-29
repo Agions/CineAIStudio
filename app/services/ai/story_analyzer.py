@@ -35,11 +35,10 @@ import json
 import logging
 import subprocess
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
