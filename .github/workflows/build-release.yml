@@ -28,13 +28,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      - name: Create dirs
+        run: mkdir -p dist build
       - name: Build
         run: |
-          pip install pyinstaller -q
-          mkdir -p dist
-          pyinstaller main.spec --name VideoForge --distpath dist --workpath build --noconfirm 2>&1 || echo "构建步骤完成"
+          echo "=== 配置文件 ===" && ls -la *.spec 2>/dev/null || echo "No spec file"
+          echo "=== 开始构建 ==="
+          pyinstaller main.spec --name VideoForge --distpath dist --workpath build --noconfirm 2>&1
+          echo "=== 构建结果 ==="
+          ls -la dist/ 2>/dev/null || echo "dist is empty"
+          ls -la build/ 2>/dev/null || echo "build is empty"
       - name: Upload
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: VideoForge
+          name: VideoForge-build
           path: dist/
+          retention-days: 7
