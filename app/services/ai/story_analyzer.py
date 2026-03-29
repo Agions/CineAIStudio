@@ -338,9 +338,11 @@ class StoryAnalyzer:
 
         try:
             # 调用 LLM 分析
-            response = self.llm.generate(
+            response = self.llm.ask(
                 prompt=prompt,
-                system_prompt=self._get_system_prompt()
+                system_prompt=self._get_system_prompt(),
+                max_tokens=4000,
+                temperature=0.7
             )
 
             # 解析 LLM 响应
@@ -427,13 +429,19 @@ class StoryAnalyzer:
         self,
         video_path: str,
         duration: float,
-        response: str,
+        response: Any,
         frames_info: List[Dict[str, Any]]
     ) -> StoryAnalysisResult:
         """解析 LLM 响应"""
         try:
+            # 确保 response 是字符串
+            if hasattr(response, 'content'):
+                response_str = response.content
+            else:
+                response_str = str(response)
+
             # 尝试提取 JSON
-            json_str = response
+            json_str = response_str
             if "```json" in response:
                 json_str = response.split("```json")[1].split("```")[0]
             elif "```" in response:

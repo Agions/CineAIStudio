@@ -35,6 +35,7 @@ from app.services.ai.story_analyzer import (
 from app.services.ai.batch_story_processor import (
     BatchStoryProcessor, BatchStatus
 )
+from app.services.ai.cut_preview import CutPreviewGenerator
 
 
 logger = logging.getLogger(__name__)
@@ -159,6 +160,11 @@ class StoryAnalysisPage(BasePage):
         export_btn = MacSecondaryButton("📤 导出剪辑点")
         export_btn.clicked.connect(self._on_export_cuts)
         toolbar.add_action(export_btn)
+
+        self.preview_btn = MacSecondaryButton("🎬 预览剪辑")
+        self.preview_btn.clicked.connect(self._on_generate_preview)
+        self.preview_btn.setEnabled(False)
+        toolbar.add_action(self.preview_btn)
 
         layout.addWidget(toolbar)
 
@@ -480,6 +486,7 @@ class StoryAnalysisPage(BasePage):
         self.logger.info(f"Analysis finished: {result.plot_type.value}")
         self._update_single_result_display(result)
         self._reset_single_ui()
+        self.preview_btn.setEnabled(True)
         QMessageBox.information(self, "完成", "剧情分析完成！")
 
     def _on_analysis_error(self, error: str):
@@ -601,6 +608,75 @@ class StoryAnalysisPage(BasePage):
                 QMessageBox.information(self, "成功", f"已导出到：{file_path}")
             except Exception as e:
                 QMessageBox.critical(self, "错误", f"导出失败：{e}")
+
+    def _on_generate_preview(self):
+        """生成预览视频"""
+        if not self.analysis_result or not self.analysis_result.recommended_cuts:
+            QMessageBox.warning(self, "警告", "没有可用的剪辑点")
+            return
+
+        if not hasattr(self, 'video_path'):
+            QMessageBox.warning(self, "警告", "请先选择视频文件")
+            return
+
+        # 选择输出位置
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "保存预览视频",
+            "preview.mp4",
+            "MP4 文件 (*.mp4)"
+        )
+
+        if not file_path:
+            return
+
+        self.logger.info(f"Generating preview: {file_path}")
+
+        # 显示进度对话框
+        progress = QProgressDialog(
+            "正在生成预览...", "取消", 0, 100, self
+        )
+        progress.setWindowTitle("生成预览")
+        progress.setWindowModality(Qt.WindowModality.WindowModal)
+        progress.setValue(0)
+        progress.show()
+
+        try:
+            generator = CutPreviewGenerator()
+
+            def update_progress(p):
+                progress.setValue(int(p))
+                if progress.wasCanceled():
+                    raise Exception("用户取消")
+
+            # 生成预览
+            output_path = generator.generate_preview_with_concat(
+                self.video_path,
+                self.analysis_result.recommended_cuts,
+                output_path=file_path,
+                progress_callback=update_progress
+            )
+
+            progress.close()
+
+            # 打开预览
+            import subprocess
+            if os.name == 'darwin':  # macOS
+                subprocess.run(['open', output_path])
+            elif os.name == 'nt':  # Windows
+                subprocess.run(['start', '', output_path], shell=True)
+            else:  # Linux
+                subprocess.run(['xdg-open', output_path])
+
+            QMessageBox.information(
+                self, "完成",
+                f"预览已生成：{os.path.basename(output_path)}\n\n位置：{output_path}"
+            )
+
+        except Exception as e:
+            progress.close()
+            self.logger.error(f"Preview generation failed: {e}")
+            QMessageBox.critical(self, "错误", f"生成预览失败：{e}")
 
     # ==================== 批量处理相关方法 ====================
 

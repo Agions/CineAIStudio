@@ -248,6 +248,88 @@ class LLMManager:
             if hasattr(provider, "close"):
                 await provider.close()
 
+    def generate_sync(
+        self,
+        prompt: str,
+        system_prompt: str = "",
+        model: str = "default",
+        max_tokens: int = 2000,
+        temperature: float = 0.7,
+        provider: Optional[ProviderType] = None
+    ) -> str:
+        """
+        同步版本的文本生成（方便非异步环境调用）
+
+        Args:
+            prompt: 用户提示词
+            system_prompt: 系统提示词
+            model: 模型名称
+            max_tokens: 最大生成长度
+            temperature: 温度参数
+            provider: 指定提供商（可选）
+
+        Returns:
+            生成的文本内容
+
+        Raises:
+            ProviderError: 所有提供商均失败
+        """
+        import asyncio
+
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        try:
+            request = LLMRequest(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature
+            )
+
+            # 如果已经有 running loop，在同一个 loop 中运行
+            if loop.is_running():
+                # 创建一个 future 来在 running loop 中运行协程
+                future = asyncio.ensure_future(self.generate(request, provider))
+                return loop, future
+
+            return loop.run_until_complete(self.generate(request, provider))
+
+        except Exception as e:
+            raise ProviderError(f"Sync generate failed: {e}")
+
+    def ask(
+        self,
+        prompt: str,
+        system_prompt: str = "",
+        **kwargs
+    ) -> str:
+        """
+        简单的问答接口（同步）
+
+        Args:
+            prompt: 用户问题
+            system_prompt: 系统提示词
+            **kwargs: 其他参数传递给 generate_sync
+
+        Returns:
+            AI 生成的答案
+        """
+        result = self.generate_sync(prompt, system_prompt, **kwargs)
+
+        # 处理返回值格式
+        if isinstance(result, tuple):
+            # 返回 (loop, future) 的情况
+            return None
+
+        if hasattr(result, 'content'):
+            return result.content
+        return str(result)
+
     async def __aenter__(self):
         return self
 

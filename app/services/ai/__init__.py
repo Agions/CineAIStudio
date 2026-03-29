@@ -32,6 +32,7 @@ from .script_generator import ScriptGenerator
 from .story_analyzer import StoryAnalyzer, StoryAnalysisResult, PlotType, SceneType
 from .cut_template import CutTemplateManager, CutTemplate, TemplateStyle
 from .batch_story_processor import BatchStoryProcessor, BatchStatus
+from .cut_preview import CutPreviewGenerator, PreviewConfig
 
 # 缓存
 from .cache import LLMMemoryCache
@@ -74,6 +75,10 @@ __all__ = [
     # Batch Processing
     "BatchStoryProcessor",
     "BatchStatus",
+
+    # Preview
+    "CutPreviewGenerator",
+    "PreviewConfig",
 
     # Cache
     "LLMMemoryCache",
