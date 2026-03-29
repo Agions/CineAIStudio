@@ -13,10 +13,8 @@ on:
 
 permissions:
   contents: write
-  attestations: write
 
 jobs:
-  # ============ 版本检查 ============
   version:
     name: 获取版本号
     runs-on: ubuntu-latest
@@ -24,7 +22,6 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-
       - id: version
         name: 生成版本号
         run: |
@@ -38,174 +35,129 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "版本: $VERSION"
 
-  # ============ Python 语法检查 ============
   lint:
     name: 代码检查
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Python 语法检查
         run: |
           echo "检查 Python 语法..."
           find app -name "*.py" -exec python3 -m py_compile {} \; 2>&1 || true
           echo "语法检查完成"
 
-  # ============ Windows 构建 ============
   build-windows:
     name: Windows 构建
     runs-on: windows-latest
     needs: [version, lint]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: 安装依赖
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
-
       - name: 复制资源
         run: |
           mkdir -p resources
           mkdir -p dist
-
       - name: 构建 Windows 应用
         run: |
           pyinstaller main.spec --name VideoForge-${{ needs.version.outputs.version }}-windows --distpath dist/windows --workpath build/windows --noconfirm 2>&1
-          if (Test-Path "dist/windows/VideoForge-${{ needs.version.outputs.version }}-windows") {
-            echo "Windows 构建成功"
-            ls -la dist/windows/
-          }
-
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: windows-build-${{ needs.version.outputs.version }}
+          name: windows-build
           path: dist/windows/
           retention-days: 30
 
-  # ============ macOS 构建 ============
   build-macos:
     name: macOS 构建
     runs-on: macos-latest
     needs: [version, lint]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: 安装依赖
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
-
       - name: 复制资源
         run: |
           mkdir -p resources
           mkdir -p dist
-
       - name: 构建 macOS 应用
         run: |
           pyinstaller main.spec --name VideoForge-${{ needs.version.outputs.version }}-macos --distpath dist/macos --workpath build/macos --noconfirm 2>&1
-          if [ -d "dist/macos/VideoForge-${{ needs.version.outputs.version }}-macos.app" ]; then
-            echo "macOS 构建成功"
-            ls -la dist/macos/
-          fi
-
       - name: 打包 DMG
         run: |
           mkdir -p dist/release
           if [ -d "dist/macos/VideoForge-${{ needs.version.outputs.version }}-macos.app" ]; then
-            hdiutil create -volname VideoForge-${{ needs.version.outputs.version }} -srcfolder "dist/macos/VideoForge-${{ needs.version.outputs.version }}-macos.app" -ov -format UDZO "dist/release/VideoForge-${{ needs.version.outputs.version }}-macos.dmg" 2>&1
-            echo "DMG 打包完成"
-            ls -la dist/release/
+            hdiutil create -volname VideoForge -srcfolder "dist/macos/VideoForge-${{ needs.version.outputs.version }}-macos.app" -ov -format UDZO "dist/release/VideoForge-${{ needs.version.outputs.version }}-macos.dmg" 2>&1
           fi
-
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: macos-build-${{ needs.version.outputs.version }}
+          name: macos-build
           path: |
             dist/macos/
             dist/release/
           retention-days: 30
 
-  # ============ Linux 构建 ============
   build-linux:
     name: Linux 构建
     runs-on: ubuntu-latest
     needs: [version, lint]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: 安装系统依赖
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0
-
       - name: 安装 Python 依赖
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
-
       - name: 复制资源
         run: |
           mkdir -p resources
           mkdir -p dist
-
       - name: 构建 Linux 应用
         run: |
           pyinstaller main.spec --name VideoForge-${{ needs.version.outputs.version }}-linux --distpath dist/linux --workpath build/linux --noconfirm 2>&1
-          if [ -f "dist/linux/VideoForge-${{ needs.version.outputs.version }}-linux" ]; then
-            echo "Linux 构建成功"
-            ls -la dist/linux/
-          fi
-
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: linux-build-${{ needs.version.outputs.version }}
+          name: linux-build
           path: dist/linux/
           retention-days: 30
 
-  # ============ 创建 GitHub Release ============
   release:
     name: 创建 Release
     runs-on: ubuntu-latest
     needs: [version, build-windows, build-macos, build-linux]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
-
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
-
-      - name: List artifacts
-        run: |
-          echo "下载的构建产物:"
-          find artifacts -type f | head -20
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -215,13 +167,12 @@ jobs:
           prerelease: ${{ contains(needs.version.outputs.version, 'dev') }}
           generate_release_notes: true
           files: |
-            artifacts/*.exe
-            artifacts/*.dmg
-            artifacts/VideoForge-${{ needs.version.outputs.version }}-linux
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            artifacts/windows-build/*
+            artifacts/macos-build/*
+            artifacts/linux-build/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ============ 发布到 GitHub (手动触发) ============
   publish:
     name: 发布到 GitHub
     runs-on: ubuntu-latest
@@ -229,13 +180,11 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
-
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -245,8 +194,8 @@ jobs:
           prerelease: ${{ contains(needs.version.outputs.version, 'dev') }}
           generate_release_notes: true
           files: |
-            artifacts/*.exe
-            artifacts/*.dmg
-            artifacts/VideoForge-${{ needs.version.outputs.version }}-linux
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            artifacts/windows-build/*
+            artifacts/macos-build/*
+            artifacts/linux-build/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
