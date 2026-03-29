@@ -166,6 +166,10 @@ class StoryAnalysisPage(BasePage):
         self.preview_btn.setEnabled(False)
         toolbar.add_action(self.preview_btn)
 
+        template_btn = MacSecondaryButton("📋 模板管理")
+        template_btn.clicked.connect(self._on_open_template_editor)
+        toolbar.add_action(template_btn)
+
         layout.addWidget(toolbar)
 
         # 主内容区域
@@ -702,6 +706,14 @@ class StoryAnalysisPage(BasePage):
             self.batch_list.addItem(item)
 
         self._update_batch_status()
+
+    def _on_open_template_editor(self):
+        """打开模板编辑器"""
+        from app.ui.main.main_window import PageType
+
+        main_window = self.application.get_service_by_name("main_window")
+        if main_window and hasattr(main_window, 'switch_to_page'):
+            main_window.switch_to_page(PageType.TEMPLATE_EDITOR)
 
     def _on_batch_start(self):
         """开始批量处理"""

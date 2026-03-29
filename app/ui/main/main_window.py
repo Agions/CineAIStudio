@@ -47,6 +47,7 @@ class PageType(Enum):
     AI_CONFIG = "ai_config"
     AI_CHAT = "ai_chat"
     STORY_ANALYSIS = "story_analysis"
+    TEMPLATE_EDITOR = "template_editor"
 
 
 @dataclass
@@ -650,6 +651,11 @@ class MainWindow(QMainWindow):
                     from .pages.story_analysis_page import StoryAnalysisPage
                     target_page = StoryAnalysisPage(self.application)
                     self.story_analysis_page = target_page
+                    self.page_stack.addWidget(target_page)
+                elif page_type == PageType.TEMPLATE_EDITOR:
+                    from .pages.template_editor_page import TemplateEditorPage
+                    target_page = TemplateEditorPage(self.application)
+                    self.template_editor_page = target_page
                     self.page_stack.addWidget(target_page)
 
                 if target_page:
