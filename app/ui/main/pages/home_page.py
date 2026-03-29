@@ -169,7 +169,9 @@ class HomePage(BasePage):
     project_opened = pyqtSignal(str)      # project_path
 
     TEMPLATES = [
-        ("movie_commentary", "🎬", "电影解说",
+        ("story_analysis", "🎬", "剧情分析剪辑",
+         "AI 分析叙事结构 → 情感曲线 → 智能剪辑"),
+        ("movie_commentary", "🎙️", "AI 视频解说",
          "AI 分析画面 → 生成解说 → 配音"),
         ("music_mashup", "🎵", "音乐混剪",
          "多段素材 → 节拍匹配 → 转场"),
@@ -179,8 +181,6 @@ class HomePage(BasePage):
          "识别高能片段 → 切片字幕"),
         ("product_promo", "🛍️", "产品推广",
          "卖点提取 → 推广文案配音"),
-        ("custom", "➕", "自定义",
-         "从零开始，自由创作"),
     ]
 
     def __init__(self, application):
@@ -388,12 +388,20 @@ class HomePage(BasePage):
         self.logger.info(f"选择模板: {template_id}")
         self.template_selected.emit(template_id)
 
-        # 切换到 AI 视频创作页面
-        if hasattr(self, 'application'):
-            main_window = self.application.get_service_by_name("main_window")
-            if main_window and hasattr(main_window, 'switch_to_page'):
-                from app.ui.main.main_window import PageType
-                main_window.switch_to_page(PageType.AI_VIDEO_CREATOR)
+        if not hasattr(self, 'application'):
+            return
+
+        main_window = self.application.get_service_by_name("main_window")
+        if not main_window or not hasattr(main_window, 'switch_to_page'):
+            return
+
+        from app.ui.main.main_window import PageType
+
+        # 根据模板类型跳转到对应页面
+        if template_id == "story_analysis":
+            main_window.switch_to_page(PageType.STORY_ANALYSIS)
+        else:
+            main_window.switch_to_page(PageType.AI_VIDEO_CREATOR)
 
     def _on_open_recent(self, path: str):
         """打开最近项目"""

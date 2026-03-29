@@ -46,6 +46,7 @@ class PageType(Enum):
     AI_VIDEO_CREATOR = "ai_video_creator"
     AI_CONFIG = "ai_config"
     AI_CHAT = "ai_chat"
+    STORY_ANALYSIS = "story_analysis"
 
 
 @dataclass
@@ -645,7 +646,12 @@ class MainWindow(QMainWindow):
                     target_page = AIChatPage(self.application)
                     self.ai_chat_page = target_page
                     self.page_stack.addWidget(target_page)
-                
+                elif page_type == PageType.STORY_ANALYSIS:
+                    from .pages.story_analysis_page import StoryAnalysisPage
+                    target_page = StoryAnalysisPage(self.application)
+                    self.story_analysis_page = target_page
+                    self.page_stack.addWidget(target_page)
+
                 if target_page:
                     self.logger.info(f"成功动态创建页面: {page_type}")
                 else:
