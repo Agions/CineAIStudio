@@ -3,7 +3,7 @@
 
 """
 VideoForge - AI 剧情分析页面
-基于故事的智能视频剪辑工具
+基于故事的智能视频剪辑工具，支持单个视频和批量处理
 """
 
 import os
@@ -17,7 +17,8 @@ from PySide6.QtWidgets import (
     QFileDialog, QProgressBar, QComboBox, QSpinBox,
     QTabWidget, QListWidget, QListWidgetItem, QSplitter,
     QGroupBox, QCheckBox, QFrame, QScrollArea, QTableWidget,
-    QTableWidgetItem, QHeaderView, QMessageBox, QSizePolicy
+    QTableWidgetItem, QHeaderView, QMessageBox, QSizePolicy,
+    QProgressDialog
 )
 from PySide6.QtCore import Qt, QThread, pyqtSignal, QSize, QTimer
 from PySide6.QtGui import QFont, QColor
@@ -30,6 +31,9 @@ from app.ui.components import (
 )
 from app.services.ai.story_analyzer import (
     StoryAnalyzer, StoryAnalysisResult, PlotType, SceneType
+)
+from app.services.ai.batch_story_processor import (
+    BatchStoryProcessor, BatchStatus
 )
 
 
@@ -101,6 +105,7 @@ class StoryAnalysisPage(BasePage):
         self.logger = logging.getLogger(__name__)
         self.analysis_result: Optional[StoryAnalysisResult] = None
         self.worker: Optional[AnalysisWorker] = None
+        self.batch_processor: Optional[BatchStoryProcessor] = None
         self._init_services()
 
     def _init_services(self):
@@ -115,35 +120,38 @@ class StoryAnalysisPage(BasePage):
             vision_provider=self.vision_provider
         )
 
+        # 创建批量处理器
+        self.batch_processor = BatchStoryProcessor(max_concurrency=2)
+
     def create_content(self) -> None:
         """创建页面内容"""
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(16)
 
-        # 顶部工具栏
-        toolbar = self._create_toolbar()
-        self.main_layout.addWidget(toolbar)
+        # 选项卡
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setObjectName("story_analysis_tabs")
 
-        # 主内容区域
-        content_splitter = QSplitter(Qt.Orientation.Horizontal)
-        content_splitter.setSizes([400, 600])
-        content_splitter.setCollapsible(0, False)
+        # 单个分析标签页
+        self.single_tab = self._create_single_tab()
+        self.tab_widget.addTab(self.single_tab, "📹 单个视频")
 
-        # 左侧：输入和控制
-        left_panel = self._create_input_panel()
-        content_splitter.addWidget(left_panel)
+        # 批量处理标签页
+        self.batch_tab = self._create_batch_tab()
+        self.tab_widget.addTab(self.batch_tab, "📚 批量处理")
 
-        # 右侧：结果展示
-        right_panel = self._create_result_panel()
-        content_splitter.addWidget(right_panel)
+        self.main_layout.addWidget(self.tab_widget, 1)
 
-        self.main_layout.addWidget(content_splitter, 1)
+    def _create_single_tab(self) -> QWidget:
+        """创建单个分析标签页"""
+        scroll = MacScrollArea()
+        content = QWidget()
+        layout = QVBoxLayout(content)
+        layout.setSpacing(16)
 
-    def _create_toolbar(self) -> QWidget:
-        """创建工具栏"""
+        # 工具栏
         toolbar = MacPageToolbar("🎬 AI 剧情分析")
 
-        # 添加操作按钮
         new_btn = MacPrimaryButton("📂 新建分析")
         new_btn.clicked.connect(self._on_new_analysis)
         toolbar.add_action(new_btn)
@@ -152,10 +160,106 @@ class StoryAnalysisPage(BasePage):
         export_btn.clicked.connect(self._on_export_cuts)
         toolbar.add_action(export_btn)
 
-        return toolbar
+        layout.addWidget(toolbar)
 
-    def _create_input_panel(self) -> QWidget:
-        """创建输入面板"""
+        # 主内容区域
+        content_splitter = QSplitter(Qt.Orientation.Horizontal)
+        content_splitter.setSizes([400, 600])
+        content_splitter.setCollapsible(0, False)
+
+        # 左侧：输入和控制
+        left_panel = self._create_single_input_panel()
+        content_splitter.addWidget(left_panel)
+
+        # 右侧：结果展示
+        right_panel = self._create_single_result_panel()
+        content_splitter.addWidget(right_panel)
+
+        layout.addWidget(content_splitter, 1)
+
+        scroll.setWidget(content)
+        scroll.setWidgetResizable(True)
+        return scroll
+
+    def _create_batch_tab(self) -> QWidget:
+        """创建批量处理标签页"""
+        scroll = MacScrollArea()
+        content = QWidget()
+        layout = QVBoxLayout(content)
+        layout.setSpacing(16)
+
+        # 工具栏
+        toolbar = MacPageToolbar("📚 批量剧情分析")
+
+        add_btn = MacPrimaryButton("➕ 添加视频")
+        add_btn.clicked.connect(self._on_batch_add_videos)
+        toolbar.add_action(add_btn)
+
+        start_btn = MacSecondaryButton("▶ 开始处理")
+        start_btn.clicked.connect(self._on_batch_start)
+        toolbar.add_action(start_btn)
+
+        export_btn = MacSecondaryButton("📤 导出结果")
+        export_btn.clicked.connect(self._on_batch_export)
+        toolbar.add_action(export_btn)
+
+        clear_btn = MacSecondaryButton("🗑️ 清空")
+        clear_btn.clicked.connect(self._on_batch_clear)
+        toolbar.add_action(clear_btn)
+
+        layout.addWidget(toolbar)
+
+        # 任务列表
+        task_card = MacCard("📋 任务列表")
+        task_layout = task_card.layout()
+
+        self.batch_list = QListWidget()
+        self.batch_list.setMinimumHeight(200)
+        task_layout.addWidget(self.batch_list)
+
+        layout.addWidget(task_card)
+
+        # 进度区域
+        progress_card = MacCard("📊 处理进度")
+        progress_layout = progress_card.layout()
+        progress_layout.setSpacing(8)
+
+        self.batch_progress_bar = QProgressBar()
+        self.batch_progress_bar.setRange(0, 100)
+        self.batch_progress_bar.setValue(0)
+        progress_layout.addWidget(self.batch_progress_bar)
+
+        self.batch_status_label = MacLabel("等待添加视频...")
+        progress_layout.addWidget(self.batch_status_label)
+
+        self.batch_cancel_btn = MacSecondaryButton("❌ 取消")
+        self.batch_cancel_btn.clicked.connect(self._on_batch_cancel)
+        self.batch_cancel_btn.setVisible(False)
+        progress_layout.addWidget(self.batch_cancel_btn)
+
+        layout.addWidget(progress_card)
+
+        # 结果预览
+        result_card = MacCard("📋 处理结果")
+        result_layout = result_card.layout()
+        result_layout.setSpacing(8)
+
+        self.batch_results_table = QTableWidget()
+        self.batch_results_table.setColumnCount(4)
+        self.batch_results_table.setHorizontalHeaderLabels(["视频", "状态", "剧情类型", "时长"])
+        self.batch_results_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.batch_results_table.setMaximumHeight(200)
+        result_layout.addWidget(self.batch_results_table)
+
+        layout.addWidget(result_card)
+
+        layout.addStretch()
+        scroll.setWidget(content)
+        scroll.setWidgetResizable(True)
+        return scroll
+
+    def _create_single_input_panel(self) -> QWidget:
+        """创建单个分析输入面板"""
         scroll = MacScrollArea()
         content = QWidget()
         layout = QVBoxLayout(content)
@@ -189,16 +293,14 @@ class StoryAnalysisPage(BasePage):
             self.style_combo.addItem(f"{name} - {desc}", value)
         settings_layout.addWidget(self.style_combo)
 
-        # 目标时长（可选）
+        # 目标时长
         duration_label = MacLabel("目标时长（秒，可选）")
         settings_layout.addWidget(duration_label)
 
         self.duration_spin = QSpinBox()
         self.duration_spin.setRange(0, 3600)
         self.duration_spin.setValue(0)
-        self.duration_spin.setPrefix("")
         self.duration_spin.setSuffix(" 秒 (0=保持原长)")
-        self.duration_spin.setSpecialValueText("保持原长")
         settings_layout.addWidget(self.duration_spin)
 
         layout.addWidget(settings_card)
@@ -209,7 +311,7 @@ class StoryAnalysisPage(BasePage):
         self.analyze_btn.setEnabled(False)
         layout.addWidget(self.analyze_btn)
 
-        # 取消按钮（分析中可见）
+        # 取消按钮
         self.cancel_btn = MacSecondaryButton("❌ 取消")
         self.cancel_btn.clicked.connect(self._on_cancel_analysis)
         self.cancel_btn.setVisible(False)
@@ -236,8 +338,8 @@ class StoryAnalysisPage(BasePage):
         scroll.setWidgetResizable(True)
         return scroll
 
-    def _create_result_panel(self) -> QWidget:
-        """创建结果展示面板"""
+    def _create_single_result_panel(self) -> QWidget:
+        """创建单个分析结果面板"""
         scroll = MacScrollArea()
         content = QWidget()
         layout = QVBoxLayout(content)
@@ -287,12 +389,11 @@ class StoryAnalysisPage(BasePage):
         cuts_layout = self.cuts_card.layout()
         cuts_layout.setSpacing(8)
 
-        # 剪辑点表格
         self.cuts_table = QTableWidget()
         self.cuts_table.setColumnCount(5)
         self.cuts_table.setHorizontalHeaderLabels(["类型", "开始", "结束", "时长", "说明"])
         self.cuts_table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
-        self.cuts_table.setMaximumHeight(300)
+        self.cuts_table.setMaximumHeight(250)
         cuts_layout.addWidget(self.cuts_table)
 
         layout.addWidget(self.cuts_card)
@@ -311,6 +412,8 @@ class StoryAnalysisPage(BasePage):
         scroll.setWidget(content)
         scroll.setWidgetResizable(True)
         return scroll
+
+    # ==================== 单个分析相关方法 ====================
 
     def _on_select_video(self):
         """选择视频文件"""
@@ -333,9 +436,8 @@ class StoryAnalysisPage(BasePage):
             return
 
         style_value = self.style_combo.currentData()
-        style_name = self.style_combo.currentText().split(" - ")[0]
 
-        self.logger.info(f"Starting story analysis: {self.video_path}, style={style_name}")
+        self.logger.info(f"Starting story analysis: {self.video_path}")
 
         # 更新 UI 状态
         self.analyze_btn.setVisible(False)
@@ -365,8 +467,7 @@ class StoryAnalysisPage(BasePage):
             self.logger.info("Cancelling story analysis")
             self.worker.cancel()
             self.worker.wait()
-
-        self._reset_ui()
+        self._reset_single_ui()
 
     def _on_analysis_progress(self, stage: str, percentage: float):
         """分析进度更新"""
@@ -377,32 +478,28 @@ class StoryAnalysisPage(BasePage):
         """分析完成"""
         self.analysis_result = result
         self.logger.info(f"Analysis finished: {result.plot_type.value}")
-
-        # 更新 UI
-        self._update_result_display(result)
-        self._reset_ui()
-
-        QMessageBox.information(self, "完成", "剧情分析完成！请查看右侧结果。")
+        self._update_single_result_display(result)
+        self._reset_single_ui()
+        QMessageBox.information(self, "完成", "剧情分析完成！")
 
     def _on_analysis_error(self, error: str):
         """分析错误"""
         self.logger.error(f"Analysis error: {error}")
-        self._reset_ui()
+        self._reset_single_ui()
         QMessageBox.critical(self, "错误", f"分析失败：{error}")
 
     def _on_analysis_cancelled(self):
         """分析取消"""
         self.logger.info("Analysis cancelled by user")
-        self._reset_ui()
-        QMessageBox.information(self, "取消", "分析已取消")
+        self._reset_single_ui()
 
-    def _reset_ui(self):
-        """重置 UI 状态"""
+    def _reset_single_ui(self):
+        """重置单个分析 UI"""
         self.analyze_btn.setVisible(True)
         self.cancel_btn.setVisible(False)
 
-    def _update_result_display(self, result: StoryAnalysisResult):
-        """更新结果展示"""
+    def _update_single_result_display(self, result: StoryAnalysisResult):
+        """更新单个分析结果展示"""
         # 故事概览
         self.plot_type_label.setText(f"剧情类型：{result.plot_type.display_name}")
         self.summary_label.setText(f"概要：{result.summary or '无'}")
@@ -412,7 +509,7 @@ class StoryAnalysisPage(BasePage):
         # 叙事结构
         if result.segments:
             structure_text = []
-            for seg in result.segments[:10]:  # 只显示前10个
+            for seg in result.segments[:10]:
                 structure_text.append(
                     f"• [{seg.scene_type.display_name}] {seg.title} "
                     f"({int(seg.start_time)}s - {int(seg.end_time)}s)"
@@ -426,7 +523,7 @@ class StoryAnalysisPage(BasePage):
         # 情感曲线
         if result.emotional_curve:
             emotion_text = []
-            for ep in result.emotional_curve[:5]:  # 只显示前5个
+            for ep in result.emotional_curve[:5]:
                 bar = "█" * int(ep.intensity * 10)
                 emotion_text.append(f"• {int(ep.timestamp)}s: {ep.emotion} {bar}")
             if len(result.emotional_curve) > 5:
@@ -454,28 +551,12 @@ class StoryAnalysisPage(BasePage):
     def _update_cuts_table(self, cuts: List[Dict[str, Any]]):
         """更新剪辑点表格"""
         self.cuts_table.setRowCount(len(cuts))
-
         for row, cut in enumerate(cuts):
-            # 类型
-            type_item = QTableWidgetItem(cut.get("type", "keep"))
-            self.cuts_table.setItem(row, 0, type_item)
-
-            # 开始时间
-            start_item = QTableWidgetItem(f"{cut.get('start', 0):.1f}s")
-            self.cuts_table.setItem(row, 1, start_item)
-
-            # 结束时间
-            end_item = QTableWidgetItem(f"{cut.get('end', 0):.1f}s")
-            self.cuts_table.setItem(row, 2, end_item)
-
-            # 时长
-            duration_item = QTableWidgetItem(f"{cut.get('duration', 0):.1f}s")
-            self.cuts_table.setItem(row, 3, duration_item)
-
-            # 说明
-            reason = cut.get("reason", "")
-            self.cuts_table.setItem(row, 4, QTableWidgetItem(reason))
-
+            self.cuts_table.setItem(row, 0, QTableWidgetItem(cut.get("type", "keep")))
+            self.cuts_table.setItem(row, 1, QTableWidgetItem(f"{cut.get('start', 0):.1f}s"))
+            self.cuts_table.setItem(row, 2, QTableWidgetItem(f"{cut.get('end', 0):.1f}s"))
+            self.cuts_table.setItem(row, 3, QTableWidgetItem(f"{cut.get('duration', 0):.1f}s"))
+            self.cuts_table.setItem(row, 4, QTableWidgetItem(cut.get("reason", "")))
         self.cuts_table.resizeRowsToContents()
 
     def _on_new_analysis(self):
@@ -484,7 +565,6 @@ class StoryAnalysisPage(BasePage):
         self.video_path_label.setText("未选择视频")
         self.analyze_btn.setEnabled(False)
 
-        # 清空结果
         self.plot_type_label.setText("剧情类型：-")
         self.summary_label.setText("概要：-")
         self.duration_label.setText("时长：-")
@@ -521,3 +601,159 @@ class StoryAnalysisPage(BasePage):
                 QMessageBox.information(self, "成功", f"已导出到：{file_path}")
             except Exception as e:
                 QMessageBox.critical(self, "错误", f"导出失败：{e}")
+
+    # ==================== 批量处理相关方法 ====================
+
+    def _on_batch_add_videos(self):
+        """添加视频到批量处理"""
+        file_paths, _ = QFileDialog.getOpenFileNames(
+            self,
+            "选择视频文件",
+            "",
+            "视频文件 (*.mp4 *.mov *.avi *.mkv *.webm);;所有文件 (*.*)"
+        )
+
+        if not file_paths:
+            return
+
+        for path in file_paths:
+            # 添加任务
+            task_id = self.batch_processor.add_task(path)
+
+            # 添加到列表
+            item = QListWidgetItem(os.path.basename(path))
+            item.setData(Qt.ItemDataRole.UserRole, task_id)
+            self.batch_list.addItem(item)
+
+        self._update_batch_status()
+
+    def _on_batch_start(self):
+        """开始批量处理"""
+        if self.batch_list.count() == 0:
+            QMessageBox.warning(self, "警告", "请先添加视频文件")
+            return
+
+        self.logger.info("Starting batch processing")
+
+        # 显示取消按钮
+        self.batch_cancel_btn.setVisible(True)
+
+        # 创建进度对话框
+        self.batch_progress_dialog = QProgressDialog(
+            "正在处理...", "取消", 0, self.batch_list.count(), self
+        )
+        self.batch_progress_dialog.setWindowTitle("批量处理进度")
+        self.batch_progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self.batch_progress_dialog.canceled.connect(self._on_batch_cancel)
+        self.batch_progress_dialog.show()
+
+        # 处理所有任务
+        style = self.style_combo.currentData()
+        self.batch_result = self.batch_processor.process_all(
+            self.analyzer,
+            progress_callback=self._on_batch_task_progress
+        )
+
+        # 更新结果表格
+        self._update_batch_results()
+
+        # 关闭进度对话框
+        if self.batch_progress_dialog:
+            self.batch_progress_dialog.close()
+
+        self.batch_cancel_btn.setVisible(False)
+        self._update_batch_status()
+
+        # 显示完成信息
+        QMessageBox.information(
+            self,
+            "完成",
+            f"批量处理完成！\n成功：{self.batch_result.success_count}\n失败：{self.batch_result.failed_count}"
+        )
+
+    def _on_batch_task_progress(self, task_id: str, progress: float):
+        """批量任务进度更新"""
+        if self.batch_progress_dialog:
+            completed = len([t for t in self.batch_processor.get_completed_tasks()])
+            self.batch_progress_dialog.setValue(completed)
+            self.batch_progress_dialog.setLabelText(
+                f"正在处理... {completed}/{self.batch_list.count()}"
+            )
+
+    def _on_batch_cancel(self):
+        """取消批量处理"""
+        self.logger.info("Cancelling batch processing")
+        self.batch_processor.cancel_all()
+        self.batch_cancel_btn.setVisible(False)
+        self._update_batch_status()
+
+    def _update_batch_status(self):
+        """更新批量处理状态"""
+        total = self.batch_list.count()
+        completed = len(self.batch_processor.get_completed_tasks())
+        failed = len(self.batch_processor.get_failed_tasks())
+
+        if total == 0:
+            self.batch_status_label.setText("等待添加视频...")
+            self.batch_progress_bar.setValue(0)
+        else:
+            self.batch_status_label.setText(f"总计: {total} | 完成: {completed} | 失败: {failed}")
+            self.batch_progress_bar.setValue(int((completed + failed) / total * 100))
+
+    def _update_batch_results(self):
+        """更新批量处理结果表格"""
+        self.batch_results_table.setRowCount(0)
+
+        for task in self.batch_result.results:
+            row = self.batch_results_table.rowCount()
+            self.batch_results_table.insertRow(row)
+
+            # 视频名称
+            self.batch_results_table.setItem(row, 0, QTableWidgetItem(os.path.basename(task.video_path)))
+
+            # 状态
+            status_text = {
+                BatchStatus.COMPLETED: "✅ 完成",
+                BatchStatus.FAILED: "❌ 失败",
+                BatchStatus.CANCELLED: "⚠️ 取消",
+                BatchStatus.PROCESSING: "🔄 处理中",
+                BatchStatus.PENDING: "⏳ 等待"
+            }.get(task.status, str(task.status.value))
+            self.batch_results_table.setItem(row, 1, QTableWidgetItem(status_text))
+
+            # 剧情类型
+            plot_type = task.result.plot_type.display_name if task.result else "-"
+            self.batch_results_table.setItem(row, 2, QTableWidgetItem(plot_type))
+
+            # 时长
+            duration = f"{int(task.duration)}s" if task.duration else "-"
+            self.batch_results_table.setItem(row, 3, QTableWidgetItem(duration))
+
+        self.batch_results_table.resizeRowsToContents()
+
+    def _on_batch_export(self):
+        """导出批量处理结果"""
+        if not self.batch_result:
+            QMessageBox.warning(self, "警告", "没有可导出的结果")
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "导出批量结果",
+            "batch_results.json",
+            "JSON 文件 (*.json)"
+        )
+
+        if file_path:
+            try:
+                output_file = self.batch_processor.export_results(self.batch_result)
+                QMessageBox.information(self, "成功", f"已导出到：{output_file}")
+            except Exception as e:
+                QMessageBox.critical(self, "错误", f"导出失败：{e}")
+
+    def _on_batch_clear(self):
+        """清空批量任务"""
+        self.batch_processor.clear_completed()
+        self.batch_list.clear()
+        self.batch_results_table.setRowCount(0)
+        self._update_batch_status()
