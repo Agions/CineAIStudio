@@ -537,7 +537,8 @@ class StoryAnalyzer:
         self,
         result: StoryAnalysisResult,
         target_duration: Optional[float] = None,
-        style: str = "narrative"
+        style: str = "narrative",
+        template_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         根据剧情分析获取剪辑建议
@@ -546,10 +547,16 @@ class StoryAnalyzer:
             result: 剧情分析结果
             target_duration: 目标时长（秒），None 表示保持原长
             style: 剪辑风格 ("narrative", "highlight", "trailer")
+            template_id: 剪辑模板 ID（可选）
 
         Returns:
             剪辑点列表
         """
+        # 如果指定了模板，使用模板管理器
+        if template_id:
+            return self._apply_template(template_id, result, target_duration)
+
+        # 否则使用内置风格
         if style == "narrative":
             return self._get_narrative_cuts(result, target_duration)
         elif style == "highlight":
@@ -557,6 +564,29 @@ class StoryAnalyzer:
         elif style == "trailer":
             return self._get_trailer_cuts(result, target_duration)
         else:
+            return self._get_narrative_cuts(result, target_duration)
+
+    def _apply_template(
+        self,
+        template_id: str,
+        result: StoryAnalysisResult,
+        target_duration: Optional[float]
+    ) -> List[Dict[str, Any]]:
+        """应用模板生成剪辑点"""
+        try:
+            from .cut_template import CutTemplateManager
+
+            manager = CutTemplateManager()
+            template = manager.get_template_by_id(template_id)
+
+            if template:
+                return manager.apply_template(template, result)
+            else:
+                logger.warning(f"Template not found: {template_id}, using narrative style")
+                return self._get_narrative_cuts(result, target_duration)
+
+        except Exception as e:
+            logger.error(f"Failed to apply template {template_id}: {e}")
             return self._get_narrative_cuts(result, target_duration)
 
     def _get_narrative_cuts(

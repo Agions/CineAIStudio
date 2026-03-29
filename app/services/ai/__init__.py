@@ -30,6 +30,7 @@ from .video_understanding import VideoUnderstanding
 from .video_summarizer import VideoSummarizer
 from .script_generator import ScriptGenerator
 from .story_analyzer import StoryAnalyzer, StoryAnalysisResult, PlotType, SceneType
+from .cut_template import CutTemplateManager, CutTemplate, TemplateStyle
 
 # 缓存
 from .cache import LLMMemoryCache
@@ -63,6 +64,11 @@ __all__ = [
     "StoryAnalysisResult",
     "PlotType",
     "SceneType",
+
+    # Template
+    "CutTemplateManager",
+    "CutTemplate",
+    "TemplateStyle",
 
     # Cache
     "LLMMemoryCache",
