@@ -22,6 +22,7 @@ jobs:
   build:
     name: 构建
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     steps:
       - uses: actions/checkout@v4
@@ -30,20 +31,20 @@ jobs:
           python-version: '3.11'
       - name: Install PyInstaller
         run: pip install pyinstaller
-      - name: Create dirs
-        run: mkdir -p dist build
       - name: Build
         run: |
-          echo "=== 配置文件 ===" && ls -la *.spec 2>/dev/null || echo "No spec file"
-          echo "=== 开始构建 ==="
-          pyinstaller main.spec --name VideoForge --distpath dist --workpath build --noconfirm 2>&1
+          echo "=== 目录结构 ==="
+          ls -la
+          echo "=== PyInstaller 版本 ==="
+          pyinstaller --version
+          echo "=== 构建 ==="
+          pyinstaller --clean --onedir --name VideoForge app/main.py 2>&1
           echo "=== 构建结果 ==="
-          ls -la dist/ 2>/dev/null || echo "dist is empty"
-          ls -la build/ 2>/dev/null || echo "build is empty"
+          ls -la dist/ 2>/dev/null || echo "dist not created"
       - name: Upload
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: VideoForge-build
+          name: VideoForge
           path: dist/
           retention-days: 7
