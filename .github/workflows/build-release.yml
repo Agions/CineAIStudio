@@ -1,11 +1,35 @@
-name: Build
+name: Build & Release
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: false
+
+permissions:
+  contents: write
 
 jobs:
+  version:
+    name: 获取版本
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: ver
+        run: |
+          if [[ "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
   lint:
     name: 语法检查
     runs-on: ubuntu-latest
@@ -14,37 +38,54 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Check syntax
+      - name: Check
         run: |
           find app -name "*.py" -exec python3 -m py_compile {} \; 2>&1 || true
-          echo "语法检查完成"
 
   build:
     name: 构建
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: lint
+    needs: [version, lint]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install PyInstaller
+      - name: Install
         run: pip install pyinstaller
       - name: Build
         run: |
-          echo "=== 目录结构 ==="
+          pyinstaller --clean --onedir --name VideoForge-${{ needs.version.outputs.version }} app/main.py 2>&1
+      - name: Package
+        run: |
+          cd dist
+          tar -czvf VideoForge-${{ needs.version.outputs.version }}-linux-x86_64.tar.gz VideoForge-${{ needs.version.outputs.version }}
           ls -la
-          echo "=== PyInstaller 版本 ==="
-          pyinstaller --version
-          echo "=== 构建 ==="
-          pyinstaller --clean --onedir --name VideoForge app/main.py 2>&1
-          echo "=== 构建结果 ==="
-          ls -la dist/ 2>/dev/null || echo "dist not created"
       - name: Upload
-        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: VideoForge
-          path: dist/
-          retention-days: 7
+          name: VideoForge-${{ needs.version.outputs.version }}
+          path: dist/*.tar.gz
+
+  release:
+    name: 发布
+    runs-on: ubuntu-latest
+    needs: [version, build]
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download
+        uses: actions/download-artifact@v4
+        with:
+          name: VideoForge-${{ needs.version.outputs.version }}
+          path: artifacts
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.version }}
+          name: VideoForge v${{ needs.version.outputs.version }}
+          draft: false
+          prerelease: ${{ contains(needs.version.outputs.version, 'dev') }}
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
