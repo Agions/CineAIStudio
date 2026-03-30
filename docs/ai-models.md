@@ -117,7 +117,7 @@ KIMI_MODEL=kimi-k2.5
 
 ## 更多配置
 
-详细的模型参数配置请参考 [配置参考](/config)。
+详细的模型参数配置请参考 [配置参考](/VideoForge/config)。
 
 ## 更新日志
 

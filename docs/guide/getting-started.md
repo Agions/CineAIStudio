@@ -133,6 +133,6 @@ pip install -r requirements.txt
 
 ## 下一步
 
-- [功能详细介绍](/features) - 了解更多功能
-- [AI 模型配置](/ai-models) - 配置不同的 AI 模型
-- [常见问题](/faq) - 常见问题解答
+- [功能详细介绍](/VideoForge/features) - 了解更多功能
+- [AI 模型配置](/VideoForge/ai-models) - 配置不同的 AI 模型
+- [常见问题](/VideoForge/faq) - 常见问题解答

@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/public/logo.svg" alt="VideoForge" width="200" />
+<img src="docs/public/logo.png" alt="VideoForge" width="200" />
 
 ### AI-Powered Video Creation Desktop Application
 
