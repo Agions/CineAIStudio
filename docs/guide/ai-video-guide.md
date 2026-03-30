@@ -1,6 +1,9 @@
-# AI Video Guide
+---
+title: AI 视频创作指南
+description: 深入了解 VideoForge 三种 AI 视频创作模式的工作流程和使用技巧。
+---
 
-Learn how to create stunning AI-powered videos with VideoForge.
+# AI 视频创作指南
 
 ## Three AI Creation Modes
 

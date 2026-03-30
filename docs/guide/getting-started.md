@@ -1,26 +1,50 @@
+---
+title: 快速开始
+description: VideoForge 安装与首次使用的完整指南。
+---
+
 # 快速开始
 
-VideoForge 是一款 AI 驱动的智能视频剪辑工具，5 分钟即可上手。
+本文档是 VideoForge 的完整安装与配置指南。如果你想快速上手，推荐阅读 [5 分钟快速开始](./quick-start)。
+
+---
 
 ## 环境要求
 
 | 要求 | 最低配置 | 推荐配置 |
 |------|----------|----------|
 | 操作系统 | Windows 10 / macOS 11 / Ubuntu 20.04 | Windows 11 / macOS 13 / Ubuntu 22.04 |
-| CPU | Intel i5 / Apple M1 | Intel i7 / Apple M2 |
-| 内存 | 8 GB | 16 GB |
-| 显卡 | NVIDIA 4GB / 集成显卡 | NVIDIA 8GB |
+| CPU | Intel i5 / Apple M1 | Intel i7 / Apple M2+ |
+| 内存 | 8 GB | 16 GB+ |
+| 显卡 | NVIDIA 4GB / 集成显卡 | NVIDIA 8GB+ |
 | 磁盘 | 10 GB 可用空间 | 20 GB SSD |
+
+::: tip GPU 加速
+NVIDIA 显卡配合 CUDA 可显著加速 AI 处理。如无独显，VideoForge 会在 CPU 模式下运行（速度较慢但功能完整）。
+:::
+
+---
 
 ## 安装步骤
 
-### 方式一：下载安装包
+### 方式一：下载安装包（推荐）
 
 1. 访问 [GitHub Releases](https://github.com/Agions/VideoForge/releases)
-2. 下载对应平台的最新版本
-3. 运行安装程序
+2. 下载对应平台的最新版本：
 
-### 方式二：从源码构建
+| 平台 | 安装包 | 说明 |
+|------|--------|------|
+| Windows | `VideoForge-Setup-x.x.x.exe` | 运行安装程序 |
+| macOS | `VideoForge-x.x.x.dmg` | 拖入 Applications |
+| Linux | `VideoForge-x.x.x.AppImage` | 添加执行权限后运行 |
+
+### 方式二：Homebrew（macOS / Linux）
+
+```bash
+brew install videoforge
+```
+
+### 方式三：从源码构建
 
 ```bash
 # 克隆项目
@@ -42,37 +66,63 @@ cp .env.example .env
 python app/main.py
 ```
 
+---
+
 ## 首次配置
 
-### 1. 配置 AI 模型
+### 1. 安装 FFmpeg
 
-启动应用后，在 **设置 → AI 配置** 中配置您的 API Key：
-
-```yaml
-# 推荐配置（免费）
-AI_PROVIDER=ollama
-OLLAMA_MODEL=llama3
-
-# 推荐配置（付费，能力更强）
-AI_PROVIDER=openai
-OPENAI_API_KEY=sk-your-key
-OPENAI_MODEL=gpt-5.4
-```
-
-### 2. 配置 FFmpeg（可选）
-
-VideoForge 需要 FFmpeg 进行视频处理：
+VideoForge 需要 FFmpeg 进行视频处理。安装方式：
 
 ```bash
 # macOS
 brew install ffmpeg
 
-# Ubuntu/Debian
-sudo apt install ffmpeg
+# Ubuntu / Debian
+sudo apt update && sudo apt install ffmpeg
 
 # Windows
-# 从 https://ffmpeg.org/download.html 下载
+# 访问 https://ffmpeg.org/download.html 下载并添加到 PATH
 ```
+
+验证安装：
+
+```bash
+ffmpeg -version
+```
+
+### 2. 配置 AI 模型
+
+启动应用后，进入 **设置 → AI 配置** 配置 API Key。
+
+或在 `.env` 文件中配置（项目根目录）：
+
+```env
+# 推荐配置（免费额度）
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
+
+# 备选配置
+# OPENAI_API_KEY=sk-your-key
+# DASHSCOPE_API_KEY=your-key
+```
+
+支持的 AI 提供商和获取方式：
+
+| 提供商 | 获取地址 | 免费额度 |
+|--------|----------|----------|
+| DeepSeek | [platform.deepseek.com](https://platform.deepseek.com) | ✅ 有免费额度 |
+| OpenAI | [platform.openai.com](https://platform.openai.com) | $5 新用户 |
+| 通义千问 | [dashscope.console.aliyun.com](https://dashscope.console.aliyun.com) | ✅ 有免费额度 |
+| Kimi | [platform.moonshot.cn](https://platform.moonshot.cn) | ✅ 有免费额度 |
+| Ollama | [ollama.ai](https://ollama.ai) | 🔒 完全免费（本地） |
+
+### 3. 验证配置
+
+进入 **设置 → AI 配置**，点击 **连接测试**。
+
+看到 `✅ AI 服务连接正常` 即配置成功。
+
+---
 
 ## 快速教程
 
@@ -81,58 +131,68 @@ sudo apt install ffmpeg
 1. 点击 **新建项目**
 2. 选择项目保存位置
 3. 输入项目名称
+4. 选择创作模式
 
 ### 2. 导入视频素材
 
-1. 点击 **导入素材** 或直接拖拽文件
-2. 支持格式：MP4, MOV, AVI, MKV, WebM
+- 点击 **导入素材** 或直接拖拽文件到窗口
+- 支持格式：`MP4`, `MOV`, `AVI`, `MKV`, `WebM`
 
 ### 3. 选择 AI 模式
 
-| 模式 | 适用场景 |
-|------|----------|
-| 🎬 **剧情分析** | 电影解说、Vlog 整理 |
-| 🎙️ **AI 解说** | 纪录片、产品介绍 |
-| 🎵 **智能混剪** | 音乐视频、节奏剪辑 |
-| 🎭 **AI 独白** | 情感视频、电影感 Vlog |
-| 📱 **短视频切片** | 直播切片、社交媒体 |
-| 🌐 **视频翻译** | 内容出海、本地化 |
+| 模式 | 适用场景 | 说明 |
+|------|----------|------|
+| 🎬 **剧情分析** | 电影解说、Vlog 整理 | 智能分析叙事结构 |
+| 🎙️ **AI 解说** | 纪录片、产品介绍 | AI 生成配音 + 字幕 |
+| 🎵 **智能混剪** | 音乐视频、节奏剪辑 | BPM 自动卡点 |
+| 🎭 **AI 独白** | 情感视频、电影感 Vlog | 电影级字幕风格 |
+| 📱 **短视频切片** | 直播切片、社交媒体 | 一键生成高光片段 |
+| 🌐 **视频翻译** | 内容出海、本地化 | 100+ 语言支持 |
 
 ### 4. 调整参数
 
 根据需要调整：
-- 剪辑风格
-- 输出格式
-- 画质设置
+
+| 参数 | 说明 |
+|------|------|
+| 剪辑风格 | 电影感 / 快节奏 / 轻松随意 |
+| 输出格式 | MP4 / MOV / WebM |
+| 画质 | 高质量 / 标准 / 快速预览 |
+| 字幕样式 | 电影字幕 / 解说字幕 / 无字幕 |
 
 ### 5. 导出成片
 
 1. 点击 **导出**
 2. 选择格式和保存位置
 3. 等待处理完成
+4. 预览导出结果
+
+---
 
 ## 常见问题
 
-### 启动报错
-
-**Q: 提示 "Module not found"**
+### 启动报错 "Module not found"
 
 ```bash
 pip install -r requirements.txt
 ```
 
-**Q: 提示 "FFmpeg not found"**
+### FFmpeg 报错 "FFmpeg not found"
 
-安装 FFmpeg 或在设置中配置路径。
+确保 FFmpeg 已安装并添加到系统 PATH，然后重启应用。
 
 ### AI 功能不工作
 
 1. 检查 API Key 是否配置正确
 2. 确认网络连接正常
-3. 查看日志获取详细错误
+3. 查看 **帮助 → 查看日志** 获取详细错误
+
+---
 
 ## 下一步
 
-- [功能详细介绍](/features) - 了解更多功能
-- [AI 模型配置](/ai-models) - 配置不同的 AI 模型
-- [常见问题](/faq) - 常见问题解答
+- 📖 [5 分钟快速开始](./quick-start) — 更精简的上手指南
+- 🎬 [功能详细介绍](/features) — 深入了解每个 AI 模式
+- 🤖 [AI 模型配置](/ai-models) — 选择和优化 AI 提供商
+- ❓ [常见问题](/faq) — 更多问题解答
+- 🔧 [故障排除](./troubleshooting) — 详细的问题解决指南

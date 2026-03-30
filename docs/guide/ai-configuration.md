@@ -1,6 +1,9 @@
-# AI Configuration
+---
+title: AI 配置指南
+description: 在 VideoForge 中配置 AI 提供商（OpenAI、Claude、DeepSeek 等）的方法。
+---
 
- powerConfigure AI providers to VideoForge's intelligent features.
+# AI 配置指南
 
 ## Supported AI Providers
 

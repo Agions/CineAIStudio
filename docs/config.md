@@ -1,3 +1,8 @@
+---
+title: 配置参考
+description: VideoForge 配置文件详解和环境变量参考。
+---
+
 # 配置参考
 
 VideoForge 支持灵活的配置文件和环境变量配置。

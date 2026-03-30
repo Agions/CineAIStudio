@@ -1,6 +1,9 @@
-# Troubleshooting
+---
+title: 故障排除
+description: VideoForge 常见问题的详细解决方案。
+---
 
-Solutions to common issues you may encounter when using VideoForge.
+# 故障排除
 
 ## Installation Issues
 

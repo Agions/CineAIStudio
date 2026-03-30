@@ -1,3 +1,8 @@
+---
+title: 快速开始（Legacy）
+description: VideoForge 快速入门指南。
+---
+
 # 快速开始
 
 本指南将帮助您快速上手 VideoForge。
