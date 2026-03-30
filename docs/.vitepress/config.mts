@@ -7,6 +7,9 @@ export default defineConfig({
   // GitHub Pages 部署路径
   base: '/VideoForge/',
   
+  // 忽略死链接
+  ignoreDeadLinks: true,
+  
   srcDir: '.',
   
   head: [

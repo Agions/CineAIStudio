@@ -19,7 +19,7 @@ hero:
 features:
   - icon: 🎬
     title: AI 剧情分析
-    link: /VideoForge/features#ai-剧情分析剪辑
+    link: /VideoForge/features#剧情分析
     details: 智能分析叙事结构、情感曲线，自动生成剪辑点
 
   - icon: 🎙️
@@ -38,12 +38,12 @@ features:
     details: 画面情感分析，电影级独白字幕
 
   - icon: 📱
-    title: 短视频切片 🆕
-    link: /VideoForge/features#ai-短视频切片
+    title: 短视频切片
+    link: /VideoForge/features#短视频切片
     details: 长视频一键转高光短片段
 
   - icon: 🌐
-    title: AI 视频翻译 🆕
+    title: AI 视频翻译
     link: /VideoForge/features#ai-视频翻译
     details: 100+语言翻译，唇形同步
 
@@ -65,6 +65,6 @@ features:
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Qt](https://img.shields.io/badge/Qt-6.5+-41?style=for-the-badge&logo=qt)](https://www.qt.io/)
 
-**免费、开源、跨平台** · 支持 Windows/macOS/Linux
+**免费，开源、跨平台** · 支持 Windows/macOS/Linux
 
 </div>
