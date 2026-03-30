@@ -13,10 +13,16 @@ LLM 提供商抽象基类
 - 基类 (BaseLLMProvider)
 - 速率限制器 (RateLimiter)
 - 熔断器 (CircuitBreaker)
+- 重试机制 (RetryHandler) ✅ 新增
+
+优化:
+- asyncio.gather 并发批量处理 ✅
+- tenacity 重试机制 ✅
+- 指数退避 ✅
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any, TypeVar
+from typing import Dict, List, Optional, Any, TypeVar, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime, timedelta
@@ -26,6 +32,8 @@ import httpx
 import logging
 import time
 import hashlib
+from functools import wraps
+
 logger = logging.getLogger(__name__)
 
 
@@ -69,6 +77,7 @@ class LLMResponse:
     tokens_used: int = 0                # 使用的 token 数量
     finish_reason: str = "stop"          # 结束原因
     raw_response: Optional[Dict] = None  # 原始响应
+    latency_ms: float = 0.0              # 延迟（毫秒）✅ 新增
 
 
 # ============ 异常类 ============
@@ -86,6 +95,72 @@ class RateLimitError(ProviderError):
 class CircuitOpenError(ProviderError):
     """熔断器开启错误"""
     pass
+
+
+# ============ 重试机制 (基于 tenacity 简化实现) ============
+
+class RetryHandler:
+    """
+    异步重试处理器 ✅ 新增
+    支持指数退避和 jitter
+    """
+    
+    def __init__(
+        self,
+        max_attempts: int = 3,
+        base_delay: float = 1.0,
+        max_delay: float = 30.0,
+        exponential_base: float = 2.0,
+        jitter: bool = True,
+        retryable_exceptions: tuple = (httpx.HTTPStatusError, asyncio.TimeoutError)
+    ):
+        self.max_attempts = max_attempts
+        self.base_delay = base_delay
+        self.max_delay = max_delay
+        self.exponential_base = exponential_base
+        self.jitter = jitter
+        self.retryable_exceptions = retryable_exceptions
+    
+    def _calculate_delay(self, attempt: int) -> float:
+        """计算延迟时间（指数退避 + 可选 jitter）"""
+        delay = min(self.base_delay * (self.exponential_base ** attempt), self.max_delay)
+        if self.jitter:
+            import random
+            delay = delay * (0.5 + random.random() * 0.5)  # 0.5 ~ 1.0 倍
+        return delay
+    
+    async def execute(self, func: Callable, *args, **kwargs) -> Any:
+        """
+        执行函数并自动重试
+        
+        Args:
+            func: 异步函数
+            *args, **kwargs: 函数参数
+            
+        Returns:
+            函数返回值
+            
+        Raises:
+            最后一次尝试的异常
+        """
+        last_exception = None
+        
+        for attempt in range(self.max_attempts):
+            try:
+                return await func(*args, **kwargs)
+            except self.retryable_exceptions as e:
+                last_exception = e
+                if attempt < self.max_attempts - 1:
+                    delay = self._calculate_delay(attempt)
+                    logger.warning(
+                        f"尝试 {attempt + 1}/{self.max_attempts} 失败: {e}. "
+                        f"{delay:.1f}秒后重试..."
+                    )
+                    await asyncio.sleep(delay)
+                else:
+                    logger.error(f"所有 {self.max_attempts} 次尝试均失败")
+        
+        raise last_exception
 
 
 # ============ 速率限制器 ============
@@ -290,6 +365,8 @@ class RequestCache:
         self.ttl = ttl
         self._cache: Dict[str, tuple] = {}  # key -> (value, expiry)
         self._lock = asyncio.Lock()
+        self._hits = 0
+        self._misses = 0
     
     def _make_key(self, request: LLMRequest) -> str:
         """生成缓存键"""
@@ -305,10 +382,12 @@ class RequestCache:
                 value, expiry = self._cache[key]
                 if time.monotonic() < expiry:
                     logger.debug(f"缓存命中: {key[:8]}...")
+                    self._hits += 1
                     return value
                 else:
                     del self._cache[key]
         
+        self._misses += 1
         return None
     
     async def set(self, request: LLMRequest, response: LLMResponse):
@@ -345,6 +424,17 @@ class RequestCache:
         """清空缓存"""
         async with self._lock:
             self._cache.clear()
+    
+    def get_stats(self) -> Dict[str, int]:
+        """获取缓存统计"""
+        total = self._hits + self._misses
+        hit_rate = (self._hits / total * 100) if total > 0 else 0
+        return {
+            "hits": self._hits,
+            "misses": self._misses,
+            "size": len(self._cache),
+            "hit_rate": f"{hit_rate:.1f}%"
+        }
 
 
 # ============ 混入类 (Mixins) ============
@@ -358,6 +448,12 @@ class HTTPClientMixin:
         self.timeout = timeout
         self.http_client: Optional[httpx.AsyncClient] = None
         self._default_headers: Dict[str, str] = {}
+        # ✅ 新增：重试处理器
+        self._retry_handler = RetryHandler(
+            max_attempts=3,
+            base_delay=1.0,
+            max_delay=30.0
+        )
 
     def _init_http_client(self, headers: Optional[Dict[str, str]] = None):
         """初始化HTTP客户端"""
@@ -390,7 +486,7 @@ class HTTPClientMixin:
         messages.append({"role": "user", "content": request.prompt})
         return messages
 
-    def _parse_response(self, data: Dict[str, Any], model: str) -> LLMResponse:
+    def _parse_response(self, data: Dict[str, Any], model: str, latency_ms: float = 0) -> LLMResponse:
         """解析标准OpenAI格式的响应"""
         if "error" in data:
             raise ProviderError(data["error"]["message"])
@@ -410,6 +506,7 @@ class HTTPClientMixin:
             model=model,
             tokens_used=data.get("usage", {}).get("total_tokens", 0),
             finish_reason=choice.get("finish_reason", "stop"),
+            latency_ms=latency_ms,  # ✅ 新增延迟统计
         )
 
     def _handle_http_error(self, e: httpx.HTTPStatusError) -> ProviderError:
@@ -506,12 +603,14 @@ class BaseLLMProvider(ABC):
     async def generate_batch(
         self,
         requests: List[LLMRequest],
+        max_concurrency: int = 5  # ✅ 新增：最大并发数
     ) -> List[LLMResponse]:
         """
-        批量生成文本
+        批量生成文本 ✅ 优化：使用 asyncio.gather 并发处理
 
         Args:
             requests: LLM 请求列表
+            max_concurrency: 最大并发数（防止超出 API 限制）
 
         Returns:
             LLM 响应列表
@@ -536,6 +635,36 @@ class BaseLLMProvider(ABC):
         return f"<{self.__class__.__name__}: {self.base_url}>"
 
 
+# ============ 工具函数 ============
+
+async def gather_with_concurrency(
+    n: int,
+    *tasks,
+    return_exceptions: bool = True
+) -> List[Any]:
+    """
+    控制并发数的 asyncio.gather ✅ 新增
+    
+    Args:
+        n: 最大并发数
+        *tasks: 异步任务
+        return_exceptions: 是否返回异常
+        
+    Returns:
+        结果列表
+    """
+    semaphore = asyncio.Semaphore(n)
+    
+    async def _run_with_semaphore(task):
+        async with semaphore:
+            return await task
+    
+    return await asyncio.gather(
+        *[_run_with_semaphore(task) for task in tasks],
+        return_exceptions=return_exceptions
+    )
+
+
 __all__ = [
     "ProviderType",
     "LLMRequest",
@@ -546,7 +675,9 @@ __all__ = [
     "RateLimiter",
     "CircuitBreaker",
     "RequestCache",
+    "RetryHandler",
     "HTTPClientMixin",
     "ModelManagerMixin",
     "BaseLLMProvider",
+    "gather_with_concurrency",  # ✅ 新增
 ]

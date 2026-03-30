@@ -5,9 +5,14 @@
 通义千问 Qwen 3.5 提供商
 支持 Qwen 3.5 系列模型 (2026.02 最新)
 
-使用公共混入类减少重复代码
+优化:
+- asyncio.gather 批量并发处理 ✅
+- 重试机制 (RetryHandler) ✅
+- 延迟统计 ✅
 """
 
+import asyncio
+import time
 import httpx
 from typing import List, Dict, Any
 
@@ -16,8 +21,10 @@ from ..base_llm_provider import (
     LLMRequest,
     LLMResponse,
     ProviderError,
+    RateLimitError,
     HTTPClientMixin,
     ModelManagerMixin,
+    gather_with_concurrency,
 )
 
 
@@ -102,23 +109,27 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         # 使用混入类的方法构建消息
         messages = self._build_messages(request)
 
-        # 调用 API
+        # 调用 API（带重试机制）
+        start_time = time.monotonic()
         try:
-            response = await self.http_client.post(
-                f"{self.base_url}/chat/completions",
-                json={
-                    "model": model,
-                    "messages": messages,
-                    "max_tokens": request.max_tokens,
-                    "temperature": request.temperature,
-                    "top_p": request.top_p,
-                },
-            )
-
-            data = response.json()
+            async def _call_api():
+                response = await self.http_client.post(
+                    f"{self.base_url}/chat/completions",
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "max_tokens": request.max_tokens,
+                        "temperature": request.temperature,
+                        "top_p": request.top_p,
+                    },
+                )
+                return response.json()
+            
+            data = await self._retry_handler.execute(_call_api)
+            latency_ms = (time.monotonic() - start_time) * 1000
 
             # 使用混入类的方法解析响应
-            return self._parse_response(data, model)
+            return self._parse_response(data, model, latency_ms)
 
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)
@@ -128,9 +139,44 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     async def generate_batch(
         self,
         requests: List[LLMRequest],
+        max_concurrency: int = 5
     ) -> List[LLMResponse]:
-        """批量生成"""
-        return await super().generate_batch(requests)
+        """
+        批量生成文本 ✅ 优化：使用 asyncio.gather 并发处理
+
+        Args:
+            requests: LLM 请求列表
+            max_concurrency: 最大并发数（防止超出 API 限制）
+
+        Returns:
+            LLM 响应列表
+        """
+        if not requests:
+            return []
+        
+        # 使用 gather_with_concurrency 控制并发数
+        results = await gather_with_concurrency(
+            max_concurrency,
+            *[self.generate(req) for req in requests]
+        )
+        
+        # 处理异常
+        responses = []
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.error(f"批量请求 {i} 失败: {result}")
+                # 返回错误响应而非抛出异常
+                responses.append(LLMResponse(
+                    content="",
+                    model=requests[i].model,
+                    tokens_used=0,
+                    finish_reason="error",
+                    raw_response={"error": str(result)}
+                ))
+            else:
+                responses.append(result)
+        
+        return responses
 
     async def close(self):
         """关闭 HTTP 客户端"""
@@ -141,3 +187,8 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
+
+
+# 添加日志记录器
+import logging
+logger = logging.getLogger(__name__)
