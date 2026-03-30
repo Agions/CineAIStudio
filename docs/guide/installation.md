@@ -1,120 +1,174 @@
-# Installation Guide
+# 安装配置
 
-This guide covers the complete installation process for VideoForge.
+详细的安装指南。
 
-## System Requirements
+## Windows 安装
 
-| Requirement | Minimum | Recommended |
-|-------------|---------|-------------|
-| Python | 3.9+ | 3.11+ |
-| FFmpeg | 4.0+ | Latest |
-| RAM | 8GB | 16GB+ |
-| Storage | 2GB | 10GB+ |
+### 系统要求
 
-## ⚠️ Important: PyQt6 Requirement
+- Windows 10 (64-bit) 或更高版本
+- 至少 8GB RAM
+- NVIDIA 显卡（可选，用于 GPU 加速）
 
-VideoForge is built on **PyQt6**, NOT PySide6!
+### 安装步骤
 
-If you see errors like:
-```
-QLabel(...): argument 1 has unexpected type 'str'
-```
+1. 下载 `VideoForge-Setup-x.x.x.exe` from [Releases](https://github.com/Agions/VideoForge/releases)
+2. 运行安装程序
+3. 按照提示完成安装
 
-This means you have the wrong Qt library installed. Fix it with:
+### 依赖安装
+
+VideoForge 自动安装以下依赖：
+- Visual C++ Redistributable
+- FFmpeg
+
+## macOS 安装
+
+### 系统要求
+
+- macOS 11 (Big Sur) 或更高版本
+- Apple Silicon (M1/M2/M3) 或 Intel
+
+### 安装步骤
+
+1. 下载 `VideoForge-x.x.x.dmg` from [Releases](https://github.com/Agions/VideoForge/releases)
+2. 拖拽到 Applications 文件夹
+3. 首次运行需要在系统偏好设置中允许运行
+
+### Homebrew 安装
+
 ```bash
-pip uninstall PySide6
-pip install PyQt6
+brew install --cask videoforge
 ```
 
-## Installation Steps
+## Linux 安装
 
-### 1. Install FFmpeg
+### Ubuntu/Debian
 
-**macOS:**
+```bash
+# 添加 PPA
+sudo add-apt-repository ppa:videoforge/stable
+sudo apt update
+
+# 安装
+sudo apt install videoforge
+```
+
+### Arch Linux
+
+```bash
+# 使用 AUR
+yay -S videoforge
+```
+
+### 从源码
+
+```bash
+# 安装依赖
+sudo apt install python3.10 python3-pip ffmpeg
+
+# 克隆并安装
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
+pip install -r requirements.txt
+
+# 运行
+python app/main.py
+```
+
+## FFmpeg 安装
+
+FFmpeg 是 VideoForge 的核心依赖。
+
+### macOS
+
 ```bash
 brew install ffmpeg
 ```
 
-**Ubuntu/Debian:**
+### Ubuntu/Debian
+
 ```bash
-sudo apt update
 sudo apt install ffmpeg
 ```
 
-**Windows:**
-Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH.
+### Windows
 
-Verify installation:
+1. 下载 [FFmpeg](https://ffmpeg.org/download.html)
+2. 解压到 `C:\ffmpeg`
+3. 将 `C:\ffmpeg\bin` 添加到 PATH
+
+### 验证安装
+
 ```bash
 ffmpeg -version
 ```
 
-### 2. Clone the Project
+## Python 环境
+
+### 使用 pyenv (推荐)
 
 ```bash
-git clone https://github.com/Agions/VideoForge.git
-cd VideoForge
+# 安装 pyenv
+curl https://pyenv.run | bash
+
+# 安装 Python 3.10+
+pyenv install 3.10.12
+
+# 创建虚拟环境
+pyenv virtualenv 3.10.12 videoforge
+pyenv local videoforge
+
+# 安装依赖
+pip install -r requirements.txt
 ```
 
-### 3. Create Virtual Environment
+### 使用 venv
 
 ```bash
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
-```
+# venv\Scripts\activate   # Windows
 
-### 4. Install Dependencies
-
-```bash
-# First, ensure PySide6 is NOT installed (if it is, remove it)
-pip uninstall PySide6 2>/dev/null || true
-
-# Install PyQt6 and other dependencies
 pip install -r requirements.txt
 ```
 
-### 5. Configure API Keys
+## GPU 加速 (可选)
+
+### NVIDIA CUDA
 
 ```bash
-cp .env.example .env
+# 安装 CUDA Toolkit
+conda install cudatoolkit=11.8
+
+# 安装 CuDF
+pip install cupy-cuda11x
 ```
 
-Edit `.env` and add your API keys:
+### Apple Silicon
 
-```env
-# Choose your AI provider
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-QWEN_API_KEY=sk-...
-DEEPSEEK_API_KEY=sk-...
-KIMI_API_KEY=sk-...
-```
+Apple Silicon Mac 原生支持，无需额外配置。
 
-### 6. Run the Application
+## 故障排除
+
+### macOS 无法运行
+
+**错误**: "VideoForge can't be opened because it is from an unidentified developer"
+
+**解决**: 
+1. 系统偏好设置 → 安全性与隐私 → 通用
+2. 点击"仍要打开"
+
+### Linux 字体缺失
 
 ```bash
-python main.py
+# Ubuntu/Debian
+sudo apt install fonts-noto fonts-wqy-microhei
 ```
 
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| `ModuleNotFoundError: No module named 'PyQt6'` | Run `pip install PyQt6` |
-| `QLabel argument error` | Uninstall PySide6: `pip uninstall PySide6` |
-| FFmpeg not found | Add FFmpeg to system PATH |
-| API errors | Check your API keys in `.env` file |
-
-## Development Installation
-
-For development:
+### 模块导入错误
 
 ```bash
-git clone https://github.com/Agions/VideoForge.git
-cd VideoForge
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-pip install -e .[dev]
+# 重新安装依赖
+pip install --upgrade -r requirements.txt
 ```

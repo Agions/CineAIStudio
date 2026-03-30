@@ -2,157 +2,143 @@
 
 ## 安装问题
 
-### Q: 安装依赖失败怎么办？
+### Q: 安装失败怎么办？
 
-A: 确保您的 Python 版本 >= 3.9，并使用以下命令安装：
+**A:** 尝试以下步骤：
 
+1. 确认系统满足 [最低要求](/guide/installation#系统要求)
+2. 关闭杀毒软件后重试
+3. 以管理员权限运行安装程序
+4. 查看安装日志获取详细错误
+
+### Q: macOS 提示"无法打开"？
+
+**A:** 
+1. 系统偏好设置 → 安全性与隐私 → 通用
+2. 点击"仍要打开"
+
+### Q: Linux 缺少依赖？
+
+**A:** 
 ```bash
-pip install --upgrade pip
-pip install -r requirements.txt
+sudo apt install python3-pip ffmpeg libgl1 libglib2.0-0
 ```
 
-### Q: FFmpeg 找不到怎么办？
+## AI 功能问题
 
-A: 确保 FFmpeg 已安装并加入系统 PATH：
+### Q: AI 功能不工作？
 
+**A:** 检查以下内容：
+
+1. **API Key 配置**
+   - 设置 → AI 配置 → 检查 API Key 是否正确
+   
+2. **网络连接**
+   ```bash
+   curl https://api.openai.com/v1/models
+   ```
+   
+3. **余额检查**
+   - 确认 API 账户有足够余额
+
+4. **查看日志**
+   ```bash
+   tail -f ~/.videoforge/logs/app.log
+   ```
+
+### Q: AI 响应很慢？
+
+**A:** 优化建议：
+
+- 使用更快的模型（如 GPT-4o-mini）
+- 启用请求缓存
+- 检查网络延迟
+- 使用本地模型（Ollama）
+
+### Q: 怎么节省 API 费用？
+
+**A:** 技巧：
+
+- 启用结果缓存
+- 使用更小的模型处理简单任务
+- 本地部署 Ollama + Llama3
+
+## 视频处理问题
+
+### Q: FFmpeg 报错？
+
+**A:** 
 ```bash
-# macOS
-brew install ffmpeg
+# 确认 FFmpeg 已安装
+ffmpeg -version
 
-# Ubuntu/Debian
-sudo apt install ffmpeg
-
-# Windows (使用 winget)
-winget install ffmpeg
+# 如果未安装
+brew install ffmpeg  # macOS
+sudo apt install ffmpeg  # Ubuntu
 ```
 
-### Q: PySide6 和 PyQt6 有什么区别？
+### Q: 视频导出失败？
 
-A: 主要区别在于许可证：
+**A:** 
+1. 检查磁盘空间是否充足
+2. 确认输出路径有写入权限
+3. 尝试降低输出质量
+4. 检查视频文件是否损坏
 
-| 框架 | 许可证 | 商业使用 |
-|------|--------|----------|
-| PyQt6 | GPL v3 | ❌ 需购买商业授权 |
-| **PySide6** | **LGPL v3** | ✅ **免费商业使用** |
+### Q: 剪辑后音画不同步？
 
-VideoForge 已迁移至 PySide6，您可以自由用于商业项目。
-
----
-
-## AI 配置问题
-
-### Q: 需要配置哪些 AI API？
-
-A: **只需要一个 API Key 即可使用全部功能！** Edge TTS 配音完全免费。
-
-| 提供商 | 用途 | 费用 |
-|--------|------|------|
-| Edge TTS | 配音 | ✅ 免费 |
-| OpenAI | 文本/视觉/配音 | 付费 |
-| Claude | 文本/视觉 | 付费 |
-| Qwen (阿里云) | 文本/视觉 | 付费 |
-| DeepSeek | 文本 | 付费 |
-
-### Q: API Key 安全吗？
-
-A: **非常安全！** VideoForge 采用企业级安全措施：
-
-1. API 密钥存储在系统 Keychain (macOS Keychain / Windows Credential Manager)
-2. 降级方案使用 AES-256 加密
-3. PBKDF2 密钥派生 (480,000 次迭代)
-4. 不存在任何硬编码密钥
-
-### Q: API Key 如何获取？
-
-A: 访问各 AI 提供商官网注册账号：
-
-- OpenAI: https://platform.openai.com
-- 阿里云 (Qwen): https://dashscope.console.aliyun.com
-- Anthropic (Claude): https://www.anthropic.com
-- DeepSeek: https://platform.deepseek.com
-
----
-
-## 使用问题
-
-### Q: 视频导出支持哪些格式？
-
-A: 支持多平台全格式：
-
-**视频格式:**
-- MP4 (H.264) - 通用兼容性
-- MP4 (H.265) - 更小体积
-
-**字幕格式:**
-- SRT - 通用字幕
-- ASS - 高级特效字幕
-
-**专业软件格式:**
-- 剪映 Draft JSON
-- Adobe Premiere Pro XML
-- Apple Final Cut Pro FCPXML
-- DaVinci Resolve EDL
-
-### Q: 支持本地模型吗？
-
-A: **支持！** 使用 Ollama 可以完全本地运行：
-
-```bash
-# 安装 Ollama
-brew install ollama  # macOS
-# 或从 ollama.com 下载 Windows 版
-
-# 运行模型
-ollama pull llama3.2
-ollama pull qwen2.5
-
-# 在 VideoForge 设置中选择 "本地" 提供商
-```
-
-### Q: 项目文件在哪里查看？
-
-A: 默认位置：
-- macOS: `~/VideoForge/Projects`
-- Windows: `C:\Users\用户名\VideoForge\Projects`
-
-### Q: 如何更新到最新版本？
-
-```bash
-cd VideoForge
-git pull origin main
-pip install -r requirements.txt --upgrade
-```
-
----
+**A:** 
+1. 重新导入素材
+2. 检查原始素材是否有音画同步问题
+3. 在设置中调整同步偏移
 
 ## 性能问题
 
-### Q: 处理速度慢怎么办？
+### Q: 内存占用过高？
 
-A: 尝试以下优化：
+**A:** 
+1. 关闭不必要的后台程序
+2. 降低预览质量
+3. 使用代理编辑
+4. 增加系统内存
 
-1. **使用更快的模型**: GPT-4o 比 GPT-4 更快
-2. **降低输出质量**: 减小输出分辨率
-3. **使用 SSD**: 项目文件放在 SSD 上
-4. **关闭其他程序**: 释放内存和 CPU
+### Q: GPU 不被使用？
 
-### Q: 内存不足怎么办？
+**A:** 
+1. 确认 NVIDIA 驱动已安装
+2. 在设置中启用 GPU 加速
+3. 检查 CUDA 是否可用：
+   ```bash
+   nvidia-smi
+   ```
 
-A: 减少同时处理的任务数量，或关闭其他应用程序。
+## 其他问题
 
----
+### Q: 如何导出项目？
 
-## 许可证问题
+**A:** 
+- **剪映格式**: 文件 → 导出 → 剪映草稿
+- **Adobe PR**: 文件 → 导出 → Premiere Pro
+- **FCP**: 文件 → 导出 → Final Cut Pro
 
-### Q: VideoForge 可以商业使用吗？
+### Q: 快捷键不生效？
 
-A: **可以！** VideoForge 使用 MIT 许可证，PySide6 使用 LGPL 许可证，均允许商业使用。
+**A:** 
+1. 确认没有其他软件占用快捷键
+2. 重置快捷键为默认
+3. 重启应用
 
-唯一需要注意的是 FFmpeg (LGPL)，如果需要闭源定制，请联系 FFmpeg 获得商业授权。
+### Q: 崩溃或卡死怎么办？
 
----
+**A:** 
+1. 查看错误日志
+2. 提交 [Issue](https://github.com/Agions/VideoForge/issues)
+3. 提供复现步骤
 
 ## 获取帮助
 
-- [GitHub Issues](https://github.com/Agions/VideoForge/issues)
-- [问题反馈](https://github.com/Agions/VideoForge/discussions)
+| 渠道 | 链接 |
+|------|------|
+| GitHub Issues | [报告 Bug](https://github.com/Agions/VideoForge/issues) |
+| 讨论区 | [GitHub Discussions](https://github.com/Agions/VideoForge/discussions) |
+| 文档 | [docs.videoforge.ai](https://docs.videoforge.ai) |

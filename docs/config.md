@@ -1,213 +1,129 @@
-# Configuration
+# 配置参考
 
-Learn how to configure VideoForge for your needs.
+VideoForge 支持灵活的配置文件和环境变量配置。
 
-## Configuration Files
+## 配置文件
 
-VideoForge uses multiple configuration sources:
+### 目录结构
 
-| File | Purpose |
-|------|---------|
-| `.env` | API keys and secrets |
-| `config/app.yaml` | Application settings |
-| `config/ai.yaml` | AI provider settings |
-| `config/export.yaml` | Export defaults |
-
-## Environment Variables (.env)
-
-Create a `.env` file from the example:
-
-```bash
-cp .env.example .env
+```
+~/.videoforge/
+├── config.yaml          # 主配置文件
+├── providers/           # AI 提供商配置
+│   ├── openai.yaml
+│   ├── claude.yaml
+│   └── ...
+├── projects/            # 项目文件
+└── logs/                # 日志文件
 ```
 
-### AI Providers
-
-```env
-# OpenAI
-OPENAI_API_KEY=sk-your-key
-
-# Anthropic
-ANTHROPIC_API_KEY=sk-ant-your-key
-
-# Google
-GOOGLE_API_KEY=your-key
-
-# 阿里云
-QWEN_API_KEY=your-key
-
-# DeepSeek
-DEEPSEEK_API_KEY=sk-your-key
-
-# 智谱AI
-ZHIPU_API_KEY=your-key
-
-# 月之暗面
-KIMI_API_KEY=your-key
-
-# Ollama (本地)
-OLLAMA_BASE_URL=http://localhost:11434
-```
-
-### Application Settings
-
-```env
-# Logging
-LOG_LEVEL=INFO
-LOG_FILE=videoforge.log
-
-# Theme
-THEME=dark  # dark or light
-
-# Language
-LANGUAGE=zh-CN
-```
-
-## Application Config (config/app.yaml)
+### 主配置文件
 
 ```yaml
-application:
+# ~/.videoforge/config.yaml
+
+app:
   name: VideoForge
-  version: 3.0.0
-  debug: false
+  version: "1.0.0"
+  language: zh-CN
+  
+  # UI 主题: light / dark / system
+  theme: system
+  
+  # 自动保存间隔（秒）
+  auto_save_interval: 60
 
-window:
-  width: 1280
-  height: 720
-  theme: dark
+ai:
+  # 默认提供商
+  default_provider: openai
+  
+  # 默认模型
+  default_model: gpt-5.4
+  
+  # 请求超时（秒）
+  timeout: 60
+  
+  # 最大重试次数
+  max_retries: 3
+  
+  # 速率限制 (请求/分钟)
+  rate_limit: 60
 
-cache:
-  enabled: true
-  directory: ~/.videoforge/cache
-  max_size: 1GB
-
-projects:
-  default_directory: ~/Documents/VideoForge
-  auto_save: true
-  auto_save_interval: 300  # seconds
-```
-
-## AI Config (config/ai.yaml)
-
-```yaml
-providers:
-  default: openai
-
-  openai:
-    model: gpt-5.3
-    temperature: 0.7
-    max_tokens: 4000
-
-  anthropic:
-    model: claude-sonnet-4.5
-    temperature: 0.7
-
-  qwen:
-    model: qwen-3.5
-    temperature: 0.8
-
-voice:
-  default_provider: edge
-  default_voice: en-US-AriaNeural
-  speed: 1.0
-  volume: 1.0
-```
-
-## Export Config (config/export.yaml)
-
-```yaml
-export:
-  default_format: mp4
-  default_codec: h264
-
-  formats:
-    mp4:
-      video_codec: libx264
-      audio_codec: aac
-      quality: high
-
-    jianying:
-      version: "6.0"
-      draft_format: json
-
-    premiere:
-      version: "2024"
-      project_type: rec709
-
-    fcpxml:
-      version: "1.10"
-
-    davinci:
-      version: "19"
-      color_space: rec709
-```
-
-## Video Processing
-
-```yaml
 video:
-  # FFmpeg settings
-  ffmpeg:
-    threads: 0  # 0 = auto
-    preset: medium
-    crf: 23
+  # 默认导出格式
+  default_format: mp4
+  
+  # 默认视频编码
+  default_codec: h264
+  
+  # 临时文件目录
+  temp_dir: /tmp/videoforge
+  
+  # FFmpeg 路径
+  ffmpeg_path: ffmpeg
 
-  # Scene detection
-  scene_detection:
-    algorithm: histogram
-    threshold: 30.0
-    min_duration: 1.0
+export:
+  # 默认导出目录
+  output_dir: ~/Videos/VideoForge
+  
+  # 导出质量预设
+  quality_preset: high
+  
+  # 包含字幕
+  include_subtitles: true
 
-  # Resolution presets
-  resolution:
-    - 1920x1080  # Full HD
-    - 1280x720   # HD
-    - 854x480    # SD
-
-  # Frame rates
-    fps: [24, 25, 30, 60]
+security:
+  # 加密存储 API Key
+  encrypt_keys: true
+  
+  # 允许远程模型
+  allow_remote: true
 ```
 
-## Audio Settings
+## 环境变量
 
-```yaml
-audio:
-  # Beat detection
-  beat_detection:
-    algorithm: librosa
-    bpm_tolerance: 5
+### AI 相关
 
-  # Voice settings
-  voice:
-    sample_rate: 44100
-    bit_rate: 128k
-    channels: 2
-```
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `OPENAI_API_KEY` | OpenAI API Key | `sk-...` |
+| `ANTHROPIC_API_KEY` | Anthropic API Key | `sk-ant-...` |
+| `GOOGLE_API_KEY` | Google API Key | `...` |
+| `DASHSCOPE_API_KEY` | 阿里云 API Key | `...` |
+| `ZHIPU_API_KEY` | 智谱 API Key | `...` |
+| `MOONSHOT_API_KEY` | Moonshot API Key | `...` |
 
-## Command Line Options
+### 应用配置
+
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `VIDEOFORGE_HOME` | 配置目录 | `~/.videoforge` |
+| `VIDEOFORGE_LANG` | 语言 | `zh-CN` |
+| `VIDEOFORGE_THEME` | 主题 | `system` |
+| `VIDEOFORGE_DEBUG` | 调试模式 | `false` |
+
+## 命令行参数
 
 ```bash
-# Run with custom config
-python main.py --config custom.yaml
+# 启动应用
+videoforge
 
-# Debug mode
-python main.py --debug
+# 指定配置目录
+videoforge --home /path/to/config
 
-# Reset settings
-python main.py --reset-config
+# 调试模式
+videoforge --debug
+
+# 禁用 GPU
+videoforge --no-gpu
+
+# 指定端口（Web 模式）
+videoforge --port 8080
 ```
 
-## Advanced Configuration
+## 高级配置
 
-### Custom FFmpeg Path
-
-```yaml
-ffmpeg:
-  binary: /usr/local/bin/ffmpeg
-  probe: /usr/local/bin/ffprobe
-```
-
-### Proxy Settings
+### 代理设置
 
 ```yaml
 network:
@@ -215,13 +131,58 @@ network:
     enabled: true
     http: http://proxy:8080
     https: https://proxy:8080
+    # 跳过代理的域名
+    no_proxy:
+      - localhost
+      - 127.0.0.1
 ```
 
-### Hardware Acceleration
+### 缓存设置
 
 ```yaml
-video:
-  hardware_acceleration:
-    enabled: true
-    encoder: nvenc  # nvenc, amf, videotoolbox
+cache:
+  # 启用缓存
+  enabled: true
+  
+  # 缓存目录
+  cache_dir: ~/.videoforge/cache
+  
+  # 最大缓存大小 (MB)
+  max_size: 1024
+  
+  # 缓存过期时间 (天)
+  expire_days: 7
+```
+
+### 日志配置
+
+```yaml
+logging:
+  level: INFO  # DEBUG / INFO / WARNING / ERROR
+  
+  # 日志文件
+  file: ~/.videoforge/logs/app.log
+  
+  # 日志轮转
+  rotation:
+    max_bytes: 10485760  # 10MB
+    backup_count: 5
+```
+
+## 故障排除
+
+### 配置文件不生效
+
+1. 检查配置文件路径
+2. 验证 YAML 语法
+3. 使用 `--debug` 查看加载日志
+
+### 环境变量不生效
+
+确保在启动应用前设置环境变量，或创建 `.env` 文件：
+
+```bash
+# .env
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
 ```
