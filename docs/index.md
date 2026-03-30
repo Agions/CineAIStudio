@@ -15,32 +15,47 @@ hero:
     - theme: alt
       text: ⭐ GitHub
       link: https://github.com/Agions/VideoForge
-
-features:
-  - icon: 🎬
-    title: AI 剧情分析
-    details: 智能分析叙事结构、情感曲线，自动生成剪辑点
-
-  - icon: 🎙️
-    title: AI 视频解说
-    details: 一键生成专业旁白，多音色可选
-
-  - icon: 🎵
-    title: AI 智能混剪
-    details: BPM 节拍检测，自动卡点拼接
-
-  - icon: 🎭
-    title: AI 独白模式
-    details: 画面情感分析，电影级字幕
-
-  - icon: 📱
-    title: 短视频切片
-    details: 长视频一键转高光短片段
-
-  - icon: 🌐
-    title: AI 视频翻译
-    details: 100+语言翻译，唇形同步
 ---
+
+<style>
+.features-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.feature-item {
+  background: var(--vp-c-bg-soft);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  min-width: 160px;
+  flex: 1;
+  max-width: 200px;
+}
+.feature-item .icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.feature-item .title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.feature-item .details {
+  font-size: 0.875rem;
+  color: var(--vp-c-text-2);
+}
+</style>
+
+<div class="features-grid">
+  <div class="feature-item">🎬<br><strong>AI 剧情分析</strong><br><small>智能分析叙事结构</small></div>
+  <div class="feature-item">🎙️<br><strong>AI 视频解说</strong><br><small>一键生成旁白</small></div>
+  <div class="feature-item">🎵<br><strong>AI 智能混剪</strong><br><small>BPM 自动卡点</small></div>
+  <div class="feature-item">🎭<br><strong>AI 独白模式</strong><br><small>电影级字幕</small></div>
+  <div class="feature-item">📱<br><strong>短视频切片</strong><br><small>一键转高光片段</small></div>
+  <div class="feature-item">🌐<br><strong>AI 视频翻译</strong><br><small>100+语言支持</small></div>
+</div>
 
 <div align="center">
 
