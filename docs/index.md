@@ -5,6 +5,9 @@ hero:
   name: VideoForge
   text: AI 智能视频剪辑工具
   tagline: 从素材到成片，AI 全流程自动化处理
+  image:
+    src: /logo.png
+    alt: VideoForge
   actions:
     - theme: brand
       text: 🚀 快速开始
