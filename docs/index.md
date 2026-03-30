@@ -60,7 +60,7 @@ hero:
 <div align="center">
 
 [![Stars](https://img.shields.io/github/stars/Agions/VideoForge?style=for-the-badge)](https://github.com/Agions/VideoForge/stargazers)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](https://github.com/Agions/VideoForge/blob/main/LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Qt](https://img.shields.io/badge/Qt-6.5+-41?style=for-the-badge&logo=qt)](https://www.qt.io/)
 

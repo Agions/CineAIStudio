@@ -6,7 +6,6 @@ VideoForge 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统
 
 - [快速开始](getting-started.md) - 安装和配置
 - [核心功能](features.md) - 了解主要功能
-- [工作流程](workflow.md) - 创作流程说明
 - [常见问题](faq.md) - 常见问题解答
 
 ## ✨ 核心功能
@@ -19,6 +18,6 @@ VideoForge 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统
 
 ## 📖 更多文档
 
-- [AI 配置指南](./guides/AI_CONFIGURATION.md) - AI 能力配置
-- [安装指南](./guides/INSTALL.md) - 详细安装步骤
-- [故障排查](./guides/TROUBLESHOOT.md) - 常见问题解决
+- [AI 配置指南](guide/ai-configuration.md) - AI 能力配置
+- [安装指南](guide/installation.md) - 详细安装步骤
+- [故障排查](guide/troubleshooting.md) - 常见问题解决
