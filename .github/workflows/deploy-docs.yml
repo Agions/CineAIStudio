@@ -10,15 +10,13 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: docs-deploy
   cancel-in-progress: false
 
 jobs:
-  build-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,10 +40,16 @@ jobs:
           cd docs
           pnpm docs:build
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/.vitepress/dist
-          publish_branch: gh-pages
-          force_orphan: true
+      - name: Copy build to docs root
+        run: |
+          cp -r docs/.vitepress/dist/* docs/
+          rm -rf docs/.vitepress
+          rm -rf docs/node_modules
+
+      - name: Commit to main
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/
+          git commit -m "docs: update built documentation [skip ci]"
+          git push origin main
