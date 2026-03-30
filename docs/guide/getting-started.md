@@ -29,7 +29,7 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Run the application
-python main.py
+python app/main.py
 ```
 
 ## First Launch

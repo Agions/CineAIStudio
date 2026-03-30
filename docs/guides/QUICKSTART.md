@@ -10,8 +10,8 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/Agions/clip-flow-cut.git
-cd clip-flow-cut
+git clone https://github.com/Agions/VideoForge.git
+cd VideoForge
 
 # 安装依赖
 pip install -r requirements.txt

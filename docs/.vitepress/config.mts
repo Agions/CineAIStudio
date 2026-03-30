@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "ClipFlowCut",
-  description: "AI-Driven Video Creation Desktop Application",
+  title: "VideoForge",
+  description: "AI-Powered Video Creation Desktop Application",
   ignoreDeadLinks: true,
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]
@@ -46,14 +46,14 @@ export default defineConfig({
       ]
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/Agions/ClipFlowCut' }
+      { icon: 'github', link: 'https://github.com/Agions/VideoForge' }
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present Agions'
+      copyright: 'Copyright © 2025-2026 Agions'
     },
     editLink: {
-      pattern: 'https://github.com/Agions/ClipFlowCut/edit/main/docs/:path',
+      pattern: 'https://github.com/Agions/VideoForge/edit/main/docs/:path',
       text: 'Edit this page on GitHub'
     }
   },
