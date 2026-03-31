@@ -20,12 +20,10 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: true
 
       - name: Lint with ruff
         run: |
-          uv pip install ruff
+          uv pip install --system ruff
           ruff check app/ tests/ || true
 
   # 类型检查
@@ -41,12 +39,10 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: true
 
       - name: Install dependencies
         run: |
-          uv pip install -e ".[all]"
+          uv pip install --system -e ".[all]"
 
       - name: Run mypy
         run: |
@@ -65,12 +61,10 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: true
 
       - name: Install dependencies
         run: |
-          uv pip install -e ".[all]"
+          uv pip install --system -e ".[all]"
 
       - name: Run tests
         run: |
