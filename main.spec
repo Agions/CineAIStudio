@@ -1,27 +1,53 @@
 # -*- mode: python ; coding: utf-8 -*-
+"""
+VideoForge PyInstaller 构建配置
+使用方法: pyinstaller main.spec
+
+版本: 1.2.0
+"""
 
 import sys
 import os
-from pathlib import Path
 
 block_cipher = None
 
-# 项目根目录
-project_root = Path(__file__).parent
+# 版本
+VERSION = "1.2.0"
+
+# 分析入口点
+app_main = 'app/main.py'
 
 a = Analysis(
-    ['app/main.py'],
-    pathex=[str(project_root)],
+    [app_main],
+    pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('resources', 'resources'),
+    ],
     hiddenimports=[
         'PySide6',
         'PySide6.QtCore',
         'PySide6.QtGui',
         'PySide6.QtWidgets',
+        'cv2',
+        'numpy',
+        'PIL',
+        'librosa',
+        'soundfile',
+        'pydub',
+        'faster_whisper',
+        'edge_tts',
+        'openai',
+        'google_generativeai',
+        'requests',
+        'httpx',
+        'dotenv',
+        'yaml',
+        'cryptography',
+        'keyring',
+        'psutil',
     ],
     hookspath=[],
-    hooksconfig={},
     runtime_hooks=[],
     excludes=[],
     win_no_prefer_redirects=False,
@@ -37,7 +63,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='VideoForge',
+    name=f'VideoForge-{VERSION}',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -52,5 +78,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    name='VideoForge',
+    name=f'VideoForge-{VERSION}',
 )

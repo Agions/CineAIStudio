@@ -6,20 +6,21 @@ set -e
 
 # 配置
 APP_NAME="VideoForge"
+VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "//' | sed 's/"//')
 APP_BUNDLE="${APP_NAME}.app"
-VERSION="3.0.0"
 DMG_NAME="${APP_NAME}-${VERSION}-macOS.dmg"
 TEMP_DIR="/tmp/${APP_NAME}_build"
- RESOURCES_DIR="resources/icons"
+RESOURCES_DIR="resources/icons"
 
 echo "========================================"
 echo "  VideoForge DMG 打包工具"
+echo "  版本: ${VERSION}"
 echo "========================================"
 echo ""
 
 # 清理
 echo "[1/6] 清理旧构建..."
-rm -rf build dist *.app *.dmg
+rm -rf build dist "${APP_BUNDLE}" *.dmg
 mkdir -p "${TEMP_DIR}"
 
 # 检查依赖
@@ -30,34 +31,37 @@ if ! command -v pyinstaller &> /dev/null; then
     exit 1
 fi
 
-if [ ! -f "${RESOURCES_DIR}/app_icon_512.png" ]; then
-    echo "错误: 应用图标未找到"
-    exit 1
+if [ ! -d "resources" ]; then
+    echo "警告: resources 目录不存在"
 fi
 
-# 构建应用
-echo "[3/6] 构建应用..."
+# 安装依赖
+echo "[3/6] 安装依赖..."
+uv pip install -e .
+
+# 使用 PyInstaller 构建
+echo "[4/6] 构建应用..."
 pyinstaller \
     --name="${APP_NAME}" \
     --windowed \
     --onedir \
     --add-data="resources:resources" \
-    --hidden-import="PyQt6.sip" \
-    --hidden-import="PyQt6.QtCore" \
-    --hidden-import="PyQt6.QtGui" \
-    --hidden-import="PyQt6.QtWidgets" \
+    --hidden-import="PySide6" \
+    --hidden-import="PySide6.QtCore" \
+    --hidden-import="PySide6.QtGui" \
+    --hidden-import="PySide6.QtWidgets" \
+    --hidden-import="PySide6.QtMultimedia" \
     --hidden-import="cryptography" \
     --hidden-import="cryptography.fernet" \
     --hidden-import="cryptography.hazmat" \
     --hidden-import="keyring" \
     --hidden-import="keyring.backends" \
-    --collect-all="PyQt6" \
-    --collect-all="keyring" \
+    --collect-all="PySide6" \
     --noconfirm \
     main.py
 
 # 创建 .app 捆绑包
-echo "[4/6] 创建应用捆绑包..."
+echo "[5/6] 创建应用捆绑包..."
 mkdir -p "${APP_BUNDLE}/Contents/MacOS"
 mkdir -p "${APP_BUNDLE}/Contents/Resources"
 
@@ -68,12 +72,12 @@ cp -r "dist/${APP_NAME}/"* "${APP_BUNDLE}/Contents/MacOS/"
 cp -r resources "${APP_BUNDLE}/Contents/"
 
 # 复制图标
-if [ -f "${RESOURCES_DIR}/VideoForge.icns" ]; then
-    cp "${RESOURCES_DIR}/VideoForge.icns" "${APP_BUNDLE}/Contents/Resources/"
+if [ -f "${RESOURCES_DIR}/${APP_NAME}.icns" ]; then
+    cp "${RESOURCES_DIR}/${APP_NAME}.icns" "${APP_BUNDLE}/Contents/Resources/"
 fi
 
 # 创建 Info.plist
-cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
+cat > "${APP_BUNDLE}/Contents/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -81,25 +85,27 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
     <key>CFBundleDevelopmentRegion</key>
     <string>zh_CN</string>
     <key>CFBundleExecutable</key>
-    <string>VideoForge</string>
+    <string>${APP_NAME}</string>
     <key>CFBundleIconFile</key>
-    <string>VideoForge</string>
+    <string>${APP_NAME}</string>
     <key>CFBundleIdentifier</key>
-    <string>com.clipflow.VideoForge</string>
+    <string>com.videoforge.${APP_NAME}</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>VideoForge</string>
+    <string>${APP_NAME}</string>
+    <key>CFBundleDisplayName</key>
+    <string>${APP_NAME}</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>3.0.0</string>
+    <string>${VERSION}</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.15</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2024 Agions. All rights reserved.</string>
+    <string>Copyright © 2024-2026 Agions. All rights reserved.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>
@@ -108,21 +114,16 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
 </plist>
 EOF
 
-# 使用 Notes 图标作为临时替代
-if [ ! -f "${RESOURCES_DIR}/VideoForge.icns" ]; then
-    echo "警告: 未找到 ICNS 文件，将使用默认图标"
-fi
-
 # 设置权限
 chmod -R a+rX "${APP_BUNDLE}"
 chmod +x "${APP_BUNDLE}/Contents/MacOS/"*
 
 # 创建 DMG
-echo "[5/6] 创建 DMG..."
+echo "[6/6] 创建 DMG..."
 if command -v create-dmg &> /dev/null; then
     create-dmg \
         --volname "${APP_NAME}" \
-        --volicon "${RESOURCES_DIR}/VideoForge.icns" \
+        --volicon "${RESOURCES_DIR}/${APP_NAME}.icns" \
         --window-pos 200 120 \
         --window-size 600 400 \
         --icon-size 100 \
@@ -136,7 +137,6 @@ else
 fi
 
 # 完成
-echo "[6/6] 完成!"
 echo ""
 echo "========================================"
 echo "  构建成功!"
