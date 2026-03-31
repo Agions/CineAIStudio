@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "videoforge"
-version = "4.0.0"
+version = "1.2.0"
 description = "VideoForge - AI-Powered Video Creation Desktop App"
 license = {text = "MIT"}
 authors = [
@@ -21,7 +21,6 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -29,31 +28,65 @@ classifiers = [
     "Topic :: Multimedia :: Video :: Non-Linear Editor",
 ]
 keywords = ["video", "editing", "AI", "multimedia", "PySide6"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
+    # Core UI
     "PySide6>=6.6.0",
     "Shiboken6>=6.6.0",
+    # Video/Audio Processing
     "opencv-python>=4.8.1",
     "numpy>=1.26.0",
     "pillow>=10.1.0",
+    "ffmpeg-python==0.2.0",
+    "pydub>=0.25.0",
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    # Speech Recognition (Faster-Whisper)
+    "faster-whisper>=1.0.0",
+    # Speech Synthesis
+    "edge-tts>=6.1.0",
+    # Scene Detection
+    "scenedetect>=0.6.0",
+    # Translation (optional)
+    "deepl>=1.18.0",
+    # Network
     "requests>=2.31.0",
     "httpx>=0.25.0",
-    "ffmpeg-python==0.2.0",
+    # Config
     "python-dotenv>=1.0.0",
     "pyyaml>=6.0.1",
+    # System
     "psutil>=5.9.6",
+    # Security
     "cryptography>=41.0.0",
     "keyring>=24.0.0",
+    # LLM
     "openai>=1.0.0",
+    "google-generativeai>=0.8.0",
+    # Video Editing
+    "moviepy>=1.0.3",
+    # Packaging
+    "packaging>=21.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-timeout>=2.1.0",
     "black>=23.11.0",
     "flake8>=6.1.0",
     "mypy>=1.7.0",
+    "isort>=5.12.0",
+    "types-requests>=2.31.0",
+    "types-PyYAML>=6.0.0",
+    "types-python-dotenv>=1.0.0",
+    "types-PySide6>=6.6.0",
+]
+all = [
+    "deepl>=1.18.0",
+    "moviepy>=1.0.3",
 ]
 
 [project.scripts]
