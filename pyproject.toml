@@ -31,8 +31,8 @@ keywords = ["video", "editing", "AI", "multimedia", "PySide6"]
 requires-python = ">=3.10"
 dependencies = [
     # Core UI
-    "PySide6>=6.6.0",
-    "Shiboken6>=6.6.0",
+    "PySide6>=6.9.0",
+    "Shiboken6>=6.9.0",
     # Video/Audio Processing
     "opencv-python>=4.8.1",
     "numpy>=1.26.0",
@@ -43,6 +43,8 @@ dependencies = [
     "soundfile>=0.12.0",
     # Speech Recognition (Faster-Whisper)
     "faster-whisper>=1.0.0",
+    # GPU Support (optional, for faster-whisper)
+    "torch>=2.0.0",
     # Speech Synthesis
     "edge-tts>=6.1.0",
     # Scene Detection

@@ -355,3 +355,19 @@ node_modules/
 pnpm-lock.yaml
 
 REFORMATION_REPORT.md
+
+# Development docs (local only)
+DEVELOPMENT.md
+TODO.md
+REFORMATION_REPORT.md
+RESEARCH_*.md
+*.draft.md
+notes/
+research/
+
+# Development docs (local only)
+DEVELOPMENT.md
+TODO.md
+REFORMATION_REPORT.md
+RESEARCH_*.md
+*.draft.md

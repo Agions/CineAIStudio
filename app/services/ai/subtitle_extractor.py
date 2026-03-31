@@ -308,7 +308,7 @@ class SpeechSubtitleExtractor:
 
     def _transcribe_local(self, audio_path: str,
                           language: str) -> List[SubtitleSegment]:
-        """使用本地 faster-whisper 模型转录（CPU 速度提升 3-4x）"""
+        """使用本地 faster-whisper 模型转录（CPU/GPU 自动检测）"""
         try:
             from faster_whisper import WhisperModel
         except ImportError:
@@ -319,11 +319,17 @@ class SpeechSubtitleExtractor:
         # 使用缓存的模型实例（避免重复加载）
         if self._local_model_instance is None:
             try:
-                # faster-whisper 使用 CTranslate2 加速，int8 量化提升 CPU 性能
-                compute_type = "int8"  # CPU 最佳性价比
+                # 自动检测 GPU/CUDA 支持
+                device, compute_type = self._detect_device()
+                
+                if device == "cuda":
+                    logger.info(f"Faster-Whisper 使用 GPU 加速 ({compute_type})")
+                else:
+                    logger.info(f"Faster-Whisper 使用 CPU ({compute_type})")
+                
                 self._local_model_instance = WhisperModel(
                     self._local_model,
-                    device="cpu",
+                    device=device,
                     compute_type=compute_type,
                 )
             except Exception as e:
@@ -338,7 +344,7 @@ class SpeechSubtitleExtractor:
         transcribe_options = {
             "language": language if language != "auto" else None,
             "task": "transcribe",
-            " vad_filter": True,  # 语音活动检测，过滤静音
+            "vad_filter": True,  # 语音活动检测，过滤静音
         }
 
         # 如果语言是 auto，让模型自己检测
@@ -362,7 +368,28 @@ class SpeechSubtitleExtractor:
                 ))
 
         return segments
-    
+
+    def _detect_device(self) -> Tuple[str, str]:
+        """
+        自动检测可用的计算设备
+        
+        Returns:
+            Tuple[str, str]: (device, compute_type)
+                - device: "cuda" 或 "cpu"
+                - compute_type: "float16", "int8" 等
+        """
+        # 优先检测 CUDA/GPU
+        try:
+            import torch
+            if torch.cuda.is_available():
+                # GPU 可用，使用 float16 获得最佳性能
+                return ("cuda", "float16")
+        except ImportError:
+            pass
+        
+        # 后备 CPU 方案
+        return ("cpu", "int8")
+
     def get_available_models(self) -> List[str]:
         """获取可用的本地模型列表"""
         return list(self.WHISPER_MODELS.keys())
