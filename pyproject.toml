@@ -90,7 +90,7 @@ all = [
 ]
 
 [project.scripts]
-clipflow-ai = "app.main:main"
+videoforge = "app.main:main"
 
 [tool.setuptools]
 packages = ["app"]
