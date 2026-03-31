@@ -78,6 +78,10 @@ build:mac:
 build:linux:
 	pyinstaller main.spec --noconfirm --linux
 
+# Nuitka 打包（性能更好，启动更快）
+build:nuitka:
+	./build_nuitka.sh
+
 # 生成文档
 docs:
 	cd docs && npm run docs:build

@@ -45,6 +45,9 @@ dependencies = [
     "faster-whisper>=1.0.0",
     # GPU Support (optional, for faster-whisper)
     "torch>=2.0.0",
+    # SenseVoice (optional, for emotion detection/speaker diarization)
+    # Note: sensevoice requires manual model download
+    # "sensevoice>=0.1.0",
     # Speech Synthesis
     "edge-tts>=6.1.0",
     # Scene Detection
