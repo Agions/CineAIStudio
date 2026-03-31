@@ -201,16 +201,19 @@ class SpeechSubtitleExtractor:
 
     支持：
     1. OpenAI Whisper API（推荐，精度高）
-    2. 本地 whisper 模型（离线，需安装 openai-whisper）
+    2. 本地 Faster-Whisper 模型（离线，速度快 3-4x，推荐）
     """
 
-    # 支持的本地模型大小
+    # 支持的本地模型大小（Faster-Whisper）
     WHISPER_MODELS = {
         "tiny": {"name": "Whisper Tiny", "params": "~39M", "VRAM": "~1GB"},
         "base": {"name": "Whisper Base", "params": "~74M", "VRAM": "~1GB"},
         "small": {"name": "Whisper Small", "params": "~244M", "VRAM": "~2GB"},
         "medium": {"name": "Whisper Medium", "params": "~769M", "VRAM": "~5GB"},
         "large": {"name": "Whisper Large", "params": "~1550M", "VRAM": "~10GB"},
+        # Faster-Whisper 额外支持量化模型
+        "large-v2": {"name": "Whisper Large V2", "params": "~1550M", "VRAM": "~5GB (int8)"},
+        "large-v3": {"name": "Whisper Large V3", "params": "~1550M", "VRAM": "~5GB (int8)"},
     }
 
     def __init__(self, api_key: Optional[str] = None,
@@ -305,48 +308,55 @@ class SpeechSubtitleExtractor:
 
     def _transcribe_local(self, audio_path: str,
                           language: str) -> List[SubtitleSegment]:
-        """使用本地 whisper 模型转录"""
+        """使用本地 faster-whisper 模型转录（CPU 速度提升 3-4x）"""
         try:
-            import whisper
+            from faster_whisper import WhisperModel
         except ImportError:
             raise ImportError(
-                "本地 Whisper 需要安装: pip install openai-whisper"
+                "本地 Faster-Whisper 需要安装: pip install faster-whisper"
             )
 
         # 使用缓存的模型实例（避免重复加载）
         if self._local_model_instance is None:
             try:
-                self._local_model_instance = whisper.load_model(self._local_model)
+                # faster-whisper 使用 CTranslate2 加速，int8 量化提升 CPU 性能
+                compute_type = "int8"  # CPU 最佳性价比
+                self._local_model_instance = WhisperModel(
+                    self._local_model,
+                    device="cpu",
+                    compute_type=compute_type,
+                )
             except Exception as e:
                 raise RuntimeError(
-                    f"加载 Whisper {self._local_model} 模型失败: {e}\n"
+                    f"加载 Faster-Whisper {self._local_model} 模型失败: {e}\n"
                     f"请确保有足够的内存和正确的模型文件。"
                 )
 
         model = self._local_model_instance
-        
+
         # 转录参数
         transcribe_options = {
             "language": language if language != "auto" else None,
             "task": "transcribe",
+            " vad_filter": True,  # 语音活动检测，过滤静音
         }
-        
+
         # 如果语言是 auto，让模型自己检测
         if language == "auto":
             transcribe_options.pop("language")
-        
+
         try:
-            result = model.transcribe(audio_path, **transcribe_options)
+            segments_gen, info = model.transcribe(audio_path, **transcribe_options)
         except Exception as e:
-            raise RuntimeError(f"Whisper 转录失败: {e}")
+            raise RuntimeError(f"Faster-Whisper 转录失败: {e}")
 
         segments = []
-        for seg in result.get("segments", []):
-            text = seg["text"].strip()
+        for seg in segments_gen:
+            text = seg.text.strip()
             if text:  # 跳过空文本
                 segments.append(SubtitleSegment(
-                    start=seg["start"],
-                    end=seg["end"],
+                    start=seg.start,
+                    end=seg.end,
                     text=text,
                     source="speech",
                 ))

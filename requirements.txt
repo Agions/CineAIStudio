@@ -23,7 +23,8 @@ pydub>=0.25.0
 scenedetect>=0.6.0
 
 ## Whisper 语音识别（本地模式需要）
-openai-whisper>=20231117
+# openai-whisper>=20231117  # 已废弃，使用 faster-whisper
+faster-whisper>=1.0.0       # CPU 推理速度提升 3-4x，推荐使用
 
 ## 翻译功能（可选）
 deepl>=1.18.0           # DeepL 翻译（高质量）

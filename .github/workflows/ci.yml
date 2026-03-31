@@ -7,25 +7,63 @@ on:
     branches: [main]
 
 jobs:
-  # 基础检查
-  build:
+  # 语法检查
+  lint:
     runs-on: ubuntu-latest
-    
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Check Python syntax
         run: |
-          python3 -m py_compile main.py || true
-          find app -name "*.py" -exec python3 -m py_compile {} \; || true
-          echo "Build check completed"
-      
-      - name: Show files
+          python3 -m py_compile main.py
+          find app -name "*.py" -exec python3 -m py_compile {} \;
+
+  # 类型检查
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
         run: |
-          ls -la
-          echo "CI completed successfully"
+          pip install mypy types-PySide6 types-requests
+
+      - name: Run mypy
+        run: |
+          find app -name "*.py" | xargs mypy --ignore-missing-imports || true
+
+  # 测试
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml --cov-report=term || true
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: success()
+        with:
+          files: ./coverage.xml
