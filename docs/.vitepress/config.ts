@@ -4,6 +4,7 @@ export default defineConfig({
   title: 'VideoForge',
   description: 'AI 驱动的专业视频创作桌面应用',
   lang: 'en-US',
+  ignoreDeadLinks: true,
 
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/VideoForge/logo.png' }],

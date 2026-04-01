@@ -69,6 +69,6 @@ VideoForge 支持以下 AI 服务商：
 ## 下一步
 
 - [核心功能](features.md) - 了解更多功能
-- [工作流程](workflow.md) - 深入了解创作流程
+- [工作流程](https://github.com/Agions/VideoForge#workflow) - 深入了解创作流程
 - [常见问题](faq.md) - 解答疑惑
 

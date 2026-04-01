@@ -16,4 +16,4 @@
 
 ## Model Configuration
 
-See [AI Configuration Guide](../docs/guides/AI_CONFIGURATION.md) for setup instructions.
+See [AI Configuration Guide](/guide/ai-configuration) for setup instructions.
