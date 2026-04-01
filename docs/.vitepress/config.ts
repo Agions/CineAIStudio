@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'VideoForge',
   description: 'AI 驱动的专业视频创作桌面应用',
+  base: '/VideoForge/',
   lang: 'en-US',
   ignoreDeadLinks: true,
 
