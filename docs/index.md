@@ -153,7 +153,6 @@ VideoForge 是开源项目，欢迎所有形式的贡献：
 |----------|------|
 | 🐛 报告 Bug | [GitHub Issues](https://github.com/Agions/VideoForge/issues) |
 | 📝 完善文档 | 直接提交 PR |
-| 💡 功能建议 | [GitHub Discussions](https://github.com/Agions/VideoForge/discussions) |
 | 🔧 提交代码 | 提交 Pull Request |
 
 ---
