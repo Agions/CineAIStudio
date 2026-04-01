@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --no-lock -e ".[all,dev]"
+          pip install --break-system-packages -e ".[all,dev]"
 
       - name: Run unit tests
         run: |
@@ -55,7 +55,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --no-lock -e ".[all,dev]"
+          pip install --break-system-packages -e ".[all,dev]"
 
       - name: Run integration tests
         env:
