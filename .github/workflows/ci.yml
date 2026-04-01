@@ -73,7 +73,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --break-system-packages -e ".[all,dev]"
+          python -m pip install --break-system-packages -e ".[all,dev]"
 
       - name: Run tests
         run: |
