@@ -246,7 +246,7 @@ class TestScriptGeneratorIntegration:
             return None
 
         manager = LLMManager(
-            providers={name: p for name, p in zip(provider_names, providers)},
+            providers=dict(zip(provider_names, providers)),
             default_provider=provider_names[0]
         )
         return manager

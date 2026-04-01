@@ -99,7 +99,6 @@ class StoryLine:
                 text = segment.script or ""
                 segment.duration = self._estimate_voice_duration(text)
         
-       (segment)
         self._update_duration()
     
     def _estimate_voice_duration(self, text: str, words_per_minute: float = 150.0) -> float:

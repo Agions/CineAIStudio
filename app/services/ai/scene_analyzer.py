@@ -3,8 +3,6 @@
 
 分析视频内容，识别场景变化、关键帧和内容类型。
 为 AI 解说和混剪提供素材分析支持。
-import logging
-logger = logging.getLogger(__name__)
 
 集成 PySceneDetect 提供高精度的场景检测能力。
 

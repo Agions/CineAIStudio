@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
 import logging
+
 logger = logging.getLogger(__name__)
+
+"""
 统一配置管理
 集中管理所有配置项
 """

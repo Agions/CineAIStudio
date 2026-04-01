@@ -2,8 +2,6 @@
 AI 视频混剪制作器 (Mashup Maker)
 
 功能：多素材智能剪辑 + 节奏匹配 + 背景音乐
-import logging
-logger = logging.getLogger(__name__)
 
 工作流程:
     1. 分析多个素材视频
@@ -25,6 +23,10 @@ logger = logging.getLogger(__name__)
     # 导出到剪映
     draft_path = maker.export_to_jianying(project, "/path/to/drafts")
 """
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 import os
 import random

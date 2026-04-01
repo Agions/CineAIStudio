@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
 import logging
+
 logger = logging.getLogger(__name__)
+
+"""
 撤销/重做管理器 (Undo Manager)
 
 实现命令模式，支持无限级撤销和重做。

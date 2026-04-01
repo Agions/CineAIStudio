@@ -2,8 +2,6 @@
 剪映草稿导出器 (Jianying Exporter)
 
 将 VideoForge 项目导出为剪映草稿格式，实现与剪映的完美对接。
-import logging
-logger = logging.getLogger(__name__)
 
 剪映草稿结构:
     drafts/
@@ -19,6 +17,10 @@ logger = logging.getLogger(__name__)
     draft_path = exporter.export(project, output_dir)
     print(f"草稿已导出: {draft_path}")
 """
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 import json
 import uuid

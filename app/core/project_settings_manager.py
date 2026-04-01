@@ -789,7 +789,7 @@ class ProjectSettingsManager(QObject):
         categories = set()
         for definition in self.settings_definitions.values():
             categories.add(definition.category)
-        return sorted(list(categories))
+        return sorted(categories)
 
     def search_settings(self, query: str) -> List[Dict[str, Any]]:
         """搜索设置"""

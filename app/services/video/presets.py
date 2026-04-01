@@ -154,11 +154,11 @@ class EncodingConfig:
                 two_pass=True,
             ),
         }
-        return configs.get(preset, cls()class Platform)
+        return configs.get(preset, cls())
 
 
 @dataclass
-Preset:
+class Preset:
     """平台预设"""
     name: str
     description: str
@@ -173,7 +173,7 @@ Preset:
     vertical: bool = False
     
     @classmethod
-    def get_defaults(cls) -> Dict[str, "PlatformPreset"]:
+    def get_defaults(cls) -> Dict[str, "Preset"]:
         """获取默认平台预设"""
         return {
             "bilibili": cls(
@@ -342,12 +342,12 @@ class PresetFactory:
         return EncodingConfig.from_preset(preset)
     
     @staticmethod
-    def get_platform(name: str) -> Optional[PlatformPreset]:
-        return PlatformPreset.get_defaults().get(name)
+    def get_platform(name: str) -> Optional["Preset"]:
+        return Preset.get_defaults().get(name)
     
     @staticmethod
-    def get_all_platforms() -> Dict[str, PlatformPreset]:
-        return PlatformPreset.get_defaults()
+    def get_all_platforms() -> Dict[str, "Preset"]:
+        return Preset.get_defaults()
     
     @staticmethod
     def create_commentary_config(
@@ -426,7 +426,7 @@ __all__ = [
     "AudioCodec",
     "Resolution",
     "EncodingConfig",
-    "PlatformPreset",
+    "Preset",
     "CommentaryConfig",
     "MashupConfig",
     "MonologueConfig",

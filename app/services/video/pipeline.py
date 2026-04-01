@@ -13,6 +13,8 @@ from enum import Enum
 from pathlib import Path
 import logging
 
+logger = logging.getLogger(__name__)
+
 from .base_maker import MakerProgress, MakerStatus
 from .presets import (
     CommentaryConfig,

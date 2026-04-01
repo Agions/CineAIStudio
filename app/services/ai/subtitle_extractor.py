@@ -586,7 +586,7 @@ class SubtitleTranslator:
                 all_texts, target_lang, source_lang
             )
         else:
-            raise ValueError(f"不支持的翻译引擎: {provider}")
+            raise ValueError(f"不支持的翻译引擎: {self._provider}")
         
         # 构建翻译后的字幕片段
         for i, seg in enumerate(subtitle_result.segments):
