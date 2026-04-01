@@ -20,9 +20,12 @@ logger = logging.getLogger(__name__)
         print(f"  描述: {scene.description}")
 """
 
+import logging
 import subprocess
 import json
 import re
+
+logger = logging.getLogger(__name__)
 from pathlib import Path
 from typing import List, Optional, Tuple
 from dataclasses import dataclass, field
@@ -112,8 +115,8 @@ class SceneAnalyzer:
         Returns:
             场景列表
         """
-        video_path = Path(video_path)
-        if not video_path.exists():
+        video_path_obj = Path(video_path)
+        if not video_path_obj.exists():
             raise FileNotFoundError(f"视频文件不存在: {video_path}")
         
         # 获取视频时长
@@ -187,7 +190,7 @@ class SceneAnalyzer:
                 from scenedetect.detectors.adaptive_detector import AdaptiveDetector
                 scene_manager.add_detector(
                     AdaptiveDetector(
-                        threshold=threshold * 50,  # PySceneDetect 使用不同范围
+                        adaptive_threshold=threshold * 50,  # PySceneDetect 使用不同范围
                         min_scene_len=max(int(self.config.min_scene_duration * 30), 15)  # 至少15帧
                     )
                 )
@@ -555,14 +558,14 @@ class SceneAnalyzer:
         if scenes is None:
             scenes = self.analyze(video_path)
         
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
+        output_dir_path = Path(output_dir)
+        output_dir_path.mkdir(parents=True, exist_ok=True)
+
         video_stem = Path(video_path).stem
         output_paths = []
         
         for scene in scenes:
-            output_path = output_dir / f"{video_stem}_scene_{scene.index:03d}.mp4"
+            output_path = output_dir_path / f"{video_stem}_scene_{scene.index:03d}.mp4"
             
             try:
                 cmd = [

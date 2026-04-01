@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QFrame, QPushButton, QSlider, QToolButton, QSizePolicy,
     QMenu, QToolTip
 )
-from PySide6.QtCore import Qt, pyqtSignal, QTimer, QRect, QPoint
+from PySide6.QtCore import Qt, Signal, QTimer, QRect, QPoint
 from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QMouseEvent, QPaintEvent
 
 
@@ -35,8 +35,8 @@ class TimelineClip:
 
 class TimelineTrackWidget(QFrame):
     """单条轨道"""
-    clip_clicked = pyqtSignal(str)  # clip_id
-    clip_moved = pyqtSignal(str, float)  # clip_id, new_start
+    clip_clicked = Signal(str)  # clip_id
+    clip_moved = Signal(str, float)  # clip_id, new_start
 
     def __init__(self, track_id: str, track_type: str, label: str, color: str, parent=None):
         super().__init__(parent)
@@ -192,8 +192,8 @@ class TimelineRuler(QWidget):
 class Timeline(QWidget):
     """多轨时间线编辑器"""
 
-    clip_selected = pyqtSignal(str)  # clip_id
-    position_changed = pyqtSignal(float)  # seconds
+    clip_selected = Signal(str)  # clip_id
+    position_changed = Signal(float)  # seconds
 
     def __init__(self, application=None):
         super().__init__(application)

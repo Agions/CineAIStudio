@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QInputDialog, QListWidget, QListWidgetItem, QToolButton,
     QMenu, QDialogButtonBox, QFormLayout, QSlider, QSpacerItem, QSizePolicy
 )
-from PySide6.QtCore import Qt, QTimer, pyqtSignal, QSize, QPoint
+from PySide6.QtCore import Qt, QTimer, Signal, QSize, QPoint
 from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QColor, QBrush
 
 from .base_page import BasePage

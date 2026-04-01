@@ -4,13 +4,13 @@
 
 from typing import Optional
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLineEdit
-from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 
 
 class MacSearchBox(QWidget):
     """搜索框"""
 
-    search_signal = pyqtSignal(str)
+    search_signal = Signal(str)
     searchRequested = search_signal  # Alias for compatibility
 
     def __init__(self, placeholder: str = "搜索...", parent: Optional[QWidget] = None):

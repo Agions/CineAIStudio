@@ -67,14 +67,16 @@ class TestFinalCutExporter:
     def test_init(self):
         """测试初始化"""
         exporter = FinalCutExporter()
-        
-        assert exporter._version == FCPVersion.V1_10
+
+        assert exporter.config is not None
+        assert exporter.config.version == FCPVersion.V1_10
 
     def test_init_custom_version(self):
         """测试自定义版本"""
-        exporter = FinalCutExporter(version=FCPVersion.V1_8)
-        
-        assert exporter._version == FCPVersion.V1_8
+        config = FCPConfig(version=FCPVersion.V1_8)
+        exporter = FinalCutExporter(config=config)
+
+        assert exporter.config.version == FCPVersion.V1_8
 
     def test_create_library(self):
         """测试创建媒体库"""

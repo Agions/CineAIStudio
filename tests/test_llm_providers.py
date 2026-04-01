@@ -57,14 +57,15 @@ class TestLLMResponse:
         assert response.model == "qwen-plus"
         assert response.tokens_used == 100
         assert response.finish_reason == "stop"
-        assert response.metadata == {}
+        # metadata 字段已移除，用 raw_response 代替
+        assert response.raw_response is None
 
     def test_response_with_metadata(self):
-        """测试带元数据的响应"""
+        """测试带原始响应的响应"""
         response = LLMResponse(
             content="content",
             model="model",
-            metadata={"key": "value"},
+            raw_response={"key": "value"},
         )
 
-        assert response.metadata == {"key": "value"}
+        assert response.raw_response == {"key": "value"}

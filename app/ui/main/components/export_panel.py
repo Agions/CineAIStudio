@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QFileDialog, QMessageBox, QTabWidget, QGroupBox,
                             QLineEdit, QTextEdit, QCheckBox, QSlider, QDialog,
                             QDialogButtonBox, QFormLayout, QScrollArea)
-from PySide6.QtCore import Qt, QTimer, pyqtSignal, QThread
+from PySide6.QtCore import Qt, QTimer, Signal, QThread
 from PySide6.QtGui import QFont, QPalette, QColor
 
 from ...export.export_system import ExportSystem, ExportTask, ExportPreset
@@ -156,8 +156,8 @@ class ExportSettingsDialog(QDialog):
 class ExportQueueWidget(QWidget):
     """导出队列部件"""
 
-    task_selected = pyqtSignal(str)
-    task_action = pyqtSignal(str, str)
+    task_selected = Signal(str)
+    task_action = Signal(str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -320,10 +320,10 @@ class ExportPanel(QWidget):
     """导出面板主类"""
 
     # 信号定义
-    export_started = pyqtSignal(str)
-    export_progress = pyqtSignal(str, float)
-    export_completed = pyqtSignal(str, str)
-    export_failed = pyqtSignal(str, str)
+    export_started = Signal(str)
+    export_progress = Signal(str, float)
+    export_completed = Signal(str, str)
+    export_failed = Signal(str, str)
 
     def __init__(self, application, parent=None):
         super().__init__(parent)

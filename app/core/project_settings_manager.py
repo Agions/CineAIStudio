@@ -15,7 +15,7 @@ from enum import Enum
 from pathlib import Path
 import logging
 
-from PySide6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager
@@ -68,11 +68,11 @@ class ProjectSettingsManager(QObject):
     """项目设置管理器"""
 
     # 信号定义
-    settings_changed = pyqtSignal(str, object)  # 设置变更信号
-    profile_created = pyqtSignal(str)            # 配置文件创建信号
-    profile_applied = pyqtSignal(str)            # 配置文件应用信号
-    settings_reset = pyqtSignal()               # 设置重置信号
-    error_occurred = pyqtSignal(str, str)       # 错误发生信号
+    settings_changed = Signal(str, object)  # 设置变更信号
+    profile_created = Signal(str)            # 配置文件创建信号
+    profile_applied = Signal(str)            # 配置文件应用信号
+    settings_reset = Signal()               # 设置重置信号
+    error_occurred = Signal(str, str)       # 错误发生信号
 
     def __init__(self, config_manager: ConfigManager):
         super().__init__()

@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import logging
 
-from PySide6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 
 from .project_manager import Project, ProjectMetadata, ProjectSettings, ProjectTimeline, ProjectType
 from .config_manager import ConfigManager
@@ -111,13 +111,13 @@ class ProjectTemplateManager(QObject):
     """项目模板管理器"""
 
     # 信号定义
-    template_created = pyqtSignal(str)      # 模板创建信号
-    template_updated = pyqtSignal(str)      # 模板更新信号
-    template_deleted = pyqtSignal(str)      # 模板删除信号
-    template_imported = pyqtSignal(str)     # 模板导入信号
-    template_exported = pyqtSignal(str)     # 模板导出信号
-    categories_updated = pyqtSignal()       # 类别更新信号
-    error_occurred = pyqtSignal(str, str)   # 错误发生信号
+    template_created = Signal(str)      # 模板创建信号
+    template_updated = Signal(str)      # 模板更新信号
+    template_deleted = Signal(str)      # 模板删除信号
+    template_imported = Signal(str)     # 模板导入信号
+    template_exported = Signal(str)     # 模板导出信号
+    categories_updated = Signal()       # 类别更新信号
+    error_occurred = Signal(str, str)   # 错误发生信号
 
     def __init__(self, config_manager: ConfigManager):
         super().__init__()

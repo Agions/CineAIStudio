@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QScrollArea, QStackedWidget, QProgressBar,
     QComboBox, QLineEdit
 )
-from PySide6.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QSize
 from PySide6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor, QPixmap
 
 
@@ -219,7 +219,7 @@ class LoadingOverlay(QFrame):
 class StepIndicator(QWidget):
     """步骤指示器"""
     
-    stepChanged = pyqtSignal(int)
+    stepChanged = Signal(int)
     
     def __init__(self, steps: list, parent=None):
         super().__init__(parent)
@@ -306,7 +306,7 @@ class SearchBar(QLineEdit):
 class TabBar(QWidget):
     """专业标签栏"""
     
-    tabChanged = pyqtSignal(int)
+    tabChanged = Signal(int)
     
     def __init__(self, tabs: list, parent=None):
         super().__init__(parent)

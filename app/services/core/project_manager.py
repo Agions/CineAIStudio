@@ -29,7 +29,7 @@ import shutil
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
-from dataclasses import dataclass, asdict, fields
+from dataclasses import dataclass, asdict, fields, field
 from enum import Enum
 from datetime import datetime
 import uuid

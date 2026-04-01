@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QSlider, QSizePolicy, QFrame, QToolButton, QStyle
 )
-from PySide6.QtCore import Qt, pyqtSignal, QUrl, QTimer
+from PySide6.QtCore import Qt, Signal, QUrl, QTimer
 from PySide6.QtGui import QFont, QColor, QPixmap, QImage
 
 try:
@@ -26,8 +26,8 @@ except ImportError:
 class VideoPreview(QWidget):
     """视频预览播放器"""
 
-    playback_position_changed = pyqtSignal(int)  # ms
-    playback_state_changed = pyqtSignal(bool)     # is_playing
+    playback_position_changed = Signal(int)  # ms
+    playback_state_changed = Signal(bool)     # is_playing
 
     def __init__(self, application=None):
         super().__init__(application)

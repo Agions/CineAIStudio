@@ -9,7 +9,7 @@
 import os
 from typing import Optional, Callable
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton, QFrame
-from PySide6.QtCore import Qt, QTimer, pyqtSignal, QUrl, QSize
+from PySide6.QtCore import Qt, QTimer, Signal, QUrl, QSize
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
 
@@ -18,10 +18,10 @@ class VideoPlayer(QWidget):
     """视频播放器组件"""
     
     # 信号
-    position_changed = pyqtSignal(float)  # 当前位置(秒)
-    duration_changed = pyqtSignal(float)  # 总时长(秒)
-    state_changed = pyqtSignal(str)       # 播放状态
-    frame_changed = pyqtSignal(int)       # 当前帧
+    position_changed = Signal(float)  # 当前位置(秒)
+    duration_changed = Signal(float)  # 总时长(秒)
+    state_changed = Signal(str)       # 播放状态
+    frame_changed = Signal(int)       # 当前帧
     
     def __init__(self, parent=None):
         super().__init__(parent)

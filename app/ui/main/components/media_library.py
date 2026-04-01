@@ -3,15 +3,15 @@
 """
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QListWidget, QListWidgetItem
-from PySide6.QtCore import pyqtSignal
+from PySide6.QtCore import Signal
 
 
 class MediaLibrary(QWidget):
     """媒体库组件"""
 
     # 信号定义
-    video_selected = pyqtSignal(str)
-    project_opened = pyqtSignal(str)
+    video_selected = Signal(str)
+    project_opened = Signal(str)
 
     def __init__(self, application):
         super().__init__()

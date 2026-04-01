@@ -13,13 +13,13 @@ from PySide6.QtWidgets import (
     QFormLayout, QFrame, QScrollArea, QPushButton, QSlider,
     QCheckBox
 )
-from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 
 
 class PropertiesPanel(QWidget):
     """属性面板"""
 
-    property_changed = pyqtSignal(str, str, object)  # clip_id, property_name, value
+    property_changed = Signal(str, str, object)  # clip_id, property_name, value
 
     def __init__(self, application=None):
         super().__init__(application)

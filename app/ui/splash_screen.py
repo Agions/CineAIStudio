@@ -4,7 +4,7 @@ VideoForge 启动画面 - 品牌升级版
 """
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PySide6.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QSize
 from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QLinearGradient, QPainterPath
 
 # 色彩系统 - VideoForge 现代暗色主题
@@ -176,7 +176,7 @@ class SplashScreenWidget(QWidget):
     """启动画面组件 - 品牌升级版"""
     
     # 加载完成信号
-    loading_finished = pyqtSignal()
+    loading_finished = Signal()
     
     def __init__(self, app_name: str = "VideoForge", version: str = "v2.0.0", parent=None):
         super().__init__(parent)
@@ -281,7 +281,7 @@ class SplashScreenWidget(QWidget):
 class AnimatedSplashScreen(QWidget):
     """动画启动画面 - 品牌升级完整版"""
     
-    finished = pyqtSignal()
+    finished = Signal()
     
     def __init__(self, app_name: str = "VideoForge", version: str = "v2.0.0", parent=None):
         super().__init__(parent)

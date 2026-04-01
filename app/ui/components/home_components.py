@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, 
     QFrame, QPushButton, QScrollArea, QSpacerItem, QSizePolicy
 )
-from PySide6.QtCore import Qt, pyqtSignal, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QCursor, QLinearGradient, QColor, QPainter
 
 from ..pro_components import GlassCard, StatCard, GradientButton
@@ -17,7 +17,7 @@ from ..pro_components import GlassCard, StatCard, GradientButton
 
 class QuickActionCard(QFrame):
     """快捷操作卡片"""
-    clicked = pyqtSignal(str)
+    clicked = Signal(str)
     
     def __init__(self, icon: str, title: str, description: str, action_id: str, parent=None):
         super().__init__(parent)
@@ -83,7 +83,7 @@ class QuickActionCard(QFrame):
 
 class ProjectPreviewCard(QFrame):
     """项目预览卡片"""
-    clicked = pyqtSignal(str)
+    clicked = Signal(str)
     
     def __init__(self, project_data: dict, parent=None):
         super().__init__(parent)

@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import logging
 
-from PySide6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 
 
 @dataclass
@@ -96,11 +96,11 @@ class ProjectVersionManager(QObject):
     """项目版本管理器"""
 
     # 信号定义
-    version_created = pyqtSignal(str, str)    # 版本创建信号 (project_id, version_id)
-    version_restored = pyqtSignal(str, str)   # 版本恢复信号 (project_id, version_id)
-    branch_created = pyqtSignal(str, str)     # 分支创建信号 (project_id, branch_name)
-    branch_switched = pyqtSignal(str, str)    # 分支切换信号 (project_id, branch_name)
-    error_occurred = pyqtSignal(str, str)     # 错误发生信号
+    version_created = Signal(str, str)    # 版本创建信号 (project_id, version_id)
+    version_restored = Signal(str, str)   # 版本恢复信号 (project_id, version_id)
+    branch_created = Signal(str, str)     # 分支创建信号 (project_id, branch_name)
+    branch_switched = Signal(str, str)    # 分支切换信号 (project_id, branch_name)
+    error_occurred = Signal(str, str)     # 错误发生信号
 
     def __init__(self, project_path: str):
         super().__init__()

@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QHeaderView, QMessageBox, QSizePolicy,
     QProgressDialog
 )
-from PySide6.QtCore import Qt, QThread, pyqtSignal, QSize, QTimer
+from PySide6.QtCore import Qt, QThread, Signal, QSize, QTimer
 from PySide6.QtGui import QFont, QColor
 
 from .base_page import BasePage
@@ -43,10 +43,10 @@ logger = logging.getLogger(__name__)
 
 class AnalysisWorker(QThread):
     """剧情分析工作线程"""
-    progress = pyqtSignal(str, float)  # stage, percentage
-    finished = pyqtSignal(StoryAnalysisResult)
-    error = pyqtSignal(str)
-    cancelled = pyqtSignal()
+    progress = Signal(str, float)  # stage, percentage
+    finished = Signal(StoryAnalysisResult)
+    error = Signal(str)
+    cancelled = Signal()
 
     def __init__(self, analyzer: StoryAnalyzer, video_path: str, style: str, parent=None):
         super().__init__(parent)

@@ -24,8 +24,8 @@ from PySide6.QtWidgets import (
     QSystemTrayIcon, QMenu, QApplication, QStyle, QWizard, QWizardPage
 )
 from PySide6.QtCore import (
-    Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
-    QMimeData, QUrl, QEvent, QRectF, QThread, pyqtSlot,
+    Qt, QSize, QTimer, Signal, QPoint, QRect, QSettings,
+    QMimeData, QUrl, QEvent, QRectF, QThread, Slot,
     QPropertyAnimation, QEasingCurve, QRegularExpression
 )
 from PySide6.QtGui import (

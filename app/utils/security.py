@@ -59,8 +59,8 @@ DANGEROUS_COMMAND_KEYWORDS = [
     'dd if=',
     '> /dev/sd',
     'chmod 777',
-    'wget.*\|',
-    'curl.*\|',
+    r'wget.*\|',
+    r'curl.*\|',
     'nc -e',
     '/bin/sh',
     'bash -i',
@@ -476,7 +476,7 @@ class SecurityError(Exception):
 # 便捷函数
 # ============================================
 
-def create_secure_executor(allowed_dirs: List[str] = None) -> SecureExecutor:
+def create_secure_executor(allowed_dirs: Optional[List[str]] = None) -> SecureExecutor:
     """创建安全的命令执行器"""
     return SecureExecutor(
         allowed_base_dirs=allowed_dirs or [os.path.expanduser("~/")],
@@ -484,14 +484,14 @@ def create_secure_executor(allowed_dirs: List[str] = None) -> SecureExecutor:
     )
 
 
-def create_secure_file_handler(allowed_dirs: List[str] = None) -> SecureFileHandler:
+def create_secure_file_handler(allowed_dirs: Optional[List[str]] = None) -> SecureFileHandler:
     """创建安全的文件处理器"""
     return SecureFileHandler(
         allowed_base_dirs=allowed_dirs or [os.path.expanduser("~/")]
     )
 
 
-def validate_video_path(path: str, base_dir: str = None) -> SecurityCheckResult:
+def validate_video_path(path: str, base_dir: Optional[str] = None) -> SecurityCheckResult:
     """验证视频路径"""
     handler = SecureFileHandler(
         allowed_base_dirs=[base_dir] if base_dir else None

@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QTabWidget, QHeaderView, QFormLayout, QSlider, QSpacerItem, QSizePolicy,
     QMessageBox
 )
-from PySide6.QtCore import Qt, QTimer, pyqtSignal, QSize, QPoint
+from PySide6.QtCore import Qt, QTimer, Signal, QSize, QPoint
 from PySide6.QtGui import QIcon, QPixmap, QFont
 
 from app.ui.components import (

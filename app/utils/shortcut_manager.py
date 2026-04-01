@@ -7,7 +7,7 @@ import logging
 from typing import Dict, Callable, Optional, List, Any
 from dataclasses import dataclass, field
 from enum import Enum
-from PySide6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QKeySequence, QShortcut, QKeyEvent
 
@@ -41,7 +41,7 @@ class ShortcutManager(QObject):
     """快捷键管理器"""
     
     # 信号
-    shortcut_triggered = pyqtSignal(str)  # 快捷键触发信号
+    shortcut_triggered = Signal(str)  # 快捷键触发信号
     
     # 默认快捷键配置
     DEFAULT_SHORTCUTS: List[ShortcutInfo] = [

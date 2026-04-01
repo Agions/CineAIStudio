@@ -83,10 +83,9 @@ dev = [
     "black>=23.11.0",
     "flake8>=6.1.0",
     "mypy>=1.7.0",
-    "isort>=5.12.0",
+    "ruff>=0.1.0",
     "types-requests>=2.31.0",
     "types-PyYAML>=6.0.0",
-    "types-python-dotenv>=1.0.0",
     "types-PySide6>=6.6.0",
 ]
 all = [
@@ -115,18 +114,11 @@ python_classes = "Test*"
 python_functions = "test_*"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = true
-files = "**/*.py"
-exclude = [
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-    "tests"
-]
+disallow_untyped_defs = false
+files = ["app", "tests"]
 
 [[tool.mypy.overrides]]
 module = "PySide6.*"

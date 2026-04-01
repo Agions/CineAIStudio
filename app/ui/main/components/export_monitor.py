@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QPushButton, QProgressBar, QTableWidget,
                             QTableWidgetItem, QFrame, QSplitter, QGroupBox,
                             QTextEdit, QScrollArea)
-from PySide6.QtCore import Qt, QTimer, pyqtSignal, QThread, QRect
+from PySide6.QtCore import Qt, QTimer, Signal, QThread, QRect
 from PySide6.QtGui import QFont, QPalette, QColor, QPainter, QPen
 
 from ...export.export_system import ExportTask, ExportStatus
@@ -22,7 +22,7 @@ from ...core.logger import Logger
 class ExportProgressWidget(QWidget):
     """导出进度部件"""
 
-    task_clicked = pyqtSignal(str)
+    task_clicked = Signal(str)
 
     def __init__(self, task: ExportTask, parent=None):
         super().__init__(parent)

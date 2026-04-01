@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QGroupBox, QSlider, QCheckBox, QFrame, QScrollArea,
     QMessageBox, QStackedWidget, QSizePolicy, QApplication
 )
-from PySide6.QtCore import Qt, QThread, pyqtSignal, QSize, QTimer, QUrl
+from PySide6.QtCore import Qt, QThread, Signal, QSize, QTimer, QUrl
 from PySide6.QtGui import QFont, QIcon, QPixmap, QDragEnterEvent, QDropEvent
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -49,9 +49,9 @@ class CreationType(Enum):
 
 class WorkerThread(QThread):
     """后台工作线程"""
-    progress = pyqtSignal(str, float)  # stage, progress
-    finished = pyqtSignal(str)         # result path
-    error = pyqtSignal(str)            # error message
+    progress = Signal(str, float)  # stage, progress
+    finished = Signal(str)         # result path
+    error = Signal(str)            # error message
     
     def __init__(self, task_func: Callable, *args, **kwargs):
         super().__init__()
@@ -140,7 +140,7 @@ class VideoPreviewWidget(QWidget):
 class VideoDropZone(QFrame):
     """视频拖放区域"""
     
-    files_dropped = pyqtSignal(list)
+    files_dropped = Signal(list)
     
     def __init__(self, parent=None, multiple=False):
         super().__init__(parent)
@@ -240,9 +240,9 @@ class AIVideoCreatorPage(BasePage):
     集成三大核心功能的图形界面
     """
     
-    creation_started = pyqtSignal(str)    # creation type
-    creation_finished = pyqtSignal(str)   # output path
-    creation_error = pyqtSignal(str)      # error message
+    creation_started = Signal(str)    # creation type
+    creation_finished = Signal(str)   # output path
+    creation_error = Signal(str)      # error message
     
     def __init__(self, application):
         super().__init__("ai_video_creator", "AI 视频创作", application)

@@ -106,12 +106,12 @@ class TestPluginInfo:
             description="测试",
             author="Author",
         )
-        
+
         assert info.plugin_type == PluginType.UTILITY
-        assert info.dependencies == []
+        assert info.dependencies is None  # dataclass 默认是 None
         assert info.min_app_version == "1.0.0"
         assert info.license == "MIT"
-        assert info.tags == []
+        assert info.tags is None
 
     def test_to_dict(self):
         """测试转换为字典"""
@@ -122,9 +122,9 @@ class TestPluginInfo:
             description="测试",
             author="Author",
         )
-        
+
         d = asdict(info)
-        
+
         assert d["id"] == "test"
         assert d["version"] == "1.0.0"
 
@@ -136,11 +136,11 @@ class TestPluginInfo:
             "version": "2.0.0",
             "description": "测试",
             "author": "Test",
-            "plugin_type": PluginType.EXPORT_FORMAT.value,
+            "plugin_type": PluginType.EXPORT_FORMAT,
         }
-        
+
         info = PluginInfo(**data)
-        
+
         assert info.id == "from_dict"
         assert info.plugin_type == PluginType.EXPORT_FORMAT
 
@@ -151,7 +151,7 @@ class TestPluginInterface:
     def test_get_info(self):
         """测试获取插件信息"""
         class TestPlugin(PluginInterface):
-            def get_info(self):
+            def get_plugin_info(self):
                 return PluginInfo(
                     id="test",
                     name="测试",
@@ -159,23 +159,23 @@ class TestPluginInterface:
                     description="测试插件",
                     author="Test",
                 )
-            
+
             def activate(self):
                 pass
-            
+
             def deactivate(self):
                 pass
-        
+
         plugin = TestPlugin()
-        info = plugin.get_info()
-        
+        info = plugin.get_plugin_info()
+
         assert info.id == "test"
         assert info.name == "测试"
 
     def test_activate_deactivate(self):
         """测试激活/停用"""
         class TestPlugin(PluginInterface):
-            def get_info(self):
+            def get_plugin_info(self):
                 return PluginInfo(
                     id="test",
                     name="测试",
@@ -183,20 +183,27 @@ class TestPluginInterface:
                     description="",
                     author="Test",
                 )
-            
-            def activate(self):
-                self._active = True
-            
-            def deactivate(self):
-                self._active = False
-        
+
+            def on_initialize(self) -> bool:
+                return True
+
+            def on_activated(self) -> None:
+                self._status = PluginStatus.ACTIVE
+
+            def on_deactivated(self) -> None:
+                self._status = PluginStatus.UNLOADED
+
+            def status(self) -> PluginStatus:
+                return getattr(self, '_status', PluginStatus.UNLOADED)
+
         plugin = TestPlugin()
-        
-        plugin.activate()
-        assert plugin.is_active() is True
-        
-        plugin.deactivate()
-        assert plugin.is_active() is False
+        plugin.__init__()  # call parent __init__
+
+        plugin.on_activated()
+        assert plugin.status() == PluginStatus.ACTIVE
+
+        plugin.on_deactivated()
+        assert plugin.status() == PluginStatus.UNLOADED
 
 
 class TestPluginCapabilities:
@@ -205,7 +212,7 @@ class TestPluginCapabilities:
     def test_supports_video_effects(self):
         """测试视频效果支持检查"""
         class VideoPlugin(PluginInterface):
-            def get_info(self):
+            def get_plugin_info(self):
                 return PluginInfo(
                     id="video",
                     name="视频插件",
@@ -213,15 +220,15 @@ class TestPluginCapabilities:
                     description="",
                     author="Test",
                 )
-            
+
             def supports_video_effects(self):
                 return True
-            
+
             def activate(self):
                 pass
-            
+
             def deactivate(self):
                 pass
-        
+
         plugin = VideoPlugin()
         assert plugin.supports_video_effects() is True

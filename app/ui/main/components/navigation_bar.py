@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel,
     QFrame, QSizePolicy, QSpacerItem
 )
-from PySide6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtCore import Qt, Signal, QSize
 
 
 class NavigationButton(QPushButton):
@@ -97,7 +97,7 @@ class NavigationBar(QWidget):
     """导航栏组件 - macOS 风格"""
 
     # 信号定义
-    page_changed = pyqtSignal(str)  # 页面ID
+    page_changed = Signal(str)  # 页面ID
 
     def __init__(self, parent=None):
         super().__init__(parent)

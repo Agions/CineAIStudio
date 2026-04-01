@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QSizePolicy, QApplication, QMessageBox, QPushButton
 )
 from PySide6.QtCore import (
-    Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
+    Qt, QSize, QTimer, Signal, QPoint, QRect, QSettings,
     QMimeData, QUrl, QEvent
 )
 from PySide6.QtGui import (
@@ -66,11 +66,11 @@ class MainWindow(QMainWindow):
     """VideoForge 主窗口 - 设置版本"""
 
     # 信号定义
-    page_changed = pyqtSignal(PageType)           # 页面切换信号
-    theme_changed = pyqtSignal(str)              # 主题变更信号
-    layout_changed = pyqtSignal(str)             # 布局变更信号
-    error_occurred = pyqtSignal(str, str)        # 错误信号
-    status_updated = pyqtSignal(str)             # 状态更新信号
+    page_changed = Signal(PageType)           # 页面切换信号
+    theme_changed = Signal(str)              # 主题变更信号
+    layout_changed = Signal(str)             # 布局变更信号
+    error_occurred = Signal(str, str)        # 错误信号
+    status_updated = Signal(str)             # 状态更新信号
 
     def __init__(self, application: Application):
         super().__init__()

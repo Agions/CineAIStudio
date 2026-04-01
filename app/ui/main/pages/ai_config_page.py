@@ -28,8 +28,8 @@ from PySide6.QtWidgets import (
     QSystemTrayIcon, QMenu, QApplication, QStyle
 )
 from PySide6.QtCore import (
-    Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
-    QMimeData, QUrl, QEvent, QRectF, QThread, pyqtSlot
+    Qt, QSize, QTimer, Signal, QPoint, QRect, QSettings,
+    QMimeData, QUrl, QEvent, QRectF, QThread, Slot
 )
 from PySide6.QtGui import (
     QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
@@ -70,9 +70,9 @@ class ServiceUIState:
 class ModelConfigWidget(QWidget):
     """模型配置部件"""
 
-    config_changed = pyqtSignal(str, str, object)
-    test_requested = pyqtSignal(str, str)
-    remove_requested = pyqtSignal(str, str)
+    config_changed = Signal(str, str, object)
+    test_requested = Signal(str, str)
+    remove_requested = Signal(str, str)
 
     def __init__(self, service_name: str, model_id: str, model_info: Dict[str, Any]):
         super().__init__()
@@ -506,9 +506,9 @@ class AIConfigPage(BasePage):
     """AI配置管理页面"""
 
     # 信号定义
-    model_config_changed = pyqtSignal(str, str, object)  # 模型配置变化
-    model_test_requested = pyqtSignal(str, str)  # 模型测试请求
-    model_remove_requested = pyqtSignal(str, str)  # 模型移除请求
+    model_config_changed = Signal(str, str, object)  # 模型配置变化
+    model_test_requested = Signal(str, str)  # 模型测试请求
+    model_remove_requested = Signal(str, str)  # 模型移除请求
 
     def __init__(self, application: Application):
         super().__init__("ai_config", "AI配置", application)

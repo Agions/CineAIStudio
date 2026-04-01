@@ -6,15 +6,15 @@
 """
 
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel
-from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QCursor, QPixmap, QPainter, QLinearGradient, QColor
 
 
 class ProjectCard(QFrame):
     """项目卡片 - 显示项目信息"""
     
-    clicked = pyqtSignal(str)  # project_id
-    deleted = pyqtSignal(str)  # project_id
+    clicked = Signal(str)  # project_id
+    deleted = Signal(str)  # project_id
     
     def __init__(self, project_data: dict, parent=None):
         super().__init__(parent)
@@ -129,7 +129,7 @@ class ProjectCard(QFrame):
 class ProjectCardCompact(QFrame):
     """紧凑型项目卡片 - 列表视图"""
     
-    clicked = pyqtSignal(str)
+    clicked = Signal(str)
     
     def __init__(self, project_data: dict, parent=None):
         super().__init__(parent)

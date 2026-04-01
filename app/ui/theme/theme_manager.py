@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QObject, pyqtSignal, QTimer
+from PySide6.QtCore import QObject, Signal, QTimer
 from PySide6.QtGui import QPalette, QColor
 
 from ...core.config_manager import ThemeConfig
@@ -47,8 +47,8 @@ class ThemeManager(QObject):
     """主题管理器"""
 
     # 信号定义
-    theme_changed = pyqtSignal(str)  # 主题模式变更信号
-    theme_applied = pyqtSignal()  # 主题应用完成信号
+    theme_changed = Signal(str)  # 主题模式变更信号
+    theme_applied = Signal()  # 主题应用完成信号
 
     def __init__(self, theme_config: ThemeConfig):
         super().__init__()

@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QPushButton, QFrame, QScrollArea, QFileDialog, QMessageBox,
     QSizePolicy, QSpacerItem
 )
-from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QCursor
 
 from .base_page import BasePage
@@ -110,7 +110,7 @@ def _find_jianying_drafts() -> str:
 class SettingsPage(BasePage):
     """设置页面"""
 
-    config_saved = pyqtSignal()
+    config_saved = Signal()
 
     def __init__(self, application):
         super().__init__("settings", "设置", application)

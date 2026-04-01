@@ -7,19 +7,19 @@ from typing import Optional, Dict, Any
 from typing import Any as TypingAny
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from PySide6.QtCore import Qt, pyqtSignal, QObject
+from PySide6.QtCore import Qt, Signal, QObject
 
 
 class BasePage(QWidget):
     """页面基类"""
 
     # 信号定义
-    page_loaded = pyqtSignal()                    # 页面加载完成
-    page_activated = pyqtSignal()                 # 页面激活
-    page_deactivated = pyqtSignal()              # 页面停用
-    status_changed = pyqtSignal(str)              # 状态变化
-    error_occurred = pyqtSignal(str, str)         # 错误发生
-    action_requested = pyqtSignal(str, object)    # 请求执行操作
+    page_loaded = Signal()                    # 页面加载完成
+    page_activated = Signal()                 # 页面激活
+    page_deactivated = Signal()              # 页面停用
+    status_changed = Signal(str)              # 状态变化
+    error_occurred = Signal(str, str)         # 错误发生
+    action_requested = Signal(str, object)    # 请求执行操作
 
     def __init__(self, page_id: str, title: str, application):
         super().__init__()

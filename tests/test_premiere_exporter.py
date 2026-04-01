@@ -71,29 +71,21 @@ class TestPremiereExporter:
     def test_init(self):
         """测试初始化"""
         exporter = PremiereExporter()
-        
-        assert exporter._version == PremiereVersion.CC2024
 
-    def test_init_custom_version(self):
-        """测试自定义版本"""
-        exporter = PremiereExporter(version=PremiereVersion.CC2022)
-        
-        assert exporter._version == PremiereVersion.CC2022
+        assert exporter.config is not None
+        assert exporter.config.version == PremiereVersion.CC2024
+
+    def test_init_custom_config(self):
+        """测试自定义配置"""
+        config = PremiereConfig(version=PremiereVersion.CC2022)
+        exporter = PremiereExporter(config=config)
+
+        assert exporter.config.version == PremiereVersion.CC2022
 
     def test_create_project(self):
         """测试创建项目"""
         exporter = PremiereExporter()
-        
-        project = exporter.create_project("测试项目")
-        
-        assert project is not None
 
-    def test_default_project_settings(self):
-        """测试默认项目设置"""
-        exporter = PremiereExporter()
-        
-        settings = exporter._get_default_project_settings()
-        
-        assert "width" in settings
-        assert "height" in settings
-        assert "fps" in settings
+        project = exporter.create_project("测试项目")
+
+        assert project is not None

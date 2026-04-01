@@ -6,7 +6,7 @@
 """
 
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import QPropertyAnimation, QEasingCurve, Qt, QRect, pyqtSignal, QTimer
+from PySide6.QtCore import QPropertyAnimation, QEasingCurve, Qt, QRect, Signal, QTimer
 from PySide6.QtGui import QPainter, QColor, QLinearGradient
 
 
@@ -203,8 +203,8 @@ class ParticleWidget(QWidget):
 class AnimatedCounter(QWidget):
     """数字滚动动画"""
     
-    finished = pyqtSignal()
-    valueChanged = pyqtSignal(int)
+    finished = Signal()
+    valueChanged = Signal(int)
     
     def __init__(self, parent=None):
         super().__init__(parent)

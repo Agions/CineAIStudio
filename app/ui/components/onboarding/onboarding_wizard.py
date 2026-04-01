@@ -6,7 +6,7 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QFrame, QComboBox, QCheckBox,
                              QLineEdit, QScrollArea)
-from PySide6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QColor, QLinearGradient, QPainter
 
 # 色彩系统
@@ -464,8 +464,8 @@ class OnboardingWizard(QWidget):
     """首次使用引导向导"""
     
     # 信号定义
-    finished = pyqtSignal(dict)  # 完成信号，传递配置数据
-    skipped = pyqtSignal()  # 跳过信号
+    finished = Signal(dict)  # 完成信号，传递配置数据
+    skipped = Signal()  # 跳过信号
     
     def __init__(self, parent=None):
         super().__init__(parent)

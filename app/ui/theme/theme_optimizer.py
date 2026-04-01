@@ -4,7 +4,7 @@
 """
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QFrame
-from PySide6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QColor, QLinearGradient, QPainter
 
 
@@ -241,7 +241,7 @@ class ThemePresetSelector(QWidget):
     """主题预设选择器 - 图形化选择界面"""
     
     # 信号
-    theme_selected = pyqtSignal(str, dict)  # 主题名称, 配色
+    theme_selected = Signal(str, dict)  # 主题名称, 配色
     
     def __init__(self, parent=None):
         super().__init__(parent)

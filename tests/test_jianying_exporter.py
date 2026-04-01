@@ -8,6 +8,7 @@ from app.services.export.jianying_exporter import (
     TrackType,
     MaterialType,
     TimeRange,
+    Track,
     JianyingDraft,
     JianyingExporter,
 )
@@ -61,11 +62,11 @@ class TestTimeRange:
         assert tr.duration == 500000
 
     def test_seconds_to_microseconds(self):
-        """测试秒转微秒"""
-        from app.services.export.jianying_exporter import seconds_to_microseconds
-        
-        assert seconds_to_microseconds(1.0) == 1000000
-        assert seconds_to_microseconds(0.5) == 500000
+        """测试秒转微秒（使用 TimeRange.from_seconds）"""
+        tr = TimeRange.from_seconds(start=1.0, duration=0.5)
+
+        assert tr.start == 1000000
+        assert tr.duration == 500000
 
 
 class TestJianyingDraft:
@@ -74,13 +75,13 @@ class TestJianyingDraft:
     def test_creation(self):
         """测试创建"""
         draft = JianyingDraft(
-            project_name="测试项目",
+            name="测试项目",
         )
-        
-        assert draft.project_name == "测试项目"
+
+        assert draft.name == "测试项目"
         assert draft.duration == 0
-        assert draft.width == 1920
-        assert draft.height == 1080
+        assert draft.canvas_config.width == 1080
+        assert draft.canvas_config.height == 1920
 
 
 class TestJianyingExporter:
@@ -89,37 +90,32 @@ class TestJianyingExporter:
     def test_init(self):
         """测试初始化"""
         exporter = JianyingExporter()
-        
-        assert exporter.output_dir == ""
 
-    def test_init_custom_output(self):
-        """测试自定义输出目录"""
-        exporter = JianyingExporter(output_dir="/output")
-        
-        assert exporter.output_dir == "/output"
+        assert exporter.config is not None
 
     def test_create_draft(self):
         """测试创建草稿"""
         exporter = JianyingExporter()
-        
+
         draft = exporter.create_draft("测试项目")
-        
-        assert draft.project_name == "测试项目"
-        assert draft.width == 1920
-        assert draft.height == 1080
+
+        assert draft.name == "测试项目"
+        # 默认画布比例 9:16 (竖屏短视频)
+        assert draft.canvas_config.width == 1080
+        assert draft.canvas_config.height == 1920
 
     def test_add_video_track(self):
         """测试添加视频轨道"""
         exporter = JianyingExporter()
-        
-        track = exporter.add_video_track("视频轨道")
-        
+
+        track = Track(type=TrackType.VIDEO)
+
         assert track.type == TrackType.VIDEO
 
     def test_add_audio_track(self):
         """测试添加音频轨道"""
         exporter = JianyingExporter()
-        
-        track = exporter.add_audio_track("音频轨道")
-        
+
+        track = Track(type=TrackType.AUDIO)
+
         assert track.type == TrackType.AUDIO

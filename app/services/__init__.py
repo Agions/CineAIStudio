@@ -9,7 +9,7 @@ VideoForge 服务模块
 - viral_video: 病毒视频处理（字幕、节奏分析）
 - core: 核心功能（工作流、撤销管理）
 - publish: 多平台发布 [暂时关闭]
-- ui: PyQt6 图形界面 [新增]
+- ui: UI 图形界面（位于 app/ui/）
 """
 
 # 子模块
@@ -23,9 +23,6 @@ from . import core
 # 多平台发布功能暂时关闭
 # from . import publish
 
-# UI 模块
-from . import ui
-
 # 兼容层
 from .ai_service_manager import AIServiceManager, ServiceStatus, get_ai_service_manager
 
@@ -38,7 +35,6 @@ __all__ = [
     "export",
     "viral_video",
     "core",
-    "ui",
     # publish,  # 暂时关闭
     # 兼容层
     "AIServiceManager",

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QStatusBar, QLabel, QProgressBar, QWidget, QHBoxLayout,
     QSizePolicy
 )
-from PySide6.QtCore import Qt, QTimer, pyqtSignal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont, QColor, QPalette
 
 

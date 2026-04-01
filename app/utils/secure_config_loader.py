@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class SecureConfigLoader:
     """安全配置加载器"""
     
-    def __init__(self, allowed_dirs: list = None, env_file: str = None):
+    def __init__(self, allowed_dirs: Optional[list] = None, env_file: Optional[str] = None):
         """
         初始化安全配置加载器
         
@@ -62,7 +62,7 @@ class SecureConfigLoader:
             'private_key', 'public_key'
         }
     
-    def _load_environment(self, env_file: str = None) -> None:
+    def _load_environment(self, env_file: Optional[str] = None) -> None:
         """
         加载环境变量 ✅ 新增
         
@@ -87,7 +87,7 @@ class SecureConfigLoader:
                 load_dotenv(env_path, override=True)
                 logger.debug(f"自动加载环境变量: {env_path}")
     
-    def get_env(self, key: str, default: str = None, required: bool = False) -> Optional[str]:
+    def get_env(self, key: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
         """
         获取环境变量 ✅ 新增便捷方法
         
@@ -106,7 +106,7 @@ class SecureConfigLoader:
         
         return value
     
-    def get_api_key(self, provider: str, env_var: str = None) -> str:
+    def get_api_key(self, provider: str, env_var: Optional[str] = None) -> str:
         """
         安全获取 API Key ✅ 新增便捷方法
         

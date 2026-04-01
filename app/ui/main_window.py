@@ -7,7 +7,7 @@ VideoForge 主窗口 - 全新设计
 - 编辑面板: 全屏对话框
 """
 
-from PySide6.QtCore import Qt, QSize, pyqtSignal, QTimer
+from PySide6.QtCore import Qt, QSize, Signal, QTimer
 from PySide6.QtGui import QAction, QKeySequence, QPalette, QColor
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
@@ -40,8 +40,8 @@ class Theme:
 class HomePage(QWidget):
     """首页 - 项目列表"""
     
-    new_clicked = pyqtSignal()
-    edit_clicked = pyqtSignal(int)
+    new_clicked = Signal()
+    edit_clicked = Signal(int)
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -317,7 +317,7 @@ class SettingsPage(QWidget):
 class EditDialog(QDialog):
     """编辑对话框"""
     
-    saved = pyqtSignal(dict)
+    saved = Signal(dict)
     
     def __init__(self, parent=None, mode="new", project_id=None):
         super().__init__(parent)

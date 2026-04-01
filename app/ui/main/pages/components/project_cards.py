@@ -8,7 +8,7 @@
 
 import os
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QPixmap
 
 from app.ui.components import MacCard, MacElevatedCard, MacIconButton, MacLabel, MacBadge
@@ -17,10 +17,10 @@ from app.ui.components import MacCard, MacElevatedCard, MacIconButton, MacLabel,
 class ProjectCard(MacCard):
     """项目卡片组件 - 使用标准化 macOS 组件"""
 
-    clicked = pyqtSignal(str)  # 项目点击信号
-    edit_clicked = pyqtSignal(str)  # 编辑点击信号
-    delete_clicked = pyqtSignal(str)  # 删除点击信号
-    export_clicked = pyqtSignal(str)  # 导出点击信号
+    clicked = Signal(str)  # 项目点击信号
+    edit_clicked = Signal(str)  # 编辑点击信号
+    delete_clicked = Signal(str)  # 删除点击信号
+    export_clicked = Signal(str)  # 导出点击信号
 
     def __init__(self, project, parent=None):
         super().__init__(parent)
@@ -113,8 +113,8 @@ class ProjectCard(MacCard):
 class TemplateCard(MacCard):
     """模板卡片组件 - 使用标准化 macOS 组件"""
 
-    selected = pyqtSignal(str)  # 模板选择信号
-    preview_clicked = pyqtSignal(str)  # 预览点击信号
+    selected = Signal(str)  # 模板选择信号
+    preview_clicked = Signal(str)  # 预览点击信号
 
     def __init__(self, template, parent=None):
         super().__init__(parent)

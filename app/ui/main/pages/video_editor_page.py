@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtCore import Qt, pyqtSignal, QSize, QTimer, QUrl, QMimeData
+from PySide6.QtCore import Qt, Signal, QSize, QTimer, QUrl, QMimeData
 from PySide6.QtGui import QIcon, QAction, QDragEnterEvent, QDropEvent
 
 from .base_page import BasePage
@@ -39,10 +39,10 @@ from app.ui.components import (
 class MediaLibraryPanel(QWidget):
     """媒体库面板 - macOS 设计系统"""
 
-    video_selected = pyqtSignal(str)
-    audio_selected = pyqtSignal(str)
-    image_selected = pyqtSignal(str)
-    project_opened = pyqtSignal(str)
+    video_selected = Signal(str)
+    audio_selected = Signal(str)
+    image_selected = Signal(str)
+    project_opened = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)

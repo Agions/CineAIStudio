@@ -13,7 +13,7 @@ from enum import Enum
 from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QTimer, pyqtSignal, QObject, QSettings
+from PySide6.QtCore import QTimer, Signal, QObject, QSettings
 
 
 class ApplicationState(Enum):
@@ -60,13 +60,13 @@ class Application(QObject):
     """VideoForge 应用程序核心类"""
 
     # 信号定义
-    state_changed = pyqtSignal(ApplicationState)        # 应用程序状态变化信号
-    error_occurred = pyqtSignal(str, str)             # 应用程序错误信号
-    progress_updated = pyqtSignal(int, str)            # 进度更新信号
-    message_logged = pyqtSignal(str, str)              # 消息日志信号
-    config_changed = pyqtSignal(str, object)              # 配置变更信号
-    service_registered = pyqtSignal(str, object)      # 服务注册信号
-    service_unregistered = pyqtSignal(str)             # 服务注销信号
+    state_changed = Signal(ApplicationState)        # 应用程序状态变化信号
+    error_occurred = Signal(str, str)             # 应用程序错误信号
+    progress_updated = Signal(int, str)            # 进度更新信号
+    message_logged = Signal(str, str)              # 消息日志信号
+    config_changed = Signal(str, object)              # 配置变更信号
+    service_registered = Signal(str, object)      # 服务注册信号
+    service_unregistered = Signal(str)             # 服务注销信号
 
     def __init__(self, config):
         """初始化应用程序"""

@@ -5,7 +5,7 @@
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QScrollArea, QFrame)
-from PySide6.QtCore import Qt, pyqtSignal, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QSize
 from PySide6.QtGui import QFont, QPixmap, QPainter, QLinearGradient, QColor
 
 # 色彩系统
@@ -146,8 +146,8 @@ class WelcomeScreen(QWidget):
     """欢迎页面 - 首次使用引导的起始页"""
     
     # 信号定义
-    get_started = pyqtSignal()  # 开始使用信号
-    skip = pyqtSignal()  # 跳过信号
+    get_started = Signal()  # 开始使用信号
+    skip = Signal()  # 跳过信号
     
     def __init__(self, app_name: str = "VideoForge", version: str = "v2.0.0", parent=None):
         super().__init__(parent)

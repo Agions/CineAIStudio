@@ -159,13 +159,30 @@ class FileError(VideoForgeError):
 class VideoError(VideoForgeError):
     """视频处理错误"""
 
-    def __init__(self, message: str, video_path: Optional[str] = None):
+    def __init__(
+        self,
+        message: str,
+        video_path: Optional[str] = None,
+        format: Optional[str] = None,
+    ):
+        # Auto-detect format error from message or format param
+        if format and ("不支持" in message or "unsupported" in message.lower()):
+            code = ErrorCode.VIDEO_FORMAT_ERROR
+        else:
+            code = ErrorCode.VIDEO_PROCESS_ERROR
+
         hint = "请确保 FFmpeg 已正确安装" if "ffmpeg" in message.lower() else None
 
+        details: Dict[str, Any] = {}
+        if video_path:
+            details["video_path"] = video_path
+        if format:
+            details["format"] = format
+
         super().__init__(
-            code=ErrorCode.VIDEO_PROCESS_ERROR,
+            code=code,
             message=message,
-            details={"video_path": video_path} if video_path else None,
+            details=details or None,
             hint=hint
         )
 
@@ -180,6 +197,20 @@ class TTSError(VideoForgeError):
             code=ErrorCode.TTS_ERROR,
             message=message,
             details={"voice": voice} if voice else None,
+            hint=hint
+        )
+
+
+class NetworkError(VideoForgeError):
+    """网络错误"""
+
+    def __init__(self, message: str, url: Optional[str] = None):
+        hint = "请检查网络连接" if "connection" in message.lower() else None
+
+        super().__init__(
+            code=ErrorCode.NETWORK_ERROR,
+            message=message,
+            details={"url": url} if url else None,
             hint=hint
         )
 

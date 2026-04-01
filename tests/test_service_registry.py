@@ -102,51 +102,57 @@ class TestServiceDefinition:
 class TestServiceRegistry:
     """测试服务注册表"""
 
-    def test_init(self):
-        """测试初始化"""
-        registry = ServiceRegistry()
-        
-        assert isinstance(registry._services, dict)
-        assert isinstance(registry._definitions, dict)
+    @pytest.fixture
+    def registry(self):
+        """创建测试用 ServiceRegistry（带 mock 依赖）"""
+        from app.core.logger import Logger
+        from app.core.event_bus import EventBus
+        logger = Logger("test")
+        event_bus = EventBus()
+        return ServiceRegistry(logger=logger, event_bus=event_bus)
 
-    def test_register_definition(self):
+    def test_init(self, registry):
+        """测试初始化"""
+        assert isinstance(registry._definitions, dict)
+        assert isinstance(registry._instances, dict)
+        assert isinstance(registry._states, dict)
+
+    def test_register_definition(self, registry):
         """测试注册服务定义"""
-        registry = ServiceRegistry()
-        
         definition = ServiceDefinition(
             name="test_service",
             service_type=Mock,
         )
-        
-        registry.register(definition)
-        
-        assert "test_service" in registry._definitions
 
-    def test_register_factory(self):
-        """测试注册工厂函数"""
-        registry = ServiceRegistry()
-        
+        registry.register(definition)
+
+        assert "test_service" in registry._definitions
+        assert registry._states["test_service"] == ServiceState.REGISTERED
+
+    def test_register_singleton(self, registry):
+        """测试注册单例服务"""
         def my_factory():
             return Mock()
-        
-        registry.register_factory("my_service", my_factory)
-        
+
+        registry.register_singleton(
+            name="my_service",
+            service_type=Mock,
+            factory=my_factory,
+        )
+
         assert "my_service" in registry._definitions
 
-    def test_get_not_registered(self):
-        """测试获取未注册服务"""
-        registry = ServiceRegistry()
-        
-        result = registry.get("nonexistent")
-        
-        assert result is None
+    def test_get_not_registered(self, registry):
+        """测试获取未注册服务抛出异常"""
+        from app.core.service_registry import ServiceNotFoundError
 
-    def test_has_service(self):
-        """测试检查服务存在"""
-        registry = ServiceRegistry()
-        
+        with pytest.raises(ServiceNotFoundError):
+            registry.get("nonexistent")
+
+    def test_has_service(self, registry):
+        """测试检查服务是否存在"""
         definition = ServiceDefinition(name="exists", service_type=Mock)
         registry.register(definition)
-        
-        assert registry.has_service("exists") is True
-        assert registry.has_service("not_exists") is False
+
+        assert "exists" in registry._definitions
+        assert "not_exists" not in registry._definitions

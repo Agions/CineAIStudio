@@ -24,7 +24,7 @@ jobs:
       - name: Lint with ruff
         run: |
           uv pip install --system ruff
-          ruff check app/ tests/ || true
+          ruff check app/ tests/
 
   # 类型检查
   type-check:
@@ -42,11 +42,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --system -e ".[all]"
+          uv pip install --system -e ".[all,dev]" pyright
 
       - name: Run mypy
         run: |
-          mypy app/ --ignore-missing-imports || true
+          mypy app/ tests/ --ignore-missing-imports
+
+      - name: Run pyright
+        run: |
+          pyright app/ 2>&1 | tee pyright_report.txt || true
+          # 记录错误数（当前 1100+，逐步消减）
+          echo "Pyright errors: $(grep -c 'error:' pyright_report.txt || echo 0)"
 
   # 测试
   test:
@@ -64,11 +70,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --system -e ".[all]"
+          uv pip install --system -e ".[all,dev]"
 
       - name: Run tests
         run: |
-          pytest tests/ -v --cov=app --cov-report=xml --cov-report=term || true
+          pytest tests/ -v --cov=app --cov-report=xml --cov-report=term
 
       - name: Upload coverage
         if: success()

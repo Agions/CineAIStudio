@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any, TYPE_CHECKING
 from abc import ABC
 
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import pyqtSignal, QObject
+from PySide6.QtCore import Signal, QObject
 
 if TYPE_CHECKING:
     from ..main_window import MainWindow
@@ -44,7 +44,7 @@ class PageBase(ABC):
     """
     
     # 信号
-    state_changed = pyqtSignal(str, object)  # key, value
+    state_changed = Signal(str, object)  # key, value
     
     def __init__(self, parent=None):
         super().__init__(parent)

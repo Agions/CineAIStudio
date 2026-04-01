@@ -43,8 +43,6 @@ jobs:
       - name: Copy build to docs root
         run: |
           cp -r docs/.vitepress/dist/* docs/
-          rm -rf docs/.vitepress
-          rm -rf docs/node_modules
 
       - name: Commit to main
         run: |

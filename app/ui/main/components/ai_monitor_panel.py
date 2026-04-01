@@ -26,8 +26,8 @@ from PySide6.QtWidgets import (
     QSystemTrayIcon, QMenu, QApplication, QStyle
 )
 from PySide6.QtCore import (
-    Qt, QSize, QTimer, pyqtSignal, QPoint, QRect, QSettings,
-    QMimeData, QUrl, QEvent, QRectF, QThread, pyqtSlot,
+    Qt, QSize, QTimer, Signal, QPoint, QRect, QSettings,
+    QMimeData, QUrl, QEvent, QRectF, QThread, Slot,
     QPropertyAnimation, QEasingCurve, QThread
 )
 from PySide6.QtGui import (
@@ -234,7 +234,7 @@ class PerformanceChart(QWidget):
 class AlertWidget(QWidget):
     """告警部件"""
 
-    alert_clicked = pyqtSignal(AlertData)
+    alert_clicked = Signal(AlertData)
 
     def __init__(self, alert: AlertData):
         super().__init__()
@@ -325,9 +325,9 @@ class AIMonitorPanel(QWidget):
     """AI状态监控面板"""
 
     # 信号定义
-    service_selected = pyqtSignal(str)
-    alert_selected = pyqtSignal(AlertData)
-    refresh_requested = pyqtSignal()
+    service_selected = Signal(str)
+    alert_selected = Signal(AlertData)
+    refresh_requested = Signal()
 
     def __init__(self, application: Application):
         super().__init__()

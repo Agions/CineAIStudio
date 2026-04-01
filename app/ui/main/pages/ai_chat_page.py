@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLabel,
     QTextEdit, QLineEdit, QPushButton, QFrame, QListWidget
 )
-from PySide6.QtCore import Qt, pyqtSignal, QTimer
+from PySide6.QtCore import Qt, Signal, QTimer
 
 from .base_page import BasePage
 from app.core.icon_manager import get_icon
@@ -91,7 +91,7 @@ class ChatInputArea(QWidget):
 
 class SuggestionBox(QWidget):
     """建议框"""
-    suggestion_clicked = pyqtSignal(str)
+    suggestion_clicked = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)

@@ -143,7 +143,7 @@ import os
 from pathlib import Path
 from typing import Optional, Callable
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QFile, QTextStream, pyqtSignal, QObject
+from PySide6.QtCore import QFile, QTextStream, Signal, QObject
 from PySide6.QtGui import QFont
 
 
@@ -151,9 +151,9 @@ class macOS_ThemeManager(QObject):
     """macOS 设计系统主题管理器"""
 
     # 信号
-    theme_changed = pyqtSignal(str)      # 主题切换信号
-    before_apply = pyqtSignal()          # 样式应用前
-    after_apply = pyqtSignal()           # 样式应用后
+    theme_changed = Signal(str)      # 主题切换信号
+    before_apply = Signal()          # 样式应用前
+    after_apply = Signal()           # 样式应用后
 
     def __init__(self, app: QApplication):
         super().__init__()
@@ -446,7 +446,7 @@ __all__ = ["macOS_ThemeManager", "get_theme_manager", "apply_macos_theme"]
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel,
     QFrame, QSizePolicy, QSpacerItem
 )
-from PySide6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QFont, QColor, QPalette
 
 
@@ -534,7 +534,7 @@ class NavigationButton(QPushButton):
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel,
     QFrame, QSizePolicy, QSpacerItem
 )
-from PySide6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtCore import Qt, Signal, QSize
 
 
 class NavigationButton(QPushButton):

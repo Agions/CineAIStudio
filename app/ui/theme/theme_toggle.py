@@ -4,7 +4,7 @@
 
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel, 
                              QPushButton, QMenu, QFrame)
-from PySide6.QtCore import Qt, pyqtSignal, QPoint
+from PySide6.QtCore import Qt, Signal, QPoint
 from PySide6.QtGui import QFont, QColor, QPainter, QLinearGradient
 
 from .theme_optimizer import ThemePresets
@@ -33,7 +33,7 @@ class ThemeToggleButton(QWidget):
     """主题切换按钮"""
     
     # 信号
-    theme_changed = pyqtSignal(str, bool)  # 主题名称, 是否深色
+    theme_changed = Signal(str, bool)  # 主题名称, 是否深色
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -133,7 +133,7 @@ class QuickThemeSwitcher(QWidget):
     """快速主题切换器 - 侧边栏用"""
     
     # 信号
-    theme_selected = pyqtSignal(str, dict)
+    theme_selected = Signal(str, dict)
     
     def __init__(self, parent=None):
         super().__init__(parent)

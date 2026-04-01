@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QGridLayout, QMessageBox
 )
-from PySide6.QtCore import Qt, QTimer, pyqtSignal
+from PySide6.QtCore import Qt, QTimer, Signal
 
 from app.core.config_manager import ConfigManager
 from app.core.logger import Logger
@@ -33,7 +33,7 @@ from app.ui.common.macOS_components import (
 class QuickAIConfigWidget(QWidget):
     """快捷AI配置组件 - 使用 macOS 设计系统"""
 
-    config_changed = pyqtSignal()  # 配置变更信号
+    config_changed = Signal()  # 配置变更信号
 
     def __init__(self, parent=None):
         super().__init__(parent)

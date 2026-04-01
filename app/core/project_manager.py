@@ -18,7 +18,7 @@ from pathlib import Path
 from enum import Enum
 import logging
 
-from PySide6.QtCore import QObject, pyqtSignal, QSettings
+from PySide6.QtCore import QObject, Signal, QSettings
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager
@@ -314,15 +314,15 @@ class ProjectManager(QObject):
     """项目管理器"""
 
     # 信号定义
-    project_created = pyqtSignal(str)           # 项目创建信号
-    project_opened = pyqtSignal(str)            # 项目打开信号
-    project_saved = pyqtSignal(str)             # 项目保存信号
-    project_closed = pyqtSignal(str)            # 项目关闭信号
-    project_deleted = pyqtSignal(str)           # 项目删除信号
-    project_imported = pyqtSignal(str)          # 项目导入信号
-    project_exported = pyqtSignal(str)          # 项目导出信号
-    recent_projects_updated = pyqtSignal(list)  # 最近项目更新信号
-    error_occurred = pyqtSignal(str, str)       # 错误发生信号
+    project_created = Signal(str)           # 项目创建信号
+    project_opened = Signal(str)            # 项目打开信号
+    project_saved = Signal(str)             # 项目保存信号
+    project_closed = Signal(str)            # 项目关闭信号
+    project_deleted = Signal(str)           # 项目删除信号
+    project_imported = Signal(str)          # 项目导入信号
+    project_exported = Signal(str)          # 项目导出信号
+    recent_projects_updated = Signal(list)  # 最近项目更新信号
+    error_occurred = Signal(str, str)       # 错误发生信号
 
     def __init__(self, config_manager: ConfigManager):
         super().__init__()

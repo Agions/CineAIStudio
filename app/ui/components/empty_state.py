@@ -7,7 +7,7 @@ from typing import Optional, List, Callable
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
 )
-from PySide6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QFont, QPainter, QColor, QLinearGradient, QPainterPath, QPixmap
 
 # 色彩系统 - VideoForge 现代暗色主题
@@ -156,7 +156,7 @@ class MacEmptyStateV2(QWidget):
     """增强版空状态组件 - 品牌升级"""
     
     # 信号定义
-    action_clicked = pyqtSignal(str)  # 操作点击信号
+    action_clicked = Signal(str)  # 操作点击信号
     
     def __init__(
         self,

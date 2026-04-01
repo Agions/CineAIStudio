@@ -5,7 +5,7 @@
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QFrame, QScrollArea)
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtSignal, QTimer
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, Signal, QTimer
 from PySide6.QtGui import QFont, QColor, QPainter, QLinearGradient
 
 # 色彩系统
@@ -31,8 +31,8 @@ class FeatureTooltip(QWidget):
     """功能提示弹窗 - 浮动在界面元素旁边"""
     
     # 信号定义
-    dismissed = pyqtSignal()  # 关闭信号
-    action_clicked = pyqtSignal()  # 操作按钮点击
+    dismissed = Signal()  # 关闭信号
+    action_clicked = Signal()  # 操作按钮点击
     
     def __init__(self, title: str, content: str, 
                  action_text: str = None, parent=None):
@@ -183,9 +183,9 @@ class FeatureTourDialog(QWidget):
     """功能导览对话框 - 完整的功能介绍弹窗"""
     
     # 信号定义
-    closed = pyqtSignal()  # 关闭信号
-    next_feature = pyqtSignal()  # 下一个功能
-    prev_feature = pyqtSignal()  # 上一个功能
+    closed = Signal()  # 关闭信号
+    next_feature = Signal()  # 下一个功能
+    prev_feature = Signal()  # 上一个功能
     
     def __init__(self, features: list = None, parent=None):
         super().__init__(parent)

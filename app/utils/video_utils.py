@@ -342,7 +342,7 @@ def generate_waveform(
         cmd = [
             "ffmpeg",
             "-y",
-            "-i", audio_path",
+            "-i", audio_path,
             "-filter_complex", 
             f"aformat=channel_layouts=mono,showwavespic=s={width}x{height}",
             "-frames:v", "1",

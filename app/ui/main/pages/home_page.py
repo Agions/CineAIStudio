@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
     QFrame, QScrollArea, QSizePolicy, QSpacerItem, QPushButton
 )
-from PySide6.QtCore import Qt, pyqtSignal, QSize
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QFont, QCursor
 
 from .base_page import BasePage
@@ -19,7 +19,7 @@ from .base_page import BasePage
 
 class TemplateCard(QFrame):
     """模板卡片 - 精美设计"""
-    clicked = pyqtSignal(str)  # template_id
+    clicked = Signal(str)  # template_id
 
     def __init__(self, template_id: str, icon: str, title: str,
                  description: str, parent=None):
@@ -96,7 +96,7 @@ class TemplateCard(QFrame):
 
 class RecentProjectItem(QFrame):
     """最近项目条目 - 优化设计"""
-    clicked = pyqtSignal(str)
+    clicked = Signal(str)
 
     def __init__(self, name: str, path: str, date: str = "", parent=None):
         super().__init__(parent)
@@ -165,8 +165,8 @@ class HomePage(BasePage):
     """首页 - 模板选择式设计"""
 
     # 信号
-    template_selected = pyqtSignal(str)   # template_id
-    project_opened = pyqtSignal(str)      # project_path
+    template_selected = Signal(str)   # template_id
+    project_opened = Signal(str)      # project_path
 
     TEMPLATES = [
         ("story_analysis", "🎬", "剧情分析剪辑",

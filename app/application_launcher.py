@@ -12,7 +12,7 @@ import traceback
 from typing import List, Optional
 
 from PySide6.QtWidgets import QApplication, QSplashScreen, QMessageBox
-from PySide6.QtCore import QTimer, QThread, pyqtSignal, Qt
+from PySide6.QtCore import QTimer, QThread, Signal, Qt
 from PySide6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
 
 from .core.config_manager import ConfigManager
