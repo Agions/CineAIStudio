@@ -7,7 +7,7 @@ DeepSeek 提供商
 """
 
 import httpx
-from typing import List, Dict, Any
+from typing import List
 
 from ..base_llm_provider import (
     BaseLLMProvider,

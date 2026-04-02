@@ -6,10 +6,9 @@
 生成 .drp 兼容的 XML/OTIO 格式
 """
 
-import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from dataclasses import dataclass
 
 

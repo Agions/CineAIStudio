@@ -9,8 +9,7 @@ UI 页面基类扩展
 from typing import Optional, Dict, Any, TYPE_CHECKING
 from abc import ABC
 
-from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Signal, QObject
+from PySide6.QtCore import Signal
 
 if TYPE_CHECKING:
     from ..main_window import MainWindow

@@ -9,10 +9,9 @@ VideoForge 时间线组件
 from typing import Optional, List, Dict, Any
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea,
-    QFrame, QPushButton, QSlider, QToolButton, QSizePolicy,
-    QMenu, QToolTip
+    QFrame, QToolButton
 )
-from PySide6.QtCore import Qt, Signal, QTimer, QRect, QPoint
+from PySide6.QtCore import Qt, Signal, QRect
 from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QMouseEvent, QPaintEvent
 
 

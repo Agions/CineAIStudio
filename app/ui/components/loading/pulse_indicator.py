@@ -12,9 +12,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import (
     Qt, QTimer, QPropertyAnimation, QEasingCurve, 
-    QSize, QPoint
+    QPoint
 )
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush
 
 
 class PulseIndicator(QFrame):

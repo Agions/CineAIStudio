@@ -3,8 +3,7 @@
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QSpacerItem,
-    QSizePolicy, QStackedWidget
+    QWidget, QVBoxLayout, QHBoxLayout
 )
 from PySide6.QtCore import Qt
 

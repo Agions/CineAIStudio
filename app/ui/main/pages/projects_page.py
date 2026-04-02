@@ -8,45 +8,34 @@ VideoForge 项目管理页面 - macOS 设计系统优化版
 
 import os
 import logging
-from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Optional
 from pathlib import Path
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
-    QScrollArea, QFrame, QSplitter, QStackedWidget, QProgressBar,
-    QMessageBox, QDialog, QFileDialog, QLineEdit, QTextEdit,
-    QComboBox, QSpinBox, QDoubleSpinBox, QCheckBox, QGroupBox,
-    QTabWidget, QTableWidget, QTableWidgetItem, QHeaderView,
-    QInputDialog, QListWidget, QListWidgetItem, QToolButton,
-    QMenu, QDialogButtonBox, QFormLayout, QSlider, QSpacerItem, QSizePolicy
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QSplitter, QStackedWidget, QMessageBox, QDialog, QFileDialog, QComboBox, QSpacerItem, QSizePolicy
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QSize, QPoint
-from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QColor, QBrush
+from PySide6.QtCore import Qt, QTimer
 
 from .base_page import BasePage
-from app.core.icon_manager import get_icon
-from app.utils.error_handler import handle_exception
 
 # 导入辅助函数
 from app.ui.common.macOS_components import create_icon_text_row
 from app.core.project_manager import ProjectManager, Project, ProjectType, ProjectStatus
-from app.core.project_template_manager import ProjectTemplateManager, TemplateInfo
+from app.core.project_template_manager import ProjectTemplateManager
 from app.core.project_settings_manager import ProjectSettingsManager
-from app.core.project_version_manager import ProjectVersionManager
 
 # 导入标准化组件
 from app.ui.components import (
     MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
     MacDangerButton, MacIconButton, MacTitleLabel, MacLabel, MacBadge,
-    MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
-    MacSearchBox, MacButtonGroup,
+    MacPageToolbar, MacScrollArea, MacEmptyState,
+    MacSearchBox,
 )
 
 
 
 # 导入项目卡片组件
-from .components import ProjectCard, TemplateCard
+from .components import ProjectCard
 
 
 # 导入对话框组件
@@ -616,13 +605,13 @@ class ProjectsPage(BasePage):
         """新建项目"""
         # 检查模板管理器是否可用
         if not self.template_manager:
-            logger.warning("template_manager is None, showing warning")
+            self.logger.warning("template_manager is None, showing warning")
             QMessageBox.warning(self, "错误", "模板管理器不可用，无法创建项目")
             return
 
         # 检查项目管理器是否可用
         if not self.project_manager:
-            logger.warning("project_manager is None, showing warning")
+            self.logger.warning("project_manager is None, showing warning")
             QMessageBox.warning(self, "错误", "项目管理器不可用，无法创建项目")
             return
 
@@ -647,7 +636,7 @@ class ProjectsPage(BasePage):
                 else:
                     QMessageBox.warning(self, "失败", "无法创建项目")
         except Exception as e:
-            logger.error(f"Exception creating project: {e}")
+            self.logger.error(f"Exception creating project: {e}")
             import traceback
             traceback.print_exc()
             QMessageBox.critical(self, "错误", f"创建项目时发生错误: {str(e)}")

@@ -4232,7 +4232,7 @@ wheels = [
 
 [[package]]
 name = "videoforge"
-version = "1.2.0"
+version = "3.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },

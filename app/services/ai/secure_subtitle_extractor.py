@@ -5,24 +5,19 @@
 
 import os
 import logging
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass, field
+from typing import Optional
 
 from .subtitle_extractor import (
-    SubtitleSegment,
     SubtitleExtractionResult,
-    SubtitleExtractor as BaseExtractor,
     OCRSubtitleExtractor,
-    WhisperSubtitleExtractor,
-    LLMRefineSubtitleExtractor
+    WhisperSubtitleExtractor
 )
 from ..utils.security import (
     SecureExecutor,
     PathValidator,
     InputSanitizer,
     SecurityError,
-    ALLOWED_VIDEO_EXTENSIONS,
-    ALLOWED_AUDIO_EXTENSIONS
+    ALLOWED_VIDEO_EXTENSIONS
 )
 
 logger = logging.getLogger(__name__)

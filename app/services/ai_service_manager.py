@@ -7,7 +7,6 @@ AI 服务管理器兼容层
 from enum import Enum
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
-from datetime import datetime
 
 
 class ServiceStatus(Enum):

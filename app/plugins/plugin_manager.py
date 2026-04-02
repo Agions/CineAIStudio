@@ -6,7 +6,6 @@ VideoForge 插件管理器
 提供完整的插件系统管理功能
 """
 
-import os
 import json
 import time
 from typing import Dict, List, Any, Optional, Callable, Tuple
@@ -14,7 +13,7 @@ from pathlib import Path
 from dataclasses import dataclass
 
 from .plugin_interface import (
-    PluginInterface, PluginContext, PluginType, PluginStatus, PluginInfo
+    PluginInterface, PluginContext, PluginType, PluginStatus
 )
 from .plugin_registry import PluginRegistry, PluginRegistryEntry
 from .plugin_loader import PluginLoader

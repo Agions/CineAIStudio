@@ -6,8 +6,7 @@
 提取原视频字幕，分析内容，用于生成解说
 """
 
-from typing import List, Dict, Optional, Tuple
-import re
+from typing import List, Dict
 
 
 class SubtitleAnalyzer:

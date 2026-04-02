@@ -25,7 +25,7 @@ import os
 import time
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Callable, TypeVar
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 from queue import Queue
 import threading

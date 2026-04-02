@@ -32,8 +32,8 @@ from pathlib import Path
 
 # 获取 logger
 logger = logging.getLogger(__name__)
-from typing import List, Dict, Optional, Any, Tuple
-from dataclasses import dataclass, field
+from typing import List, Optional, Any
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -499,7 +499,7 @@ def export_to_edl(
 
 def demo_export():
     """演示 EDL 导出"""
-    from dataclasses import dataclass, field
+    from dataclasses import dataclass
     
     # 创建模拟项目
     @dataclass

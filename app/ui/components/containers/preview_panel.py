@@ -6,16 +6,15 @@
 """
 
 from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QSlider, QPushButton, QFrame
+)
 
 import logging
 logger = logging.getLogger(__name__)
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-    QSlider, QPushButton, QFrame
-)
-from PySide6.QtCore import Qt, QUrl, QTimer
-from PySide6.QtGui import QFont, QIcon, QCursor
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QFont
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PySide6.QtMultimediaWidgets import QVideoWidget
 
 
 class PreviewPanel(QWidget):

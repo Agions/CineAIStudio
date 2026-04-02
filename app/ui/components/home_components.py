@@ -6,13 +6,13 @@
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, 
-    QFrame, QPushButton, QScrollArea, QSpacerItem, QSizePolicy
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+    QFrame, QPushButton
 )
-from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QFont, QCursor, QLinearGradient, QColor, QPainter
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont, QCursor
 
-from ..pro_components import GlassCard, StatCard, GradientButton
+from ..pro_components import GradientButton
 
 
 class QuickActionCard(QFrame):

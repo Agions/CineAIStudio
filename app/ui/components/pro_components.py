@@ -8,11 +8,10 @@
 
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QFrame, QVBoxLayout, 
-    QHBoxLayout, QScrollArea, QStackedWidget, QProgressBar,
-    QComboBox, QLineEdit
+    QHBoxLayout, QLineEdit
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QSize
-from PySide6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor, QPixmap
+from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor
 
 
 class GradientButton(QPushButton):
@@ -155,7 +154,6 @@ class ProgressRing(QWidget):
             painter.setBrush(gradient)
             
             # 绘制弧形
-            import math
             angle = 360 * self._value / self._max
             rect_x = cx - radius
             rect_y = cy - radius

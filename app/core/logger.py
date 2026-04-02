@@ -8,7 +8,6 @@ VideoForge 日志记录器模块
 
 import logging
 import sys
-from typing import Optional
 from enum import Enum
 
 

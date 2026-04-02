@@ -12,12 +12,12 @@
 - HYBRID: 混合策略（推荐）
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import List, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
 from .beat_detector import (
-    AudioAnalysisResult, BeatInfo, BeatStrength, SectionInfo, MusicSection
+    AudioAnalysisResult, BeatStrength, MusicSection
 )
 
 

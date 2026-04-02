@@ -23,9 +23,8 @@ Premiere Pro 项目文件是 XML 格式的，包含：
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import uuid
-import time
 from pathlib import Path
-from typing import List, Dict, Optional, Any, Tuple
+from typing import List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 

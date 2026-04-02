@@ -7,10 +7,9 @@
 - MonologueMaker: AI 第一人称独白
 """
 
-import os
 import uuid
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Callable, TypeVar, Generic
+from typing import Optional, List, Dict, Callable, TypeVar, Generic
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 

@@ -9,8 +9,7 @@ Caption Generator - 动态字幕生成器
 - 支持多种字幕样式预设
 """
 
-import re
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path

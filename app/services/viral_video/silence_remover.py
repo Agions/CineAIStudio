@@ -9,7 +9,6 @@ Silence Remover - 静音检测与移除
 - 输出剪辑时间点，用于时间轴编辑
 """
 
-import numpy as np
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
 from pathlib import Path

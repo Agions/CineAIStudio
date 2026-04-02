@@ -6,9 +6,8 @@
 无痕去除视频中的原有字幕
 """
 
-from typing import Optional, List, Dict, Tuple
+from typing import Optional, List, Dict
 import subprocess
-import os
 import logging
 logger = logging.getLogger(__name__)
 

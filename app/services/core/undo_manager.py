@@ -36,7 +36,6 @@ logger = logging.getLogger(__name__)
 """
 
 import json
-import pickle
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path

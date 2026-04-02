@@ -3,14 +3,12 @@
 Highlight Detector - Auto Clip Generation
 """
 
-import os
 import subprocess
 import json
 import numpy as np
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from pathlib import Path
-from datetime import datetime
 
 
 @dataclass

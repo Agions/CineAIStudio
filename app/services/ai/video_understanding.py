@@ -12,9 +12,8 @@
 
 import os
 import json
-import base64
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 import logging

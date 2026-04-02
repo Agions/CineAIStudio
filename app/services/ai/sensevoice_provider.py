@@ -15,7 +15,7 @@ https://github.com/FunAudioLLM/SenseVoice
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -36,7 +36,8 @@ class Emotion(str, Enum):
 
 
 EMOTION_KEYWORDS: dict[Emotion, List[str]] = {
-    Emotion.HAPPY: ["哈哈", "开心", "高兴", "太好了", "哈哈哈", "笑", "happy", "great", "awesome"],
+    Emotion.HAPPY: ["哈哈", "开心", "高兴", "太好了", "哈哈哈", "笑",
+                    "happy", "great", "awesome"],
     Emotion.SAD: ["难过", "伤心", "悲伤", "哭了", "sad", "unhappy", "terrible"],
     Emotion.ANGRY: ["生气", "愤怒", "可恶", "讨厌", "angry", "mad", "hate"],
     Emotion.FEARFUL: ["害怕", "紧张", "担心", "fear", "worried", "nervous"],
@@ -135,7 +136,6 @@ class SenseVoiceProvider:
         # SenseVoice 完整模型加载
         try:
             logger.info(f"加载 SenseVoice-{self.model_size} 模型...")
-            import ctranslate2
 
             # 模型路径: https://huggingface.co/FunAudioLLM/SenseVoice-large
             # 实际部署时需要提前下载模型文件

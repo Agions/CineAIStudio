@@ -7,7 +7,7 @@
 使用公共混入类减少重复代码
 """
 
-from typing import List, Dict, Any
+from typing import List
 
 from ..base_llm_provider import (
     BaseLLMProvider,

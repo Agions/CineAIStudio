@@ -11,11 +11,11 @@ logger = logging.getLogger(__name__)
 """
 
 from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from .jianying_exporter import JianyingExporter, JianyingDraft
+from .jianying_exporter import JianyingExporter
 from .premiere_exporter import PremiereExporter
 from .finalcut_exporter import FinalCutExporter
 from .davinci_exporter import DaVinciExporter

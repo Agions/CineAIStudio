@@ -7,9 +7,8 @@
 """
 
 import os
-from typing import Optional, Callable
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton, QFrame
-from PySide6.QtCore import Qt, QTimer, Signal, QUrl, QSize
+from PySide6.QtCore import Qt, Signal, QUrl
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
 

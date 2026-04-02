@@ -7,13 +7,12 @@ VideoForge 应用启动器
 """
 
 import sys
-import os
 import traceback
 from typing import List, Optional
 
 from PySide6.QtWidgets import QApplication, QSplashScreen, QMessageBox
-from PySide6.QtCore import QTimer, QThread, Signal, Qt
-from PySide6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
+from PySide6.QtCore import QThread, Qt
+from PySide6.QtGui import QPixmap, QPainter, QFont, QColor
 
 from .core.config_manager import ConfigManager
 from .core.logger import Logger
@@ -21,8 +20,7 @@ from .core.icon_manager import init_icon_manager
 from .core.project_manager import ProjectManager
 from .core.project_template_manager import ProjectTemplateManager
 from .core.project_settings_manager import ProjectSettingsManager
-from .core.project_version_manager import ProjectVersionManager
-from .utils.error_handler import handle_exception, show_error_dialog
+from .utils.error_handler import show_error_dialog
 from .ui.main.main_window import MainWindow
 from .core.application import ApplicationState
 

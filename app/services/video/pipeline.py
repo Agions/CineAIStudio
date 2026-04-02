@@ -6,11 +6,9 @@
 协调视频制作的各个步骤
 """
 
-import asyncio
-from typing import Optional, Dict, Any, Callable, List
+from typing import Dict, Any, Callable, List
 from dataclasses import dataclass, field
 from enum import Enum
-from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,7 +19,6 @@ from .presets import (
     MashupConfig,
     MonologueConfig,
     EncodingConfig,
-    PlatformPreset,
     PresetFactory,
 )
 
@@ -377,7 +374,6 @@ class VideoPipeline:
         """渲染混剪"""
         # 简化: 拼接所有视频
         import subprocess
-        import os
         
         # 创建临时文件列表
         list_file = "/tmp/mashup_list.txt"

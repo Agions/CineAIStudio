@@ -223,7 +223,7 @@ class CutPreviewGenerator:
             # 清理临时文件
             try:
                 os.remove(concat_file)
-            except:
+            except OSError:
                 pass
 
             logger.info(f"Preview generated: {output_path}")
@@ -307,7 +307,7 @@ class CutPreviewGenerator:
                 return minutes * 60 + seconds
             else:
                 return float(parts[0])
-        except:
+        except (ValueError, IndexError):
             return 0.0
 
     def get_preview_info(self, preview_path: str) -> Dict[str, Any]:

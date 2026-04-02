@@ -6,10 +6,9 @@ macOS 主题管理器 - 负责应用和切换 macOS 设计系统
 实现动态主题管理、资源加载和状态同步
 """
 
-import os
 import logging
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Optional
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QFile, QTextStream, Signal, QObject
 from PySide6.QtGui import QFont

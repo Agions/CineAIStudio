@@ -7,13 +7,12 @@
 """
 
 import time
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                            QPushButton, QProgressBar, QTableWidget,
-                            QTableWidgetItem, QFrame, QSplitter, QGroupBox,
-                            QTextEdit, QScrollArea)
-from PySide6.QtCore import Qt, QTimer, Signal, QThread, QRect
-from PySide6.QtGui import QFont, QPalette, QColor, QPainter, QPen
+                            QPushButton, QProgressBar, QSplitter, QGroupBox,
+                            QScrollArea, QDialog, QMessageBox)
+from PySide6.QtCore import Qt, QTimer, Signal, QRect
+from PySide6.QtGui import QFont, QColor, QPainter, QPen, QPoint
 
 from ...export.export_system import ExportTask, ExportStatus
 from ...core.logger import Logger
@@ -489,7 +488,7 @@ class ExportMonitorWidget(QWidget):
         try:
             self.update_timer.stop()
         except Exception:
-            logger.debug("Operation failed")
+            self.logger.debug("Operation failed")
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""

@@ -3,12 +3,12 @@ VideoForge 空状态组件 - 品牌升级版
 带引导语的插画风格空状态
 """
 
-from typing import Optional, List, Callable
+from typing import Optional
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
 )
-from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QFont, QPainter, QColor, QLinearGradient, QPainterPath, QPixmap
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont, QPainter, QColor, QLinearGradient
 
 # 色彩系统 - VideoForge 现代暗色主题
 COLORS = {

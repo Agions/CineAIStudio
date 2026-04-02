@@ -11,33 +11,25 @@ VideoForge - AI 视频创作页面
 
 import os
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Callable
-from dataclasses import dataclass
+from typing import List, Callable
 from enum import Enum
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QTextEdit, QLineEdit,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit, QLineEdit,
     QFileDialog, QProgressBar, QComboBox, QSpinBox,
     QTabWidget, QListWidget, QListWidgetItem, QSplitter,
-    QGroupBox, QSlider, QCheckBox, QFrame, QScrollArea,
-    QMessageBox, QStackedWidget, QSizePolicy, QApplication
+    QSlider, QCheckBox, QFrame, QMessageBox
 )
-from PySide6.QtCore import Qt, QThread, Signal, QSize, QTimer, QUrl
-from PySide6.QtGui import QFont, QIcon, QPixmap, QDragEnterEvent, QDropEvent
+from PySide6.QtCore import Qt, QThread, Signal, QUrl
+from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
 
 from .base_page import BasePage
 from app.ui.components import (
     MacCard, MacTitleLabel, MacPrimaryButton, MacSecondaryButton, MacLabel,
-    MacGrid, MacScrollArea
+    MacScrollArea
 )
-from app.services.video.commentary_maker import CommentaryMaker, CommentaryStyle
-from app.services.video.mashup_maker import MashupMaker, MashupStyle
-from app.services.video.monologue_maker import MonologueMaker, MonologueStyle
-from app.services.ai.voice_generator import VoiceConfig
-from app.services.viral_video.caption_generator import CaptionStyle
 
 
 class CreationType(Enum):

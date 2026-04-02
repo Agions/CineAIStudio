@@ -8,29 +8,23 @@ VideoForge - AI 剧情分析页面
 
 import os
 import logging
-from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QTextEdit, QLineEdit,
-    QFileDialog, QProgressBar, QComboBox, QSpinBox,
+    QWidget, QVBoxLayout, QFileDialog, QProgressBar, QComboBox, QSpinBox,
     QTabWidget, QListWidget, QListWidgetItem, QSplitter,
-    QGroupBox, QCheckBox, QFrame, QScrollArea, QTableWidget,
-    QTableWidgetItem, QHeaderView, QMessageBox, QSizePolicy,
-    QProgressDialog
+    QTableWidget,
+    QTableWidgetItem, QHeaderView, QMessageBox, QProgressDialog
 )
-from PySide6.QtCore import Qt, QThread, Signal, QSize, QTimer
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtCore import Qt, QThread, Signal
 
 from .base_page import BasePage
 from app.ui.components import (
-    MacCard, MacElevatedCard, MacTitleLabel, MacPrimaryButton,
-    MacSecondaryButton, MacLabel, MacScrollArea, MacEmptyState,
-    MacPageToolbar
+    MacCard, MacElevatedCard, MacPrimaryButton,
+    MacSecondaryButton, MacLabel, MacScrollArea, MacPageToolbar
 )
 from app.services.ai.story_analyzer import (
-    StoryAnalyzer, StoryAnalysisResult, PlotType, SceneType
+    StoryAnalyzer, StoryAnalysisResult
 )
 from app.services.ai.batch_story_processor import (
     BatchStoryProcessor, BatchStatus

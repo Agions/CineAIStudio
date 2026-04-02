@@ -6,7 +6,6 @@ AI状态监控面板
 实时监控AI服务的运行状态、性能指标和使用情况
 """
 
-import json
 import time
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
@@ -15,33 +14,21 @@ from datetime import datetime, timedelta
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
-    QPushButton, QLabel, QFrame, QSpacerItem,
-    QSizePolicy, QGroupBox, QStackedWidget, QSplitter,
-    QTabWidget, QLineEdit, QTextEdit, QComboBox, QSpinBox,
-    QDoubleSpinBox, QCheckBox, QRadioButton, QButtonGroup,
-    QFileDialog, QColorDialog, QFontDialog, QMessageBox,
-    QSlider, QSpinBox, QTableWidget, QTableWidgetItem,
-    QHeaderView, QListWidget, QListWidgetItem, QProgressBar,
-    QFormLayout, QToolButton, QDialog, QDialogButtonBox,
-    QSystemTrayIcon, QMenu, QApplication, QStyle
+    QPushButton, QLabel, QFrame, QGroupBox, QStackedWidget, QComboBox, QMessageBox,
+    QTableWidget, QTableWidgetItem
 )
 from PySide6.QtCore import (
-    Qt, QSize, QTimer, Signal, QPoint, QRect, QSettings,
-    QMimeData, QUrl, QEvent, QRectF, QThread, Slot,
-    QPropertyAnimation, QEasingCurve, QThread
+    Qt, QTimer, Signal, QPoint
 )
 from PySide6.QtGui import (
-    QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
-    QPainter, QPen, QBrush, QPainterPath, QFontDatabase,
-    QDesktopServices, QRegularExpression, QPainter
+    QPixmap, QColor, QCursor,
+    QPainter, QPen, QBrush, QPainterPath, QPainter
 )
 
-from ...core.config_manager import ConfigManager
 from ...core.logger import Logger
 from ...core.icon_manager import get_icon
 from ...core.application import Application
-from ...services import AIServiceManager, ServiceStatus
-from ...utils.error_handler import handle_exception
+from ...services import ServiceStatus
 
 
 class MonitorMode(Enum):
@@ -995,13 +982,14 @@ class AIMonitorPanel(QWidget):
 
     def _add_alert(self, alert: AlertData):
         """添加告警"""
-        # 检查是否已存在相似的告警
+        now = time.time()
+        # 检查是否已存在相似的告警（5分钟内不重复告警）
         for existing_alert in self.alerts:
             if (existing_alert.service_name == alert.service_name and
                 existing_alert.level == alert.level and
                 existing_alert.message == alert.message and
                 not existing_alert.resolved and
-                current_time - existing_alert.timestamp < 300):  # 5分钟内
+                now - existing_alert.timestamp < 300):
                 return
 
         self.alerts.append(alert)

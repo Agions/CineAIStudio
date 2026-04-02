@@ -32,7 +32,7 @@ import logging
 # 获取 logger
 logger = logging.getLogger(__name__)
 from pathlib import Path
-from typing import List, Dict, Optional, Any, Tuple
+from typing import List, Dict, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 

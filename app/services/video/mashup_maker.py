@@ -28,17 +28,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import os
 import random
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .base_maker import BaseVideoMaker, ProgressMixin
+from .base_maker import ProgressMixin
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo, AnalysisConfig
 from ..export.jianying_exporter import (
-    JianyingExporter, JianyingDraft, JianyingConfig,
+    JianyingExporter, JianyingConfig,
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial,
 )

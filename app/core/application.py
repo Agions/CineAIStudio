@@ -6,11 +6,9 @@ VideoForge 应用程序核心类
 负责应用程序的生命周期管理、服务管理和状态控制
 """
 
-import sys
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer, Signal, QObject, QSettings
@@ -397,7 +395,7 @@ class Application(QObject):
         """初始化其他服务"""
         try:
             # 使用已存在的服务代替
-            from ..services import AIServiceManager, get_ai_service_manager
+            from ..services import get_ai_service_manager
 
             # 创建并注册AI服务管理器
             ai_service_manager = get_ai_service_manager()

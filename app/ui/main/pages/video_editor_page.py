@@ -4,21 +4,19 @@
 """
 
 import os
-from typing import Optional, Dict, Any, List
+from typing import List
 import logging
 logger = logging.getLogger(__name__)
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLabel,
-    QFrame, QScrollArea, QStackedWidget, QProgressBar,
-    QComboBox, QSlider, QTabWidget, QListWidget, QListWidgetItem,
-    QLineEdit, QMessageBox, QFileDialog, QApplication,
-    QToolBox, QSizePolicy, QFormLayout, QPushButton
+    QFrame, QComboBox, QSlider, QTabWidget, QListWidget, QListWidgetItem,
+    QFileDialog, QSpinBox
 )
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtCore import Qt, Signal, QSize, QTimer, QUrl, QMimeData
-from PySide6.QtGui import QIcon, QAction, QDragEnterEvent, QDropEvent
+from PySide6.QtCore import Qt, Signal, QSize, QUrl
+from PySide6.QtGui import QDragEnterEvent, QDropEvent
 
 from .base_page import BasePage
 from app.services.ai_service.mock_ai_service import MockAIService
@@ -30,9 +28,7 @@ from app.ui.common.macOS_components import create_icon_text_row
 # 导入标准化 macOS 组件
 from app.ui.components import (
     MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
-    MacDangerButton, MacIconButton, MacTitleLabel, MacLabel, MacBadge,
-    MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
-    MacSearchBox, MacButtonGroup
+    MacIconButton, MacTitleLabel, MacLabel, MacScrollArea, MacEmptyState
 )
 
 

@@ -4,19 +4,11 @@ macOS 设计系统 - 通用组件库
 """
 
 # 从新模块导入所有组件，保持向后兼容
-from app.ui.components.containers import MacCard, MacElevatedCard, MacSection
-from app.ui.components.buttons import (
-    MacButton, MacPrimaryButton, MacSecondaryButton,
-    MacDangerButton, MacIconButton, MacButtonGroup
-)
-from app.ui.components.labels import MacLabel, MacTitleLabel, MacBadge, MacStatLabel
-from app.ui.components.inputs import MacSearchBox
-from app.ui.components.layout import MacScrollArea, MacGrid, MacPageToolbar, MacEmptyState
+from app.ui.components.labels import MacLabel, MacBadge
 
 # 保留自定义辅助函数
-from typing import Optional, List
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
-from PySide6.QtCore import Qt
+from typing import Optional
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
 
 def create_icon_text_row(icon: str, text: str, parent: Optional[QWidget] = None) -> QWidget:

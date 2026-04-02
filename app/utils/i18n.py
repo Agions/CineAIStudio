@@ -6,9 +6,7 @@
 提供完整的多语言切换功能
 """
 
-import os
-from typing import Dict, Optional, List
-from pathlib import Path
+from typing import Dict, List
 import logging
 logger = logging.getLogger(__name__)
 

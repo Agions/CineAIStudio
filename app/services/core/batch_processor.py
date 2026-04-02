@@ -29,7 +29,6 @@
     results = processor.run()
 """
 
-import os
 import subprocess
 from pathlib import Path
 from typing import List, Dict, Optional, Any, Callable
@@ -258,7 +257,7 @@ class BatchProcessor:
     
     def _analyze_video(self, task: BatchTask) -> None:
         """分析视频"""
-        from app.services.ai import SceneAnalyzer, AnalysisConfig
+        from app.services.ai import SceneAnalyzer
         
         analyzer = SceneAnalyzer()
         
@@ -320,7 +319,7 @@ class BatchProcessor:
     
     def _export_jianying(self, task: BatchTask) -> None:
         """导出剪映草稿"""
-        from app.services.export import JianyingExporter, JianyingDraft
+        from app.services.export import JianyingExporter
         
         task.progress = 30.0
         

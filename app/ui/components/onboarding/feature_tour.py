@@ -4,9 +4,9 @@
 """
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QPushButton, QFrame, QScrollArea)
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, Signal, QTimer
-from PySide6.QtGui import QFont, QColor, QPainter, QLinearGradient
+                             QPushButton, QFrame)
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, Signal
+from PySide6.QtGui import QFont, QColor, QPainter
 
 # 色彩系统
 COLORS = {

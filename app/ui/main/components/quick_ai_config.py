@@ -7,9 +7,8 @@
 使用标准化组件，零内联样式
 """
 
-import os
 import webbrowser
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,

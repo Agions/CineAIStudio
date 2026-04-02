@@ -11,19 +11,16 @@ import json
 import shutil
 import uuid
 import zipfile
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Callable
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field, asdict
-from pathlib import Path
 from enum import Enum
 import logging
 
-from PySide6.QtCore import QObject, Signal, QSettings
+from PySide6.QtCore import QObject, Signal
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager
-from .event_bus import EventBus
-from .logger import Logger
 
 
 class ProjectStatus(Enum):

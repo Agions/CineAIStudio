@@ -6,8 +6,8 @@
 用于内容加载时显示的占位符效果
 """
 
-from PySide6.QtWidgets import QWidget, QFrame, QLabel, QVBoxLayout, QHBoxLayout
-from PySide6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QRect
+from PySide6.QtWidgets import QWidget, QFrame, QVBoxLayout, QHBoxLayout
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPainter, QLinearGradient, QColor
 
 

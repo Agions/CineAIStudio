@@ -4,7 +4,7 @@ Mock AI Service - 模拟 AI 服务
 用于测试和开发环境
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 import time
 
 

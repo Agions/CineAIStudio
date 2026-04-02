@@ -4,7 +4,6 @@
 实现统一的缓存系统，支持多种缓存策略。
 """
 
-import os
 import json
 import pickle
 import shutil

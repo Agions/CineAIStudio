@@ -8,9 +8,8 @@ VideoForge 属性面板
 
 from typing import Optional, Dict, Any
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-    QDoubleSpinBox, QComboBox, QTextEdit, QGroupBox,
-    QFormLayout, QFrame, QScrollArea, QPushButton, QSlider,
+    QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QComboBox, QTextEdit, QGroupBox,
+    QFormLayout, QScrollArea, QSlider,
     QCheckBox
 )
 from PySide6.QtCore import Qt, Signal

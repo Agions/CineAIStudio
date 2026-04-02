@@ -6,27 +6,24 @@ VideoForge - 剪辑模板编辑器页面
 用于创建、编辑和管理自定义剪辑模板
 """
 
-import os
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QLineEdit, QTextEdit,
-    QFileDialog, QProgressBar, QComboBox, QSpinBox,
-    QTabWidget, QListWidget, QListWidgetItem, QSplitter,
-    QGroupBox, QCheckBox, QFrame, QScrollArea, QTableWidget,
-    QTableWidgetItem, QHeaderView, QMessageBox, QSizePolicy,
-    QDialog, QFormLayout
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QTextEdit,
+    QComboBox, QSpinBox,
+    QListWidget, QListWidgetItem, QSplitter,
+    QCheckBox, QTableWidget,
+    QTableWidgetItem, QHeaderView, QMessageBox, QDialog
 )
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
 from .base_page import BasePage
 from app.ui.components import (
-    MacCard, MacElevatedCard, MacTitleLabel, MacPrimaryButton,
-    MacSecondaryButton, MacDangerButton, MacLabel, MacScrollArea,
-    MacPageToolbar, MacEmptyState
+    MacCard, MacElevatedCard, MacPrimaryButton,
+    MacSecondaryButton, MacLabel, MacScrollArea,
+    MacPageToolbar
 )
 from app.services.ai.cut_template import (
     CutTemplateManager, CutTemplate, TemplateStyle, SegmentRule, SegmentConfig

@@ -7,8 +7,6 @@
 import os
 import re
 import subprocess
-import hashlib
-import mimetypes
 from typing import Optional, List, Any, Dict
 from pathlib import Path
 from dataclasses import dataclass

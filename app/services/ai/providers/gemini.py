@@ -8,7 +8,7 @@ Google Gemini 提供商
 使用公共混入类减少重复代码
 """
 
-from typing import List, Dict, Any
+from typing import List
 import base64
 from pathlib import Path
 

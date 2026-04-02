@@ -3,9 +3,9 @@
 """
 
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel, 
-                             QPushButton, QMenu, QFrame)
+                             QPushButton, QMenu)
 from PySide6.QtCore import Qt, Signal, QPoint
-from PySide6.QtGui import QFont, QColor, QPainter, QLinearGradient
+from PySide6.QtGui import QColor, QPainter
 
 from .theme_optimizer import ThemePresets
 

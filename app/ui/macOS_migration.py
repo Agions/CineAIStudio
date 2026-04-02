@@ -13,10 +13,8 @@ import os
 import sys
 import shutil
 from pathlib import Path
-from typing import List, Dict, Tuple
 
 # PyQt6 导入
-from PySide6.QtCore import QFile, QTextStream
 
 class MigrationManager:
     """迁移管理器 - 负责UI迁移"""
@@ -668,7 +666,6 @@ class NavigationButton(QPushButton):
 
     def _update_home_title_section(self, content: str) -> str:
         """迁移标题区域"""
-        import re
 
         # 匹配标题创建方法
         pattern = r'(def _create_title_section\(self\).*?)(return widget)'

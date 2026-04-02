@@ -24,9 +24,8 @@ Final Cut Pro 使用 FCPXML 格式，包含：
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import uuid
-from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional, Any
+from typing import List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 

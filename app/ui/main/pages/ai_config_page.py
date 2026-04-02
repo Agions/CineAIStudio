@@ -6,9 +6,7 @@ AI配置管理页面
 提供国产AI模型的配置、测试和管理功能
 """
 
-import json
-import webbrowser
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 
@@ -16,34 +14,21 @@ import logging
 logger = logging.getLogger(__name__)
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
-    QPushButton, QLabel, QFrame, QSpacerItem,
-    QSizePolicy, QGroupBox, QStackedWidget, QSplitter,
-    QTabWidget, QLineEdit, QTextEdit, QComboBox, QSpinBox,
-    QDoubleSpinBox, QCheckBox, QRadioButton, QButtonGroup,
-    QFileDialog, QColorDialog, QFontDialog, QMessageBox,
-    QSlider, QSpinBox, QTableWidget, QTableWidgetItem,
-    QHeaderView, QListWidget, QListWidgetItem, QProgressBar,
-    QFormLayout, QToolButton, QDialog, QDialogButtonBox,
-    QSystemTrayIcon, QMenu, QApplication, QStyle
+    QWidget, QVBoxLayout, QHBoxLayout, QScrollArea,
+    QPushButton, QLabel, QFrame, QLineEdit, QMessageBox,
+    QProgressBar,
+    QFormLayout, QToolButton, QDialog, QApplication
 )
 from PySide6.QtCore import (
-    Qt, QSize, QTimer, Signal, QPoint, QRect, QSettings,
-    QMimeData, QUrl, QEvent, QRectF, QThread, Slot
+    Qt, Signal
 )
 from PySide6.QtGui import (
-    QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
-    QPainter, QPen, QBrush, QPainterPath, QFontDatabase,
-    QDesktopServices, QRegularExpression
+    QPixmap, QFont, QColor, QPainter, QPen, QBrush
 )
 
-from ...core.config_manager import ConfigManager
 from ...core.logger import Logger
 from ...core.icon_manager import get_icon
 from ...core.application import Application
-from ...services.ai_service.ai_service_manager import AIServiceManager
-from ...services.ai_service.base_ai_service import ModelStatus, ModelCapability
-from ...utils.error_handler import handle_exception
 from .base_page import BasePage
 
 

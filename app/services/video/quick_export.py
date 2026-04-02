@@ -8,12 +8,11 @@
 
 import os
 import subprocess
-from pathlib import Path
-from typing import Optional, Dict, List
+from typing import List
 from dataclasses import dataclass
 
-from .presets import PlatformPreset, QualityPreset, EncodingConfig
-from .effects_presets import FilterPreset, TransitionPreset
+from .presets import PlatformPreset
+from .effects_presets import FilterPreset
 
 
 @dataclass

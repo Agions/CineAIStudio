@@ -6,8 +6,8 @@
 内置常用视频效果配置
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+from dataclasses import dataclass
+from typing import List, Dict
 from enum import Enum
 
 

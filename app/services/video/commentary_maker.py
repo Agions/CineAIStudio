@@ -25,12 +25,11 @@ AI 视频解说制作器 (Commentary Maker)
 
 import os
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 from dataclasses import dataclass, field
 from enum import Enum
 
 from .base_maker import BaseVideoMaker, BaseProject, merge_audio_files, composite_video_with_audio
-from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo, AnalysisConfig
 from ..ai.script_generator import ScriptGenerator, ScriptConfig, ScriptStyle
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig
 from ..viral_video.caption_generator import CaptionGenerator, CaptionStyle

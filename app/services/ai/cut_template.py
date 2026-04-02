@@ -5,7 +5,6 @@
 支持预设模板和用户自定义模板。
 """
 
-import os
 import json
 import logging
 from pathlib import Path

@@ -6,7 +6,7 @@
 用于构建完整故事视频
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
 

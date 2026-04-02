@@ -11,9 +11,7 @@ import sys
 import importlib
 import importlib.util
 import time
-import traceback
 from typing import Dict, List, Any, Optional, Type
-from pathlib import Path
 
 from .plugin_interface import PluginInterface, PluginContext, PluginStatus
 from .plugin_registry import PluginRegistry, PluginRegistryEntry

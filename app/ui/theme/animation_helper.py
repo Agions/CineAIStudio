@@ -4,7 +4,6 @@
 
 from PySide6.QtWidgets import QWidget, QGraphicsOpacityEffect
 from PySide6.QtCore import QPropertyAnimation, QEasingCurve, QTimer, Qt
-from PySide6.QtGui import QPainter, QColor, QLinearGradient
 
 
 class AnimationHelper:

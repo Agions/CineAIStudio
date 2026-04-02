@@ -3,10 +3,9 @@
 Video Enhancement Module - AI Super Resolution, Frame Interpolation, Denoising
 """
 
-import os
 import subprocess
 import json
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path

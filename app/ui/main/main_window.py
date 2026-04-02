@@ -7,34 +7,29 @@ VideoForge 主窗口 - 设置版本
 """
 
 import os
-import sys
-from typing import Optional, Dict, Any
+from typing import Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget,
-    QToolBar, QStatusBar, QMenuBar, QSplitter, QFrame, QLabel,
-    QSizePolicy, QApplication, QMessageBox, QPushButton
+    QStatusBar, QFrame, QLabel,
+    QApplication, QMessageBox, QPushButton
 )
 from PySide6.QtCore import (
-    Qt, QSize, QTimer, Signal, QPoint, QRect, QSettings,
-    QMimeData, QUrl, QEvent
+    Qt, QSize, QTimer, Signal, QSettings
 )
 from PySide6.QtGui import (
-    QIcon, QPixmap, QFont, QPalette, QColor, QCursor,
-    QAction, QFontDatabase, QCloseEvent, QKeySequence, QShortcut
+    QIcon, QFont, QCloseEvent
 )
 
 
 from ...core.config_manager import ConfigManager
 from ...core.logger import Logger
 from ...core.icon_manager import get_icon_manager, get_icon
-from ...core.macOS_theme_manager import get_theme_manager, apply_macos_theme
 from ...core.event_bus import EventBus
 from ...core.application import Application, ApplicationState, ErrorInfo, ErrorType, ErrorSeverity
 from ...utils.error_handler import ErrorHandler
-from ...utils.error_handler import handle_exception, show_error_dialog
 
 
 class PageType(Enum):
@@ -439,7 +434,6 @@ class MainWindow(QMainWindow):
                     
                     # 单个页面加载失败不影响其他页面
                     if self.error_handler:
-                        from PySide6.QtWidgets import QApplication
                         import time
                         error_info = ErrorInfo(
                             error_type=ErrorType.UI,
@@ -730,16 +724,17 @@ class MainWindow(QMainWindow):
 
             self.logger.info(f"切换到页面: {page_type.value}")
 
-        except Exception as e:
-            self.logger.error(f"切换页面失败: {e}")
+        except Exception as exc:
+            self.logger.error(f"切换页面失败: {exc}")
             if self.error_handler:
                 # 创建一个简单的ErrorInfo对象
+                err = exc
                 class ErrorInfo:
-                    def __init__(self, error_type, message):
+                    def __init__(self, error_type: str, message: str):
                         self.error_type = error_type
                         self.message = message
-                        self.exception = e
-                self.error_handler.handle_error(ErrorInfo("UI", f"切换页面失败: {e}"))
+                        self.exception = err
+                self.error_handler.handle_error(ErrorInfo("UI", f"切换页面失败: {err}"))
             # 确保页面切换成功，即使动画失败
             self.logger.warning("页面切换动画失败，已跳过动画")
 

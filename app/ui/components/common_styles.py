@@ -6,7 +6,6 @@ UI 组件通用样式
 减少 UI 代码重复
 """
 
-from enum import Enum
 
 
 class ColorPalette:

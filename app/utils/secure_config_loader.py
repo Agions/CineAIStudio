@@ -8,7 +8,6 @@ import os
 import json
 import logging
 from typing import Any, Dict, Optional
-from pathlib import Path
 import yaml
 
 # ✅ 新增：python-dotenv 支持
@@ -23,8 +22,7 @@ except ImportError:
 from ..utils.security import (
     PathValidator,
     InputSanitizer,
-    SecurityError,
-    ALLOWED_DOCUMENT_EXTENSIONS
+    SecurityError
 )
 
 logger = logging.getLogger(__name__)

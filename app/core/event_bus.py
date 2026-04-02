@@ -7,7 +7,7 @@ VideoForge 事件总线模块
 """
 
 import threading
-from typing import Dict, List, Callable, Any, Optional
+from typing import Dict, List, Callable, Any
 from contextlib import contextmanager
 from .logger import Logger
 

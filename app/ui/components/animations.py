@@ -7,7 +7,7 @@
 
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import QPropertyAnimation, QEasingCurve, Qt, QRect, Signal, QTimer
-from PySide6.QtGui import QPainter, QColor, QLinearGradient
+from PySide6.QtGui import QPainter, QColor
 
 
 class FadeInWidget(QWidget):

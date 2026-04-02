@@ -28,12 +28,11 @@
 """
 
 import os
-import json
 import time
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable, Tuple
+from typing import Dict, List, Optional, Callable, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -217,7 +216,6 @@ class BilibiliPublisher(BasePublisher):
         
         B站使用分片上传
         """
-        import httpx
         
         file_path = Path(video_path)
         file_size = file_path.stat().st_size

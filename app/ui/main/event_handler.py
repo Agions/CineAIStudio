@@ -3,7 +3,7 @@
 """
 
 import logging
-from typing import Callable, Dict, Any
+from typing import Dict, Any
 from datetime import datetime
 
 

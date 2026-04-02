@@ -5,13 +5,12 @@
 
 from typing import List, Optional
 from dataclasses import dataclass
-from enum import Enum
 
 from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel,
-    QFrame, QSizePolicy, QSpacerItem
+    QWidget, QHBoxLayout, QPushButton, QLabel,
+    QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal
 
 
 class NavigationButton(QPushButton):

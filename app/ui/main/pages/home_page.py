@@ -6,12 +6,12 @@ VideoForge 首页 - 模板选择式设计
 简洁、美观、以创作流程为核心
 """
 
-from typing import Optional, Dict, Any, List
+from typing import List
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
-    QFrame, QScrollArea, QSizePolicy, QSpacerItem, QPushButton
+    QFrame, QScrollArea, QPushButton
 )
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QCursor
 
 from .base_page import BasePage

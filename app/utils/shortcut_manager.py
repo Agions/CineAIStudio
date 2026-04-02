@@ -5,11 +5,11 @@
 
 import logging
 from typing import Dict, Callable, Optional, List, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QKeySequence, QShortcut, QKeyEvent
+from PySide6.QtGui import QKeySequence, QShortcut
 
 logger = logging.getLogger(__name__)
 

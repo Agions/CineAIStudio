@@ -7,7 +7,6 @@ VideoForge 图标管理器
 支持自定义图标和 PyQt 标准图标
 """
 
-import os
 from typing import Optional, Dict
 from pathlib import Path
 

@@ -10,12 +10,10 @@ import os
 import sys
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Optional
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-    QPushButton, QFrame, QScrollArea, QFileDialog, QMessageBox,
-    QSizePolicy, QSpacerItem
+    QPushButton, QFrame, QScrollArea, QFileDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QCursor

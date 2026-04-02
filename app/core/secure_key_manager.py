@@ -190,7 +190,8 @@ class SecureKeyManager:
                 if key_data_str:
                     key_data = json.loads(key_data_str)
                     return key_data
-            except Exception as e:
+            except Exception:
+                # keyring 访问失败，降级到加密文件
                 pass
 
             # 降级到加密文件

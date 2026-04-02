@@ -38,11 +38,11 @@ AI 文案生成器 (Script Generator)
 
 import os
 import asyncio
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .base_llm_provider import LLMRequest, LLMResponse, ProviderError
+from .base_llm_provider import LLMRequest
 from .llm_manager import LLMManager, load_llm_config
 
 

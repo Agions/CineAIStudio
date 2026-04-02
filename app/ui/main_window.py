@@ -7,15 +7,14 @@ VideoForge 主窗口 - 全新设计
 - 编辑面板: 全屏对话框
 """
 
-from PySide6.QtCore import Qt, QSize, Signal, QTimer
-from PySide6.QtGui import QAction, QKeySequence, QPalette, QColor
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QKeySequence, QPalette, QColor
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QToolBar, QMenuBar, QMenu, QStatusBar,
+    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QToolBar, QStatusBar,
     QLabel, QPushButton, QFrame, QGroupBox,
     QLineEdit, QComboBox, QCheckBox,
     QDialog, QStackedWidget, QScrollArea, QListWidget, QListWidgetItem,
-    QFileDialog, QMessageBox, QSlider,
+    QMessageBox,
 )
 
 

@@ -8,7 +8,7 @@
 import os
 import logging
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Callable
+from typing import Optional, List, Dict, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime

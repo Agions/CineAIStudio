@@ -30,24 +30,20 @@ Beat-Sync 混剪制作器
     maker.export_video(project, "output.mp4")
 """
 
-import os
 import subprocess
 import logging
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
 
 # 获取 logger
 logger = logging.getLogger(__name__)
 
-from .base_maker import BaseVideoMaker
 from ..audio.beat_detector import (
     BeatDetector, 
-    BeatInfo, 
     BeatSyncCutpoint,
     BeatStrength,
-    MusicSection,
 )
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 

@@ -8,7 +8,7 @@
 3. OCR 识别硬字幕
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict
 from enum import Enum
 from pathlib import Path
 

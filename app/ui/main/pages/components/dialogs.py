@@ -6,30 +6,20 @@
 包含 CreateProjectDialog 和 ProjectSettingsDialog
 """
 
-import os
-from datetime import datetime
-from typing import Optional, Dict, Any, List
-from pathlib import Path
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
-    QScrollArea, QFrame, QDialog, QLineEdit, QTextEdit,
-    QComboBox, QSpinBox, QDoubleSpinBox, QCheckBox, QGroupBox,
-    QTabWidget, QHeaderView, QFormLayout, QSlider, QSpacerItem, QSizePolicy,
-    QMessageBox
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QDialog, QLineEdit, QTextEdit,
+    QComboBox, QSpinBox, QCheckBox, QTabWidget, QSlider, QMessageBox
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QSize, QPoint
-from PySide6.QtGui import QIcon, QPixmap, QFont
+from PySide6.QtCore import Qt
 
 from app.ui.components import (
     MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
-    MacDangerButton, MacIconButton, MacTitleLabel, MacLabel, MacBadge,
-    MacPageToolbar, MacGrid, MacScrollArea, MacEmptyState,
-    MacSearchBox, MacButtonGroup,
+    MacIconButton, MacTitleLabel, MacLabel, MacScrollArea, MacSearchBox,
 )
-from app.core.project_template_manager import ProjectTemplateManager, TemplateInfo
+from app.core.project_template_manager import ProjectTemplateManager
 from app.core.project_settings_manager import ProjectSettingsManager
-from app.core.project_manager import Project, ProjectType, ProjectStatus
+from app.core.project_manager import Project, ProjectType
 
 from .project_cards import TemplateCard
 

@@ -5,13 +5,10 @@
 VideoForge 设计系统 - 统一 UI 组件
 """
 
-from typing import Optional
 from PySide6.QtWidgets import (
-    QWidget, QPushButton, QLabel, QLineEdit, QTextEdit, 
-    QFrame, QProgressBar, QSlider, QCheckBox, QScrollArea
+    QWidget, QPushButton, QLabel, QLineEdit, QProgressBar
 )
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
 
 
 class DesignSystem:

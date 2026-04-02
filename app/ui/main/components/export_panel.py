@@ -7,19 +7,16 @@
 """
 
 import os
-import json
 from typing import Dict, List, Any, Optional
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                            QPushButton, QComboBox, QSpinBox, QDoubleSpinBox,
-                            QProgressBar, QTableWidget, QTableWidgetItem,
+                            QPushButton, QComboBox, QSpinBox, QTableWidget, QTableWidgetItem,
                             QFileDialog, QMessageBox, QTabWidget, QGroupBox,
-                            QLineEdit, QTextEdit, QCheckBox, QSlider, QDialog,
-                            QDialogButtonBox, QFormLayout, QScrollArea)
-from PySide6.QtCore import Qt, QTimer, Signal, QThread
-from PySide6.QtGui import QFont, QPalette, QColor
+                            QLineEdit, QTextEdit, QCheckBox, QDialog,
+                            QDialogButtonBox, QFormLayout)
+from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtGui import QColor
 
-from ...export.export_system import ExportSystem, ExportTask, ExportPreset
-from ...export.jianying_draft_generator import JianyingDraftGenerator
+from ...export.export_system import ExportTask, ExportPreset
 from ...core.logger import Logger
 
 
@@ -907,7 +904,7 @@ class ExportPanel(QWidget):
         try:
             self.queue_widget.update_timer.stop()
         except Exception:
-            logger.debug("Operation failed")
+            self.logger.debug("Operation failed")
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""

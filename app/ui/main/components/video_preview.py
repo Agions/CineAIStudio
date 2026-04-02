@@ -10,10 +10,9 @@ import os
 from typing import Optional
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QSlider, QSizePolicy, QFrame, QToolButton, QStyle
+    QSlider, QFrame
 )
-from PySide6.QtCore import Qt, Signal, QUrl, QTimer
-from PySide6.QtGui import QFont, QColor, QPixmap, QImage
+from PySide6.QtCore import Qt, Signal, QUrl
 
 try:
     from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput

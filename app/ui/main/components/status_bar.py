@@ -2,15 +2,12 @@
 状态栏组件 - 显示应用程序状态信息
 """
 
-from typing import Optional, Dict, Any
-from datetime import datetime
 
 from PySide6.QtWidgets import (
-    QStatusBar, QLabel, QProgressBar, QWidget, QHBoxLayout,
-    QSizePolicy
+    QStatusBar, QLabel, QProgressBar
 )
-from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QFont, QColor, QPalette
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QColor
 
 
 class StatusBar(QStatusBar):

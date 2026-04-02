@@ -6,7 +6,6 @@
 提供异步任务处理和进度报告
 """
 
-import asyncio
 from concurrent.futures import ThreadPoolExecutor, Future
 from typing import Callable, Optional, Any, Dict
 from dataclasses import dataclass, field

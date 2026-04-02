@@ -3,25 +3,22 @@ AI对话页面 - macOS 设计系统优化版
 重构为使用标准化组件，零内联样式
 """
 
-from typing import Optional, Dict, Any, List
-import json
+from typing import Dict, List
 from datetime import datetime
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLabel,
-    QTextEdit, QLineEdit, QPushButton, QFrame, QListWidget
+    QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLineEdit
 )
 from PySide6.QtCore import Qt, Signal, QTimer
 
 from .base_page import BasePage
-from app.core.icon_manager import get_icon
 from app.services.ai_service.mock_ai_service import MockAIService
 
 # 导入标准化 macOS 组件
 from app.ui.components import (
     MacCard, MacPrimaryButton, MacSecondaryButton,
-    MacIconButton, MacTitleLabel, MacLabel,
-    MacScrollArea, MacEmptyState, MacSearchBox
+    MacTitleLabel, MacLabel,
+    MacScrollArea, MacEmptyState
 )
 from app.ui.components.layout import MacPageToolbar
 
