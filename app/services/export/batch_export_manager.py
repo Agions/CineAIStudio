@@ -218,28 +218,66 @@ class BatchExportManager:
         """执行单个导出任务"""
         task.status = ExportStatus.RUNNING
         task.started_at = time.time()
-        
+
         try:
-            # TODO: 调用实际的导出服务
-            # 这里模拟导出过程
-            logger.info(f"开始导出: {task.name}")
-            
-            # 模拟导出进度
-            for i in range(10):
-                if task.id in self._cancelled:
-                    raise Exception("任务已取消")
-                    
-                time.sleep(0.5)  # 模拟处理
-                task.progress = (i + 1) * 10
-                
-                if self.on_progress:
-                    self.on_progress(task.id, task.progress)
-                    
-            task.completed_at = time.time()
-            logger.info(f"导出完成: {task.name}")
-            
-            return True, None
-            
+            logger.info(f"开始导出: {task.name} → {task.output_path}")
+
+            # 加载项目数据
+            import json
+            from pathlib import Path
+
+            project_path = Path(task.project_path)
+            if project_path.exists() and project_path.suffix == '.json':
+                with open(project_path, 'r', encoding='utf-8') as f:
+                    project_data = json.load(f)
+            else:
+                # 如果是目录，尝试读取 project.json
+                proj_file = project_path / 'project.json'
+                if proj_file.exists():
+                    with open(proj_file, 'r', encoding='utf-8') as f:
+                        project_data = json.load(f)
+                else:
+                    project_data = {"source": str(project_path)}
+
+            # 构建导出配置
+            from .export_manager import ExportManager, ExportFormat, ExportConfig
+
+            fmt_map = {
+                "mp4": ExportFormat.MP4,
+                "mov": ExportFormat.MOV,
+                "gif": ExportFormat.GIF,
+                "jianying": ExportFormat.JIANYING,
+                "premiere": ExportFormat.PREMIERE,
+                "finalcut": ExportFormat.FINALCUT,
+                "davinci": ExportFormat.DAVINCI,
+            }
+            export_fmt = fmt_map.get(task.format.lower(), ExportFormat.MP4)
+
+            config = ExportConfig(
+                format=export_fmt,
+                quality=task.quality,
+                output_path=task.output_path,
+                progress_callback=lambda p: (
+                    setattr(task, 'progress', p),
+                    self.on_progress(task.id, p) if self.on_progress else None
+                ) if self.on_progress else None,
+            )
+
+            # 执行实际导出
+            manager = ExportManager()
+            success = manager.export(project_data, config)
+
+            if task.id in self._cancelled:
+                raise Exception("任务已取消")
+
+            if success:
+                task.progress = 100.0
+                task.completed_at = time.time()
+                logger.info(f"导出完成: {task.name}")
+                return True, None
+            else:
+                raise RuntimeError("ExportManager returned False")
+
         except Exception as e:
             task.error = str(e)
             task.completed_at = time.time()
