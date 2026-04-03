@@ -67,11 +67,14 @@ hero:
 
 <div class="stats-row">
 
-![Stars](https://img.shields.io/github/stars/Agions/VideoForge?style=for-the-badge&logo=github&color=10B981)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=opensource&color=10B981)
-![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&color=6366F1)
-![Qt](https://img.shields.io/badge/Qt-6.5+-41?style=for-the-badge&logo=qt&color=41CD53)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-silver?style=for-the-badge&logo=linux&logoColor=white)
+<a href="https://github.com/Agions/VideoForge/stargazers"><img src="https://img.shields.io/github/stars/Agions/VideoForge?style=for-the-badge&logo=github&color=10B981" alt="Stars" /></a>
+<a href="https://github.com/Agions/VideoForge/network/members"><img src="https://img.shields.io/github/forks/Agions/VideoForge?style=for-the-badge&logo=github&color=10B981" alt="Forks" /></a>
+<a href="https://github.com/Agions/VideoForge/issues"><img src="https://img.shields.io/github/issues/Agions/VideoForge?style=for-the-badge&color=10B981" alt="Issues" /></a>
+<a href="https://github.com/Agions/VideoForge/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=opensource&color=10B981" alt="License" /></a>
+<a href="https://pypi.org/project/videoforge/"><img src="https://img.shields.io/pypi/v/videoforge?style=for-the-badge&color=6366F1" alt="PyPI" /></a>
+<img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&color=6366F1" alt="Python" />
+<img src="https://img.shields.io/badge/Qt-6.5+-41?style=for-the-badge&logo=qt&color=41CD53" alt="Qt" />
+<img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-silver?style=for-the-badge&logo=linux&logoColor=white" alt="Platform" />
 
 **免费 · 开源 · 跨平台**
 
@@ -224,8 +227,19 @@ VideoForge 是开源项目，欢迎所有形式的贡献：
   justify-content: center;
 }
 
+.stats-row p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.stats-row a,
 .stats-row img {
   height: 28px;
+  display: inline-block;
 }
 
 .stats-row strong {
