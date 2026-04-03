@@ -23,6 +23,9 @@ from .jianying_exporter import (
 )
 from .video_exporter import VideoExporter, ExportConfig, ExportFormat
 from .edl_exporter import EDLExporter, EDLConfig, EDLClip, EditType, export_to_edl
+from .direct_video_exporter import DirectVideoExporter, VideoExportConfig, Resolution, VideoCodec, VideoFormat, HWAccel
+from .batch_export_manager import BatchExportManager, ExportTask, ExportStatus, BatchExportResult, get_batch_export_manager
+from .export_manager import ExportManager
 
 
 __all__ = [
@@ -55,6 +58,24 @@ __all__ = [
     "VideoExporter",
     "ExportConfig",
     "ExportFormat",
+
+    # 直接视频导出
+    "DirectVideoExporter",
+    "VideoExportConfig",
+    "Resolution",
+    "VideoCodec",
+    "VideoFormat",
+    "HWAccel",
+
+    # 批量导出
+    "BatchExportManager",
+    "ExportTask",
+    "ExportStatus",
+    "BatchExportResult",
+    "get_batch_export_manager",
+
+    # 导出管理
+    "ExportManager",
 
     # EDL 导出（行业标准）
     "EDLExporter",
