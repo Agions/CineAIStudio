@@ -8,9 +8,16 @@ Viral Video Service
 - 动态字幕生成 (Dynamic Caption)
 - 视觉冲击力增强 (Visual Impact Enhancement)
 - FFmpeg 工具 (FFmpegTool)
+- 视频处理基类 (BaseVideoProcessor, IVideoProcessor)
 """
 
 from .ffmpeg_tool import FFmpegTool
+from .base import (
+    IVideoProcessor,
+    BaseVideoProcessor,
+    VideoMetadata,
+    ProcessingResult,
+)
 from .silence_remover import SilenceRemover, SilenceSegment, RemovalResult
 from .pace_analyzer import PaceAnalyzer, PaceAnalysisResult, PaceMetrics, PaceLevel
 from .caption_generator import CaptionGenerator, Caption, CaptionConfig, CaptionStyle
@@ -18,6 +25,12 @@ from .caption_generator import CaptionGenerator, Caption, CaptionConfig, Caption
 __all__ = [
     # 工具
     "FFmpegTool",
+
+    # 基类
+    "IVideoProcessor",
+    "BaseVideoProcessor",
+    "VideoMetadata",
+    "ProcessingResult",
 
     # 静音处理
     "SilenceRemover",
