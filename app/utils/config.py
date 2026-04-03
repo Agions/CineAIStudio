@@ -3,7 +3,6 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
 
 """
 统一配置管理
@@ -17,6 +16,7 @@ from typing import Any, Optional
 from dataclasses import dataclass, asdict
 
 
+logger = logging.getLogger(__name__)
 @dataclass
 class AppConfig:
     """应用配置"""

@@ -30,13 +30,13 @@ import re
 import logging
 
 # 获取 logger
-logger = logging.getLogger(__name__)
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
 
+logger = logging.getLogger(__name__)
 class IssueSeverity(Enum):
     """问题严重程度"""
     CRITICAL = "critical"    # 严重，必须修复

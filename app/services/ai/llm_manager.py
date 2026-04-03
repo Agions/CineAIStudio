@@ -9,7 +9,6 @@ LLM 管理器
 import logging
 from typing import Dict, Optional, List, Any
 
-logger = logging.getLogger(__name__)
 
 from .base_llm_provider import (
     BaseLLMProvider,
@@ -26,6 +25,7 @@ from .providers.gemini import GeminiProvider
 from .providers.local import LocalProvider
 from .providers.deepseek import DeepSeekProvider
 
+logger = logging.getLogger(__name__)
 
 def _safe_import():
     """安全导入依赖"""

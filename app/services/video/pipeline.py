@@ -11,10 +11,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 
-logger = logging.getLogger(__name__)
 
 from .base_maker import MakerProgress, MakerStatus
 from .presets import (
+logger = logging.getLogger(__name__)
     CommentaryConfig,
     MashupConfig,
     MonologueConfig,

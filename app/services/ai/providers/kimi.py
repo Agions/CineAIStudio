@@ -10,6 +10,7 @@ Kimi (月之暗面 Moonshot AI) 提供商
 
 from typing import List
 
+import httpx
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
@@ -107,4 +108,3 @@ class KimiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
 
 # 需要导入httpx用于类型提示
-import httpx

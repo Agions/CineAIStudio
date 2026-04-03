@@ -12,7 +12,6 @@ from typing import Optional, Tuple, List
 import logging
 
 
-logger = logging.getLogger(__name__)
 
 
 class VideoInfo:
@@ -357,3 +356,5 @@ def generate_waveform(
 
 
 import tempfile
+
+logger = logging.getLogger(__name__)

@@ -26,7 +26,6 @@ AI 视频混剪制作器 (Mashup Maker)
 
 import logging
 
-logger = logging.getLogger(__name__)
 
 import random
 from pathlib import Path
@@ -37,6 +36,7 @@ from enum import Enum
 from .base_maker import ProgressMixin
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo, AnalysisConfig
 from ..export.jianying_exporter import (
+logger = logging.getLogger(__name__)
     JianyingExporter, JianyingConfig,
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial,

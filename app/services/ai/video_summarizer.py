@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-logger = logging.getLogger(__name__)
 """
 AI 视频摘要生成器 (Video Summarizer)
 
@@ -37,6 +36,7 @@ from .llm_manager import LLMManager, load_llm_config, ProviderType
 from .base_llm_provider import LLMRequest
 
 
+logger = logging.getLogger(__name__)
 class SummaryStyle(Enum):
     """摘要风格"""
     CONCISE = "concise"          # 简洁（100字以内）

@@ -22,13 +22,13 @@ import logging
 import subprocess
 import re
 
-logger = logging.getLogger(__name__)
 from pathlib import Path
 from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
 
+logger = logging.getLogger(__name__)
 class SceneType(Enum):
     """场景类型"""
     TALKING_HEAD = "talking_head"    # 人物讲话

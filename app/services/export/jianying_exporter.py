@@ -20,7 +20,6 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
 
 import json
 import uuid
@@ -32,6 +31,7 @@ from enum import Enum
 from datetime import datetime
 
 
+logger = logging.getLogger(__name__)
 class TrackType(Enum):
     """轨道类型"""
     VIDEO = "video"

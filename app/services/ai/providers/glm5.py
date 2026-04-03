@@ -9,6 +9,7 @@
 
 from typing import List
 
+import httpx
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
@@ -93,4 +94,3 @@ class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
 
 # 需要导入httpx用于类型提示
-import httpx

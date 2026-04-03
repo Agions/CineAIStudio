@@ -26,6 +26,8 @@ from ..base_llm_provider import (
 )
 
 
+import logging
+logger = logging.getLogger(__name__)
 class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     """
     通义千问提供商
@@ -188,5 +190,3 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
 
 # 添加日志记录器
-import logging
-logger = logging.getLogger(__name__)

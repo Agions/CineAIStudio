@@ -3,7 +3,6 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
 
 """
 撤销/重做管理器 (Undo Manager)
@@ -45,6 +44,7 @@ from enum import Enum
 import copy
 
 
+logger = logging.getLogger(__name__)
 class CommandStatus(Enum):
     """命令状态"""
     PENDING = "pending"

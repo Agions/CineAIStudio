@@ -11,12 +11,12 @@ from PySide6.QtWidgets import (
 )
 
 import logging
-logger = logging.getLogger(__name__)
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QFont
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 
+logger = logging.getLogger(__name__)
 class PreviewPanel(QWidget):
     """视频预览面板"""
     

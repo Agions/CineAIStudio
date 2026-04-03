@@ -3,7 +3,6 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
 
 """
 统一导出管理器
@@ -22,6 +21,7 @@ from .davinci_exporter import DaVinciExporter
 from .direct_video_exporter import DirectVideoExporter
 
 
+logger = logging.getLogger(__name__)
 class ExportFormat(Enum):
     """导出格式"""
     JIANYING = "jianying"       # 剪映草稿

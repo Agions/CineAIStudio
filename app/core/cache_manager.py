@@ -14,12 +14,12 @@ from datetime import datetime, timedelta
 from collections import OrderedDict
 from threading import Lock
 
-logger = logging.getLogger(__name__)
 
 from .interfaces.cache_interface import (
     ICache, CacheEntry, CacheStats, CachePolicy,
     generate_cache_key
 )
+logger = logging.getLogger(__name__)
 
 
 class MemoryCache(ICache):

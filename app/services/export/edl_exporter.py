@@ -31,12 +31,12 @@ import logging
 from pathlib import Path
 
 # 获取 logger
-logger = logging.getLogger(__name__)
 from typing import List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
 
+logger = logging.getLogger(__name__)
 class EDLFieldLengths:
     """EDL 字段长度定义 (CMX 3600 格式)"""
     EVENT_NUM = 3        # 事件编号

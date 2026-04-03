@@ -14,9 +14,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from collections import defaultdict
 import logging
-logger = logging.getLogger(__name__)
 
 from .plugin_interface import PluginInfo, PluginType, PluginStatus
+logger = logging.getLogger(__name__)
 
 
 @dataclass

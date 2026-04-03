@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from enum import Enum
 
 import logging
-logger = logging.getLogger(__name__)
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QScrollArea,
@@ -32,6 +31,7 @@ from ...core.application import Application
 from .base_page import BasePage
 
 
+logger = logging.getLogger(__name__)
 class ModelConfigState(Enum):
     """模型配置状态"""
     NOT_CONFIGURED = "not_configured"

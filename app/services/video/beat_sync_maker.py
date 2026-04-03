@@ -38,7 +38,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 # 获取 logger
-logger = logging.getLogger(__name__)
 
 from ..audio.beat_detector import (
     BeatDetector, 
@@ -48,6 +47,7 @@ from ..audio.beat_detector import (
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 
 
+logger = logging.getLogger(__name__)
 class BeatSyncStyle(Enum):
     """Beat-sync 混剪风格"""
     STROBE = "strobe"           # 强节奏快速切换

@@ -12,6 +12,7 @@ from typing import List
 import base64
 from pathlib import Path
 
+import httpx
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
@@ -220,4 +221,3 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
 
 # 需要导入httpx用于类型提示
-import httpx
