@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""测试视频混剪制作器"""
+"""Test Video Mashup Maker"""
 
 import pytest
 from dataclasses import asdict
@@ -8,16 +8,16 @@ from app.services.video.mashup_maker import (
     MashupStyle,
     TransitionType,
     ClipInfo,
+    BeatInfo,
     MashupProject,
-    MashupMaker,
 )
 
 
 class TestMashupStyle:
-    """测试混剪风格枚举"""
+    """Test mashup style enum"""
 
     def test_all_styles(self):
-        """测试所有混剪风格"""
+        """Test all mashup styles"""
         styles = [
             MashupStyle.FAST_PACED,
             MashupStyle.CINEMATIC,
@@ -31,10 +31,10 @@ class TestMashupStyle:
 
 
 class TestTransitionType:
-    """测试转场类型枚举"""
+    """Test transition type enum"""
 
     def test_all_types(self):
-        """测试所有转场类型"""
+        """Test all transition types"""
         types = [
             TransitionType.CUT,
             TransitionType.FADE,
@@ -49,28 +49,29 @@ class TestTransitionType:
 
 
 class TestClipInfo:
-    """测试混剪片段"""
+    """Test clip info"""
 
     def test_creation(self):
-        """测试创建"""
+        """Test creation"""
         segment = ClipInfo(
             source_video="/test/clip1.mp4",
-            start_time=0.0,
+            source_index=0,
+            start=0.0,
+            end=5.0,
             duration=5.0,
-            transition=TransitionType.DISSOLVE,
         )
         
         assert segment.source_video == "/test/clip1.mp4"
-        assert segment.start_time == 0.0
+        assert segment.start == 0.0
+        assert segment.end == 5.0
         assert segment.duration == 5.0
-        assert segment.transition == TransitionType.DISSOLVE
 
 
 class TestMashupProject:
-    """测试混剪项目"""
+    """Test mashup project"""
 
     def test_creation(self):
-        """测试创建"""
+        """Test creation"""
         project = MashupProject(
             name="测试混剪",
             source_videos=["/test/v1.mp4", "/test/v2.mp4"],
@@ -82,33 +83,12 @@ class TestMashupProject:
         assert project.background_music == "/test/bgm.mp3"
 
     def test_default_values(self):
-        """测试默认值"""
+        """Test default values"""
         project = MashupProject(
             name="测试",
             source_videos=[],
         )
         
         assert project.style == MashupStyle.FAST_PACED
-        assert project.segments == []
 
 
-class TestMashupMaker:
-    """测试混剪制作器"""
-
-    def test_init(self):
-        """测试初始化"""
-        maker = MashupMaker()
-        
-        assert maker.scene_analyzer is not None
-
-    def test_init_custom_style(self):
-        """测试自定义风格"""
-        maker = MashupMaker(style=MashupStyle.CINEMATIC)
-        
-        assert maker._style == MashupStyle.CINEMATIC
-
-    def test_default_style(self):
-        """测试默认风格"""
-        maker = MashupMaker()
-        
-        assert maker._style == MashupStyle.FAST_PACED

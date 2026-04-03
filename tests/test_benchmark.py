@@ -86,7 +86,7 @@ class TestPerformanceBenchmarks:
         
         start = time.perf_counter()
         for i in range(1000):
-            task = Task(id=f"task_{i}", name=f"Task {i}")
+            _ = Task(id=f"task_{i}", name=f"Task {i}")
         duration = time.perf_counter() - start
         
         print(f"1000 task creations: {duration*1000:.2f}ms")

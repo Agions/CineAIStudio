@@ -106,16 +106,12 @@ class TestJianyingExporter:
 
     def test_add_video_track(self):
         """测试添加视频轨道"""
-        exporter = JianyingExporter()
-
         track = Track(type=TrackType.VIDEO)
 
         assert track.type == TrackType.VIDEO
 
     def test_add_audio_track(self):
         """测试添加音频轨道"""
-        exporter = JianyingExporter()
-
         track = Track(type=TrackType.AUDIO)
 
         assert track.type == TrackType.AUDIO

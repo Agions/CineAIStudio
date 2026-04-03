@@ -84,7 +84,7 @@ class TestSecureKeyManagerPlatform:
         
         # 不应该抛出异常
         try:
-            manager = SecureKeyManager()
+            _ = SecureKeyManager()
         except Exception:
             pass  # 忽略预期错误
 
@@ -94,7 +94,7 @@ class TestSecureKeyManagerPlatform:
         mock_platform.return_value = "Windows"
         
         try:
-            manager = SecureKeyManager()
+            _ = SecureKeyManager()
         except Exception:
             pass
 
@@ -104,6 +104,6 @@ class TestSecureKeyManagerPlatform:
         mock_platform.return_value = "Linux"
         
         try:
-            manager = SecureKeyManager()
+            _ = SecureKeyManager()
         except Exception:
             pass

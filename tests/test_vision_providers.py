@@ -129,7 +129,7 @@ class TestVisionAnalyzerFactory:
             }
         }
         factory = VisionAnalyzerFactory(config)
-        provider = factory.get_provider(preferred="openai")
+        _ = factory.get_provider(preferred="openai")
         # 若无可用则返回 None
         # 若有 openai key 则返回对应 provider
 

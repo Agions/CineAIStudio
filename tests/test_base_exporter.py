@@ -139,6 +139,5 @@ class TestBaseExporter:
 
     def test_set_progress_callback(self):
         """测试设置进度回调（基类无此方法，跳过）"""
-        exporter = MockExporter()
         # BaseExporter 没有 set_progress_callback，跳过
         pytest.skip("BaseExporter 没有 set_progress_callback 方法")
