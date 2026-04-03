@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.1.1] - 2026-04-03
+
+### Refactored
+- **FFmpeg 工具统一**: 消除重复的 `_check_ffmpeg()` 和 `_get_video_duration()` 实现
+  - 新增 `FFmpegTool.check_ffmpeg()` 方法
+  - 统一从 `app/services/viral_video/ffmpeg_tool.py` 导出
+  - 删除 144 行重复代码
+- **TransitionType 枚举统一**: `mashup_maker.py` 改从 `transition_effects.py` 导入
+- **PaceLevel 枚举值修复**: 从中文改为英文 (`"慢节奏"` → `"slow"` 等)
+- **CachePolicy 改为正式 Enum**: `app/core/interfaces/cache_interface.py`
+
+### Fixed
+- **代码质量**: 
+  - 修复 56 个 API 设计问题测试
+  - 修复所有 lint 错误 (ruff check 全绿)
+  - pytest asyncio 配置完善 (asyncio_mode = auto)
+  - 安装 pytest-asyncio 消除警告
+- **测试覆盖**: 新增 `tests/test_llm_cache.py` (23 个测试用例)
+
+### Chores
+- **死代码清理**:
+  - 删除 `app/utils/video_utils.py` (未使用)
+  - 删除 `app/core/templates/project_templates.py` (未使用)
+  - 删除 `app/config/config.py` (与 core/config_manager 重复)
+  - 删除对应测试文件
+  - 共删除 820 行
+
+---
+
 ## [3.1.0] - 2026-03-23
 
 ### Changed
