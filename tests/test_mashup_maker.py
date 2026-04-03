@@ -7,7 +7,7 @@ from dataclasses import asdict
 from app.services.video.mashup_maker import (
     MashupStyle,
     TransitionType,
-    MashupSegment,
+    ClipInfo,
     MashupProject,
     MashupMaker,
 )
@@ -48,12 +48,12 @@ class TestTransitionType:
         assert TransitionType.CUT.value == "cut"
 
 
-class TestMashupSegment:
+class TestClipInfo:
     """测试混剪片段"""
 
     def test_creation(self):
         """测试创建"""
-        segment = MashupSegment(
+        segment = ClipInfo(
             source_video="/test/clip1.mp4",
             start_time=0.0,
             duration=5.0,

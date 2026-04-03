@@ -7,7 +7,7 @@ from dataclasses import asdict
 from app.services.ai.subtitle_extractor import (
     SubtitleSegment,
     SubtitleExtractionResult,
-    SubtitleExtractor,
+    OCRSubtitleExtractor, SpeechSubtitleExtractor,
 )
 
 

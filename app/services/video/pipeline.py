@@ -14,7 +14,6 @@ import logging
 
 from .base_maker import MakerProgress, MakerStatus
 from .presets import (
-logger = logging.getLogger(__name__)
     CommentaryConfig,
     MashupConfig,
     MonologueConfig,
@@ -22,6 +21,7 @@ logger = logging.getLogger(__name__)
     PresetFactory,
 )
 
+logger = logging.getLogger(__name__)
 
 class PipelineStage(Enum):
     """管道阶段"""
@@ -305,7 +305,7 @@ class VideoPipeline:
                 duration=scene_info.get("duration", 60),
             )
             return await generator.generate(scene_info, script_config)
-        except Exception as e:
+        except Exception:
             return f"关于{config.topic}的解说..."
     
     async def _generate_voice(self, config: CommentaryConfig, script: str) -> str:
@@ -319,7 +319,7 @@ class VideoPipeline:
                 rate=config.voice_speed,
             )
             return await generator.generate(script, voice_config)
-        except Exception as e:
+        except Exception:
             return "/tmp/voice.mp3"
     
     async def _generate_captions(self, audio_path: str) -> str:
@@ -330,7 +330,7 @@ class VideoPipeline:
             generator = CaptionGenerator()
             captions = generator.generate_from_audio(audio_path)
             return generator.generate_srt(captions)
-        except Exception as e:
+        except Exception:
             return "/tmp/captions.srt"
     
     async def _render_video(

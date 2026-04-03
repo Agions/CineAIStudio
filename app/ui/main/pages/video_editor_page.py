@@ -26,10 +26,10 @@ from app.ui.common.macOS_components import create_icon_text_row
 
 # 导入标准化 macOS 组件
 from app.ui.components import (
-logger = logging.getLogger(__name__)
     MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
     MacIconButton, MacTitleLabel, MacLabel, MacScrollArea, MacEmptyState
 )
+logger = logging.getLogger(__name__)
 
 
 class MediaLibraryPanel(QWidget):

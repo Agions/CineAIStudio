@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
+import logging
 from .jianying_exporter import JianyingExporter
 from .premiere_exporter import PremiereExporter
 from .finalcut_exporter import FinalCutExporter

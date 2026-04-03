@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
-logger = logging.getLogger(__name__)
 """
 AI 文案生成器 (Script Generator)
 
@@ -36,6 +34,7 @@ AI 文案生成器 (Script Generator)
     generator = ScriptGenerator(api_key="your-api-key")
 """
 
+
 import os
 import asyncio
 from typing import Optional, List, Dict, Any
@@ -44,6 +43,8 @@ from enum import Enum
 
 from .base_llm_provider import LLMRequest
 from .llm_manager import LLMManager, load_llm_config
+import logging
+logger = logging.getLogger(__name__)
 
 
 class ScriptStyle(Enum):

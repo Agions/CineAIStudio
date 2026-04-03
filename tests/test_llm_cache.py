@@ -5,7 +5,7 @@ import pytest
 import time
 from unittest.mock import Mock, patch
 
-from app.services.ai.cache import LLMMemoryCache, LLMCacheManager
+from app.services.ai.cache import LLMMemoryCache
 
 
 class TestLLMMemoryCache:

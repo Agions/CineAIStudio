@@ -24,9 +24,6 @@ AI 视频混剪制作器 (Mashup Maker)
     draft_path = maker.export_to_jianying(project, "/path/to/drafts")
 """
 
-import logging
-
-logger = logging.getLogger(__name__)
 
 import random
 from pathlib import Path
@@ -41,6 +38,8 @@ from ..export.jianying_exporter import (
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial,
 )
+import logging
+logger = logging.getLogger(__name__)
 
 
 class MashupStyle(Enum):
