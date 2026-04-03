@@ -86,7 +86,7 @@ class SubtitleRemover:
         cmd = [
             "ffmpeg", "-y",
             "-i", input_path,
-            "-vf", f"boxblur=2:1",
+            "-vf", "boxblur=2:1",
             "-c:a", "copy",
             output_path,
         ]

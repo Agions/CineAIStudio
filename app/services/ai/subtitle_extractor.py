@@ -119,7 +119,7 @@ class OCRSubtitleExtractor:
             try:
                 os.unlink(fp)
             except Exception:
-                logger.debug(f"Operation failed")
+                logger.debug("Operation failed")
 
         result.segments = segments
         result.full_text = " ".join(s.text for s in segments)
@@ -264,7 +264,7 @@ class SpeechSubtitleExtractor:
                 try:
                     os.unlink(audio_path)
                 except Exception:
-                    logger.debug(f"Operation failed")
+                    logger.debug("Operation failed")
 
         return result
 

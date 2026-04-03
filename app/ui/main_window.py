@@ -300,11 +300,11 @@ class SettingsPage(QWidget):
             elif widget_type == "toggle":
                 toggle = QCheckBox()
                 toggle.setChecked(options[0] if options else False)
-                toggle.setStyleSheet(f"""
-                    QCheckBox {{
+                toggle.setStyleSheet("""
+                    QCheckBox {
                         width: 44px;
                         height: 24px;
-                    }}
+                    }
                 """)
                 item_layout.addWidget(toggle)
             

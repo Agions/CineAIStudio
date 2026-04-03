@@ -109,7 +109,7 @@ class Application(QObject):
             # 执行初始化序列
             for name, init_func in self._init_sequence:
                 if not init_func():
-                    self.error_occurred.emit(f"INIT_ERROR", f"Failed to initialize {name}")
+                    self.error_occurred.emit("INIT_ERROR", f"Failed to initialize {name}")
                     return False
 
                 self.progress_updated.emit(

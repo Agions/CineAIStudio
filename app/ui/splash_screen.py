@@ -305,8 +305,8 @@ class AnimatedSplashScreen(QWidget):
         self.container.setFixedSize(600, 450)
         
         # 使用setStyleSheet创建渐变背景
-        self.container.setStyleSheet(f"""
-            QWidget {{
+        self.container.setStyleSheet("""
+            QWidget {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                     stop:0 #0A0A0F,
                     stop:0.3 #12121A,
@@ -314,7 +314,7 @@ class AnimatedSplashScreen(QWidget):
                     stop:1 #0A0A0F);
                 border: 1px solid #30363D;
                 border-radius: 24px;
-            }}
+            }
         """)
         
         container_layout = QVBoxLayout(self.container)

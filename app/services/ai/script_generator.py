@@ -218,7 +218,7 @@ class ScriptGenerator:
                 load = load_llm_config()
 
             self.llm_manager = LLMManager(load)
-            print(f"✅ LLMManager 初始化成功")
+            print("✅ LLMManager 初始化成功")
             print(f"   默认提供商: {load.get('LLM', {}).get('default_provider', 'qwen')}")
             print(f"   可用提供商: {[p.value for p in self.llm_manager.get_available_providers()]}")
 
@@ -226,14 +226,14 @@ class ScriptGenerator:
             # 使用传统方式 (兼容)
             # 创建一个简单的包装类
             self.api_key = api_key
-            print(f"✅ 使用传统 OpenAI 方式")
+            print("✅ 使用传统 OpenAI 方式")
 
         else:
             # 尝试从环境变量获取
             env_key = os.getenv("OPENAI_API_KEY")
             if env_key:
                 self.api_key = env_key
-                print(f"✅ 使用环境变量 OPENAI_API_KEY")
+                print("✅ 使用环境变量 OPENAI_API_KEY")
             else:
                 raise ValueError("请提供 api_key 或设置 use_llm_manager=True")
 

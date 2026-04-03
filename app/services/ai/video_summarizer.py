@@ -302,23 +302,23 @@ class VideoSummarizer:
         length_req = length_map.get(config.length, "200-300字")
 
         prompt_parts = [
-            f"请为以下视频生成摘要：",
-            f"",
-            f"视频信息：",
+            "请为以下视频生成摘要：",
+            "",
+            "视频信息：",
             f"- 时长: {analysis.duration:.1f}秒",
             f"- 分辨率: {analysis.resolution[0]}x{analysis.resolution[1]}",
             f"- 主要主题: {', '.join(analysis.main_topics) if analysis.main_topics else '未识别'}",
             f"- 情感基调: {analysis.main_emotion.value}",
-            f"",
-            f"画面描述：",
+            "",
+            "画面描述：",
         ]
 
         for desc in frame_descriptions:
             prompt_parts.append(f"  {desc}")
 
         prompt_parts.extend([
-            f"",
-            f"要求：",
+            "",
+            "要求：",
             f"- 字数要求: {length_req}",
         ])
 
@@ -329,19 +329,19 @@ class VideoSummarizer:
             prompt_parts.append("- 生成5-8个相关标签")
 
         prompt_parts.extend([
-            f"",
-            f"请按以下JSON格式输出：",
-            f"```json",
-            f"{{",
-            f'  "title": "视频标题",',
-            f'  "content": "摘要内容",',
-            f'  "key_points": [',
-            f'    {{"timestamp": 10.5, "description": "关键时刻描述", "importance": 8}}',
-            f'  ],',
-            f'  "tags": ["标签1", "标签2"],',
-            f'  "sentiment": "positive/neutral/negative"',
-            f"}}",
-            f"```",
+            "",
+            "请按以下JSON格式输出：",
+            "```json",
+            "{",
+            '  "title": "视频标题",',
+            '  "content": "摘要内容",',
+            '  "key_points": [',
+            '    {"timestamp": 10.5, "description": "关键时刻描述", "importance": 8}',
+            '  ],',
+            '  "tags": ["标签1", "标签2"],',
+            '  "sentiment": "positive/neutral/negative"',
+            "}",
+            "```",
         ])
 
         return "\n".join(prompt_parts)
@@ -528,7 +528,7 @@ def demo_summarize():
             print(f"💭 情感: {summary.sentiment}")
 
             if summary.key_points:
-                print(f"\n⏱️  关键时间点:")
+                print("\n⏱️  关键时间点:")
                 for point in summary.key_points[:3]:
                     print(f"   [{point.timestamp:.1f}s] {point.description[:50]}...")
 

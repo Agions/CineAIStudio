@@ -527,7 +527,7 @@ def demo_batch_processing():
     result = processor.run()
     
     # 输出结果
-    print(f"\n处理完成:")
+    print("\n处理完成:")
     print(f"  总任务: {result.total}")
     print(f"  完成: {result.completed}")
     print(f"  失败: {result.failed}")

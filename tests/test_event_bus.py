@@ -16,7 +16,8 @@ class TestEventBus:
     def test_subscribe(self):
         """测试订阅"""
         bus = EventBus()
-        handler = lambda x: x
+        def handler(x):
+            return x
         
         bus.subscribe("test_event", handler)
         
@@ -26,7 +27,8 @@ class TestEventBus:
     def test_unsubscribe(self):
         """测试取消订阅"""
         bus = EventBus()
-        handler = lambda x: x
+        def handler(x):
+            return x
         
         bus.subscribe("test_event", handler)
         bus.unsubscribe("test_event", handler)
@@ -81,7 +83,8 @@ class TestEventBus:
     def test_duplicate_subscription(self):
         """测试重复订阅"""
         bus = EventBus()
-        handler = lambda x: x
+        def handler(x):
+            return x
         
         bus.subscribe("test_event", handler)
         bus.subscribe("test_event", handler)

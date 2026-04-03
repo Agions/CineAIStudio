@@ -344,7 +344,7 @@ class SceneAnalyzer:
                 return float(match.group(1)) / 255.0  # 归一化到 0-1
                 
         except Exception:
-            logger.debug(f"Operation failed")
+            logger.debug("Operation failed")
         
         return 0.5  # 默认中等亮度
     
@@ -371,7 +371,7 @@ class SceneAnalyzer:
                 return min(1.0, avg_score * 2)  # 归一化
                 
         except Exception:
-            logger.debug(f"Operation failed")
+            logger.debug("Operation failed")
         
         return 0.3  # 默认中等运动
     
@@ -395,7 +395,7 @@ class SceneAnalyzer:
                 return max(0, min(1, (db + 60) / 60))
                 
         except Exception:
-            logger.debug(f"Operation failed")
+            logger.debug("Operation failed")
         
         return 0.5
     
@@ -631,7 +631,7 @@ def demo_analyze():
     
     # 获取最佳场景
     best = analyzer.get_best_scenes(scenes, count=5)
-    print(f"\n最佳场景 (前5个):")
+    print("\n最佳场景 (前5个):")
     for scene in best:
         print(f"  场景 {scene.index}: {scene.suitability_score:.1f}分")
 

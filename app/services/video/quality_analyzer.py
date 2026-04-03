@@ -498,7 +498,7 @@ class QualityAnalyzer:
                 return f"ffmpeg -i input.mp4 -vf 'eq=brightness={factor * 0.1}:contrast=1.1' -c:a copy output.mp4"
             else:
                 # 压暗
-                return f"ffmpeg -i input.mp4 -vf 'eq=brightness=-0.1' -c:a copy output.mp4"
+                return "ffmpeg -i input.mp4 -vf 'eq=brightness=-0.1' -c:a copy output.mp4"
         
         elif issue.category == IssueCategory.AUDIO:
             if issue.value < -40:

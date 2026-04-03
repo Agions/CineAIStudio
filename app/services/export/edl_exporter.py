@@ -272,8 +272,8 @@ class EDLExporter:
         
         # 标题头
         lines.append(f"TITLE: {self.config.title}")
-        lines.append(f"FCID: 000000")
-        lines.append(f"")  # 空行
+        lines.append("FCID: 000000")
+        lines.append("")  # 空行
         
         # 字段头（可选，某些编辑器需要）
         field_header = (
@@ -365,8 +365,8 @@ class EDLExporter:
         
         # 标题
         lines.append(f"TITLE: {self.config.title}")
-        lines.append(f"FCID: 000000")
-        lines.append(f"")
+        lines.append("FCID: 000000")
+        lines.append("")
         
         # 注释区
         if comments:

@@ -16,8 +16,10 @@ try:
     DOTENV_AVAILABLE = True
 except ImportError:
     DOTENV_AVAILABLE = False
-    load_dotenv = lambda *args, **kwargs: None
-    find_dotenv = lambda *args, **kwargs: None
+    def load_dotenv(*args, **kwargs):
+        return None
+    def find_dotenv(*args, **kwargs):
+        return None
 
 from ..utils.security import (
     PathValidator,

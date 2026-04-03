@@ -503,7 +503,7 @@ def demo_generate():
     让我们一起创作爆款视频吧！
     """
     
-    print(f"\n正在生成配音...")
+    print("\n正在生成配音...")
     result = generator.generate(
         text=text.strip(),
         output_path="demo_voice.mp3",
@@ -513,7 +513,7 @@ def demo_generate():
         )
     )
     
-    print(f"\n✅ 配音生成成功!")
+    print("\n✅ 配音生成成功!")
     print(f"   文件: {result.audio_path}")
     print(f"   时长: {result.duration:.2f}秒")
     print(f"   声音: {result.voice_id}")

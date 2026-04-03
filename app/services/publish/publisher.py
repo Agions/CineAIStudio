@@ -658,7 +658,7 @@ def demo_publishing():
     )
     
     # 发布到 B站
-    print(f"\n正在发布到 B站...")
+    print("\n正在发布到 B站...")
     results = publisher.publish(
         video_path=video_path,
         metadata=metadata,

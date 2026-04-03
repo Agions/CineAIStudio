@@ -134,7 +134,7 @@ def main():
             console.print(f"    问题: {issue['issue']}\n")
 
             if args.verbose:
-                console.print(f"    建议: 使用 default_factory 替代\n")
+                console.print("    建议: 使用 default_factory 替代\n")
 
         console.print("\n💡 修复建议:\n")
         console.print("错误示例:\n")

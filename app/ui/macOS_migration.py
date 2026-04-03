@@ -430,7 +430,7 @@ __all__ = ["macOS_ThemeManager", "get_theme_manager", "apply_macos_theme"]
             )
 
         self.main_window_path.write_text(content, encoding='utf-8')
-        print(f"    ✅ 主窗口样式逻辑已更新")
+        print("    ✅ 主窗口样式逻辑已更新")
         return True
 
     def update_navigation_bar(self) -> bool:
@@ -639,7 +639,7 @@ class NavigationButton(QPushButton):
         content = content.replace(old_left, new_left)
 
         self.nav_bar_path.write_text(content, encoding='utf-8')
-        print(f"    ✅ 导航组件已更新")
+        print("    ✅ 导航组件已更新")
         return True
 
     def update_home_page(self) -> bool:
@@ -661,7 +661,7 @@ class NavigationButton(QPushButton):
         content = self._update_home_sections(content)
 
         self.home_page_path.write_text(content, encoding='utf-8')
-        print(f"    ✅ 首页组件已更新")
+        print("    ✅ 首页组件已更新")
         return True
 
     def _update_home_title_section(self, content: str) -> str:

@@ -643,7 +643,7 @@ def demo_analyze():
     
     result = analyzer.analyze(video)
     
-    print(f"\n📊 分析结果:")
+    print("\n📊 分析结果:")
     print(f"   时长: {result.duration:.1f}秒")
     print(f"   分辨率: {result.resolution[0]}x{result.resolution[1]}")
     print(f"   帧率: {result.fps:.1f}")
@@ -654,11 +654,11 @@ def demo_analyze():
     if result.keywords:
         print(f"   关键词: {', '.join(result.keywords[:10])}")
     
-    print(f"\n📝 摘要:")
+    print("\n📝 摘要:")
     print(f"   {result.summary[:200]}...")
     
     if result.script_suggestion:
-        print(f"\n✍️ 脚本建议:")
+        print("\n✍️ 脚本建议:")
         print(result.script_suggestion)
 
 

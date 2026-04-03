@@ -230,7 +230,7 @@ class PaceAnalyzer:
         cmd = [
             'ffmpeg',
             '-i', video_path,
-            '-af', f'astats=metadata=1:reset=1,ametadata=print:key=lavfi.astats.Overall.RMS_level:file=-',
+            '-af', 'astats=metadata=1:reset=1,ametadata=print:key=lavfi.astats.Overall.RMS_level:file=-',
             '-f', 'null',
             '-'
         ]

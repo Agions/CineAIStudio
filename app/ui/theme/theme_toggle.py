@@ -83,22 +83,22 @@ class ThemeToggleButton(QWidget):
     def _show_theme_menu(self):
         """显示主题菜单"""
         self._menu = QMenu(self)
-        self._menu.setStyleSheet(f"""
-            QMenu {{
+        self._menu.setStyleSheet("""
+            QMenu {
                 background-color: #1A1A24;
                 border: 1px solid #30363D;
                 border-radius: 8px;
                 padding: 4px;
-            }}
-            QMenu::item {{
+            }
+            QMenu::item {
                 padding: 8px 32px 8px 12px;
                 border-radius: 4px;
                 color: #C9D1D9;
-            }}
-            QMenu::item:selected {{
+            }
+            QMenu::item:selected {
                 background-color: #6366F1;
                 color: white;
-            }}
+            }
         """)
         
         # 深色主题组

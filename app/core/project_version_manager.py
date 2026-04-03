@@ -384,7 +384,7 @@ class ProjectVersionManager(QObject):
 
             # 保存当前项目状态到当前分支
             current_backup = self.create_version(
-                description=f"切换分支前备份",
+                description="切换分支前备份",
                 changes=["自动创建分支切换备份"],
                 is_auto_backup=True
             )

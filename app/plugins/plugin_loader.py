@@ -317,7 +317,7 @@ class PluginLoader:
             # 创建插件实例
             plugin_instance = plugin_class()
             if not isinstance(plugin_instance, PluginInterface):
-                self.logger.error(f"Plugin class does not implement PluginInterface")
+                self.logger.error("Plugin class does not implement PluginInterface")
                 return None
 
             return plugin_instance

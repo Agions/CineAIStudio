@@ -622,7 +622,7 @@ def demo_mashup():
     # 自动混剪
     maker.auto_mashup(project)
     
-    print(f"\n混剪完成:")
+    print("\n混剪完成:")
     print(f"选中片段: {len(project.selected_clips)}")
     print(f"总时长: {project.total_duration:.2f}秒")
     

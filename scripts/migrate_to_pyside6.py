@@ -170,17 +170,17 @@ def main():
     req_file = project_root / 'requirements.txt'
     if req_file.exists():
         if update_requirements(req_file):
-            print(f"\n  ✅ 更新: requirements.txt")
+            print("\n  ✅ 更新: requirements.txt")
         else:
-            print(f"\n  ⏭️  跳过: requirements.txt (无需更改)")
+            print("\n  ⏭️  跳过: requirements.txt (无需更改)")
     
     # 更新 pyproject.toml
     pyproject = project_root / 'pyproject.toml'
     if pyproject.exists():
         if update_pyproject(pyproject):
-            print(f"  ✅ 更新: pyproject.toml")
+            print("  ✅ 更新: pyproject.toml")
         else:
-            print(f"  ⏭️  跳过: pyproject.toml (无需更改)")
+            print("  ⏭️  跳过: pyproject.toml (无需更改)")
     
     print("=" * 50)
     print(f"✅ 迁移完成! 迁移: {migrated}, 跳过: {skipped}")

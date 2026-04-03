@@ -34,7 +34,7 @@ class macOS_ThemeManager(QObject):
         self.project_root = Path(__file__).parent.parent.parent
         self.styles_dir = self.project_root / "resources" / "styles" / "macOS"
 
-        self.logger.info(f"macOS Theme Manager 初始化")
+        self.logger.info("macOS Theme Manager 初始化")
 
     def load_system(self, theme: str = "dark") -> bool:
         """加载 macOS 设计系统"""

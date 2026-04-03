@@ -457,7 +457,7 @@ class ProjectManager(QObject):
                     pid = f.read().strip()
                 # 检查进程是否还在运行
                 if self._is_process_running(pid):
-                    self.error_occurred.emit("OPEN_ERROR", f"项目已被其他进程打开")
+                    self.error_occurred.emit("OPEN_ERROR", "项目已被其他进程打开")
                     return None
 
             # 加载项目数据
