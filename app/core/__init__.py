@@ -1,8 +1,79 @@
 """
 VideoForge 核心模块
 
-新增（v2.0 架构优化）：
-- async_bridge: 异步桥接，解决 PyQt6 同步 UI 与 async 服务的交互
-- unified_config: 统一配置加载器，合并 YAML/.env/默认值
-- task_queue: 任务队列，管理耗时任务不阻塞 UI
+核心功能：
+- application: 应用入口和管理 (需要 Qt)
+- config_manager: 配置管理
+- cache_manager: 缓存管理
+- event_bus: 事件总线
+- exceptions: 异常定义
+- logger: 日志
+- plugin_service: 插件服务
+- project_manager: 项目管理
+- service_registry: 服务注册表
+- secure_key_manager: 密钥管理
 """
+
+# 注意：Application 需要 Qt 环境，单独导入
+# from app.core import Application
+
+from .config_manager import ConfigManager, AppConfig
+from .cache_manager import CacheManager, MemoryCache, DiskCache
+from .event_bus import EventBus
+from .exceptions import (
+    VideoForgeError,
+    LLMError,
+    ConfigError,
+    FileError,
+    VideoError,
+    TTSError,
+    NetworkError,
+    ErrorCode,
+)
+from .logger import setup_logging, get_logger
+from .plugin_service import PluginService
+from .project_manager import ProjectManager
+from .service_registry import ServiceRegistry
+from .service_container import ServiceContainer
+from .secure_key_manager import SecureKeyManager
+
+__all__ = [
+    # Config
+    "ConfigManager",
+    "AppConfig",
+
+    # Cache
+    "CacheManager",
+    "MemoryCache",
+    "DiskCache",
+
+    # Event
+    "EventBus",
+
+    # Exceptions
+    "VideoForgeError",
+    "LLMError",
+    "ConfigError",
+    "FileError",
+    "VideoError",
+    "TTSError",
+    "NetworkError",
+    "ErrorCode",
+
+    # Logger
+    "setup_logging",
+    "get_logger",
+
+    # Plugin
+    "PluginService",
+
+    # Project
+    "ProjectManager",
+
+    # Service
+    "ServiceRegistry",
+    "ServiceContainer",
+
+    # Security
+    "SecureKeyManager",
+]
