@@ -166,15 +166,15 @@ class MainWindow(QMainWindow):
         try:
             home_icon = get_icon("home", 20)
             settings_icon = get_icon("settings", 20)
-            video_icon = get_icon("video", 20)
-            ai_chat_icon = get_icon("chat", 20)
+            _video_icon = get_icon("video", 20)
+            _ai_chat_icon = get_icon("chat", 20)
             projects_icon = get_icon("projects", 20)
         except Exception:
             # 如果图标获取失败，使用空图标
             home_icon = QIcon()
             settings_icon = QIcon()
-            video_icon = QIcon()
-            ai_chat_icon = QIcon()
+            _video_icon = QIcon()
+            _ai_chat_icon = QIcon()
             projects_icon = QIcon()
 
         # 创建导航按钮（3 个核心入口：首页 / 项目管理 / 设置）
@@ -660,8 +660,8 @@ class MainWindow(QMainWindow):
 
             # 获取当前页面和目标页面索引
             current_page_widget = self.page_stack.currentWidget()
-            current_index = self.page_stack.currentIndex()
-            target_index = self.page_stack.indexOf(target_page)
+            _current_index = self.page_stack.currentIndex()
+            _target_index = self.page_stack.indexOf(target_page)
             
             # 激活目标页面（加载内容）
             if hasattr(target_page, 'activate'):

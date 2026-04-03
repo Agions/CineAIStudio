@@ -730,7 +730,7 @@ class StoryAnalysisPage(BasePage):
         self.batch_progress_dialog.show()
 
         # 处理所有任务
-        style = self.style_combo.currentData()
+        _style = self.style_combo.currentData()
         self.batch_result = self.batch_processor.process_all(
             self.analyzer,
             progress_callback=self._on_batch_task_progress

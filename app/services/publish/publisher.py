@@ -218,8 +218,8 @@ class BilibiliPublisher(BasePublisher):
         """
         
         file_path = Path(video_path)
-        file_size = file_path.stat().st_size
-        file_name = file_path.name
+        _file_size = file_path.stat().st_size
+        _file_name = file_path.name
         file_hash = self._calculate_file_hash(video_path)
         
         # 获取上传页面
@@ -227,7 +227,7 @@ class BilibiliPublisher(BasePublisher):
             progress_callback("正在准备上传...", 5)
         
         # 1. 获取上传凭证
-        headers = {
+        _headers = {
             "Cookie": self.account.cookies,
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
@@ -242,7 +242,7 @@ class BilibiliPublisher(BasePublisher):
         
         total_chunks = len(chunks)
         uploaded_chunks = 0
-        upload_id = ""
+        _upload_id = ""
         
         for i, chunk in enumerate(chunks):
             if progress_callback:

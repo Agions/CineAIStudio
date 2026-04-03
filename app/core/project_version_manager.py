@@ -273,7 +273,7 @@ class ProjectVersionManager(QObject):
                 self.error_occurred.emit("VERSION_ERROR", f"版本不存在: {version_id}")
                 return False
 
-            version = self.versions[version_id]
+            _version = self.versions[version_id]
             version_path = os.path.join(self.version_dir, version_id)
 
             if not os.path.exists(version_path):
@@ -281,7 +281,7 @@ class ProjectVersionManager(QObject):
                 return False
 
             # 创建当前版本的备份
-            backup_version_id = self.create_version(
+            _backup_version_id = self.create_version(
                 description=f"恢复前备份 - {version_id}",
                 changes=["自动创建恢复前备份"],
                 is_auto_backup=True
@@ -383,7 +383,7 @@ class ProjectVersionManager(QObject):
                 return False
 
             # 保存当前项目状态到当前分支
-            current_backup = self.create_version(
+            _current_backup = self.create_version(
                 description="切换分支前备份",
                 changes=["自动创建分支切换备份"],
                 is_auto_backup=True
@@ -473,7 +473,7 @@ class ProjectVersionManager(QObject):
             deleted_count = 0
 
             # 保留主要版本和最近的版本
-            major_versions = [v for v in all_versions if v.is_major]
+            _major_versions = [_v for _v in all_versions if _v.is_major]
             recent_versions = all_versions[-keep_count:]
 
             # 确定要删除的版本
@@ -500,7 +500,7 @@ class ProjectVersionManager(QObject):
             if version_id not in self.versions:
                 return False
 
-            version = self.versions[version_id]
+            _version = self.versions[version_id]
             version_path = os.path.join(self.version_dir, version_id)
 
             if not os.path.exists(version_path):
@@ -508,7 +508,7 @@ class ProjectVersionManager(QObject):
 
             # 创建导出信息
             export_info = {
-                'version': version.to_dict(),
+                'version': _version.to_dict(),
                 'exported_at': datetime.now().isoformat(),
                 'project_path': self.project_path
             }

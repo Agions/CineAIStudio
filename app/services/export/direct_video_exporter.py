@@ -381,7 +381,7 @@ class DirectVideoExporter:
         # 生成 ASS 字幕
         from ..viral_video.caption_generator import CaptionGenerator, CaptionConfig
 
-        caption_gen = CaptionGenerator(CaptionConfig())
+        _caption_gen = CaptionGenerator(CaptionConfig())
 
         # 收集所有字幕
         all_captions = []
@@ -390,7 +390,7 @@ class DirectVideoExporter:
 
         # 生成 ASS 文件
         with tempfile.TemporaryDirectory() as temp_dir:
-            ass_path = Path(temp_dir) / "subtitles.ass"
+            _ass_path = Path(temp_dir) / "subtitles.ass"
             # 这里需要转换 caption 格式
             # 简化实现：使用 filter_complex 添加字幕
 

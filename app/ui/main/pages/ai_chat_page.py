@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QTimer
 
 from .base_page import BasePage
-from app.services.ai_service.mock_ai_service import MockAIService
 
 # 导入标准化 macOS 组件
 from app.ui.components import (

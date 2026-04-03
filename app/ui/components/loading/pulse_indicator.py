@@ -110,7 +110,7 @@ class SpinnerIndicator(QFrame):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         
-        center = self.rect().center()
+        _center = self.rect().center()
         
         # 绘制旋转的弧线
         pen = QPen(self._color)
@@ -273,7 +273,7 @@ class InlineLoader(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         
-        center = self.rect().center()
+        _center = self.rect().center()
         
         # 绘制弧形
         pen = QPen(self._color)

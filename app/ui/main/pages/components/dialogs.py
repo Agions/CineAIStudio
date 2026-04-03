@@ -246,8 +246,8 @@ class CreateProjectDialog(QDialog):
 
         # 通过显示名称查找对应的 ProjectType
         display_name = self.type_combo.currentText()
-        project_type = next((pt for pt in ProjectType if pt.display_name == display_name), ProjectType.VIDEO_EDITING)
-        description = self.desc_edit.toPlainText().strip()
+        _project_type = next((pt for pt in ProjectType if pt.display_name == display_name), ProjectType.VIDEO_EDITING)
+        _description = self.desc_edit.toPlainText().strip()
 
         self.accept()
 

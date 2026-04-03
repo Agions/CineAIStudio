@@ -668,7 +668,7 @@ class NavigationButton(QPushButton):
         """迁移标题区域"""
 
         # 匹配标题创建方法
-        pattern = r'(def _create_title_section\(self\).*?)(return widget)'
+        _pattern = r'(def _create_title_section\(self\).*?)(return widget)'
 
         def replace_title(match):
             old_code = match.group(1)

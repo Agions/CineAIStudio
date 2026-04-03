@@ -443,7 +443,7 @@ class Application(QObject):
         """加载配置"""
         try:
             # 从文件或注册表加载配置
-            settings = QSettings("VideoForge", "Application")
+            _settings = QSettings("VideoForge", "Application")
 
             # 加载应用程序配置
             self.logger.info("配置加载完成")
@@ -455,7 +455,7 @@ class Application(QObject):
         """保存配置"""
         try:
             # 保存配置到文件或注册表
-            settings = QSettings("VideoForge", "Application")
+            _settings = QSettings("VideoForge", "Application")
 
             self.logger.info("配置保存完成")
 

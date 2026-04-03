@@ -136,7 +136,7 @@ class AsyncErrorHandler:
         Returns:
             函数返回值，失败时返回 None
         """
-        last_error = None
+        _last_error = None
         
         for attempt in range(self.retry_strategy.max_attempts):
             try:
@@ -146,7 +146,7 @@ class AsyncErrorHandler:
                     return func(*args, **kwargs)
             
             except Exception as e:
-                last_error = e
+                _last_error = e
                 error_info = ErrorInfo(
                     error_type=type(e).__name__,
                     severity="error",

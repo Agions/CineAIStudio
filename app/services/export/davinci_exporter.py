@@ -85,7 +85,7 @@ class DaVinciExporter:
         resources = ET.SubElement(fcpxml, "resources")
 
         # Format
-        format_elem = ET.SubElement(resources, "format", {
+        _format_elem = ET.SubElement(resources, "format", {
             "id": "r1",
             "name": f"FFVideoFormat{timeline.height}p{int(timeline.fps)}",
             "frameDuration": self._frame_duration(timeline.fps),
@@ -124,7 +124,7 @@ class DaVinciExporter:
         # Video clips
         for clip in timeline.video_clips:
             asset_id = asset_map.get(clip.file_path, "r2")
-            clip_elem = ET.SubElement(spine, "asset-clip", {
+            _clip_elem = ET.SubElement(spine, "asset-clip", {
                 "ref": asset_id,
                 "name": clip.name,
                 "offset": self._to_time(clip.start, timeline.fps),

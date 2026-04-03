@@ -161,11 +161,11 @@ class ParallaxWidget(QWidget):
         self.update()
         
     def paintEvent(self, event):
-        painter = QPainter(self)
+        _painter = QPainter(self)
         # 简化的视差效果
         for i, layer in enumerate(self._layers):
             parallax_factor = (i + 1) * 0.1
-            y_offset = self._offset * parallax_factor
+            _y_offset = self._offset * parallax_factor
             # 绘制图层...
 
 

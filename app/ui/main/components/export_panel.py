@@ -789,8 +789,8 @@ class ExportPanel(QWidget):
         """应用队列设置"""
         try:
             # 应用队列设置
-            max_concurrent = self.max_concurrent_spin.value()
-            auto_cleanup = self.auto_cleanup_check.isChecked()
+            _max_concurrent = self.max_concurrent_spin.value()
+            _auto_cleanup = self.auto_cleanup_check.isChecked()
 
             # 更新队列管理器设置
             # 这里需要访问队列管理器并更新设置
@@ -834,7 +834,7 @@ class ExportPanel(QWidget):
         """编辑预设数据"""
         dialog = ExportSettingsDialog(preset, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            preset_data = dialog.get_preset_data()
+            _preset_data = dialog.get_preset_data()
             # 更新预设
             QMessageBox.information(self, "成功", "预设已更新")
 

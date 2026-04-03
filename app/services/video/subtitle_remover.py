@@ -216,7 +216,7 @@ class SmartSubtitleRemover(SubtitleRemover):
         self._detected_regions.append(region)
         
         # 2. 选择方法 (原地修复效果最好)
-        method = "inpaint"
+        _method = "inpaint"
         
         # 3. 构建滤镜
         x = region.get("x", 0)

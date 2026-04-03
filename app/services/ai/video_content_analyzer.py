@@ -404,7 +404,7 @@ class VideoContentAnalyzer:
         ]
         
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            _result = subprocess.run(cmd, capture_output=True, text=True)
             # 基于亮度和饱和度做简单判断
             # 这是降级方案，准确度有限
             return {

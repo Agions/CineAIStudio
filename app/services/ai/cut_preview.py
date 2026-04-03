@@ -91,7 +91,7 @@ class CutPreviewGenerator:
 
             # 监控进度
             total_duration = sum(c.get("duration", 0) for c in cuts)
-            processed = 0
+            _processed = 0
 
             while True:
                 line = process.stderr.readline()
@@ -239,7 +239,7 @@ class CutPreviewGenerator:
         cuts: List[Dict[str, Any]]
     ) -> tuple:
         """构建 FFmpeg filter complex"""
-        filters = []
+        _filters = []  # _
         select_parts = []
         count = 0
 
@@ -259,7 +259,7 @@ class CutPreviewGenerator:
             raise ValueError("No valid cuts to process")
 
         # 使用 select 滤镜
-        filter_str = ';'.join(select_parts)
+        _filter_str = ";".join(select_parts)  # _
         filter_complex = f"[0:v]select='{'+'.join(select_parts)}',setpts=PTS-STARTPTS[v]"
 
         # 如果有音频

@@ -99,7 +99,7 @@ class AnimationHelper:
     @staticmethod
     def pulse(widget: QWidget, duration: int = 150):
         """脉冲动画 - 用于按钮点击反馈"""
-        original_scale = widget.property("transform")
+        _original_scale = widget.property("transform")
         
         animation = QPropertyAnimation(widget, b"windowOpacity")
         animation.setDuration(duration)
@@ -162,7 +162,7 @@ class PageTransition:
     def _slide_transition(self, from_widget: QWidget, to_widget: QWidget):
         """滑动切换"""
         # 获取宽度
-        width = self.stacked_widget.width()
+        _width = self.stacked_widget.width()
         
         # 淡出当前页面
         self.fade_out(from_widget, duration=150)

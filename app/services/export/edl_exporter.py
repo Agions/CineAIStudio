@@ -276,7 +276,7 @@ class EDLExporter:
         lines.append("")  # 空行
         
         # 字段头（可选，某些编辑器需要）
-        field_header = (
+        _field_header = (
             f"{'EVENT':<8}"
             f"{'REEL':<10}"
             f"{'TRACK':<7}"

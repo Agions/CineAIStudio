@@ -61,7 +61,7 @@ class QuickExporter:
         cmd = [self.ffmpeg, "-y", "-i", input_path]
         
         # 视频滤镜
-        filters = []
+        _filters = []
         
         # 分辨率
         if platform_preset.vertical:

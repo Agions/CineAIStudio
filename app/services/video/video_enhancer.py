@@ -281,7 +281,7 @@ class VideoEnhancer:
         fps = eval(fps_str)  # 将 "30000/1001" 转换为浮点数
         
         # 计算需要插入的帧数
-        multiplier = target_fps / fps
+        _multiplier = target_fps / fps
         
         cmd = [
             self.get_ffmpeg_path(),

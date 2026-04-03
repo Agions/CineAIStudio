@@ -343,7 +343,7 @@ class BatchProcessor:
         
         task.progress = 30.0
         
-        exporter = EDLExporter()
+        _exporter = EDLExporter()
         
         if not task.output_path:
             task.output_path = str(Path(task.input_path).with_suffix('.edl'))

@@ -102,7 +102,7 @@ class StyleSheet:
 
     @staticmethod
     def button(variant="primary"):
-        colors = DesignSystem.COLORS
+        _colors = DesignSystem.COLORS
         radius = DesignSystem.BORDER_RADIUS
         spacing = DesignSystem.SPACING
 
@@ -199,7 +199,7 @@ class StyleSheet:
 
     @staticmethod
     def nav_button(selected=False):
-        colors = DesignSystem.COLORS
+        _colors = DesignSystem.COLORS
         radius = DesignSystem.BORDER_RADIUS
         if selected:
             bg = "rgba(56, 139, 253, 0.15)"

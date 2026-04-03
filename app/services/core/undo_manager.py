@@ -546,7 +546,7 @@ class UndoManager:
 
         try:
             with open(load_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+                _data = json.load(f)
 
             # 注意：这里只加载元数据，命令对象需要重新创建
             # 实际应用中可能需要更复杂的序列化
