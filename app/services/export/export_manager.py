@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
 
 
 """
@@ -19,8 +18,6 @@ from .premiere_exporter import PremiereExporter
 from .finalcut_exporter import FinalCutExporter
 from .davinci_exporter import DaVinciExporter
 from .direct_video_exporter import DirectVideoExporter
-
-
 logger = logging.getLogger(__name__)
 class ExportFormat(Enum):
     """导出格式"""

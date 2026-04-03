@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
 
 
 """
@@ -14,8 +13,6 @@ import json
 from pathlib import Path
 from typing import Any, Optional
 from dataclasses import dataclass, asdict
-
-
 logger = logging.getLogger(__name__)
 @dataclass
 class AppConfig:

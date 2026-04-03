@@ -10,6 +10,7 @@ import subprocess
 import json
 from typing import Optional, Tuple, List
 import logging
+import tempfile
 
 
 
@@ -354,7 +355,5 @@ def generate_waveform(
         logger.error(f"Failed to generate waveform: {e}")
         return False
 
-
-import tempfile
 
 logger = logging.getLogger(__name__)

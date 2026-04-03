@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
 """
 AI 视频摘要生成器 (Video Summarizer)
 
@@ -34,8 +33,6 @@ from enum import Enum
 from .video_content_analyzer import VideoContentAnalyzer, VideoAnalysisResult
 from .llm_manager import LLMManager, load_llm_config, ProviderType
 from .base_llm_provider import LLMRequest
-
-
 logger = logging.getLogger(__name__)
 class SummaryStyle(Enum):
     """摘要风格"""

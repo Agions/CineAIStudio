@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
 
 
 """
@@ -42,8 +41,6 @@ from typing import List, Dict, Optional, Any, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 import copy
-
-
 logger = logging.getLogger(__name__)
 class CommandStatus(Enum):
     """命令状态"""
