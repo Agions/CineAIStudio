@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
 from enum import Enum
+from ..viral_video.ffmpeg_tool import FFmpegTool
 
 
 class ExportFormat(Enum):
@@ -77,20 +78,7 @@ class VideoExporter:
     
     def __init__(self, config: Optional[ExportConfig] = None):
         self.config = config or ExportConfig()
-        self._check_ffmpeg()
-    
-    def _check_ffmpeg(self) -> None:
-        """检查 FFmpeg 是否可用"""
-        try:
-            result = subprocess.run(
-                ['ffmpeg', '-version'],
-                capture_output=True,
-                text=True,
-            )
-            if result.returncode != 0:
-                raise RuntimeError("FFmpeg 不可用")
-        except FileNotFoundError:
-            raise RuntimeError("FFmpeg 未安装，请安装后重试")
+        FFmpegTool.check_ffmpeg()
     
     def export(
         self,

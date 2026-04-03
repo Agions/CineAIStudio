@@ -13,6 +13,20 @@ class FFmpegTool:
     """FFmpeg 工具类"""
 
     @staticmethod
+    def check_ffmpeg() -> None:
+        """检查 FFmpeg 是否可用"""
+        try:
+            result = subprocess.run(
+                ['ffmpeg', '-version'],
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode != 0:
+                raise RuntimeError("FFmpeg 不可用")
+        except FileNotFoundError:
+            raise RuntimeError("FFmpeg 未安装，请安装后重试")
+
+    @staticmethod
     def get_duration(video_path: str) -> float:
         """获取视频时长（秒）"""
         cmd = [

@@ -31,6 +31,7 @@ from typing import Optional, List, Tuple
 from dataclasses import dataclass
 from enum import Enum
 import logging
+from ..viral_video.ffmpeg_tool import FFmpegTool
 logger = logging.getLogger(__name__)
 
 
@@ -102,16 +103,7 @@ class TransitionEffects:
     """
     
     def __init__(self):
-        self._check_ffmpeg()
-    
-    def _check_ffmpeg(self) -> None:
-        """检查 FFmpeg 是否可用"""
-        try:
-            result = subprocess.run(['ffmpeg', '-version'], capture_output=True)
-            if result.returncode != 0:
-                raise RuntimeError("FFmpeg 不可用")
-        except FileNotFoundError:
-            raise RuntimeError("FFmpeg 未安装")
+        FFmpegTool.check_ffmpeg()
     
     def apply_transition(
         self,

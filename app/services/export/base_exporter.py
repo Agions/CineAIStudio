@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Optional, Generic, TypeVar
 from dataclasses import dataclass, field
 import logging
+from ..viral_video.ffmpeg_tool import FFmpegTool
 logger = logging.getLogger(__name__)
 
 
@@ -146,44 +147,12 @@ class BaseExporter(ABC, Generic[T, C]):
 
 def get_video_duration(video_path: str) -> float:
     """获取视频时长（秒）"""
-    import subprocess
-
-    try:
-        cmd = [
-            'ffprobe', '-v', 'quiet',
-            '-print_format', 'json',
-            '-show_format',
-            video_path
-        ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode == 0:
-            data = json.loads(result.stdout)
-            return float(data.get('format', {}).get('duration', 0))
-    except Exception:
-        logger.debug("Operation failed")
-    return 0.0
+    return FFmpegTool.get_duration(video_path)
 
 
 def get_video_resolution(video_path: str) -> tuple:
     """获取视频分辨率 (width, height)"""
-    import subprocess
-
-    try:
-        cmd = [
-            'ffprobe', '-v', 'quiet',
-            '-print_format', 'json',
-            '-show_streams',
-            video_path
-        ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode == 0:
-            data = json.loads(result.stdout)
-            for stream in data.get('streams', []):
-                if stream.get('codec_type') == 'video':
-                    return (stream.get('width', 1920), stream.get('height', 1080))
-    except Exception:
-        logger.debug("Operation failed")
-    return (1920, 1080)
+    return FFmpegTool.get_resolution(video_path)
 
 
 def copy_material_to_folder(material_path: str, dest_folder: Path) -> str:

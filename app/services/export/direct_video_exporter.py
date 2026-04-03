@@ -32,6 +32,7 @@ from typing import List, Dict, Optional, Any, Callable
 from dataclasses import dataclass
 from enum import Enum
 import logging
+from ..viral_video.ffmpeg_tool import FFmpegTool
 logger = logging.getLogger(__name__)
 
 
@@ -161,7 +162,7 @@ class DirectVideoExporter:
             config: 导出配置
         """
         self.config = config or VideoExportConfig()
-        self._check_ffmpeg()
+        FFmpegTool.check_ffmpeg()
         self._progress_callback: Optional[Callable[[str, float], None]] = None
 
     def set_progress_callback(self, callback: Callable[[str, float], None]) -> None:
@@ -172,19 +173,6 @@ class DirectVideoExporter:
         """报告进度"""
         if self._progress_callback:
             self._progress_callback(stage, progress)
-
-    def _check_ffmpeg(self) -> None:
-        """检查 FFmpeg 是否可用"""
-        try:
-            result = subprocess.run(
-                ['ffmpeg', '-version'],
-                capture_output=True,
-                text=True,
-            )
-            if result.returncode != 0:
-                raise RuntimeError("FFmpeg 不可用")
-        except FileNotFoundError:
-            raise RuntimeError("FFmpeg 未安装，请安装后重试")
 
     def export_commentary(
         self,

@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import subprocess
 import json
+from .ffmpeg_tool import FFmpegTool
 
 
 @dataclass
@@ -210,27 +211,10 @@ class SilenceRemover:
     
     def _get_video_duration(self, video_path: str) -> float:
         """获取视频总时长"""
-        cmd = [
-            'ffprobe',
-            '-v', 'error',
-            '-show_entries', 'format=duration',
-            '-of', 'json',
-            video_path
-        ]
-        
-        try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            
-            data = json.loads(result.stdout)
-            return float(data['format']['duration'])
-            
-        except (subprocess.SubprocessError, KeyError, ValueError) as e:
-            raise RuntimeError(f"获取视频时长失败: {e}")
+        duration = FFmpegTool.get_duration(video_path)
+        if duration <= 0:
+            raise RuntimeError(f"获取视频时长失败: {video_path}")
+        return duration
     
     def _calculate_keep_segments(
         self,

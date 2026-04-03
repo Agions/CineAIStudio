@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
+from ..viral_video.ffmpeg_tool import FFmpegTool
 
 
 logger = logging.getLogger(__name__)
@@ -140,21 +141,7 @@ class SceneAnalyzer:
     
     def _get_video_duration(self, video_path: str) -> float:
         """获取视频时长"""
-        cmd = [
-            'ffprobe', '-v', 'quiet',
-            '-show_entries', 'format=duration',
-            '-of', 'csv=p=0',
-            video_path
-        ]
-        
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode == 0:
-                return float(result.stdout.strip())
-        except Exception as e:
-            logger.error(f"获取视频时长失败: {e}")
-        
-        return 0.0
+        return FFmpegTool.get_duration(video_path)
     
     def _detect_scenes_pyscenect(self, video_path: str) -> List[float]:
         """
