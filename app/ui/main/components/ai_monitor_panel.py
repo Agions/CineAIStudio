@@ -22,7 +22,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import (
     QPixmap, QColor, QCursor,
-    QPainter, QPen, QBrush, QPainterPath, QPainter
+    QPen, QBrush, QPainterPath, QPainter
 )
 
 from ...core.logger import Logger

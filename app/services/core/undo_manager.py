@@ -32,6 +32,7 @@
     undo_manager.undo()  # 撤销
     undo_manager.redo()  # 重做
 """
+import logging
 
 import json
 import time

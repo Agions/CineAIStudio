@@ -302,7 +302,7 @@ class QualityAnalyzer:
             
         except ImportError:
             pass
-        except Exception as e:
+        except Exception:
             pass
         
         return {"avg": 0.5, "std": 0.1, "contrast": 0.3}
@@ -331,7 +331,7 @@ class QualityAnalyzer:
             if peak_match:
                 result["peak_db"] = float(peak_match.group(1))
                 
-        except Exception as e:
+        except Exception:
             pass
         
         return result

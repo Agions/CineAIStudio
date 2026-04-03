@@ -237,7 +237,7 @@ class SecureKeyManager:
                 keyring.delete_password(service_name, "api_key")
                 success = True
                 self.logger.info(f"Deleted API key for {provider} from system keyring")
-            except Exception as e:
+            except Exception:
                 pass
 
             # 删除加密文件

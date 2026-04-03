@@ -183,7 +183,7 @@ class PaceAnalyzer:
             
             return scene_changes
             
-        except subprocess.SubprocessError as e:
+        except subprocess.SubprocessError:
             # 如果检测失败，返回空列表
             return []
     

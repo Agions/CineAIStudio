@@ -23,6 +23,7 @@ AI 视频摘要生成器 (Video Summarizer)
     for point in summary.key_points:
         print(f"  [{point.timestamp}] {point.description}")
 """
+import logging
 
 import os
 from pathlib import Path
