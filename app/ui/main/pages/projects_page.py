@@ -457,12 +457,29 @@ class ProjectsPage(BasePage):
         """加载项目列表"""
         self.project_cards = {}
 
+        # 检查布局是否仍然有效（防止 Qt 对象已删除的竞态条件）
+        if not hasattr(self, 'projects_layout') or self.projects_layout is None:
+            self.logger.debug("项目布局已失效，跳过加载")
+            return
+
+        # 检查父控件是否已删除
+        try:
+            if self.projects_layout.parent() is None:
+                self.logger.debug("项目布局父控件已失效，跳过加载")
+                return
+        except RuntimeError:
+            self.logger.debug("项目布局已失效，跳过加载")
+            return
+
         # 检查项目管理器是否可用
         if not self.project_manager:
             self.logger.warning("项目管理器不可用，无法加载项目")
 
             # 显示空状态
-            self.projects_layout.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding), 0, 0)
+            try:
+                self.projects_layout.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding), 0, 0)
+            except RuntimeError:
+                pass
             return
 
         try:
@@ -472,15 +489,19 @@ class ProjectsPage(BasePage):
             return
 
         # 清空现有卡片
-        for i in reversed(range(self.projects_layout.count())):
-            child = self.projects_layout.itemAt(i).widget()
-            if child:
-                child.deleteLater()
-            else:
-                # 移除非widget项（如QSpacerItem）
-                item = self.projects_layout.takeAt(i)
-                if item and hasattr(item, 'deleteLater'):
-                    item.deleteLater()
+        try:
+            for i in reversed(range(self.projects_layout.count())):
+                child = self.projects_layout.itemAt(i).widget()
+                if child:
+                    child.deleteLater()
+                else:
+                    # 移除非widget项（如QSpacerItem）
+                    item = self.projects_layout.takeAt(i)
+                    if item and hasattr(item, 'deleteLater'):
+                        item.deleteLater()
+        except RuntimeError as e:
+            self.logger.warning(f"清空项目布局时出错: {e}")
+            return
 
         # 添加项目卡片
         row, col = 0, 0
