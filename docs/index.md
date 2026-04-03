@@ -219,7 +219,7 @@ VideoForge 是开源项目，欢迎所有形式的贡献：
 }
 
 .stats-row {
-  display: flex;
+  display: flex !important;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
@@ -228,12 +228,12 @@ VideoForge 是开源项目，欢迎所有形式的贡献：
 }
 
 .stats-row p {
-  display: flex;
+  display: flex !important;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .stats-row a,
