@@ -25,10 +25,10 @@ from enum import Enum
 
 class PaceLevel(Enum):
     """节奏等级"""
-    SLOW = "慢节奏"           # CPM < 8
-    MODERATE = "中等节奏"     # 8 <= CPM < 15
-    FAST = "快节奏"           # 15 <= CPM < 25
-    VIRAL = "爆款节奏"        # CPM >= 25
+    SLOW = "slow"           # CPM < 8
+    MODERATE = "moderate"   # 8 <= CPM < 15
+    FAST = "fast"           # 15 <= CPM < 25
+    VIRAL = "viral"        # CPM >= 25
 
 
 @dataclass

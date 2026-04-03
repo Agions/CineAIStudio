@@ -32,6 +32,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .base_maker import ProgressMixin
+from .transition_effects import TransitionType
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo, AnalysisConfig
 from ..export.jianying_exporter import (
     JianyingExporter, JianyingConfig,
@@ -49,16 +50,6 @@ class MashupStyle(Enum):
     VLOG = "vlog"                  # Vlog 风格（自然过渡）
     HIGHLIGHT = "highlight"        # 高光集锦（体育/游戏）
     MONTAGE = "montage"            # 蒙太奇（情感叙事）
-
-
-class TransitionType(Enum):
-    """转场类型"""
-    CUT = "cut"                    # 硬切
-    FADE = "fade"                  # 淡入淡出
-    DISSOLVE = "dissolve"          # 溶解
-    WIPE = "wipe"                  # 擦除
-    ZOOM = "zoom"                  # 缩放
-    SLIDE = "slide"                # 滑动
 
 
 @dataclass

@@ -39,9 +39,9 @@ class TestTransitionType:
             TransitionType.CUT,
             TransitionType.FADE,
             TransitionType.DISSOLVE,
-            TransitionType.WIPE,
-            TransitionType.ZOOM,
-            TransitionType.SLIDE,
+            TransitionType.WIPE_LEFT,
+            TransitionType.ZOOM_IN,
+            TransitionType.SLIDE_LEFT,
         ]
         
         assert len(types) == 6

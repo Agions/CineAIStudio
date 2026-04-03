@@ -8,10 +8,11 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 from typing import Any, Optional, Dict
 
 
-class CachePolicy:
+class CachePolicy(Enum):
     """缓存策略"""
     LRU = "lru"    # 最近最少使用
     LFU = "lfu"    # 最不经常使用
