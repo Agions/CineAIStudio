@@ -25,6 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - pytest asyncio 配置完善 (asyncio_mode = auto)
   - 安装 pytest-asyncio 消除警告
 - **测试覆盖**: 新增 `tests/test_llm_cache.py` (23 个测试用例)
+- **缩略图缓存** (`thumbnail_cache.py`):
+  - 修复 LRU 驱逐逻辑：按 mtime 而非 path 字母排序
+  - 修复缓存重启后 video_path 全丢失：新增 JSON 索引持久化
+  - 修复 async 函数未真正 await：改为同步函数 + 新增 `generate_thumbnail_async`
+  - 缓存命中时更新 mtime 以保证 LRU 准确性
 
 ### Chores
 - **死代码清理**:
