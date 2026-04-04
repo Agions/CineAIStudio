@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
 from enum import Enum
-from ..viral_video.ffmpeg_tool import FFmpegTool
+from ..video_tools.ffmpeg_tool import FFmpegTool
 
 
 class ExportFormat(Enum):

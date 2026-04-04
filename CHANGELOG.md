@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Refactored
 - **FFmpeg 工具统一**: 消除重复的 `_check_ffmpeg()` 和 `_get_video_duration()` 实现
   - 新增 `FFmpegTool.check_ffmpeg()` 方法
-  - 统一从 `app/services/viral_video/ffmpeg_tool.py` 导出
+  - 统一从 `app/services/video_tools/ffmpeg_tool.py` 导出
   - 删除 144 行重复代码
 - **TransitionType 枚举统一**: `mashup_maker.py` 改从 `transition_effects.py` 导入
 - **PaceLevel 枚举值修复**: 从中文改为英文 (`"慢节奏"` → `"slow"` 等)

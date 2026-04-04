@@ -4,7 +4,7 @@
 import pytest
 from dataclasses import asdict
 
-from app.services.viral_video.pace_analyzer import (
+from app.services.video_tools.pace_analyzer import (
     PaceLevel,
     PaceMetrics,
     SceneChange,

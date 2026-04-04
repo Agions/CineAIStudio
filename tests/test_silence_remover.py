@@ -4,7 +4,7 @@
 import pytest
 from dataclasses import asdict
 
-from app.services.viral_video.silence_remover import (
+from app.services.video_tools.silence_remover import (
     SilenceSegment,
     RemovalResult,
     SilenceRemover,

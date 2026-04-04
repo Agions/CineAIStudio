@@ -31,7 +31,7 @@ from typing import Optional, List, Tuple
 from dataclasses import dataclass
 from enum import Enum
 import logging
-from ..viral_video.ffmpeg_tool import FFmpegTool
+from ..video_tools.ffmpeg_tool import FFmpegTool
 logger = logging.getLogger(__name__)
 
 

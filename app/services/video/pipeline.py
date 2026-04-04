@@ -326,7 +326,7 @@ class VideoPipeline:
         """生成字幕"""
         # 调用 CaptionGenerator
         try:
-            from ...viral_video.caption_generator import CaptionGenerator
+            from ...video_tools.caption_generator import CaptionGenerator
             generator = CaptionGenerator()
             captions = generator.generate_from_audio(audio_path)
             return generator.generate_srt(captions)

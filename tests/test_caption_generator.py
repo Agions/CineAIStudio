@@ -4,7 +4,7 @@
 import pytest
 from dataclasses import asdict
 
-from app.services.viral_video.caption_generator import (
+from app.services.video_tools.caption_generator import (
     CaptionStyle,
     EmotionLevel,
     Word,

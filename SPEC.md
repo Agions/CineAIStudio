@@ -323,7 +323,7 @@ label.setText("开始导出")
 
 参考：OpusClip / Reap / Vizard.ai
 
-**新增文件**：`app/services/viral_video/clip_repurposing.py`
+**新增文件**：`app/services/video_tools/clip_repurposing.py`
 
 **管线步骤**：
 
@@ -340,7 +340,7 @@ Step 6: 格式转换（横→竖智能裁剪）+ 字幕烧录
 
 **使用方式**：
 ```python
-from app.services.viral_video.clip_repurposing import (
+from app.services.video_tools.clip_repurposing import (
     ClipRepurposingPipeline, AspectRatio, PlatformPreset
 )
 
@@ -357,7 +357,7 @@ for clip in results:
 
 ### ClipScorer — 多维评分引擎
 
-**新增文件**：`app/services/viral_video/clip_scorer.py`
+**新增文件**：`app/services/video_tools/clip_scorer.py`
 
 **评分维度（权重可配置）**：
 

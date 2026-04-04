@@ -33,7 +33,7 @@ from enum import Enum
 from .base_maker import BaseVideoMaker, BaseProject
 from ..ai.script_generator import ScriptGenerator, ScriptConfig, ScriptStyle, VoiceTone
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
-from ..viral_video.caption_generator import CaptionGenerator
+from ..video_tools.caption_generator import CaptionGenerator
 from ..export.jianying_exporter import (
     JianyingDraft,
     Track, TrackType, Segment, TimeRange,

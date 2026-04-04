@@ -18,7 +18,7 @@ from PySide6.QtCore import Qt, Signal, QSize, QUrl
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 
 from .base_page import BasePage
-from app.services.ai_service.mock_ai_service import MockAIService
+from app.services import MockAIService
 from app.core.icon_manager import get_icon
 
 # 导入辅助函数

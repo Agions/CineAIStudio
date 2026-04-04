@@ -7,7 +7,7 @@ import tempfile
 from unittest.mock import Mock, patch, MagicMock
 from subprocess import CalledProcessError
 
-from app.services.viral_video.ffmpeg_tool import FFmpegTool
+from app.services.video_tools.ffmpeg_tool import FFmpegTool
 
 
 class TestFFmpegToolBasic:

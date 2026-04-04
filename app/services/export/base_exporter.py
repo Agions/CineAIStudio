@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Optional, Generic, TypeVar
 from dataclasses import dataclass, field
 import logging
-from ..viral_video.ffmpeg_tool import FFmpegTool
+from ..video_tools.ffmpeg_tool import FFmpegTool
 logger = logging.getLogger(__name__)
 
 

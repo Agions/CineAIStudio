@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
-from ..viral_video.ffmpeg_tool import FFmpegTool
+from ..video_tools.ffmpeg_tool import FFmpegTool
 
 
 logger = logging.getLogger(__name__)

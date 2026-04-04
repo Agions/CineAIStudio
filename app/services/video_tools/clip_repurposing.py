@@ -14,7 +14,7 @@ ClipRepurposingPipeline — 长视频转短片段自动化管线
     7. 格式转换（横→竖智能裁剪）
 
 使用方式：
-    from app.services.viral_video.clip_repurposing import ClipRepurposingPipeline, AspectRatio
+    from app.services.video_tools.clip_repurposing import ClipRepurposingPipeline, AspectRatio
 
     pipeline = ClipRepurposingPipeline()
     results = pipeline.run(

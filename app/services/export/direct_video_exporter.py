@@ -32,7 +32,7 @@ from typing import List, Dict, Optional, Any, Callable
 from dataclasses import dataclass
 from enum import Enum
 import logging
-from ..viral_video.ffmpeg_tool import FFmpegTool
+from ..video_tools.ffmpeg_tool import FFmpegTool
 logger = logging.getLogger(__name__)
 
 
@@ -367,7 +367,7 @@ class DirectVideoExporter:
     ) -> str:
         """添加字幕到视频"""
         # 生成 ASS 字幕
-        from ..viral_video.caption_generator import CaptionGenerator, CaptionConfig
+        from ..video_tools.caption_generator import CaptionGenerator, CaptionConfig
 
         _caption_gen = CaptionGenerator(CaptionConfig())
 
