@@ -9,144 +9,19 @@ VideoForge 统一工作流引擎
 
 与 VideoForge Web 版 (clip-flow) 的 workflow.service.ts 对齐。
 """
-
 import os
 import uuid
 import time
 import json
 import subprocess
-from enum import Enum
 from typing import Optional, Dict, Any, List, Callable
 from dataclasses import dataclass, field
 import logging
+
+from .enums import WorkflowStep, CreationMode, WorkflowStatus, ExportFormat
+from .models import VideoSource, AnalysisResult, ScriptData, TimelineData, VoiceoverData, WorkflowState, WorkflowCallbacks
+
 logger = logging.getLogger(__name__)
-
-
-# ============ 枚举 ============
-
-class WorkflowStep(Enum):
-    IMPORT = "import"
-    ANALYZE = "analyze"
-    MODE_SELECT = "mode_select"
-    SCRIPT_GENERATE = "script_gen"
-    SCRIPT_EDIT = "script_edit"
-    TIMELINE = "timeline"
-    VOICEOVER = "voiceover"
-    PREVIEW = "preview"
-    EXPORT = "export"
-
-
-class CreationMode(Enum):
-    COMMENTARY = "commentary"
-    MASHUP = "mashup"
-    MONOLOGUE = "monologue"
-
-
-class WorkflowStatus(Enum):
-    IDLE = "idle"
-    RUNNING = "running"
-    PAUSED = "paused"
-    COMPLETED = "completed"
-    ERROR = "error"
-
-
-class ExportFormat(Enum):
-    JIANYING = "jianying"
-    PREMIERE = "premiere"
-    FINALCUT = "finalcut"
-    DAVINCI = "davinci"
-    MP4 = "mp4"
-    SRT = "srt"
-    ASS = "ass"
-
-
-# ============ 数据模型 ============
-
-@dataclass
-class VideoSource:
-    id: str = ""
-    path: str = ""
-    name: str = ""
-    duration: float = 0.0
-    width: int = 0
-    height: int = 0
-    fps: float = 0.0
-    size: int = 0
-
-    def __post_init__(self):
-        if not self.id:
-            self.id = str(uuid.uuid4())[:8]
-
-
-@dataclass
-class AnalysisResult:
-    scenes: List[Dict[str, Any]] = field(default_factory=list)
-    characters: List[str] = field(default_factory=list)
-    emotions: List[Dict[str, Any]] = field(default_factory=list)
-    summary: str = ""
-    tags: List[str] = field(default_factory=list)
-
-
-@dataclass
-class ScriptData:
-    id: str = ""
-    title: str = ""
-    content: str = ""
-    segments: List[Dict[str, Any]] = field(default_factory=list)
-    word_count: int = 0
-    estimated_duration: float = 0.0
-    style: str = ""
-    model_used: str = ""
-
-    def __post_init__(self):
-        if not self.id:
-            self.id = str(uuid.uuid4())[:8]
-
-
-@dataclass
-class TimelineData:
-    video_track: List[Dict[str, Any]] = field(default_factory=list)
-    audio_track: List[Dict[str, Any]] = field(default_factory=list)
-    subtitle_track: List[Dict[str, Any]] = field(default_factory=list)
-    total_duration: float = 0.0
-
-
-@dataclass
-class VoiceoverData:
-    segments: List[Dict[str, Any]] = field(default_factory=list)
-    voice_style: str = ""
-    beat_sync: bool = False
-
-
-@dataclass
-class WorkflowState:
-    project_id: str = ""
-    step: WorkflowStep = WorkflowStep.IMPORT
-    status: WorkflowStatus = WorkflowStatus.IDLE
-    progress: float = 0.0
-    error: str = ""
-    mode: Optional[CreationMode] = None
-    sources: List[VideoSource] = field(default_factory=list)
-    analysis: Optional[AnalysisResult] = None
-    script: Optional[ScriptData] = None
-    timeline: Optional[TimelineData] = None
-    voiceover: Optional[VoiceoverData] = None
-    export_path: str = ""
-    export_format: Optional[ExportFormat] = None
-
-    def __post_init__(self):
-        if not self.project_id:
-            self.project_id = str(uuid.uuid4())[:8]
-
-
-@dataclass
-class WorkflowCallbacks:
-    on_step_change: Optional[Callable] = None
-    on_progress: Optional[Callable] = None
-    on_status_change: Optional[Callable] = None
-    on_error: Optional[Callable] = None
-    on_complete: Optional[Callable] = None
-
 
 # ============ 工作流引擎 ============
 

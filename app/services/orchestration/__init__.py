@@ -1,29 +1,34 @@
-"""编排服务模块"""
+"""编排服务模块
 
-from .undo_manager import (
-    UndoManager,
-    Command,
-    CompoundCommand,
-    SnapshotCommand,
-    PropertyChangeCommand,
-    ListAddCommand,
-    ListRemoveCommand,
-    CommandStatus,
+子模块：
+- enums.py        工作流枚举（WorkflowStep/CreationMode/WorkflowStatus/ExportFormat）
+- models.py       工作流数据模型（VideoSource/ScriptData/TimelineData 等）
+- workflow_engine.py  工作流引擎主体（WorkflowEngine）
+- project_manager.py  项目管理
+- batch_processor.py  批量处理
+- undo_manager.py    撤销管理
+- prompt_templates.py 提示词模板
+"""
+
+from .enums import (
+    WorkflowStep,
+    CreationMode,
+    WorkflowStatus,
+    ExportFormat,
 )
 
-from .workflow_engine import (
-    WorkflowEngine,
-    WorkflowStep,
-    WorkflowStatus,
-    WorkflowState,
-    WorkflowCallbacks,
-    CreationMode,
-    ExportFormat,
+from .models import (
     VideoSource,
     AnalysisResult,
     ScriptData,
     TimelineData,
     VoiceoverData,
+    WorkflowState,
+    WorkflowCallbacks,
+)
+
+from .workflow_engine import (
+    WorkflowEngine,
     create_workflow,
 )
 
@@ -51,6 +56,17 @@ from .batch_processor import (
     batch_transcode,
 )
 
+from .undo_manager import (
+    UndoManager,
+    Command,
+    CompoundCommand,
+    SnapshotCommand,
+    PropertyChangeCommand,
+    ListAddCommand,
+    ListRemoveCommand,
+    CommandStatus,
+)
+
 from .prompt_templates import (
     PromptTemplateManager,
     PromptTemplate,
@@ -62,59 +78,57 @@ from .prompt_templates import (
 )
 
 __all__ = [
-    # 撤销管理
-    'UndoManager',
-    'Command',
-    'CompoundCommand',
-    'SnapshotCommand',
-    'PropertyChangeCommand',
-    'ListAddCommand',
-    'ListRemoveCommand',
-    'CommandStatus',
-    
+    # 枚举
+    "WorkflowStep",
+    "CreationMode",
+    "WorkflowStatus",
+    "ExportFormat",
+    # 数据模型
+    "VideoSource",
+    "AnalysisResult",
+    "ScriptData",
+    "TimelineData",
+    "VoiceoverData",
+    "WorkflowState",
+    "WorkflowCallbacks",
     # 工作流引擎
-    'WorkflowEngine',
-    'WorkflowStep',
-    'WorkflowStatus',
-    'WorkflowState',
-    'WorkflowCallbacks',
-    'CreationMode',
-    'ExportFormat',
-    'VideoSource',
-    'AnalysisResult',
-    'ScriptData',
-    'TimelineData',
-    'VoiceoverData',
-    'create_workflow',
-    
+    "WorkflowEngine",
+    "create_workflow",
     # 项目管理
-    'ProjectManager',
-    'ProjectType',
-    'ProjectVersion',
-    'ProjectMetadata',
-    'ProjectSource',
-    'ProjectConfig',
-    'VideoForgeProject',
-    'save_project',
-    'load_project',
-    
+    "ProjectManager",
+    "ProjectType",
+    "ProjectVersion",
+    "ProjectMetadata",
+    "ProjectSource",
+    "ProjectConfig",
+    "VideoForgeProject",
+    "save_project",
+    "load_project",
     # 批量处理
-    'BatchProcessor',
-    'BatchTask',
-    'BatchConfig',
-    'BatchResult',
-    'BatchOperation',
-    'TaskStatus',
-    'batch_analyze',
-    'batch_subtitles',
-    'batch_transcode',
-    
+    "BatchProcessor",
+    "BatchTask",
+    "BatchConfig",
+    "BatchResult",
+    "BatchOperation",
+    "TaskStatus",
+    "batch_analyze",
+    "batch_subtitles",
+    "batch_transcode",
+    # 撤销管理
+    "UndoManager",
+    "Command",
+    "CompoundCommand",
+    "SnapshotCommand",
+    "PropertyChangeCommand",
+    "ListAddCommand",
+    "ListRemoveCommand",
+    "CommandStatus",
     # 提示词模板
-    'PromptTemplateManager',
-    'PromptTemplate',
-    'TemplateCategory',
-    'TemplateVariable',
-    'get_template_manager',
-    'render_template',
-    'get_builtin_templates',
+    "PromptTemplateManager",
+    "PromptTemplate",
+    "TemplateCategory",
+    "TemplateVariable",
+    "get_template_manager",
+    "render_template",
+    "get_builtin_templates",
 ]

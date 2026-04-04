@@ -390,3 +390,60 @@ for clip in results:
 - **自定义评分权重**：`ClipScorer(weights={"laughter_density": 0.4, ...})`
 - **覆盖 Step 实现**：子类化 `ClipRepurposingPipeline`，覆盖 `_extract_audio` / `_split_scenes` / `_transcribe_segments`
 - **接入 GPU**：将 `faster-whisper` 改为 `whisper` + CUDA，或使用 ` WhisperX`
+
+---
+
+## 目录结构
+
+```
+app/
+├── core/                          应用核心（配置/日志/事件总线）
+├── plugins/                       插件系统
+├── services/                      业务服务层
+│   ├── ai/                       AI 服务（LLM/视觉/语音）
+│   │   └── providers/             多模型 provider
+│   ├── ai_service/               Mock AIService（开发/测试）
+│   ├── audio/                    音频处理
+│   ├── export/                   导出服务（剪映/PR/FCP/DaVinci）
+│   ├── video/                    视频制作工具
+│   ├── video_tools/              病毒视频工具（原 viral_video，v3.2.0）
+│   ├── orchestration/            编排服务（原 core，v1.2 重命名）
+│   │   ├── workflow_engine.py    工作流引擎
+│   │   ├── project_manager.py    项目管理
+│   │   ├── batch_processor.py    批量处理
+│   │   ├── undo_manager.py       撤销管理
+│   │   └── prompt_templates.py   提示词模板
+│   ├── publish/                  多平台发布
+│   └── service_manager.py
+├── ui/                           UI 层（PyQt6）
+│   ├── common/                   macOS 专用组件
+│   ├── components/               原子组件库
+│   │   ├── buttons/
+│   │   ├── containers/           preview_panel / project_card / video_player
+│   │   ├── inputs/
+│   │   ├── labels/
+│   │   ├── layout/
+│   │   ├── loading/              skeleton / pulse_indicator
+│   │   └── onboarding/           feature_tour / welcome_screen
+│   ├── main/                     主应用
+│   │   ├── components/           主窗口组件（timeline/preview/export_panel）
+│   │   ├── dialogs/
+│   │   ├── layouts/
+│   │   ├── pages/                页面（home/projects/video_editor/ai_chat）
+│   │   ├── constants.py           UI 常量
+│   │   ├── event_handler.py       事件处理器
+│   │   └── main_window.py        主窗口入口
+│   └── theme/                    主题管理
+└── utils/                        工具函数
+```
+
+## 重构记录
+
+| 阶段 | 内容 | 状态 |
+|------|------|------|
+| Phase 0 | 死代码清理（main_window.py/splash_screen.py/macOS_migration.py 移至 scripts/） | ✅ v3.2 |
+| Phase 1 | viral_video → video_tools，目录重命名 + 导入路径全量更新 | ✅ v3.2 |
+| Phase 2 | services/core → services/orchestration，消除与 app/core/ 命名冲突 | ✅ v3.2 |
+| Phase 3 | UI 组件专业化（UI 结构已较清晰，暂缓大范围重构） | ⏸ 暂缓 |
+
+**命名冲突说明**：`app/core/`（应用核心）与 `app/services/core/`（编排服务）是两个不同目录，Python 按完整路径解析，无运行时冲突，但语义上已通过重命名消除歧义。
