@@ -9,6 +9,7 @@ Viral Video Service
 - 视觉冲击力增强 (Visual Impact Enhancement)
 - FFmpeg 工具 (FFmpegTool)
 - 视频处理基类 (BaseVideoProcessor, IVideoProcessor)
+- 长视频转短片段自动化 (ClipRepurposingPipeline, v3.2.0)
 """
 
 from .ffmpeg_tool import FFmpegTool
@@ -21,6 +22,18 @@ from .base import (
 from .silence_remover import SilenceRemover, SilenceSegment, RemovalResult
 from .pace_analyzer import PaceAnalyzer, PaceAnalysisResult, PaceMetrics, PaceLevel
 from .caption_generator import CaptionGenerator, Caption, CaptionConfig, CaptionStyle
+
+# v3.2.0 新增
+from .clip_scorer import ClipScorer, ClipSegment, ClipScore, HIGH_ENGAGEMENT_KEYWORDS
+from .clip_repurposing import (
+    ClipRepurposingPipeline,
+    ClipOutput,
+    PipelineConfig,
+    AspectRatio,
+    SubtitleStyle,
+    PlatformPreset,
+    PLATFORM_PRESETS,
+)
 
 __all__ = [
     # 工具
@@ -48,4 +61,15 @@ __all__ = [
     "Caption",
     "CaptionConfig",
     "CaptionStyle",
+
+    # v3.2.0 短片段管线
+    "ClipScorer",
+    "ClipSegment",
+    "ClipScore",
+    "ClipRepurposingPipeline",
+    "ClipOutput",
+    "PipelineConfig",
+    "AspectRatio",
+    "SubtitleStyle",
+    "PlatformPreset",
 ]

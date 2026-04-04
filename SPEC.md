@@ -314,3 +314,79 @@ label.setText("开始导出")
 | SenseVoice 需要手动下载模型 | HuggingFace 模型文件大 | 设置 `SENSEVOICE_MODEL_PATH` 环境变量 |
 | 发布平台（Bilibili/YouTube）`NotImplementedError` | 需要 OAuth API 对接 | 后续接入各平台官方 API |
 | BatchExportManager 模拟进度 | 导出是同步阻塞操作 | 已接通 ExportManager，真实进度回调待完善 |
+
+---
+
+## v3.2.0 新增功能（2026-04-04）
+
+### ClipRepurposingPipeline — 长视频转短片段自动化管线
+
+参考：OpusClip / Reap / Vizard.ai
+
+**新增文件**：`app/services/viral_video/clip_repurposing.py`
+
+**管线步骤**：
+
+```
+Step 1: 音频提取（FFmpeg PCM 16kHz）
+Step 2: 场景分割（FFmpeg scene detection，阈值 0.3）
+Step 3: Faster-Whisper 转录（CPU int8，中文+英文）
+Step 4: ClipScorer 多维 AI 评分
+Step 5: Top-N 非重叠片段选择
+Step 6: 格式转换（横→竖智能裁剪）+ 字幕烧录
+```
+
+**支持平台**：抖音 / 小红书 / TikTok / YouTube Shorts / Instagram Reels / Twitter
+
+**使用方式**：
+```python
+from app.services.viral_video.clip_repurposing import (
+    ClipRepurposingPipeline, AspectRatio, PlatformPreset
+)
+
+pipeline = ClipRepurposingPipeline(output_dir="./output/clips")
+results = pipeline.run(
+    video_path="/path/to/podcast.mp4",
+    max_clips=5,
+    platform="douyin",          # 使用抖音预设
+    languages=["zh", "en"],
+)
+for clip in results:
+    print(f"→ {clip.output_path} score={clip.score.total_score:.1f}")
+```
+
+### ClipScorer — 多维评分引擎
+
+**新增文件**：`app/services/viral_video/clip_scorer.py`
+
+**评分维度（权重可配置）**：
+
+| 维度 | 权重 | 信号 |
+|------|------|------|
+| `laughter_density` | 20% | 笑声/鼓掌密度（转录文本匹配） |
+| `emotion_peak` | 20% | 情感关键词命中（震惊/愤怒/搞笑等） |
+| `speech_completeness` | 20% | 对话完整性（句子是否被打断） |
+| `silence_ratio` | 10% | 有声占比（过静/过嘈杂都扣分） |
+| `speaking_pace` | 10% | 语速健康度（100-200字/分钟最优） |
+| `keyword_boost` | 20% | 高 engagement 关键词命中（中英双语） |
+
+**内置关键词库**：69 个高吸引力词（揭秘/干货/must watch/plot twist 等）
+
+### 平台预设（PlatformPreset）
+
+| 平台 | 宽高比 | 最大时长 |
+|------|--------|---------|
+| 抖音/小红书/TikTok/Shorts/Reels | 9:16 竖版 | 60s |
+| Twitter/X | 1:1 方形 | 140s |
+
+### CPU 友好设计
+
+- **Faster-Whisper**：`int8` 量化，CPU 可运行（`small` 模型 ~1GB RAM）
+- **FFmpeg 裁剪**：纯 CPU，无外部 GPU 依赖
+- **无外部 API 调用**：评分引擎完全本地计算
+
+### 扩展方式
+
+- **自定义评分权重**：`ClipScorer(weights={"laughter_density": 0.4, ...})`
+- **覆盖 Step 实现**：子类化 `ClipRepurposingPipeline`，覆盖 `_extract_audio` / `_split_scenes` / `_transcribe_segments`
+- **接入 GPU**：将 `faster-whisper` 改为 `whisper` + CUDA，或使用 ` WhisperX`
