@@ -21,6 +21,7 @@ from .commentary_maker import CommentaryMaker
 from .mashup_maker import MashupMaker
 from .monologue_maker import MonologueMaker
 from .beat_sync_maker import BeatSyncMashupMaker
+from .transition_effects import TransitionType, TransitionEffects
 
 __all__ = [
     "BaseVideoMaker",
@@ -28,4 +29,6 @@ __all__ = [
     "MashupMaker",
     "MonologueMaker",
     "BeatSyncMashupMaker",
+    "TransitionType",
+    "TransitionEffects",
 ]
