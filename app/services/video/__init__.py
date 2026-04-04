@@ -1,86 +1,31 @@
 """
-VideoForge 视频处理服务模块
+视频制作服务
 
-提供三大核心视频制作功能:
-- CommentaryMaker: AI 视频解说
-- MashupMaker: AI 视频混剪
-- BeatSyncMashupMaker: Beat-sync 混剪（节拍对齐）
-- MonologueMaker: AI 第一人称独白
-- TransitionEffects: 视频转场效果
-- ParallelProcessor: 并行处理器
-- BaseVideoMaker: 视频制作器基类
+保留的活跃模块（5个）：
+- commentary_maker.py  解说视频制作
+- mashup_maker.py     混剪视频制作
+- monologue_maker.py  单人口播视频制作
+- beat_sync_maker.py  节拍同步混剪
+- base_maker.py      视频 Maker 基类
+
+已移至 _legacy/ 的历史模块（不再维护）：
+effects_presets / highlight_detector / parallel_processor /
+pipeline / presets / quality_analyzer / quick_export /
+story_builder / subtitle_analyzer / subtitle_extractor /
+subtitle_remover / thumbnail_cache / transition_effects /
+video_deduplicator / video_enhancer
 """
 
-from .base_maker import BaseVideoMaker, BaseProject, ProgressMixin, merge_audio_files, composite_video_with_audio
-from .commentary_maker import CommentaryMaker, CommentaryProject, CommentaryStyle, CommentarySegment
-from .mashup_maker import MashupMaker, MashupProject, MashupStyle, ClipInfo, BeatInfo
-from .beat_sync_maker import BeatSyncMashupMaker, BeatSyncProject, BeatSyncConfig, BeatSyncSegment, BeatSyncStyle, CutPosition
-from .monologue_maker import MonologueMaker, MonologueProject, MonologueStyle, MonologueSegment, EmotionType
-from .transition_effects import TransitionEffects, TransitionType, TransitionConfig
-from .parallel_processor import ParallelProcessor, TaskResult, ProcessingStats
-from .quality_analyzer import (
-    QualityAnalyzer,
-    QualityIssue,
-    VideoQualityReport,
-    IssueSeverity,
-    IssueCategory,
-    analyze_video_quality,
-    print_quality_report,
-)
-
+from .base_maker import BaseVideoMaker
+from .commentary_maker import CommentaryMaker
+from .mashup_maker import MashupMaker
+from .monologue_maker import MonologueMaker
+from .beat_sync_maker import BeatSyncMashupMaker
 
 __all__ = [
-    # 基类
     "BaseVideoMaker",
-    "BaseProject",
-    "ProgressMixin",
-    "merge_audio_files",
-    "composite_video_with_audio",
-
-    # 视频解说
     "CommentaryMaker",
-    "CommentaryProject",
-    "CommentaryStyle",
-    "CommentarySegment",
-
-    # 视频混剪
     "MashupMaker",
-    "MashupProject",
-    "MashupStyle",
-    "ClipInfo",
-    "BeatInfo",
-
-    # Beat-Sync 混剪
-    "BeatSyncMashupMaker",
-    "BeatSyncProject",
-    "BeatSyncConfig",
-    "BeatSyncSegment",
-    "BeatSyncStyle",
-    "CutPosition",
-
-    # 第一人称独白
     "MonologueMaker",
-    "MonologueProject",
-    "MonologueStyle",
-    "MonologueSegment",
-    "EmotionType",
-
-    # 转场效果
-    "TransitionEffects",
-    "TransitionType",
-    "TransitionConfig",
-
-    # 并行处理
-    "ParallelProcessor",
-    "TaskResult",
-    "ProcessingStats",
-
-    # 视频质量分析
-    "QualityAnalyzer",
-    "QualityIssue",
-    "VideoQualityReport",
-    "IssueSeverity",
-    "IssueCategory",
-    "analyze_video_quality",
-    "print_quality_report",
+    "BeatSyncMashupMaker",
 ]
