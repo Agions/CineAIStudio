@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "videoforge"
-version = "3.1.0"
+version = "3.1.1"
 description = "VideoForge - AI-Powered Video Creation Desktop App"
 license = {text = "MIT"}
 authors = [
