@@ -8,9 +8,9 @@
 
 | 项目 | 版本 | 来源 |
 |------|------|------|
-| `pyproject.toml` | 3.1.0 | ✅ 唯一真实来源 |
-| CHANGELOG.md | 3.1.0 | 与 pyproject.toml 一致 |
-| GitHub Releases | v1.0.0 | 历史遗留，待清理 |
+| `pyproject.toml` | 3.1.1 | ✅ 唯一真实来源 |
+| CHANGELOG.md | 3.1.1 | 与 pyproject.toml 一致 |
+| GitHub Releases | v3.1.1 | 与 pyproject.toml 一致 |
 
 ---
 
