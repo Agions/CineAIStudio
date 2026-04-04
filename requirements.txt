@@ -75,5 +75,4 @@ isort>=5.12.0
 ## 类型支持
 types-requests>=2.31.0
 types-PyYAML>=6.0.0
-types-python-dotenv>=1.0.0
 types-PySide6>=6.6.0

@@ -306,7 +306,8 @@ class ProjectsPage(BasePage):
         preview_layout.addWidget(self.detail_name, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # 项目类型徽章
-        self.detail_type_badge = MacBadge("", "primary")
+        self.detail_type_badge = MacBadge("")
+        self.detail_type_badge.setProperty("class", "badge badge-primary")
         self.detail_type_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
         preview_layout.addWidget(self.detail_type_badge, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -345,10 +346,10 @@ class ProjectsPage(BasePage):
         info_title = MacTitleLabel("时间信息")
         info_layout.addWidget(info_title)
 
-        self.detail_created = MacLabel("", "text-base")
+        self.detail_created = MacLabel("", css_class="text-base")
         info_layout.addWidget(self._create_detail_row("🗓️ 创建时间:", self.detail_created))
 
-        self.detail_modified = MacLabel("", "text-base")
+        self.detail_modified = MacLabel("", css_class="text-base")
         info_layout.addWidget(self._create_detail_row("🔄 修改时间:", self.detail_modified))
 
         layout.addWidget(info_card)
@@ -362,7 +363,7 @@ class ProjectsPage(BasePage):
         desc_title = MacTitleLabel("项目描述")
         desc_layout.addWidget(desc_title)
 
-        self.detail_description = MacLabel("暂无描述", "text-secondary")
+        self.detail_description = MacLabel("暂无描述", css_class="text-secondary")
         self.detail_description.setWordWrap(True)
         desc_layout.addWidget(self.detail_description)
 
@@ -388,13 +389,13 @@ class ProjectsPage(BasePage):
         layout.addWidget(icon_label)
 
         # 数值
-        value_label = MacLabel(value, "text-lg text-bold")
+        value_label = MacLabel(value, css_class="text-lg text-bold")
         value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         value_label.setObjectName("stat_value")
         layout.addWidget(value_label)
 
         # 标签
-        label_widget = MacLabel(label, "text-sm text-muted")
+        label_widget = MacLabel(label, css_class="text-sm text-muted")
         label_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label_widget)
 
@@ -411,7 +412,7 @@ class ProjectsPage(BasePage):
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(8)
 
-        label_widget = MacLabel(label, "text-secondary text-bold")
+        label_widget = MacLabel(label, css_class="text-secondary text-bold")
         row_layout.addWidget(label_widget)
         row_layout.addWidget(value_label, 1)
 
@@ -540,6 +541,10 @@ class ProjectsPage(BasePage):
 
     def _update_project_details(self, project: Project):
         """更新项目详情 - 适配新的UI组件"""
+        # Guard: ensure UI widgets are initialized before accessing them
+        if not hasattr(self, 'detail_type_badge') or not hasattr(self, 'detail_name') or not hasattr(self, 'detail_icon_label'):
+            self.logger.debug("UI widgets not yet initialized, skipping detail update")
+            return
         # 项目图标（根据类型显示不同图标）
         project_type = project.metadata.project_type.value
         icon_map = {

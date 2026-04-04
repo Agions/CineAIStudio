@@ -141,6 +141,8 @@ class ConfigManager:
     def set(self, key: str, value: Any) -> None:
         """设置扩展配置"""
         self._extra[key] = value
+        # Persist to disk immediately so settings survive app restarts
+        self.save_config()
 
     def get_value(self, key: str, default: Any = None) -> Any:
         """get 的别名，兼容旧代码"""
@@ -196,6 +198,12 @@ class ConfigManager:
         if "log_level" in data:
             config.log_level = data["log_level"]
 
+        # Restore extra settings (project_dir, jianying_draft_dir, etc.) from saved data
+        AppConfig_fields = {'llm_providers', 'cache', 'retry', 'default_provider', 'log_level'}
+        for key, value in data.items():
+            if key not in AppConfig_fields:
+                self._extra[key] = value
+
         return config
 
     def save_config(self, config: Optional[AppConfig] = None) -> None:
@@ -211,6 +219,9 @@ class ConfigManager:
         try:
             # 转换为字典
             data = asdict(config)
+
+            # Merge extra settings (project_dir, jianying_draft_dir, etc.) into saved data
+            data.update(self._extra)
 
             # 保存到文件
             self.config_dir.mkdir(parents=True, exist_ok=True)

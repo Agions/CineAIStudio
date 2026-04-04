@@ -618,12 +618,10 @@ class MainWindow(QMainWindow):
             elif page_type == PageType.SETTINGS and hasattr(self, 'settings_page') and self.settings_page:
                 target_page = self.settings_page
             else:
-                self.logger.warning(f"页面不存在或未初始化: {page_type}")
-                return
+                self.logger.info(f"页面 {page_type} 未初始化，尝试动态创建...")
                 
             # 如果目标页面仍为None，尝试动态创建页面
             if not target_page:
-                self.logger.info(f"页面 {page_type} 未初始化，尝试动态创建...")
                 
                 # 根据页面类型动态创建页面
                 if page_type == PageType.PROJECTS:
