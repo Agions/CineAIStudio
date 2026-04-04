@@ -1,4 +1,4 @@
-"""核心服务模块"""
+"""编排服务模块"""
 
 from .undo_manager import (
     UndoManager,

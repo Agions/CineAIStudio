@@ -11,7 +11,7 @@
 - 批量导出
 
 使用示例:
-    from app.services.core import BatchProcessor, BatchTask, BatchConfig
+    from app.services.orchestration import BatchProcessor, BatchTask, BatchConfig
     
     processor = BatchProcessor()
     

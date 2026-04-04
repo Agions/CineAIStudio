@@ -13,7 +13,7 @@ AI 提示词模板系统
 - 模板预览和测试
 
 使用示例:
-    from app.services.core import PromptTemplateManager, PromptTemplate
+    from app.services.orchestration import PromptTemplateManager, PromptTemplate
     
     manager = PromptTemplateManager()
     

@@ -16,7 +16,7 @@
 - 历史记录持久化
 
 使用示例:
-    from app.services.core import UndoManager, Command
+    from app.services.orchestration import UndoManager, Command
 
     # 创建命令
     class AddTextCommand(Command):

@@ -12,7 +12,7 @@ VideoForge 项目文件管理
 - 支持版本兼容性和向后兼容
 
 使用示例:
-    from app.services.core import ProjectManager, ProjectType
+    from app.services.orchestration import ProjectManager, ProjectType
     
     manager = ProjectManager()
     
