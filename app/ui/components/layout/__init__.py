@@ -5,9 +5,9 @@
 from typing import Optional, List
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QScrollArea, QFrame, QPushButton, QLabel
+    QScrollArea, QFrame, QLabel
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt
 
 
 class MacScrollArea(QScrollArea):

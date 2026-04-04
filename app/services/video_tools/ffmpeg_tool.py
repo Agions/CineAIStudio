@@ -8,7 +8,7 @@ import json
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple, Union
+from typing import Optional, List, Dict, Any, Tuple
 
 
 class FFmpegTool:

@@ -8,7 +8,6 @@ VideoForge 音频分析服务
 
 from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, List
 
 from .beat_detector import (
     BeatDetector,

@@ -13,7 +13,6 @@ from typing import List, Tuple, Optional
 from dataclasses import dataclass
 from pathlib import Path
 import subprocess
-import json
 from .ffmpeg_tool import FFmpegTool
 
 

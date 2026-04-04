@@ -19,7 +19,6 @@ from typing import List, Tuple
 from dataclasses import dataclass
 from pathlib import Path
 import subprocess
-import json
 from enum import Enum
 from .ffmpeg_tool import FFmpegTool
 

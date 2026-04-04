@@ -2,7 +2,6 @@
 容器组件 - Card, Section, ElevatedCard
 """
 
-from typing import Optional
 from PySide6.QtWidgets import QFrame, QVBoxLayout
 from PySide6.QtCore import Qt
 

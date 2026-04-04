@@ -274,8 +274,8 @@ class MashupMaker(ProgressMixin):
         try:
             # 尝试使用 librosa 分析节拍
             import librosa
-            import numpy as np
-            
+            import numpy as np  # noqa: F401
+
             y, sr = librosa.load(project.background_music)
             
             # 检测节拍

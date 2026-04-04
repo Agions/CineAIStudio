@@ -35,7 +35,7 @@ import uuid
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Callable, Dict
+from typing import List, Optional, Callable
 
 from .clip_scorer import ClipScorer, ClipSegment, ClipScore
 
@@ -338,10 +338,8 @@ class ClipRepurposingPipeline:
     ) -> List[ClipSegment]:
         """Step 2: 用 FFmpeg scene detection 分割场景"""
         import subprocess
-        import json
 
         scenes: List[ClipSegment] = []
-        scene_list_path = output_dir / f"scenes_{run_id}.txt"
 
         try:
             # FFmpeg scene detection: 输出为 nanosecond timestamps

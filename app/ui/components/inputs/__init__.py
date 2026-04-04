@@ -3,8 +3,8 @@
 """
 
 from typing import Optional
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLineEdit
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QWidget, QLineEdit
+from PySide6.QtCore import Signal
 
 
 class MacSearchBox(QWidget):

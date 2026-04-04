@@ -66,10 +66,12 @@ __all__ = [
     "ClipScorer",
     "ClipSegment",
     "ClipScore",
+    "HIGH_ENGAGEMENT_KEYWORDS",
     "ClipRepurposingPipeline",
     "ClipOutput",
     "PipelineConfig",
     "AspectRatio",
     "SubtitleStyle",
     "PlatformPreset",
+    "PLATFORM_PRESETS",
 ]

@@ -377,7 +377,7 @@ class VideoEnhancer:
         """使用 DeOldify 进行色彩修复"""
         # 需要 Python DeOldify 库
         try:
-            import deoldify
+            import deoldify  # noqa: F401
             # 这里调用 DeOldify API
             return output_path
         except ImportError:

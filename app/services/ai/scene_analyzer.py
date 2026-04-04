@@ -97,11 +97,8 @@ class SceneAnalyzer:
     
     def _check_pyscenect(self) -> bool:
         """检查 PySceneDetect 是否可用"""
-        try:
-            from scenedetect import detect, ContentDetector, AdaptiveDetector
-            return True
-        except ImportError:
-            return False
+        import importlib.util
+        return importlib.util.find_spec("scenedetect") is not None
     
     def analyze(self, video_path: str) -> List[SceneInfo]:
         """
