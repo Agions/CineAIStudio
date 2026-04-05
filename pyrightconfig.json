@@ -1,7 +1,0 @@
-{
-  "include": ["app"],
-  "exclude": ["app/ui/**"],
-  "pythonVersion": "3.10",
-  "typeCheckingMode": "basic",
-  "stubPath": ""
-}
