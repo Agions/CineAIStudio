@@ -1,11 +1,12 @@
 """
-VideoForge AI 服务模块
+Narrafiilm AI 服务模块
 
 提供AI能力:
-- LLM: 大语言模型支持
-- Vision: 视觉理解
-- Voice: 语音合成
+- LLM: 大语言模型支持（DeepSeek-V3 主力）
+- Vision: 视觉理解（Qwen2.5-VL 72B SOTA）
+- Voice: 语音合成（Edge-TTS / F5-TTS）
 - Analysis: 视频分析
+- FirstPersonNarrator: 第一人称解说编排器（核心）
 """
 
 # LLM 相关
@@ -19,10 +20,21 @@ from .base_llm_provider import (
 from .llm_manager import LLMManager
 
 # 视觉相关
-from .vision_providers import VisionProvider, VisionAnalyzerFactory
+from .vision_providers import (
+    VisionProvider,
+    VisionAnalyzerFactory,
+    FIRST_PERSON_ANALYSIS_PROMPT,
+)
 
 # 语音相关
 from .voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
+
+# 第一人称解说编排器 ⭐
+from .first_person_narrator import (
+    FirstPersonNarrator,
+    NarrationProject,
+    SceneSegment,
+)
 
 # 分析相关
 from .scene_analyzer import SceneAnalyzer, SceneInfo
@@ -50,11 +62,17 @@ __all__ = [
     # Vision
     "VisionProvider",
     "VisionAnalyzerFactory",
+    "FIRST_PERSON_ANALYSIS_PROMPT",
 
     # Voice
     "VoiceGenerator",
     "VoiceConfig",
     "VoiceStyle",
+
+    # FirstPersonNarrator ⭐
+    "FirstPersonNarrator",
+    "NarrationProject",
+    "SceneSegment",
 
     # Analysis
     "SceneAnalyzer",
