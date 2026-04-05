@@ -8,9 +8,7 @@ hero:
   name: NARRAFILM
   text: AI First-Person Video Narrator
   tagline: 上传视频，AI 代入画面主角视角，一键生成配音解说 — 免费开源跨平台
-  image:
-    src: https://img.shields.io/badge/NARRAFILM-AI%20Narrator-0A84FF?style=for-the-badge&logo=cinema5&logoColor=white
-    alt: NARRAFILM
+  image: ~
   actions:
     - theme: brand
       text: 🚀 5 分钟快速开始
@@ -22,6 +20,12 @@ hero:
       text: ⭐ Star on GitHub
       link: https://github.com/Agions/NARRAFILM
 ---
+
+<div align="center" style="margin: 2rem 0 1rem;">
+  <a href="https://github.com/Agions/Narrafiilm">
+    <img src="https://img.shields.io/badge/NARRAFILM-AI%20Narrator-0A84FF?style=for-the-badge&logo=cinema5&logoColor=white" alt="NARRAFILM" />
+  </a>
+</div>
 
 <div class="features-grid">
 
