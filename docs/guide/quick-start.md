@@ -1,129 +1,115 @@
 ---
-title: 5 分钟快速开始
-description: 最简化的 Narrafiilm 上手指引，5 分钟内完成从安装到第一个 AI 视频创作。
+title: 快速开始
+description: 5 分钟完成 Narrafiilm 安装与首次第一人称视频解说生成。
 ---
 
-# 5 分钟快速开始
+# 快速开始
 
-> ⏱️ 如果你已经熟悉视频编辑工具，可以直接跳到 [安装 Narrafiilm](#快速安装)。
-
-本指南将带你用 **5 分钟** 完成 Narrafiilm 的安装与首次 AI 视频创作。
+> ⏱️ 预计时间：5 分钟（已安装应用者 2 分钟）
 
 ---
 
 ## 系统要求
 
-| 项目 | 要求 |
-|------|------|
-| 操作系统 | Windows 10+ / macOS 11+ / Ubuntu 20.04+ |
-| 内存 | 8 GB（推荐 16 GB） |
-| 显卡 | NVIDIA 4GB（可选，GPU 加速） |
-| 网络 | 互联网连接（用于 AI 功能） |
+| 项目 | 最低要求 | 推荐 |
+|------|----------|------|
+| 操作系统 | Windows 10+ / macOS 11+ / Ubuntu 20.04+ | Windows 11 / macOS 13+ |
+| 内存 | 8 GB | 16 GB |
+| 显卡 | — | NVIDIA 4GB+（CUDA 加速） |
+| 存储 | 2 GB | 10 GB（包含模型缓存） |
+| 网络 | 用于调用 AI API | — |
 
 ---
 
-## 快速安装
+## 下载与安装
 
-### 方式一：下载安装包（推荐）
+###方式一：安装包（推荐）
 
 1. 打开 [GitHub Releases](https://github.com/Agions/Narrafiilm/releases/latest)
-2. 下载对应平台的最新版本：
+2. 下载对应平台版本：
 
-| 平台 | 安装包 |
+| 平台 | 文件名 |
 |------|--------|
 | Windows | `Narrafiilm-Setup-x.x.x.exe` |
 | macOS | `Narrafiilm-x.x.x.dmg` |
 | Linux | `Narrafiilm-x.x.x.AppImage` |
 
-3. 运行安装程序，按提示完成安装
+3. 运行安装包，按提示完成
 
 ### 方式二：Homebrew（macOS / Linux）
 
 ```bash
-brew install videoforge
+brew install agions/tap/narrafiilm
 ```
 
 ### 方式三：源码安装
 
 ```bash
 git clone https://github.com/Agions/Narrafiilm.git
-cd Narrafiilm
-python -m venv venv && source venv/bin/activate
+cd narrafiilm
+python -m venv venv && source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python app/main.py
 ```
 
+> ⚠️ 源码安装需要自行安装 [FFmpeg](https://ffmpeg.org/download.html)。
+
 ---
 
-## 配置 AI（3 步搞定）
+## 配置 API Key {#配置-api-key}
 
-### 第 1 步：获取 API Key
+Narrafiilm 需要一个 AI API Key 来生成解说词。**DeepSeek** 性价比最高，每月约 $1 可处理数十个视频。
 
-Narrafiilm 支持多种 AI 提供商，只需配置一个即可使用全部功能：
+### 获取 DeepSeek API Key
 
-| 提供商 | 获取地址 | 特点 |
-|--------|----------|------|
-| **DeepSeek** | [platform.deepseek.com](https://platform.deepseek.com) | 🏆 性价比最高 |
-| **OpenAI** | [platform.openai.com](https://platform.openai.com) | 能力最强 |
-| **通义千问** | [dashscope.console.aliyun.com](https://dashscope.console.aliyun.com) | 中文优化 |
-| **Kimi** | [platform.moonshot.cn](https://platform.moonshot.cn) | 超长上下文 |
-| **Ollama**（本地） | [ollama.ai](https://ollama.ai) | 🔒 完全免费离线 |
+1. 打开 [platform.deepseek.com](https://platform.deepseek.com)
+2. 注册并登录
+3. 进入 **API Keys** → **Create API Key**
+4. 复制生成的 Key（格式：`sk-...`）
 
-### 第 2 步：配置 API Key
+### 填入应用
 
-启动 Narrafiilm 后，进入 **设置 → AI 配置**，粘贴你的 API Key。
+启动 Narrafiilm → **设置** → **AI 配置** → 粘贴 Key → **保存**
 
-或直接编辑 `.env` 文件（项目根目录）：
+或直接编辑项目根目录的 `.env` 文件：
 
 ```env
-# 选择一个你申请的 AI 提供商
-DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
-
-# 语音合成（免费，使用微软 Edge TTS）
-TIKTOKEN_API_KEY=
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-### 第 3 步：验证配置
+### 验证连接
 
-进入 **设置 → AI 配置**，点击 **连接测试**。看到 ✅ 就说明配置成功。
+进入 **设置 → AI 配置**，点击 **连接测试**。出现 ✅ 即表示配置成功。
 
 ---
 
-## 创建第一个 AI 视频（3 步）
+## 创建第一个解说视频（3 步）
 
-### 1️⃣ 新建项目
+### 第 1 步：新建项目
 
-- 启动应用 → 点击 **新建项目**
-- 选择项目保存位置
-- 选择创作模式
+启动应用 → 点击 **新建项目** → 选择保存位置 → 输入项目名称
 
-### 2️⃣ 导入素材
+### 第 2 步：导入视频
 
-- 点击 **导入素材** 或直接将视频文件拖入窗口
-- 支持格式：`MP4`, `MOV`, `AVI`, `MKV`, `WebM`
+- 点击 **导入素材** 按钮，或直接将视频文件拖入窗口
+- 支持格式：`MP4` / `MOV` / `AVI` / `MKV` / `WebM`
 
-### 3️⃣ 开始创作
+### 第 3 步：生成解说
 
-选择你的创作模式：
+1. 确认视频已加载
+2. 选择**情感风格**：治愈 / 悬疑 / 励志 / 怀旧 / 浪漫
+3. 选择**配音音色**：默认 XiaoXiao（女声）
+4. 点击 **开始创作**
 
-| 模式 | 适用场景 | 创作效果 |
-|------|----------|----------|
-| 🎬 **剧情分析** | 电影解说、Vlog 整理 | 智能分析叙事结构 |
-| 🎙️ **AI 解说** | 纪录片、产品介绍 | AI 生成旁白 + 字幕 |
-| 🎵 **智能混剪** | 音乐视频、节奏剪辑 | BPM 自动卡点 |
-| 🎭 **AI 独白** | 情感视频、电影感 Vlog | 电影级字幕 |
-| 📱 **短视频切片** | 直播切片、社交媒体 | 一键高光片段 |
-| 🌐 **视频翻译** | 内容出海、本地化 | 100+ 语言支持 |
-
-点击 **开始创作**，等待 AI 处理完成，预览 → 导出。
+等待 AI 完成处理（通常 1–3 分钟，取决于视频长度和 API 速度），预览结果后点击 **导出**。
 
 ---
 
 ## 常见问题
 
-### ❓ 提示 "FFmpeg not found"
+### 提示 "FFmpeg not found"
 
-Narrafiilm 需要 FFmpeg 处理视频。安装方法：
+FFmpeg 是视频处理的核心依赖，未安装会导致所有视频操作失败。
 
 ```bash
 # macOS
@@ -133,28 +119,33 @@ brew install ffmpeg
 sudo apt install ffmpeg
 
 # Windows
-# 下载 https://ffmpeg.org/download.html 并添加到 PATH
+# 下载 https://www.gyan.dev/ffmpeg/builds/ ，解压后将 bin 目录加入 PATH
 ```
 
-### ❓ AI 功能报错 401
+安装后重启应用。
 
-API Key 配置有误。进入 **设置 → AI 配置**，重新粘贴正确的 Key。
+### AI 功能报错 401 / 403
 
-### ❓ 处理速度很慢
+API Key 无效或额度用尽。进入 [platform.deepseek.com](https://platform.deepseek.com) 检查 Key 状态和账户余额。
 
-- 确认电脑有足够的内存（建议 16GB+）
-- 使用 NVIDIA 显卡可加速处理
-- 关闭其他占用资源的程序
+### 处理速度很慢
+
+- 确认网络连接稳定（调用外部 API）
+- 有 NVIDIA 显卡时自动启用 CUDA 加速
+- 减少抽帧密度可提速（设置 → 场景理解 → 抽帧间隔）
+
+### 显存不足（OOM）
+
+GPU 模式对显存要求较高。进入 **设置 → AI 配置**，关闭 **启用 GPU 加速**，回退到 CPU 模式。
+
+### 无 DISPLAY 环境运行静默退出
+
+Linux 无头环境（SSH / 服务器）下，应用会自动设置 `QT_QPA_PLATFORM=offscreen`，无需额外配置。
 
 ---
 
 ## 下一步
 
-- 🎬 [功能详细介绍](/features) — 了解每个 AI 模式的使用技巧
-- 🤖 [AI 模型配置](/ai-models) — 切换和优化 AI 提供商
-- ❓ [常见问题](/faq) — 更多常见问题解答
-- 📖 [详细安装指南](/guide/installation) — 包含各平台完整安装步骤
-
-::: tip 💡 小技巧
-首次使用建议从 **AI 解说** 或 **短视频切片** 开始，这两个模式对硬件要求最低，效果也最直观。
-:::
+- [功能详细介绍](../features) — 情感风格、字幕样式、导出格式详解
+- [完整安装指南](../guide/installation) — 各平台依赖、CUDA 配置、F5-TTS 安装
+- [常见问题](../faq) — 更多问题解答

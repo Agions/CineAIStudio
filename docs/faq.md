@@ -1,395 +1,196 @@
 ---
 title: 常见问题
-description: Narrafiilm 使用过程中遇到的常见问题与解决方案。
+description: Narrafiilm 使用中的常见问题解答。
 ---
 
 # 常见问题
 
-本文档收集了 Narrafiilm 使用过程中最常见的问题，分为几个类别方便快速查找。
-
 ---
 
-## 安装问题
+## 安装与启动
 
-### ❓ 安装包无法下载或下载很慢？
+### 下载速度很慢怎么办？
 
-**A:** GitHub 在国内的下载速度可能较慢，推荐使用镜像：
-
+GitHub Releases 国内访问较慢，可使用代理：
 ```bash
-# 使用 ghproxy 镜像
-wget https://ghproxy.com/https://github.com/Agions/Narrafiilm/releases/download/v3.1.0/Narrafiilm-Setup-x.x.x.exe
-
-# 或使用 GitHub CLI
-gh release download --pattern "Narrafiilm*.exe"
+# 使用 ghproxy
+wget https://ghproxy.com/https://github.com/Agions/Narrafiilm/releases/download/v3.2.0/Narrafiilm-x.x.x.AppImage
 ```
 
-### ❓ Windows 安装时报"SmartScreen 已阻止"？
+或使用 Gitee 镜像（如有同步）。
 
-**A:** 这是 Windows 的正常安全提示：
+### macOS 提示"无法打开，因为无法验证开发者"？
 
-1. 点击 **更多信息**
-2. 点击 **仍要运行**
-3. 如果问题持续，关闭 Windows SmartScreen：
-   设置 → 更新和安全 → Windows 安全 → 应用和浏览器控制 → 关闭 SmartScreen
+这是 Gatekeeper 安全限制，解决方法：
+1. 右键点击应用 → **打开**
+2. 弹出提示时点击 **打开**
 
-### ❓ macOS 提示"无法打开，因为无法验证开发者"？
+或在终端执行：
+```bash
+xattr -d com.apple.quarantine /Applications/Narrafiilm.app
+```
 
-**A:** macOS 对未签名应用的限制，解决方法：
-
-1. 系统设置 → 隐私与安全性 → 滚动到下方
-2. 点击 **仍要打开**
-3. 如果仍不行：
-   ```bash
-   # 绕过 Gatekeeper（临时）
-   sudo xattr -rd com.apple.quarantine /Applications/Narrafiilm.app
-   ```
-
-### ❓ Linux AppImage 无法运行？
-
-**A:** 添加执行权限：
+### Linux AppImage 无法运行？
 
 ```bash
 chmod +x Narrafiilm-x.x.x.AppImage
-./Narrafiilm-x.x.x.AppImage
+sudo apt install fuse libfuse2  # 如缺少依赖
 ```
 
-如果仍不行，可能是缺少 FUSE：
+部分精简系统需要安装额外库：`libegl1 libgl1 libxkbcommon0 libdbus-1-3`
+
+### 无头环境（SSH / 服务器）能运行吗？
+
+能。Linux 服务器或 Docker 容器中，应用会自动使用 `QT_QPA_PLATFORM=offscreen` 模式，完整运行所有 AI 处理流程，只是无法使用图形界面。
 
 ```bash
-# Ubuntu/Debian
-sudo apt install fuse libfuse2
+export QT_QPA_PLATFORM=offscreen
+python3 app/main.py
+```
 
-# 或尝试不依赖 FUSE 模式
-./Narrafiilm-x.x.x.AppImage --no-sandbox
+### Docker 中运行
+
+```dockerfile
+FROM python:3.10-slim
+
+RUN apt-get update && apt-get install -y \
+    ffmpeg libegl1 libgl1 libxkbcommon0 libdbus-1-3 libgtk-3-0
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+CMD ["python3", "app/main.py"]
 ```
 
 ---
 
-## 启动问题
+## API 与账户
 
-### ❓ 启动后黑屏或卡在加载界面？
+### DeepSeek API Key 多少钱？
 
-**A:** 按顺序排查：
+DeepSeek-V3 价格极低（约 $0.1 / 1M tokens），处理一个 5 分钟视频约消耗 50K–100K tokens，成本不到 **1 分钱**。普通使用一个月 $1 足够。
 
-1. 更新显卡驱动（尤其是 NVIDIA）
-2. 尝试以安全模式启动：
-   ```bash
-   python app/main.py --safe-mode
-   ```
-3. 清除缓存：
-   ```bash
-   python -m videoforge cache clear
-   ```
-4. 查看日志获取详细信息：
-   ```bash
-   tail -f ~/.videoforge/logs/app.log
-   ```
+### API Key 泄露了怎么办？
 
-### ❓ 提示 "Module not found" 或 "Import Error"？
+立即在 [platform.deepseek.com](https://platform.deepseek.com) 删除该 Key，并创建新 Key 替换。同时检查账户是否有异常调用记录。
 
-**A:** 依赖未正确安装：
+### 账户余额还有，但报 401 错误？
 
-```bash
-# 重新安装依赖
-pip install --upgrade -r requirements.txt
+可能是触发了 API 的速率限制（Rate Limit）。等待 1 分钟重试，或在 [DeepSeek 控制台](https://platform.deepseek.com) 查看当前配额状态。
 
-# 如果是 PyQt6/PySide6 冲突
-pip uninstall PySide6 PySide2
-pip install PyQt6
-```
+### 支持其他 AI 提供商吗？
 
-### ❓ 提示 "Qt platform plugin not found"？
-
-**A:** Qt 平台插件缺失（常见于 Linux 最小化安装）：
-
-```bash
-# Ubuntu/Debian
-sudo apt install libxcb-xinerama0 libxkbcommon-x11-0 libegl1 libdbus-1-3
-
-# Fedora
-sudo dnf install libxkbcommon-x11 Mesa-libEGL dbus-x11
-```
+目前 Narrafiilm 主推 DeepSeek-V3（性价比最优）。理论上支持 OpenAI GPT-4.1 和 Anthropic Claude 系列，但需要自行修改代码中的 API 端点。视频理解模型（Qwen2.5-VL）目前仅支持阿里云百炼 API。
 
 ---
 
-## AI 功能问题
+## 功能与效果
 
-### ❓ AI 功能报 "401 Unauthorized" 或 "Invalid API Key"？
+### 解说稿可以手动修改吗？
 
-**A:** 按以下顺序排查：
+可以。生成后点击解说稿区域进入编辑模式，直接修改文字。修改后的稿子会保留，重新合成配音和字幕即可。
 
-1. 检查 API Key 是否正确（注意无多余空格）
-2. 检查 Key 是否过期或额度用完
-3. 确认 API Key 与配置的提供商匹配（DeepSeek Key 不能用于 OpenAI）
-4. 在 [对应平台](https://platform.deepseek.com) 检查 Key 状态
+### 生成的配音听起来不够自然？
 
-### ❓ AI 功能报 "429 Rate Limited"？
+- 尝试切换不同音色（XiaoXiao / Yunxi / Yunyang）
+- 调整语速至 0.9x–1.1x 区间
+- 解说稿越自然、配音效果越好（避免长难句和生僻词）
+- 进阶用户可使用 F5-TTS 克隆真实人声
 
-**A:** 请求过于频繁：
+### 字幕和配音不同步怎么办？
 
-1. 等待 1 分钟后再试
-2. 在设置中降低 AI 请求并发数
-3. 如果是免费账户，考虑升级到付费计划
-4. DeepSeek 的免费额度较充足，推荐作为主力
+字幕同步依赖 TTS word-level timing 数据，Edge-TTS 同步精度通常在 50ms 以内。如遇明显不同步：
+1. 确认使用的是 Edge-TTS（非第三方 TTS）
+2. 检查解说稿是否有异常字符或特殊符号
+3. 在设置中开启 **强制重新对齐** 选项
 
-### ❓ 报 "500 Server Error" 或 "Service Unavailable"？
+### 视频很长（1 小时+）能处理吗？
 
-**A:** AI 服务商临时故障：
+能，但需要注意：
+- 超长视频建议分段处理（每段 10–15 分钟效果最佳）
+- 视频理解阶段显存消耗较大，有 GPU 时会自动分段
+- API 调用量增加，处理时间和成本相应上升
 
-1. 检查 [服务商状态页](https://status.deepseek.com)
-2. 切换到备用 AI 提供商（如从 DeepSeek 切换到 OpenAI）
-3. 稍后再试
+### 不支持哪些视频？
 
-### ❓ 生成速度很慢？
+- **无明确主角** 的纯风景、延时摄影、监控录像（AI 无法判断"我是谁"）
+- **画面严重模糊或遮挡** 的视频
+- **竖屏视频**（当前版本对竖屏支持有限，9:16 比例可能产生构图问题）
+- **音频严重损坏或无音轨**（对配音无影响，但会影响场景理解辅助参考）
 
-**A:** 速度受多种因素影响：
+### 如何让 AI 更准确地识别主角？
 
-| 影响因素 | 解决方案 |
-|----------|----------|
-| 网络延迟 | 使用国内 AI 提供商（DeepSeek/通义千问） |
-| 模型选择 | 简单任务用小模型（如 GPT-4o-mini） |
-| 显卡 | NVIDIA GPU 可加速本地推理（Ollama） |
-| 并发 | 降低批量处理的并发数 |
-| 服务器负载 | 避开高峰时段（国内晚间） |
-
----
-
-## 视频处理问题
-
-### ❓ 提示 "FFmpeg not found"？
-
-**A:** FFmpeg 未安装或未添加到 PATH：
-
-```bash
-# macOS
-brew install ffmpeg
-
-# Ubuntu/Debian
-sudo apt install ffmpeg
-
-# Windows: 下载 https://ffmpeg.org/download.html 并添加到 PATH
-```
-
-验证安装：
-
-```bash
-ffmpeg -version
-```
-
-### ❓ 视频导入后无法预览？
-
-**A:** 常见原因：
-
-1. 视频格式不兼容 → 转为 MP4（H.264）
-2. 视频损坏 → 用其他播放器测试源文件
-3. 视频过大 → 降低预览分辨率（设置 → 性能 → 预览质量）
-4. 缺少解码器 → 安装完整版 FFmpeg（不是 FFmpeg static）
-
-### ❓ 处理过程中崩溃或卡死？
-
-**A:** 内存不足或视频过大：
-
-1. 关闭其他程序释放内存
-2. 在设置中降低处理分辨率
-3. 将长视频分段处理
-4. 检查磁盘空间（至少 2 倍视频大小的空闲空间）
-
-### ❓ 导出后视频有音画不同步？
-
-**A:** 常见原因：
-
-1. 源视频本身有问题（用其他软件验证）
-2. 音频有可变码率问题（设置 → 导出 → 重新编码音频）
-3. 使用了不兼容的编解码器（推荐使用 H.264）
+- 主角在画面中占比越大、出现时间越长，识别越准确
+- 多主角场景，可在生成后手动指定哪个是"我"
+- 避免主角长期处于画面边缘或被大面积遮挡
 
 ---
 
-## 订阅与付费问题
+## 输出与格式
 
-### ❓ Narrafiilm 本身收费吗？
+### 导出失败怎么办？
 
-**A:** **完全免费**，包括所有 AI 创作功能。Narrafiilm 是开源项目，仅收取运营成本（服务器/带宽），但不做强制收费。
+1. 确认磁盘空间充足（导出需要原片 2–3 倍空间）
+2. 检查输出目录是否有写入权限
+3. 临时关闭杀毒软件（部分杀软会拦截 FFmpeg）
+4. 尝试更换导出格式（H.265 换成 H.264）
 
-### ❓ 为什么有些 AI 模型需要付费？
+### 导出后没有声音？
 
-**A:** Narrafiilm 调用的是第三方 AI 服务商（OpenAI、DeepSeek 等），他们有自己的定价。你只需支付你使用的 AI 服务费用，Narrafiilm 不从中抽成。
+检查导出设置中 **"保留配音音轨"** 是否勾选。默认仅导出 AI 配音，原片音频需手动开启。
 
-### ❓ 如何控制 AI 费用？
+### 剪映草稿无法导入？
 
-**A:** 推荐配置：
-
-| 方案 | AI 费用 | 说明 |
-|------|---------|------|
-| 完全免费 | ¥0 | DeepSeek V3.2 + Edge TTS |
-| 低成本 | ¥20/月 | DeepSeek + OpenAI TTS |
-| 高质量 | ¥100/月 | GPT-5.4 + OpenAI TTS |
-
----
-
-## 数据与隐私问题
-
-### ❓ 视频文件会上传到服务器吗？
-
-**A:** **不会**。Narrafiilm 是一款本地桌面应用，所有处理都在你的电脑上完成。AI 功能通过调用第三方 API 实现（视频片段会上传到 OpenAI/DeepSeek 等），但不会存储在你的服务器上。
-
-### ❓ API Key 安全吗？
-
-**A:** 安全。Narrafiilm 使用 OS Keychain（系统级安全存储）或 Fernet 加密存储密钥，从不将 Key 以明文形式保存或传输。
-
-详见 [安全设计](./security)。
+- 确认剪映版本为最新（较老版本可能不兼容新格式）
+- 草稿 JSON 文件不可直接双击打开，需在剪映内通过"导入草稿"加载
+- 部分 CapCut 国际版不支持中文路径，草稿保存路径避免中文字符
 
 ---
 
-## 其他问题
+## 性能与硬件
 
-### ❓ 如何获取完整的错误日志？
+### 没有 NVIDIA 显卡能用吗？
 
-**A:** 日志文件位置：
+能。Narrafiilm 在无 GPU 时自动回退到 CPU 模式。视频理解会变慢（3x 实时 vs 10x 实时），其他步骤（配音合成、字幕、导出）几乎不受影响。
 
-| 操作系统 | 日志路径 |
-|-----------|----------|
-| macOS | `~/Library/Logs/Narrafiilm/app.log` |
-| Linux | `~/.videoforge/logs/app.log` |
-| Windows | `%APPDATA%\Narrafiilm\logs\app.log` |
+### 显存不足（OOM）怎么办？
 
-查看实时日志：
+- 关闭 GPU 加速（设置 → AI 配置 → 启用 GPU 加速 → 关闭）
+- 减少抽帧密度（设置 → 场景理解 → 抽帧间隔，改为 2 秒）
+- 降低视频分辨率（1080p → 720p）
+- 使用更小的模型切片（目前仅支持 Qwen2.5-VL 72B）
 
-```bash
-tail -f ~/.videoforge/logs/app.log
-```
+### 处理速度参考
 
-### ❓ 如何回滚到旧版本？
+以一段 **5 分钟 1080p 视频** 为例：
 
-```bash
-# GitHub 上找到旧版本
-# 下载对应版本的安装包
-# 先卸载当前版本
-pip uninstall videoforge
-# 安装旧版本
-pip install videoforge==2.0.0
-```
-
-### ❓ 如何反馈问题或建议？
-
-| 方式 | 入口 |
-|------|------|
-| Bug 报告 | [GitHub Issues](https://github.com/Agions/Narrafiilm/issues/new?template=bug_report.md) |
-| 功能建议 | [GitHub Discussions](https://github.com/Agions/Narrafiilm/discussions) |
-| 文档纠错 | 直接提交 PR |
-
-::: tip 💡 提问技巧
-报告问题时，请附上：
-1. 操作系统和版本
-2. Narrafiilm 版本
-3. 完整的错误信息
-4. 操作步骤（如何复现）
-这能帮助我们更快定位和解决问题。
-:::
+| 阶段 | CPU 模式 | GPU 模式 (RTX 3060) |
+|------|----------|---------------------|
+| 场景理解 | 约 15–20 分钟 | 约 3–5 分钟 |
+| 解说生成 | 约 30 秒 | 约 30 秒 |
+| 配音合成 | 约 2 分钟 | 约 2 分钟 |
+| 字幕制作 | 约 1 分钟 | 约 1 分钟 |
+| 视频导出 | 约 5–10 分钟 | 约 2–3 分钟 |
+| **总计** | **约 25–35 分钟** | **约 8–15 分钟** |
 
 ---
 
-## 疑难排查
+## 其他
 
-以下问题通常不在日常使用中出现，但在特定环境下可能遇到。
+### 如何贡献代码？
 
-### ❓ 报错 `libEGL.so.1: cannot open shared object file`？
+见 [贡献指南](../contributing)。
 
-**A:** PySide6 依赖 EGL 图形库，系统未安装：
+### 商业使用需要授权吗？
 
-```bash
-# Ubuntu / Debian
-sudo apt install libegl1 libgl1 libopengl0
+不需要。Narrafiilm 采用 MIT 协议，商用和个人使用均无需授权。但需注意：
+- 使用的 AI 模型（DeepSeek / Qwen / Edge-TTS）各有其服务条款，商业场景请自行确认合规
+- 生成内容的版权由使用者自行负责，Narrafiilm 不对输出内容主张任何权利
 
-# 验证
-ldconfig -p | grep libEGL
-```
+### 如何获取更新？
 
----
-
-### ❓ 提示 `System keyring not available`？
-
-**A:** Linux 下 keyring 服务不可用。**不影响主功能**，只是 API Key 无法安全存储（仍可正常使用）：
-
-```bash
-# 可选：安装 keyring 服务
-sudo apt install libsecret-1-0 gnome-keyring
-```
-
----
-
-### ❓ 提示 `Couldn't load pipewire-0.3 library`？
-
-**A:** Qt 音频后端尝试加载 pipewire 失败，**不影响视频处理功能**：
-
-```bash
-# 可选：安装 pipewire 库
-sudo apt install pipewire-audio-client-libraries
-
-# 或强制使用 ALSA 后端
-export QT_AUDIO_BACKEND=alsa
-```
-
----
-
-### ❓ 窗口显示不完整 / UI 错位 / 文字过小？
-
-**A:** 高 DPI 屏幕缩放不匹配。尝试强制设置缩放：
-
-```bash
-# 自动适应屏幕
-QT_AUTO_SCREEN_SCALE_FACTOR=1 python3 main.py
-
-# 关闭缩放
-QT_AUTO_SCREEN_SCALE_FACTOR=0 QT_SCALE_FACTOR=1 python3 main.py
-
-# 强制 200% 缩放
-QT_SCALE_FACTOR=2 python3 main.py
-```
-
----
-
-### ❓ 界面中文显示为方块（豆腐字符）？
-
-**A:** 系统缺少 Noto CJK 字体：
-
-```bash
-# Ubuntu / Debian
-sudo apt install fonts-noto-cjk
-
-# macOS 一般自带，无需处理
-# Windows：安装「Noto Sans CJK」字体
-```
-
----
-
-### ❓ 视频导入或导出速度极慢？
-
-**A:** 源视频未经优化（高码率、H.265/HEVC、60fps 等格式对编辑不友好）：
-
-1. 在剪映/Jianying 中先将视频导出为：
-   - 分辨率：1080p
-   - 编码：H.264（AVC）
-   - 帧率：30fps
-   - 码率：8–15 Mbps
-2. 再导入 Narrafiilm 编辑
-
-> 小体积、易处理的源素材能显著提升编辑和导出速度。
-
----
-
-### ❓ 如何获取完整调试日志？
-
-**A:** 在终端运行以下命令，将输出保存到文件：
-
-```bash
-# 完整 stdout 日志
-QT_LOGGING_TO_STDOUT=1 python3 main.py 2>&1 | tee debug.log
-
-# 无头模式（无显示器环境）
-QT_QPA_PLATFORM=offscreen python3 main.py
-
-# 组合使用
-QT_LOGGING_TO_STDOUT=1 QT_QPA_PLATFORM=offscreen python3 main.py 2>&1 | tee debug.log
-```
-
-提交 Issue 时附上 `debug.log` 可大幅加快问题定位。
+- **GitHub Releases**：关注 [Releases 页面](https://github.com/Agions/Narrafiilm/releases)
+- **Watch 仓库**：在 GitHub 页面点击 Watch → Releases only
+- **Homebrew**：`brew upgrade narrafiilm`

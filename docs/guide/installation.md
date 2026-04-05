@@ -1,390 +1,240 @@
 ---
-title: 安装配置
-description: Narrafiilm 各平台详细安装指南，包含常见问题的故障排除。
+title: 安装指南
+description: Narrafiilm 各平台完整安装步骤、依赖配置与故障排查。
 ---
 
-# 安装配置
-
-本文档提供 Narrafiilm 在各平台上的完整安装步骤。
-
----
-
-## Windows 安装
-
-### 系统要求
-
-| 要求 | 最低配置 | 推荐配置 |
-|------|----------|----------|
-| 版本 | Windows 10 (64-bit) | Windows 11 |
-| 内存 | 8 GB | 16 GB |
-| 显卡 | 集成显卡 | NVIDIA 6GB+ |
-| 磁盘 | 10 GB 可用空间 | 20 GB SSD |
-| 显示器 | 1280×720 | 1920×1080 |
-
-### 安装步骤
-
-1. 下载 `Narrafiilm-Setup-x.x.x.exe` from [Releases](https://github.com/Agions/Narrafiilm/releases/latest)
-2. 右键安装文件 → **属性** → 勾选 **解除锁定**（如出现）
-3. 双击运行安装程序
-4. 按照提示完成安装（建议选择"为当前用户安装"避免权限问题）
-5. 首次运行如遇 SmartScreen 提示，点击 **仍要运行**
-
-### 卸载
-
-通过 Windows 设置 → 应用 → Narrafiilm → 卸载，或使用安装包自带的卸载程序。
-
-### 常见问题
-
-#### 提示"无法验证发布者"
-
-这是 Windows 的正常安全警告，点击 **仍要运行** 即可。Narrafiilm 是开源项目，未购买代码签名证书。
-
-#### 安装后无法启动（黑屏/闪退）
-
-1. 更新显卡驱动
-2. 安装 [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-3. 以兼容模式运行：右键 → 属性 → 兼容性 → Windows 10
+# 安装指南
 
 ---
 
-## macOS 安装
+## Windows
 
-### 系统要求
+### 方式一：安装包（推荐）
 
-| 要求 | 最低配置 | 推荐配置 |
-|------|----------|----------|
-| 版本 | macOS 11 (Big Sur) | macOS 13+ |
-| 芯片 | Apple Silicon 或 Intel | Apple Silicon (M1/M2/M3) |
-| 内存 | 8 GB | 16 GB |
-| 磁盘 | 10 GB 可用空间 | 20 GB SSD |
+1. 下载 `Narrafiilm-Setup-x.x.x.exe`（[Releases 页面](https://github.com/Agions/Narrafiilm/releases/latest)）
+2. 运行安装程序，一路 Next 即可
+3. 首次启动会自动检测并提示安装 FFmpeg（如缺失）
 
-### 安装步骤
+### 方式二：便携版
 
-#### DMG 安装（推荐）
+下载 `.zip` 便携版，解压后直接运行 `Narrafiilm.exe`，无需安装。
 
-1. 下载 `Narrafiilm-x.x.x.dmg` from [Releases](https://github.com/Agions/Narrafiilm/releases/latest)
-2. 打开 DMG 文件
-3. 将 Narrafiilm 拖入 Applications 文件夹
-4. 首次运行：打开 Applications → 右键 Narrafiilm → 选择"打开"
-5. 遇到"无法验证开发者"提示时，点击"仍要打开"
+### 方式三：源码运行
 
-#### Homebrew 安装
+```powershell
+# 安装 Python 3.10+
+# 建议使用 pyenv-win 或 python.org 安装程序
 
-```bash
-brew install videoforge
-brew install --cask videoforge  # 如果上面不行
+git clone https://github.com/Agions/Narrafiilm.git
+cd Narrafiilm
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app/main.py
 ```
 
-### Apple Silicon (M1/M2/M3) 注意事项
+### FFmpeg 安装（Windows）
 
-- Narrafiilm 提供 Universal 和 Apple Silicon 两个版本
-- **推荐下载 Apple Silicon 版本**（性能更好、功耗更低）
-- Rosetta 2 兼容模式下也可以运行 Universal 版本（性能略差）
+**自动安装（推荐）**：首次启动时应用会自动提示下载 FFmpeg。
 
-### 常见问题
+**手动安装**：
+1. 下载 [FFmpeg Builds](https://www.gyan.dev/ffmpeg/builds/)（选择 `ffmpeg-release-essentials.zip`）
+2. 解压到任意目录（如 `C:\ffmpeg`）
+3. 将 `C:\ffmpeg\bin` 加入系统 PATH
+4. 重启命令提示符，运行 `ffmpeg -version` 验证
 
-#### "Narrafiilm can't be opened because it is from an unidentified developer"
+### GPU 加速（CUDA）
 
-**解决方法（任选其一）：**
+如需 NVIDIA 显卡加速（视频分析提速约 3–5 倍）：
 
-1. 右键点击应用 → **打开** → 弹出确认框 → 点击 **打开**
-2. 系统设置 → 隐私与安全性 → 滚动到下方 → 点击 **仍要打开 Narrafiilm**
-3. 终端命令绕过（不推荐长期使用）：
-   ```bash
-   sudo xattr -rd com.apple.quarantine /Applications/Narrafiilm.app
-   ```
+1. 安装 [NVIDIA Driver](https://www.nvidia.com/Download/index.aspx)（最新版本）
+2. 安装 [CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)
+3. 安装 [cuDNN 9.x](https://developer.nvidia.com/cudnn-download)（需注册 NVIDIA 开发者账号）
 
-#### 卸载
-
-```bash
-# 删除应用
-rm -rf /Applications/Narrafiilm.app
-
-# 删除配置（可选）
-rm -rf ~/.videoforge
+```powershell
+# 验证 CUDA 可用
+python -c "import torch; print(torch.cuda.is_available())"
 ```
 
 ---
 
-## Linux 安装
+## macOS
 
-### 系统要求
+### 方式一：DMG 安装包（推荐）
 
-| 要求 | 最低配置 | 推荐配置 |
-|------|----------|----------|
-| 发行版 | Ubuntu 20.04 / Debian 11 | Ubuntu 22.04+ |
-| 内存 | 8 GB | 16 GB |
-| 显卡 | 集成显卡 | NVIDIA + CUDA |
-| 桌面环境 | GNOME / KDE / XFCE | GNOME |
+1. 下载 `Narrafiilm-x.x.x.dmg`
+2. 打开并将应用拖入 Applications 文件夹
+3. 首次启动：右键 → 打开（绕过 Gatekeeper）
 
-### AppImage 安装（推荐）
+### 方式二：Homebrew
 
 ```bash
-# 1. 下载 AppImage
-wget https://github.com/Agions/Narrafiilm/releases/download/v3.1.0/Narrafiilm-x.x.x.AppImage
-
-# 2. 添加执行权限
-chmod +x Narrafiilm-x.x.x.AppImage
-
-# 3. 运行
-./Narrafiilm-x.x.x.AppImage
+brew install agions/tap/narrafiilm
+brew install ffmpeg  # 如未安装
 ```
 
-#### AppImage 依赖问题
-
-如果提示缺少库，安装基础依赖：
+### 方式三：源码运行
 
 ```bash
-# Ubuntu/Debian
-sudo apt update
-sudo apt install fuse libfuse2 libxcb-xinerama0 libxkbcommon-x11-0 libegl1 libdbus-1-3
-
-# Fedora
-sudo dnf install fuse libxkbcommon-x11 Mesa-libEGL dbus-x11
-```
-
-如果仍有问题，使用 `--no-sandbox` 模式：
-
-```bash
-./Narrafiilm-x.x.x.AppImage --no-sandbox
-```
-
-### PPA 安装（Ubuntu/Debian）
-
-```bash
-sudo add-apt-repository ppa:videoforge/stable
-sudo apt update
-sudo apt install videoforge
-```
-
-### AUR 安装（Arch Linux）
-
-```bash
-# 使用 yay
-yay -S videoforge
-
-# 或使用 paru
-paru -S videoforge
-```
-
-### Snap 安装
-
-```bash
-sudo snap install videoforge --classic
-```
-
-### 从源码安装
-
-```bash
-# 安装系统依赖
-sudo apt install python3.10 python3-pip ffmpeg libxcb-xinerama0 libxkbcommon-x11-0
-
-# 克隆并安装
 git clone https://github.com/Agions/Narrafiilm.git
 cd Narrafiilm
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-
-# 运行
-python app/main.py
+python3 app/main.py
 ```
 
-### 常见问题
-
-#### Linux 字体显示异常
+### 依赖安装
 
 ```bash
-# Ubuntu/Debian — 安装中文字体
-sudo apt install fonts-noto fonts-wqy-microhei fonts-wqy-zenhei
-
-# 刷新字体缓存
-fc-cache -fv
-```
-
-#### Qt 平台插件错误
-
-```bash
-# 缺失 Qt 平台插件
-sudo apt install libxcb-xinerama0
-
-# 或者使用 XCB 平台
-export QT_QPA_PLATFORM=xbcb
-./Narrafiilm
-```
-
----
-
-## FFmpeg 安装（必须）
-
-FFmpeg 是 Narrafiilm 的核心依赖，所有视频编解码都依赖它。
-
-### 各平台安装
-
-```bash
-# macOS
 brew install ffmpeg
-
-# Ubuntu/Debian
-sudo apt install ffmpeg
-
-# Windows
-# 1. 访问 https://ffmpeg.org/download.html
-# 2. 下载 ffmpeg-release-essentials.zip
-# 3. 解压到 C:\ffmpeg
-# 4. 将 C:\ffmpeg\bin 添加到系统 PATH
-# 5. 重启终端后验证
+brew install python@3.10  # 如需指定版本
 ```
 
-### 验证安装
+### Apple Silicon (M1/M2/M3) 注意事项
 
-```bash
-ffmpeg -version
-# 应该输出版本信息，包含 "ffmpeg version ..."
-
-ffprobe -version
-# 如果也输出版本信息，说明安装成功
-```
-
-### FFmpeg 版本过旧
-
-部分 Linux 发行版的包管理器提供的 FFmpeg 版本较旧（< 5.0）。建议使用 [John Van Engen 的 PPA](https://launchpad.net/~jonathonf/+archive/ubuntu/ffmpeg-4) 或从源码编译：
-
-```bash
-# Ubuntu 20.04/22.04 添加新版 PPA
-sudo add-apt-repository ppa:jonathonf/ffmpeg-4
-sudo apt update
-sudo apt install ffmpeg
-```
+- 应用为 universal binary，原生支持 Apple Silicon
+- 推荐使用 PyTorch MPS 加速：安装 `torch>=2.0` 后自动启用
+- 如遇 PySide6 兼容问题，使用 Homebrew 安装：`brew install pyside6`
 
 ---
 
-## Python 环境
+## Linux
 
-### 版本要求
-
-Python 3.10+ 必需。检查版本：
+### 方式一：AppImage（推荐）
 
 ```bash
-python --version
-# 或
-python3 --version
+# 下载 Narrafiilm-x.x.x.AppImage
+chmod +x Narrafiilm-x.x.x.AppImage
+./Narrafiilm-x.x.x.AppImage
 ```
 
-### 使用 pyenv（推荐）
+### 方式二：DEB / RPM 包
+
+| 发行版 | 下载格式 | 安装命令 |
+|--------|----------|----------|
+| Debian / Ubuntu | `.deb` | `sudo dpkg -i narrafiilm_x.x.x_amd64.deb` |
+| Fedora / RHEL | `.rpm` | `sudo rpm -i narrafiilm-x.x.x.rpm` |
+
+### 方式三：源码运行
 
 ```bash
-# 安装 pyenv
-curl https://pyenv.run | bash
+# 安装系统依赖
+sudo apt install ffmpeg python3-venv python3-pip libegl1 libgl1 libxkbcommon0 libdbus-1-3
 
-# 添加到 ~/.bashrc 或 ~/.zshrc
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-# 安装指定 Python 版本
-pyenv install 3.10.12
-
-# 创建虚拟环境
-pyenv virtualenv 3.10.12 videoforge
-pyenv local videoforge
-
-# 在项目目录自动激活
-cd /path/to/Narrafiilm
-# .python-version 已配置，会自动使用 videoforge 环境
-
-# 安装依赖
-pip install -r requirements.txt
-```
-
-### 使用 venv（简单方式）
-
-```bash
+git clone https://github.com/Agions/Narrafiilm.git
 cd Narrafiilm
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# venv\Scripts\activate    # Windows
-
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
+python3 app/main.py
 ```
 
----
+### 无头环境（服务器 / Docker）
 
-## GPU 加速（可选）
-
-### NVIDIA CUDA
-
-GPU 加速可以显著提升视频处理和 AI 推理速度。
+服务器环境无需图形界面，可运行完整 AI 处理流程：
 
 ```bash
-# 检查是否有 NVIDIA 显卡
-nvidia-smi
+# 自动检测并使用 offscreen 模式
+python3 app/main.py
 
-# 检查 CUDA 版本
-nvcc --version
+# 或手动指定
+export QT_QPA_PLATFORM=offscreen
+python3 app/main.py
 ```
 
-如果未安装 CUDA：
+> 注意：无头模式下无法使用 GUI 编辑预览，但可以调用 Python API 进行批量处理。
 
-1. 下载 [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)
-2. 安装后配置环境变量：
-   ```bash
-   export PATH=/usr/local/cuda/bin:$PATH
-   export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-   ```
+### 依赖库说明
 
-### CuPy（NVIDIA GPU 加速库）
+| 库 | 用途 | 安装 |
+|-----|------|------|
+| `libegl1` | Qt offscreen 平台 | `apt install libegl1` |
+| `libgl1` | OpenGL 支持 | `apt install libgl1` |
+| `libxkbcommon0` | 键盘事件处理 | `apt install libxkbcommon0` |
+| `libdbus-1-3` | 进程间通信 | `apt install libdbus-1-3` |
+
+### GPU 加速（CUDA）
 
 ```bash
-# 安装与当前 CUDA 版本匹配的 CuPy
-pip install cupy-cuda11x  # CUDA 11.x
-# 或
-pip install cupy-cuda12x  # CUDA 12.x
-```
+# 安装 NVIDIA Driver
+sudo apt install nvidia-driver-535  # 根据显卡型号选择
 
-### Apple Silicon
+# 安装 CUDA Toolkit
+wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.0-1_all.deb
+sudo dpkg -i cuda-keyring_1.0-1_all.deb
+sudo apt update
+sudo apt install cuda-toolkit-12-3
 
-Apple Silicon Mac 无需额外配置，原生支持 GPU 加速。
-
----
-
-## 环境变量配置
-
-编辑 `.env` 文件（项目根目录）：
-
-```env
-# AI API 配置（至少配置一个）
-DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
-# OPENAI_API_KEY=sk-your-key
-# DASHSCOPE_API_KEY=your-key
-
-# 语音合成（免费，使用 Edge TTS）
-# 默认使用 Edge TTS，如需 OpenAI TTS：
-# TTS_PROVIDER=openai
-# OPENAI_TTS_KEY=sk-your-key
-
-# FFmpeg 路径（如果不在 PATH 中）
-# FFMPEG_PATH=/usr/local/bin/ffmpeg
-
-# 日志级别
-LOG_LEVEL=INFO
-
-# 代理设置（如需要）
-# HTTP_PROXY=http://127.0.0.1:7890
-# HTTPS_PROXY=http://127.0.0.1:7890
+# 验证
+python3 -c "import torch; print(torch.cuda.is_available())"
 ```
 
 ---
 
-## 故障排除速查
+## F5-TTS 音色克隆（可选）
 
-| 症状 | 解决方案 |
-|------|----------|
-| 启动报错 Module not found | `pip install -r requirements.txt` |
-| FFmpeg not found | 安装 FFmpeg 并确保在 PATH 中 |
-| macOS 无法打开 | 解除锁定或右键"仍要打开" |
-| Linux 字体显示异常 | 安装中文字体包 |
-| Qt platform plugin not found | 安装 `libxcb-xinerama0` |
-| 视频无法预览 | 确认是 H.264/MP4 格式 |
-| AI 报 401 错误 | 检查 API Key 是否正确 |
-| 内存不足 | 关闭其他程序，降低处理分辨率 |
+F5-TTS 支持用 15–30 秒参考音频克隆任意音色，效果自然。
+
+### 安装
+
+```bash
+pip install F5-TTS
+```
+
+### 使用方法
+
+在应用设置 → 配音配置 → TTS 引擎，选择 **F5-TTS**。
+
+首次使用会提示下载模型（约 500MB），需等待下载完成。
+
+### 克隆流程
+
+1. 准备参考音频（15–30 秒，干净人声，无背景音乐）
+2. 在配音配置中选择 **F5-TTS** → **克隆新音色**
+3. 上传参考音频，给音色命名
+4. 生成后选择该音色即可使用
+
+---
+
+## Python API（高级用法）
+
+Narrafiilm 提供 Python API，可集成到自动化流程：
+
+```python
+from app.services.ai.first_person_narrator import FirstPersonNarrator
+from app.services.ai.llm_manager import load_llm_config
+
+# 初始化
+narrator = FirstPersonNarrator(
+    llm_config=load_llm_config(),
+    voice_config={"engine": "edge-tts", "voice": "zh-CN-Xiaoxiao"}
+)
+
+# 生成解说
+result = narrator.narrate(
+    video_path="/path/to/video.mp4",
+    style="healing",  # 治愈/悬疑/励志/怀旧/浪漫
+    output_dir="./output",
+)
+
+print(f"解说稿: {result['script']}")
+print(f"音频: {result['audio_path']}")
+print(f"字幕: {result['subtitle_path']}")
+print(f"视频: {result['video_path']}")
+```
+
+---
+
+## 故障排查
+
+| 问题 | 原因 | 解决方案 |
+|------|------|----------|
+| 启动无反应（Windows） | 缺失 VC++ 运行库 | 安装 [VC++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
+| 启动无反应（Linux） | 缺失 libEGL | `sudo apt install libegl1 libgl1` |
+| 视频加载失败 | FFmpeg 未安装或未加入 PATH | 安装 FFmpeg 并重启应用 |
+| API 401 | API Key 错误或失效 | 检查 Key 是否正确、账户是否有余额 |
+| GPU 加速无效 | CUDA 版本不匹配 | 确认 CUDA >= 12.0，cuDNN 已正确安装 |
+| 显存 OOM | 视频太长或显卡显存不足 | 减少抽帧密度，或关闭 GPU 加速使用 CPU |
+| 配音无法合成 | 网络问题无法访问 Edge TTS | 检查网络，或切换到本地 F5-TTS |
+| 剪映导出失败 | 剪映版本过旧 | 更新剪映至最新版本 |
