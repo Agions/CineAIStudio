@@ -1,11 +1,11 @@
 ---
 title: 配置参考
-description: VideoForge 配置文件详解和环境变量参考。
+description: Narrafiilm 配置文件详解和环境变量参考。
 ---
 
 # 配置参考
 
-VideoForge 支持灵活的配置文件和环境变量配置。
+Narrafiilm 支持灵活的配置文件和环境变量配置。
 
 ## 配置文件
 
@@ -28,7 +28,7 @@ VideoForge 支持灵活的配置文件和环境变量配置。
 # ~/.videoforge/config.yaml
 
 app:
-  name: VideoForge
+  name: Narrafiilm
   version: "1.0.0"
   language: zh-CN
   
@@ -69,7 +69,7 @@ video:
 
 export:
   # 默认导出目录
-  output_dir: ~/Videos/VideoForge
+  output_dir: ~/Videos/Narrafiilm
   
   # 导出质量预设
   quality_preset: high

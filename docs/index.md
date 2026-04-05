@@ -9,7 +9,7 @@ hero:
   text: AI First-Person Video Narrator
   tagline: 上传视频，AI 代入画面主角视角，一键生成配音解说 — 免费开源跨平台
   image:
-    src: /logo.png
+    src: /Narrafiilm/logo.png
     alt: NARRAFILM
   actions:
     - theme: brand
@@ -115,7 +115,7 @@ hero:
 
 ### v3.2.0 (2026.04) — 当前版本
 
-- 🏷️ **品牌重命名** — VideoForge → NARRAFILM，专注第一人称解说
+- 🏷️ **品牌重命名** — Narrafiilm → NARRAFILM，专注第一人称解说
 - 🎬 **极简定位** — 裁剪全部冗余功能，只留第一人称解说核心
 - 🏗️ **架构重构** — 依赖精简，MonologueMaker 为唯一核心
 - 🤖 **模型升级** — Qwen2.5-VL / DeepSeek-V3 / SenseVoice 全链路更新

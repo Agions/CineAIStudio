@@ -1,6 +1,6 @@
 ---
 title: 故障排除
-description: VideoForge 常见问题的详细解决方案。
+description: Narrafiilm 常见问题的详细解决方案。
 ---
 
 # 故障排除
@@ -111,7 +111,7 @@ Make sure to select the correct format in export settings:
 If you're still stuck:
 
 1. Check the [FAQ](../faq)
-2. Search [GitHub Issues](https://github.com/Agions/VideoForge/issues)
+2. Search [GitHub Issues](https://github.com/Agions/Narrafiilm/issues)
 3. Create a new issue with:
    - Your OS and version
    - Python version

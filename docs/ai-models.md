@@ -1,11 +1,11 @@
 ---
 title: AI 模型配置
-description: VideoForge 支持的所有 AI 模型一览，包括文本、语音合成和视觉理解模型。
+description: Narrafiilm 支持的所有 AI 模型一览，包括文本、语音合成和视觉理解模型。
 ---
 
 # AI 模型配置
 
-VideoForge 支持多种 AI 模型，2026年3月最新版本全面更新。
+Narrafiilm 支持多种 AI 模型，2026年3月最新版本全面更新。
 
 ## 支持的模型列表
 

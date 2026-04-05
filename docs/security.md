@@ -1,11 +1,11 @@
 ---
 title: 安全设计
-description: VideoForge 的安全机制、API 密钥管理和数据保护措施。
+description: Narrafiilm 的安全机制、API 密钥管理和数据保护措施。
 ---
 
 # 安全设计
 
-VideoForge 在设计之初就将安全作为核心考量，保护用户的敏感数据和隐私。
+Narrafiilm 在设计之初就将安全作为核心考量，保护用户的敏感数据和隐私。
 
 ---
 
@@ -13,7 +13,7 @@ VideoForge 在设计之初就将安全作为核心考量，保护用户的敏感
 
 ### 存储层级
 
-VideoForge 采用多层级密钥存储策略，按优先级依次尝试：
+Narrafiilm 采用多层级密钥存储策略，按优先级依次尝试：
 
 ```
 优先 → OS Keychain (系统级安全存储)
@@ -71,7 +71,7 @@ echo ".env" >> .gitignore
 
 ### 路径安全
 
-VideoForge 对所有文件路径进行严格验证：
+Narrafiilm 对所有文件路径进行严格验证：
 
 | 检查项 | 说明 |
 |--------|------|
@@ -101,7 +101,7 @@ with handler.open('/user/project/video.mp4', 'rb') as f:
 
 ## 命令执行安全
 
-VideoForge 仅允许执行经过白名单验证的命令：
+Narrafiilm 仅允许执行经过白名单验证的命令：
 
 ### FFmpeg 白名单
 
@@ -168,7 +168,7 @@ subprocess.run(['ffmpeg', ...], env=env)
 # 插件开发者签名
 python -m videoforge plugins sign ./plugins/my-plugin
 
-# VideoForge 验证签名
+# Narrafiilm 验证签名
 python -m videoforge plugins install ./my-plugin-1.0.0.vfplugin
 # → 签名验证通过后才安装
 ```
@@ -218,7 +218,7 @@ python -m videoforge data purge --project=my-project
 
 | 方式 | 说明 |
 |------|------|
-| GitHub Security Advisory | [报告安全漏洞](https://github.com/Agions/VideoForge/security/advisories/new) |
+| GitHub Security Advisory | [报告安全漏洞](https://github.com/Agions/Narrafiilm/security/advisories/new) |
 | 邮件 | security@videoforge.ai |
 
 **请不要**在公开的 GitHub Issues 中报告安全问题。

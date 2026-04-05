@@ -1,13 +1,13 @@
 ---
 title: AI 视频创作指南
-description: 深入了解 VideoForge 三种 AI 视频创作模式的工作流程和使用技巧。
+description: 深入了解 Narrafiilm 三种 AI 视频创作模式的工作流程和使用技巧。
 ---
 
 # AI 视频创作指南
 
 ## Three AI Creation Modes
 
-VideoForge offers three distinct AI-powered video creation modes, each designed for different content types and creative workflows.
+Narrafiilm offers three distinct AI-powered video creation modes, each designed for different content types and creative workflows.
 
 ---
 

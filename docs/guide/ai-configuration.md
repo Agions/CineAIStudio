@@ -1,6 +1,6 @@
 ---
 title: AI 配置指南
-description: 在 VideoForge 中配置 AI 提供商（OpenAI、Claude、DeepSeek 等）的方法。
+description: 在 Narrafiilm 中配置 AI 提供商（OpenAI、Claude、DeepSeek 等）的方法。
 ---
 
 # AI 配置指南
@@ -59,7 +59,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ## Using Multiple Providers
 
-VideoForge supports multiple AI providers simultaneously. You can:
+Narrafiilm supports multiple AI providers simultaneously. You can:
 
 1. Set keys for all providers you want to use
 2. Select your preferred provider in the UI

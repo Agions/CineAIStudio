@@ -1,11 +1,11 @@
 ---
 title: 快速开始（Legacy）
-description: VideoForge 快速入门指南。
+description: Narrafiilm 快速入门指南。
 ---
 
 # 快速开始
 
-本指南将帮助您快速上手 VideoForge。
+本指南将帮助您快速上手 Narrafiilm。
 
 ## 环境要求
 
@@ -17,8 +17,8 @@ description: VideoForge 快速入门指南。
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/Agions/VideoForge.git
-cd VideoForge
+git clone https://github.com/Agions/Narrafiilm.git
+cd Narrafiilm
 
 # 2. 创建虚拟环境（推荐）
 python -m venv venv
@@ -53,7 +53,7 @@ python main.py
 
 ## API 密钥说明
 
-VideoForge 支持以下 AI 服务商：
+Narrafiilm 支持以下 AI 服务商：
 
 | 服务商 | 用途 | 是否免费 |
 |--------|------|----------|
@@ -69,6 +69,6 @@ VideoForge 支持以下 AI 服务商：
 ## 下一步
 
 - [核心功能](features.md) - 了解更多功能
-- [工作流程](https://github.com/Agions/VideoForge#workflow) - 深入了解创作流程
+- [工作流程](https://github.com/Agions/Narrafiilm#workflow) - 深入了解创作流程
 - [常见问题](faq.md) - 解答疑惑
 

@@ -1,15 +1,15 @@
 ---
 title: 插件开发
-description: 了解如何为 VideoForge 开发自定义插件，扩展核心功能。
+description: 了解如何为 Narrafiilm 开发自定义插件，扩展核心功能。
 ---
 
 # 插件开发指南
 
-VideoForge 采用插件化架构，允许开发者通过插件扩展核心功能。
+Narrafiilm 采用插件化架构，允许开发者通过插件扩展核心功能。
 
 ## 插件类型
 
-VideoForge 支持四种插件类型：
+Narrafiilm 支持四种插件类型：
 
 | 类型 | 说明 | 接口 |
 |------|------|------|
@@ -248,7 +248,7 @@ class UIExtensionPlugin:
 
 ## 安全机制
 
-VideoForge 插件运行在受限制的环境中：
+Narrafiilm 插件运行在受限制的环境中：
 
 ### 沙箱限制
 
@@ -335,7 +335,7 @@ ls examples/plugins/
 插件可以访问用户数据，请确保：
 1. 不上传用户文件到第三方服务器（除非明确告知用户）
 2. 不在代码中硬编码敏感信息
-3. 遵循 VideoForge 的隐私政策
+3. 遵循 Narrafiilm 的隐私政策
 :::
 
 ::: tip 💡 提示

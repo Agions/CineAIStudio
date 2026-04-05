@@ -1,11 +1,11 @@
 ---
 title: 常见问题
-description: VideoForge 使用过程中遇到的常见问题与解决方案。
+description: Narrafiilm 使用过程中遇到的常见问题与解决方案。
 ---
 
 # 常见问题
 
-本文档收集了 VideoForge 使用过程中最常见的问题，分为几个类别方便快速查找。
+本文档收集了 Narrafiilm 使用过程中最常见的问题，分为几个类别方便快速查找。
 
 ---
 
@@ -17,10 +17,10 @@ description: VideoForge 使用过程中遇到的常见问题与解决方案。
 
 ```bash
 # 使用 ghproxy 镜像
-wget https://ghproxy.com/https://github.com/Agions/VideoForge/releases/download/v3.1.0/VideoForge-Setup-x.x.x.exe
+wget https://ghproxy.com/https://github.com/Agions/Narrafiilm/releases/download/v3.1.0/Narrafiilm-Setup-x.x.x.exe
 
 # 或使用 GitHub CLI
-gh release download --pattern "VideoForge*.exe"
+gh release download --pattern "Narrafiilm*.exe"
 ```
 
 ### ❓ Windows 安装时报"SmartScreen 已阻止"？
@@ -41,7 +41,7 @@ gh release download --pattern "VideoForge*.exe"
 3. 如果仍不行：
    ```bash
    # 绕过 Gatekeeper（临时）
-   sudo xattr -rd com.apple.quarantine /Applications/VideoForge.app
+   sudo xattr -rd com.apple.quarantine /Applications/Narrafiilm.app
    ```
 
 ### ❓ Linux AppImage 无法运行？
@@ -49,8 +49,8 @@ gh release download --pattern "VideoForge*.exe"
 **A:** 添加执行权限：
 
 ```bash
-chmod +x VideoForge-x.x.x.AppImage
-./VideoForge-x.x.x.AppImage
+chmod +x Narrafiilm-x.x.x.AppImage
+./Narrafiilm-x.x.x.AppImage
 ```
 
 如果仍不行，可能是缺少 FUSE：
@@ -60,7 +60,7 @@ chmod +x VideoForge-x.x.x.AppImage
 sudo apt install fuse libfuse2
 
 # 或尝试不依赖 FUSE 模式
-./VideoForge-x.x.x.AppImage --no-sandbox
+./Narrafiilm-x.x.x.AppImage --no-sandbox
 ```
 
 ---
@@ -206,13 +206,13 @@ ffmpeg -version
 
 ## 订阅与付费问题
 
-### ❓ VideoForge 本身收费吗？
+### ❓ Narrafiilm 本身收费吗？
 
-**A:** **完全免费**，包括所有 AI 创作功能。VideoForge 是开源项目，仅收取运营成本（服务器/带宽），但不做强制收费。
+**A:** **完全免费**，包括所有 AI 创作功能。Narrafiilm 是开源项目，仅收取运营成本（服务器/带宽），但不做强制收费。
 
 ### ❓ 为什么有些 AI 模型需要付费？
 
-**A:** VideoForge 调用的是第三方 AI 服务商（OpenAI、DeepSeek 等），他们有自己的定价。你只需支付你使用的 AI 服务费用，VideoForge 不从中抽成。
+**A:** Narrafiilm 调用的是第三方 AI 服务商（OpenAI、DeepSeek 等），他们有自己的定价。你只需支付你使用的 AI 服务费用，Narrafiilm 不从中抽成。
 
 ### ❓ 如何控制 AI 费用？
 
@@ -230,11 +230,11 @@ ffmpeg -version
 
 ### ❓ 视频文件会上传到服务器吗？
 
-**A:** **不会**。VideoForge 是一款本地桌面应用，所有处理都在你的电脑上完成。AI 功能通过调用第三方 API 实现（视频片段会上传到 OpenAI/DeepSeek 等），但不会存储在你的服务器上。
+**A:** **不会**。Narrafiilm 是一款本地桌面应用，所有处理都在你的电脑上完成。AI 功能通过调用第三方 API 实现（视频片段会上传到 OpenAI/DeepSeek 等），但不会存储在你的服务器上。
 
 ### ❓ API Key 安全吗？
 
-**A:** 安全。VideoForge 使用 OS Keychain（系统级安全存储）或 Fernet 加密存储密钥，从不将 Key 以明文形式保存或传输。
+**A:** 安全。Narrafiilm 使用 OS Keychain（系统级安全存储）或 Fernet 加密存储密钥，从不将 Key 以明文形式保存或传输。
 
 详见 [安全设计](./security)。
 
@@ -248,9 +248,9 @@ ffmpeg -version
 
 | 操作系统 | 日志路径 |
 |-----------|----------|
-| macOS | `~/Library/Logs/VideoForge/app.log` |
+| macOS | `~/Library/Logs/Narrafiilm/app.log` |
 | Linux | `~/.videoforge/logs/app.log` |
-| Windows | `%APPDATA%\VideoForge\logs\app.log` |
+| Windows | `%APPDATA%\Narrafiilm\logs\app.log` |
 
 查看实时日志：
 
@@ -273,14 +273,14 @@ pip install videoforge==2.0.0
 
 | 方式 | 入口 |
 |------|------|
-| Bug 报告 | [GitHub Issues](https://github.com/Agions/VideoForge/issues/new?template=bug_report.md) |
-| 功能建议 | [GitHub Discussions](https://github.com/Agions/VideoForge/discussions) |
+| Bug 报告 | [GitHub Issues](https://github.com/Agions/Narrafiilm/issues/new?template=bug_report.md) |
+| 功能建议 | [GitHub Discussions](https://github.com/Agions/Narrafiilm/discussions) |
 | 文档纠错 | 直接提交 PR |
 
 ::: tip 💡 提问技巧
 报告问题时，请附上：
 1. 操作系统和版本
-2. VideoForge 版本
+2. Narrafiilm 版本
 3. 完整的错误信息
 4. 操作步骤（如何复现）
 这能帮助我们更快定位和解决问题。
@@ -371,7 +371,7 @@ sudo apt install fonts-noto-cjk
    - 编码：H.264（AVC）
    - 帧率：30fps
    - 码率：8–15 Mbps
-2. 再导入 VideoForge 编辑
+2. 再导入 Narrafiilm 编辑
 
 > 小体积、易处理的源素材能显著提升编辑和导出速度。
 

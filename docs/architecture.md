@@ -1,17 +1,17 @@
 ---
 title: 架构概览
-description: VideoForge 系统架构和技术设计的核心要点速查。
+description: Narrafiilm 系统架构和技术设计的核心要点速查。
 ---
 
 # 架构概览
 
-本文档是 [完整架构文档](https://github.com/Agions/VideoForge/blob/main/ARCHITECTURE.md) 的精简版，帮助你快速理解 VideoForge 的核心设计。
+本文档是 [完整架构文档](https://github.com/Agions/Narrafiilm/blob/main/ARCHITECTURE.md) 的精简版，帮助你快速理解 Narrafiilm 的核心设计。
 
 ---
 
 ## 系统架构
 
-VideoForge 采用 **三层模块化架构**：
+Narrafiilm 采用 **三层模块化架构**：
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@ VideoForge 采用 **三层模块化架构**：
 ## 目录结构
 
 ```
-VideoForge/
+Narrafiilm/
 ├── app/
 │   ├── core/                    # 核心模块
 │   │   ├── application.py       # 应用生命周期
@@ -182,7 +182,7 @@ Plugin Interface (抽象基类)
 
 ## 相关文档
 
-- 🔧 [详细架构文档](https://github.com/Agions/VideoForge/blob/main/ARCHITECTURE.md) — 完整的架构说明
+- 🔧 [详细架构文档](https://github.com/Agions/Narrafiilm/blob/main/ARCHITECTURE.md) — 完整的架构说明
 - 🔒 [安全设计](../security.md) — API 密钥安全和文件操作安全
 - 🔌 [插件开发指南](./guide/plugin-development.md) — 如何编写插件
-- 🧪 [测试策略](https://github.com/Agions/VideoForge/blob/main/tests/README.md) — 如何编写测试（待补充）
+- 🧪 [测试策略](https://github.com/Agions/Narrafiilm/blob/main/tests/README.md) — 如何编写测试（待补充）

@@ -1,19 +1,19 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'VideoForge',
+  title: 'Narrafiilm',
   description: 'AI 驱动的专业视频创作桌面应用',
-  base: '/VideoForge/',
+  base: '/Narrafiilm/',
   lang: 'en-US',
   ignoreDeadLinks: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/VideoForge/logo.png' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/Narrafiilm/logo.png' }],
   ],
 
   themeConfig: {
-    logo: '/VideoForge/logo.png',
-    siteTitle: 'VideoForge',
+    logo: '/Narrafiilm/logo.png',
+    siteTitle: 'Narrafiilm',
 
     nav: [
       { text: '首页', link: '/' },
@@ -25,7 +25,7 @@ export default defineConfig({
       { text: '贡献', link: '/contributing' },
       {
         text: 'GitHub',
-        link: 'https://github.com/Agions/VideoForge',
+        link: 'https://github.com/Agions/Narrafiilm',
       },
     ],
 
@@ -44,7 +44,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/Agions/VideoForge' },
+      { icon: 'github', link: 'https://github.com/Agions/Narrafiilm' },
     ],
 
     footer: {
