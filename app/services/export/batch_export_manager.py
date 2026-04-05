@@ -247,9 +247,6 @@ class BatchExportManager:
                 "mov": ExportFormat.MOV,
                 "gif": ExportFormat.GIF,
                 "jianying": ExportFormat.JIANYING,
-                "premiere": ExportFormat.PREMIERE,
-                "finalcut": ExportFormat.FINALCUT,
-                "davinci": ExportFormat.DAVINCI,
             }
             export_fmt = fmt_map.get(task.format.lower(), ExportFormat.MP4)
 

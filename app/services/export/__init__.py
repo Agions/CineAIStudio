@@ -1,13 +1,9 @@
 """
-VideoForge 导出服务模块
+Narrafiilm 导出服务模块
 
 提供视频项目的导出能力:
 - JianyingExporter: 剪映草稿导出
-- PremiereExporter: Adobe Premiere 导出
-- FinalCutExporter: Final Cut Pro 导出
-- DaVinciExporter: DaVinci Resolve 导出
-- EDLExporter: CMX 3600 EDL 导出（行业标准）
-- VideoExporter: 视频文件导出
+- DirectVideoExporter: MP4/MOV/GIF 视频文件导出
 - BaseExporter: 导出器基类
 """
 
@@ -22,7 +18,6 @@ from .jianying_exporter import (
     VideoMaterial, AudioMaterial, TextMaterial,
 )
 from .video_exporter import VideoExporter, ExportConfig, ExportFormat
-from .edl_exporter import EDLExporter, EDLConfig, EDLClip, EditType, export_to_edl
 from .direct_video_exporter import DirectVideoExporter, VideoExportConfig, Resolution, VideoCodec, VideoFormat, HWAccel
 from .batch_export_manager import BatchExportManager, ExportTask, ExportStatus, BatchExportResult, get_batch_export_manager
 from .export_manager import ExportManager
@@ -76,11 +71,4 @@ __all__ = [
 
     # 导出管理
     "ExportManager",
-
-    # EDL 导出（行业标准）
-    "EDLExporter",
-    "EDLConfig",
-    "EDLClip",
-    "EditType",
-    "export_to_edl",
 ]

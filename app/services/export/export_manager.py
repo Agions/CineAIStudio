@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-
 """
 统一导出管理器
 提供一键导出到多种格式的能力
@@ -15,17 +13,14 @@ from pathlib import Path
 
 import logging
 from .jianying_exporter import JianyingExporter
-from .premiere_exporter import PremiereExporter
-from .finalcut_exporter import FinalCutExporter
-from .davinci_exporter import DaVinciExporter
 from .direct_video_exporter import DirectVideoExporter
+
 logger = logging.getLogger(__name__)
+
+
 class ExportFormat(Enum):
     """导出格式"""
     JIANYING = "jianying"       # 剪映草稿
-    PREMIERE = "premiere"       # Adobe Premiere
-    FINALCUT = "finalcut"        # Final Cut Pro
-    DAVINCI = "davinci"          # DaVinci Resolve
     MP4 = "mp4"                 # 直接导出 MP4
     MOV = "mov"                 # 直接导出 MOV
     GIF = "gif"                 # 导出 GIF
@@ -43,25 +38,22 @@ class ExportConfig:
     bitrate: str = "8M"
     output_path: Optional[str] = None
     progress_callback: Any = None
-    
+
     # 特定格式配置
     jianying_version: str = "6.0"  # 剪映版本
 
 
 class ExportManager:
     """统一导出管理器"""
-    
+
     def __init__(self):
         self.exporters = {
             ExportFormat.JIANYING: JianyingExporter(),
-            ExportFormat.PREMIERE: PremiereExporter(),
-            ExportFormat.FINALCUT: FinalCutExporter(),
-            ExportFormat.DAVINCI: DaVinciExporter(),
             ExportFormat.MP4: DirectVideoExporter(),
             ExportFormat.MOV: DirectVideoExporter(),
             ExportFormat.GIF: DirectVideoExporter(),
         }
-        
+
     def export(
         self,
         project_data: Dict[str, Any],
@@ -69,44 +61,45 @@ class ExportManager:
     ) -> bool:
         """
         导出项目
-        
+
         Args:
             project_data: 项目数据
             config: 导出配置
-            
+
         Returns:
             bool: 是否导出成功
         """
         exporter = self.exporters.get(config.format)
         if not exporter:
             raise ValueError(f"不支持的导出格式: {config.format}")
-        
+
         # 准备输出路径
         if not config.output_path:
             config.output_path = self._generate_output_path(config)
-        
+
         # 执行导出
         try:
             return exporter.export(project_data, config)
         except Exception as e:
             logger.error(f"导出失败: {e}")
             return False
-    
+
     def _generate_output_path(self, config: ExportConfig) -> str:
         """生成输出路径"""
-        output_dir = Path.home() / "VideoForge" / "exports"
+        output_dir = Path.home() / "Narrafiilm" / "exports"
         output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         suffix = config.format.value
         if config.format in [ExportFormat.MP4, ExportFormat.MOV]:
             suffix = config.format.value
-            
-        return str(output_dir / f"export_{int(Path().stat().st_mtime) if Path().exists() else 0}.{suffix}")
-    
+
+        import time
+        return str(output_dir / f"export_{int(time.time())}.{suffix}")
+
     def get_supported_formats(self) -> List[ExportFormat]:
         """获取支持的导出格式"""
         return list(self.exporters.keys())
-    
+
     def get_format_info(self, format_type: ExportFormat) -> Dict[str, Any]:
         """获取格式信息"""
         info = {
@@ -114,21 +107,6 @@ class ExportManager:
                 "name": "剪映草稿",
                 "description": "导出为剪映草稿，可在剪映中继续编辑",
                 "platforms": ["iOS", "Android", "macOS", "Windows"],
-            },
-            ExportFormat.PREMIERE: {
-                "name": "Adobe Premiere",
-                "description": "导出为 Premiere 项目文件 (.prproj)",
-                "platforms": ["Windows", "macOS"],
-            },
-            ExportFormat.FINALCUT: {
-                "name": "Final Cut Pro",
-                "description": "导出为 Final Cut Pro 项目文件 (.fcpxml)",
-                "platforms": ["macOS"],
-            },
-            ExportFormat.DAVINCI: {
-                "name": "DaVinci Resolve",
-                "description": "导出为 DaVinci Resolve 项目文件",
-                "platforms": ["Windows", "macOS", "Linux"],
             },
             ExportFormat.MP4: {
                 "name": "MP4 视频",

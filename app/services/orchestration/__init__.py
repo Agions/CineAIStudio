@@ -5,7 +5,6 @@
 - models.py       工作流数据模型（VideoSource/ScriptData/TimelineData 等）
 - workflow_engine.py  工作流引擎主体（WorkflowEngine）
 - project_manager.py  项目管理
-- batch_processor.py  批量处理
 - undo_manager.py    撤销管理
 - prompt_templates.py 提示词模板
 """
@@ -44,17 +43,6 @@ from .project_manager import (
     load_project,
 )
 
-from .batch_processor import (
-    BatchProcessor,
-    BatchTask,
-    BatchConfig,
-    BatchResult,
-    BatchOperation,
-    TaskStatus,
-    batch_analyze,
-    batch_subtitles,
-    batch_transcode,
-)
 
 from .undo_manager import (
     UndoManager,
@@ -104,16 +92,6 @@ __all__ = [
     "VideoForgeProject",
     "save_project",
     "load_project",
-    # 批量处理
-    "BatchProcessor",
-    "BatchTask",
-    "BatchConfig",
-    "BatchResult",
-    "BatchOperation",
-    "TaskStatus",
-    "batch_analyze",
-    "batch_subtitles",
-    "batch_transcode",
     # 撤销管理
     "UndoManager",
     "Command",

@@ -8,7 +8,6 @@ VideoForge 核心模块
 - event_bus: 事件总线
 - exceptions: 异常定义
 - logger: 日志
-- plugin_service: 插件服务
 - project_manager: 项目管理
 - service_registry: 服务注册表
 - secure_key_manager: 密钥管理
@@ -31,7 +30,6 @@ from .exceptions import (
     ErrorCode,
 )
 from .logger import setup_logging, get_logger
-from .plugin_service import PluginService
 from .project_manager import ProjectManager
 from .service_registry import ServiceRegistry
 from .service_container import ServiceContainer
@@ -64,8 +62,6 @@ __all__ = [
     "setup_logging",
     "get_logger",
 
-    # Plugin
-    "PluginService",
 
     # Project
     "ProjectManager",

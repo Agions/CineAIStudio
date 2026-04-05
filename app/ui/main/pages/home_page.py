@@ -169,18 +169,8 @@ class HomePage(BasePage):
     project_opened = Signal(str)      # project_path
 
     TEMPLATES = [
-        ("story_analysis", "🎬", "剧情分析剪辑",
-         "AI 分析叙事结构 → 情感曲线 → 智能剪辑"),
-        ("movie_commentary", "🎙️", "AI 视频解说",
-         "AI 分析画面 → 生成解说 → 配音"),
-        ("music_mashup", "🎵", "音乐混剪",
-         "多段素材 → 节拍匹配 → 转场"),
-        ("emotional_monologue", "🎭", "情感独白",
-         "画面情感 → 第一人称独白"),
-        ("short_drama_clip", "📺", "短剧切片",
-         "识别高能片段 → 切片字幕"),
-        ("product_promo", "🛍️", "产品推广",
-         "卖点提取 → 推广文案配音"),
+        ("emotional_monologue", "🎭", "第一人称解说",
+         "上传视频，AI 代入主角视角，一键生成配音解说"),
     ]
 
     def __init__(self, application):
@@ -398,10 +388,8 @@ class HomePage(BasePage):
         from app.ui.main.main_window import PageType
 
         # 根据模板类型跳转到对应页面
-        if template_id == "story_analysis":
-            main_window.switch_to_page(PageType.STORY_ANALYSIS)
-        else:
-            main_window.switch_to_page(PageType.AI_VIDEO_CREATOR)
+        # 统一跳转到 AI 创作页面
+        main_window.switch_to_page(PageType.AI_VIDEO_CREATOR)
 
     def _on_open_recent(self, path: str):
         """打开最近项目"""

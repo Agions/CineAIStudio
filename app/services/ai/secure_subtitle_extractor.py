@@ -10,9 +10,9 @@ from typing import Optional
 from .subtitle_extractor import (
     SubtitleExtractionResult,
     OCRSubtitleExtractor,
-    WhisperSubtitleExtractor
+    SpeechSubtitleExtractor
 )
-from ..utils.security import (
+from ...utils.security import (
     SecureExecutor,
     PathValidator,
     InputSanitizer,
@@ -109,7 +109,7 @@ class SecureSubtitleExtractor:
         language = self.sanitizer.sanitize_text(language, max_length=10)
         
         # 调用基础提取器
-        base_extractor = WhisperSubtitleExtractor(api_key=api_key)
+        base_extractor = SpeechSubtitleExtractor(api_key=api_key)
         
         try:
             result = base_extractor.extract(
