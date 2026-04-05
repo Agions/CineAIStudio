@@ -40,7 +40,7 @@ features:
     details: SenseVoice 本地 ASR，视频不上传云端，隐私安全无忧
   - icon: 🌐
     title: 多模型支持
-    details: Qwen2.5-VL / DeepSeek-V3 / GPT-4o 按需切换，灵活适配各类场景
+    details: Qwen3-VL / DeepSeek-V3.2 / GPT-4.1 按需切换，灵活适配各类场景
 ---
 
 <div class="nf-home">
@@ -61,7 +61,7 @@ features:
       <div class="nf-workflow-num">2</div>
       <div class="nf-workflow-content">
         <div class="nf-workflow-title">AI 场景理解</div>
-        <div class="nf-workflow-desc">Qwen2.5-VL 逐帧分析，主角视角 + 环境氛围</div>
+        <div class="nf-workflow-desc">Qwen3-VL 逐帧分析，主角视角 + 环境氛围</div>
       </div>
     </div>
     <div class="nf-workflow-arrow">→</div>
@@ -69,7 +69,7 @@ features:
       <div class="nf-workflow-num">3</div>
       <div class="nf-workflow-content">
         <div class="nf-workflow-title">生成解说</div>
-        <div class="nf-workflow-desc">DeepSeek-V3 代入"我"的口吻，撰写解说稿</div>
+        <div class="nf-workflow-desc">DeepSeek-V3.2 代入"我"的口吻，撰写解说稿</div>
       </div>
     </div>
     <div class="nf-workflow-arrow">→</div>
@@ -92,13 +92,13 @@ features:
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">场景理解</span></div>
-      <div><code>Qwen2.5-VL (72B)</code></div>
-      <div>阿里开源，视频理解 SOTA，Native 视频输入</div>
+      <div><code>Qwen3-VL (32B/235B MoE)</code></div>
+      <div>阿里 2025.09 开源，视频理解 SOTA，Native 视频输入</div>
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">解说生成</span></div>
-      <div><code>DeepSeek-V3</code></div>
-      <div>最强开源 LLM，第一人称视角提示词执行最优</div>
+      <div><code>DeepSeek-V3.2</code></div>
+      <div>DeepSeek 2025.12 最新旗舰，开源最强 LLM，MMoE + EP</div>
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">ASR 识别</span></div>
@@ -107,12 +107,12 @@ features:
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">配音合成</span></div>
-      <div><code>Edge-TTS / F5-TTS</code></div>
-      <div>Edge 主流优质低延迟，F5 零样本音色克隆</div>
+      <div><code>Edge-TTS / F5-TTS v0.1</code></div>
+      <div>Edge 主流优质低延迟，F5 零样本音色克隆（2026.03）</div>
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">云端备选</span></div>
-      <div><code>GPT-4o / Claude</code></div>
+      <div><code>GPT-4.1 / Claude Opus 4</code></div>
       <div>按需切换，兼容 OpenAI SDK 多厂商 API</div>
     </div>
   </div>
