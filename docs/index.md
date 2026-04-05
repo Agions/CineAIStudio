@@ -9,7 +9,7 @@ hero:
   text: AI First-Person Video Narrator
   tagline: 上传视频，AI 代入画面主角视角，一键生成配音解说 — 免费开源跨平台
   image:
-    src: /Narrafiilm/logo.png
+    src: /logo.png
     alt: NARRAFILM
   actions:
     - theme: brand

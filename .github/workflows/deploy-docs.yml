@@ -10,6 +10,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: docs-deploy
@@ -36,13 +38,11 @@ jobs:
         run: pnpm run docs:build
         working-directory: docs
 
-      - name: Copy build to docs root
-        run: cp -r docs/.vitepress/dist/* docs/
-
-      - name: Commit to main
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add docs/
-          git diff --staged --quiet || git commit -m "docs: update built documentation [skip ci]"
-          git push origin main
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/.vitepress/dist
+          publish_branch: gh-pages
+          # 显式发布到 Narrafiilm 子路径
+          cname: ''
