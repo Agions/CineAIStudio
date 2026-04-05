@@ -1,6 +1,6 @@
-# VideoForge 技术规范文档
+# NARRAFILM 技术规范文档
 
-> 本文档描述 VideoForge 的技术设计决策、架构约束和实现规范。供维护者和贡献者参考。
+> 本文档描述 NARRAFILM 的技术设计决策、架构约束和实现规范。
 
 ---
 
@@ -8,200 +8,195 @@
 
 | 项目 | 版本 | 来源 |
 |------|------|------|
-| `pyproject.toml` | 3.1.1 | ✅ 唯一真实来源 |
-| CHANGELOG.md | 3.1.1 | 与 pyproject.toml 一致 |
-| GitHub Releases | v3.1.1 | 与 pyproject.toml 一致 |
+| `pyproject.toml` | 3.2.0 | ✅ 唯一真实来源 |
+| CHANGELOG.md | 3.2.0 | 与 pyproject.toml 一致 |
+| GitHub Releases | v3.2.0 | 与 pyproject.toml 一致 |
+
+---
+
+## 产品定位
+
+**NARRAFILM** — AI First-Person Video Narrator
+
+> 上传视频，AI 代入画面主角视角，一键生成配音解说。
+
+核心使用场景：vlog 叙事化改造、教学实操视频、游戏录屏解说、会议录制叙事、会议回顾、纪录片风格改造。
 
 ---
 
 ## 核心架构
 
 ```
-┌──────────────────────────────────────────────────────┐
-│                     UI 层 (PySide6)                   │
-│  main_window.py / pages/ / components/ / theme/       │
-├──────────────────────────────────────────────────────┤
-│                   服务层 (Services)                    │
-│  ai/ · video/ · audio/ · export/ · publish/        │
-│  service_manager.py · event_bus.py                   │
-├──────────────────────────────────────────────────────┤
-│                   核心层 (Core)                       │
-│  application.py · config_manager.py                  │
-│  secure_key_manager.py · event_bus.py               │
-│  service_container.py · logger.py                    │
-└──────────────────────────────────────────────────────┘
-```
-
-### 依赖注入
-
-使用 `ServiceContainer` + `ServiceRegistry` 模式。服务通过容器获取，避免硬编码依赖。
-
-```python
-# ✅ 正确
-container = ServiceContainer.get()
-llm_manager = container.resolve(LLMManager)
-
-# ❌ 错误 — 直接实例化
-llm_manager = LLMManager()
+┌──────────────────────────────────────────────────┐
+│                  UI 层 (PySide6)                  │
+│         home_page + ai_video_creator_page           │
+├──────────────────────────────────────────────────┤
+│               服务层 (Services)                     │
+│  monologue_maker.py  ← 唯一核心                   │
+│  voice_generator.py / caption_generator.py          │
+│  jianying_exporter.py                              │
+├──────────────────────────────────────────────────┤
+│               AI 层 (ai/)                          │
+│  video_content_analyzer.py  (Qwen2.5-VL)           │
+│  script_generator.py      (DeepSeek-V3)            │
+│  sensevoice_provider.py   (SenseVoice ASR)          │
+│  vision_providers.py      (多模态统一接口)           │
+├──────────────────────────────────────────────────┤
+│               核心层 (Core)                        │
+│  application.py / config_manager.py                 │
+│  secure_key_manager.py / logger.py                 │
+│  event_bus.py / service_registry.py               │
+└──────────────────────────────────────────────────┘
 ```
 
 ---
 
-## AI 服务架构
+## 技术流程（Pipeline）
 
-### LLM Provider 模型
-
-支持 9 家提供商，统一通过 `BaseLLMProvider` 接口调用：
-
-| Provider | 模型示例 | 用途 |
-|----------|---------|------|
-| `OpenAIProvider` | GPT-5.4 | 剧情分析/脚本生成 |
-| `ClaudeProvider` | Sonnet 4.6 | 长文本分析 |
-| `GeminiProvider` | Gemini 3.1 Pro | 多模态理解 |
-| `DeepSeekProvider` | V3.2 | 翻译/日常任务 |
-| `QwenProvider` | Qwen 2.5-Max | 中文内容创作 |
-| `KimiProvider` | K2.5 | 长文本分析 |
-| `GLM5Provider` | GLM-5 | 国产模型 |
-| `DoubaoProvider` | Doubao Pro/Lite | 字节系 |
-| `HunyuanProvider` | Hunyuan Pro | 腾讯系 |
-| `LocalProvider` | Ollama | 本地模型 |
-
-### Provider 实现规范
-
-每个 Provider 必须：
-
-1. 继承 `BaseLLMProvider`
-2. 实现 `chat()` / `stream_chat()` / `count_tokens()` 方法
-3. 处理 API Key 从 `SecureKeyManager` 读取（不硬编码）
-4. 实现重试逻辑（指数退避）
-5. 统一错误码：`APIError`, `RateLimitError`, `AuthError`, `TimeoutError`
-
-```python
-class APIError(Exception):
-    """API 调用错误（非 200 响应）"""
-    def __init__(self, message: str, status_code: int = 500):
-        super().__init__(message)
-        self.status_code = status_code
 ```
+Step 1: 视频理解
+  └─ VideoContentAnalyzer + Qwen2.5-VL
+      抽帧 → 逐帧画面描述 → 时间轴场景序列
 
-### SenseVoice Provider
+Step 2: 第一人称解说生成
+  └─ ScriptGenerator + DeepSeek-V3
+      输入场景描述 → 第一人称解说稿（含时间戳）
 
-位于 `app/services/ai/sensevoice_provider.py`。
+Step 3: 情感配音合成
+  └─ VoiceGenerator + Edge-TTS / F5-TTS
+      解说稿 → 多风格旁白 WAV/MP3
 
-**功能：**
-- `extract_emotions()` — 情感检测（开心/悲伤/愤怒/中性/恐惧/惊讶）
-- `diarize()` — 说话人分离（Diarization）
-- `detect_audio_events()` — 音频事件检测（笑声/掌声/静音）
+Step 4: 字幕生成
+  └─ 基于 TTS word-level timing
+      音字同步对齐 → ASS 电影级字幕
 
-**实现策略：**
-1. 优先加载 SenseVoice CTranslate2 模型（最高精度）
-2. 回退到 librosa 声学特征 + sklearn 聚类（无需额外模型）
-
-```python
-# 优先检查 SenseVoice 是否可用
-provider = SenseVoiceProvider(model_size="large")
-if provider.check_available():
-    provider.load_model()
+Step 5: 合成输出
+  └─ JianyingExporter / DirectVideoExporter
+      MP4 成品 / 剪映草稿
 ```
 
 ---
 
-## 视频处理架构
+## 模块职责
 
-### 服务组件
-
-| 组件 | 文件 | 职责 |
+| 模块 | 文件 | 职责 |
 |------|------|------|
-| `HighlightDetector` | `highlight_detector.py` | 高光片段检测 |
-| `BeatSyncMaker` | `beat_sync_maker.py` | BPM 节拍同步 |
-| `StoryBuilder` | `story_builder.py` | 剧情构建 |
-| `CommentaryMaker` | `commentary_maker.py` | AI 解说生成 |
-| `MonologueMaker` | `monologue_maker.py` | AI 独白生成 |
-| `MashupMaker` | `mashup_maker.py` | 智能混剪 |
-| `VideoEnhancer` | `video_enhancer.py` | 视频增强 |
-| `SubtitleExtractor` | `subtitle_extractor.py` | 字幕提取（OCR+Whisper）|
-| `SubtitleRemover` | `subtitle_remover.py` | 字幕移除 |
+| **MonologueMaker** | `services/video/monologue_maker.py` | 第一人称解说核心编排器 |
+| **VideoContentAnalyzer** | `services/ai/video_content_analyzer.py` | Qwen2.5-VL 场景理解 |
+| **ScriptGenerator** | `services/ai/script_generator.py` | DeepSeek-V3 解说文案生成 |
+| **VoiceGenerator** | `services/ai/voice_generator.py` | Edge-TTS / F5-TTS 配音 |
+| **CaptionGenerator** | `services/video_tools/caption_generator.py` | 字幕生成 + 时间轴对齐 |
+| **JianyingExporter** | `services/export/jianying_exporter.py` | 导出剪映草稿 |
 
-### 字幕提取
+---
 
-`app/services/ai/subtitle_extractor.py`（816 行）支持两种模式：
+## AI 模型选型（2025-2026 最新）
 
-1. **OCR 模式** — Vision API 识别视频帧中的文字
-2. **语音转文字** — Faster-Whisper 提取音频内容
+### 场景理解 — Qwen2.5-VL (72B)
 
-两种方式可组合使用，互相补充。
-
-### Pipeline 模式
-
-视频处理通过 `Pipeline` 串联：
+**推荐配置**：阿里云百炼 API（Qwen2.5-VL-72B-Instruct）
 
 ```python
-pipeline = VideoPipeline([
-    HighlightDetector(),
-    BeatSyncMaker(),
-    StoryBuilder(),
-    CommentaryMaker(),
-])
-result = pipeline.run(video_path)
+# 使用通义千问 API
+from openai import OpenAI
+client = OpenAI(
+    api_key=os.getenv("QWEN_API_KEY"),
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+)
 ```
+
+**本地备选**：`Qwen2.5-VL-7B-Instruct`（量化 int4，~8GB VRAM）
+
+### 解说生成 — DeepSeek-V3
+
+```python
+# DeepSeek API
+client = OpenAI(
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com"
+)
+model="deepseek-chat"
+```
+
+**第一人称提示词核心策略**：
+```
+你是一个Vlogger，正在用第一人称介绍这段视频。
+视频中的人物正在做XXX，你作为TA，描述你在做什么、
+看到了什么、有什么感受。
+```
+
+### ASR — SenseVoice
+
+```python
+# FunAudioLLM/SenseVoice（本地运行）
+from funasr import AutoModel
+model = AutoModel(
+    model="iic/SenseVoiceLarge",
+    vad_model="fsmn-vad",
+    punc_model="ct-punc"
+)
+```
+
+**Faster-Whisper 备选**（Whisper large-v3，int8 量化）
+
+### TTS — Edge-TTS（主流）+ F5-TTS（高级）
+
+```python
+# Edge-TTS — 主流优质选择
+edge-tts --voice zh-CN-XiaoxiaoNeural --text "你好" output.mp3
+
+# F5-TTS — 零样本音色克隆
+# pip install F5-TTS
+from F5TTS import F5TTS
+f5tts = F5TTS()
+audio = f5tts.generate(text, ref_audio)
+```
+
+---
+
+## 依赖精简
+
+| 依赖 | 版本 | 用途 |
+|------|------|------|
+| `pyside6` | ≥6.5 | UI 框架 |
+| `ffmpeg-python` | latest | 视频处理 |
+| `edge-tts` | latest | TTS 配音 |
+| `openai` | ≥1.0 | LLM API 调用 |
+| `funasr` | latest | SenseVoice ASR |
+| `moviepy` | latest | 视频合成 |
+| `pydub` | latest | 音频处理 |
+| `httpx` | latest | HTTP 客户端 |
+
+**已移除**：PyTorch（改用纯 CPU FFmpeg）、torchvision、transformers（按需调用 API）
 
 ---
 
 ## 导出架构
 
-### ExportManager
+仅保留两个 Exporter：
 
-统一导出管理器，支持 7 种格式：
-
-```python
-from app.services.export.export_manager import ExportManager, ExportFormat, ExportConfig
-
-manager = ExportManager()
-manager.export(project_data, ExportConfig(
-    format=ExportFormat.MP4,
-    quality="high",
-    resolution="1080p",
-    fps=30,
-))
-```
-
-### Exporter 实现
-
-| Exporter | 格式 | 平台 |
+| Exporter | 格式 | 说明 |
 |----------|------|------|
-| `DirectVideoExporter` | MP4/MOV/GIF | 全平台 |
-| `JianyingExporter` | 剪映草稿 (.draft) | 剪映 App |
-| `PremiereExporter` | .prproj | Adobe Premiere |
-| `FinalCutExporter` | .fcpxml | Final Cut Pro |
-| `DaVinciExporter` | DaVinci 项目 | DaVinci Resolve |
+| `DirectVideoExporter` | MP4 | 最终成品 |
+| `JianyingExporter` | .draft.json | 剪映原生草稿 |
 
-每个 Exporter 继承 `BaseExporter`，实现 `export(project_data, config)` 方法。
-
-### BatchExportManager
-
-批量导出，通过 `ThreadPoolExecutor` 并行处理 `_export_single` 任务。
+已移除：PremiereExporter / DaVinciExporter / FinalCutExporter / EDLExporter
 
 ---
 
 ## 配置与密钥
 
-### API Key 管理
-
 所有 API Key 通过 `SecureKeyManager` 管理，**禁止硬编码**：
 
 ```python
-# ✅ 从 keychain/环境变量读取
-key = SecureKeyManager.get("openai_api_key")
+# ✅ 正确
+key = SecureKeyManager.get("deepseek_api_key")
 
-# ❌ 禁止硬编码
+# ❌ 禁止
 key = "sk-xxx..."
 ```
 
-### 配置优先级
-
-```
-CLI 参数 > 环境变量 > ~/.videoforge/config.toml > 内置默认值
-```
+**配置优先级**：`CLI 参数 > 环境变量 > ~/.narrafiilm/config.toml > 内置默认值`
 
 ---
 
@@ -209,100 +204,68 @@ CLI 参数 > 环境变量 > ~/.videoforge/config.toml > 内置默认值
 
 ### 异常类
 
-所有自定义异常继承 `VideoForgeException`：
-
 ```python
-class VideoForgeException(Exception):
-    """基础异常类"""
-    code = "VF_ERR"
+class NarraFilmException(Exception):
+    code = "NF_ERR"
 
-class APIError(VideoForgeException):
-    code = "API_ERR"
+class VideoAnalysisError(NarraFilmException):
+    code = "ANALYSIS_ERR"
 
-class ExportError(VideoForgeException):
+class ScriptGenerationError(NarraFilmException):
+    code = "SCRIPT_ERR"
+
+class ExportError(NarraFilmException):
     code = "EXPORT_ERR"
 ```
 
 ### 日志规范
 
 ```python
-logger = logging.getLogger(__name__)  # 每个模块独立 logger
+logger = logging.getLogger(__name__)
 
-logger.info("操作描述")        # 一般信息
-logger.warning("警告信息")     # 可恢复问题
-logger.error("错误信息")       # 操作失败
-logger.debug("调试信息")       # 详细信息（默认禁用）
-```
-
-DEBUG 日志默认禁用，需要通过 `Logger.set_level(logging.DEBUG)` 开启。
-
-### 类型注解
-
-- 所有公开接口必须有类型注解
-- 内部实现不强求（`disallow_untyped_defs = false`）
-- 泛型使用 `typing` 模块
-
-### 测试
-
-测试位于 `tests/`，使用 pytest：
-
-```bash
-pytest tests/ -x -q
-```
-
-测试覆盖：AI 服务、视频处理、导出、缓存等模块。
-
----
-
-## 构建与发布
-
-### 版本管理
-
-**唯一真实来源：`pyproject.toml `[project].version`**
-
-发布时：
-1. 更新 `pyproject.toml` 版本号
-2. 更新 `CHANGELOG.md`
-3. 创建 Git tag `v{x.y.z}`
-
-### Nuitka 打包
-
-```bash
-python build_nuitka.sh
-```
-
-生成单文件可执行文件，支持 Windows/macOS/Linux。
-
-### PyInstaller 打包
-
-```bash
-python build_dmg.sh   # macOS
+logger.info("操作描述")     # 一般信息
+logger.warning("警告信息")  # 可恢复问题
+logger.error("错误信息")   # 操作失败
 ```
 
 ---
 
-## 命名规范
+## 目录结构（精简后）
 
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 模块 | `snake_case.py` | `subtitle_extractor.py` |
-| 类 | `PascalCase` | `SubtitleExtractor` |
-| 函数/方法 | `snake_case` | `extract_emotions` |
-| 常量 | `UPPER_SNAKE` | `MAX_FRAME_COUNT` |
-| 私有成员 | `_leading_underscore` | `_model` |
-
----
-
-## 国际化
-
-UI 文本使用 `I18n` 模块，不允许硬编码用户可见字符串：
-
-```python
-# ✅ 正确
-label.setText(I18n.get("export.start"))
-
-# ❌ 错误
-label.setText("开始导出")
+```
+app/
+├── core/                          应用核心
+│   ├── application.py
+│   ├── config_manager.py
+│   ├── event_bus.py
+│   ├── logger.py
+│   └── secure_key_manager.py
+├── services/
+│   ├── ai/
+│   │   ├── script_generator.py   ← 解说文案生成
+│   │   ├── video_content_analyzer.py  ← Qwen2.5-VL 场景理解
+│   │   ├── voice_generator.py     ← Edge-TTS / F5-TTS
+│   │   ├── sensevoice_provider.py ← ASR + 说话人分离
+│   │   └── vision_providers.py    ← 多模态统一接口
+│   ├── video/
+│   │   ├── base_maker.py
+│   │   ├── monologue_maker.py     ← ⭐ 唯一核心 Maker
+│   │   └── _legacy/               ← 历史代码（已隔离）
+│   ├── video_tools/
+│   │   └── caption_generator.py   ← 字幕生成
+│   └── export/
+│       ├── jianying_exporter.py   ← 剪映导出
+│       └── direct_video_exporter.py
+├── ui/
+│   ├── main/
+│   │   ├── main_window.py
+│   │   └── pages/
+│   │       ├── home_page.py
+│   │       └── ai_video_creator_page.py
+│   └── components/
+│       └── ...
+└── utils/
+    └── ...
 ```
 
 ---
@@ -311,139 +274,17 @@ label.setText("开始导出")
 
 | 限制 | 原因 | 解决方案 |
 |------|------|---------|
-| SenseVoice 需要手动下载模型 | HuggingFace 模型文件大 | 设置 `SENSEVOICE_MODEL_PATH` 环境变量 |
-| 发布平台（Bilibili/YouTube）`NotImplementedError` | 需要 OAuth API 对接 | 后续接入各平台官方 API |
-| BatchExportManager 模拟进度 | 导出是同步阻塞操作 | 已接通 ExportManager，真实进度回调待完善 |
+| Qwen2.5-VL 需要 API Key 或本地 GPU | 模型过大 | 使用通义千问 API（推荐），或本地 7B 量化版 |
+| F5-TTS 需要参考音频 | 零样本克隆原理 | 使用 Edge-TTS（无需参考音频）|
+| SenseVoice 首次下载模型文件大 | HuggingFace 模型 | 设置 `SENSEVOICE_MODEL_PATH` 环境变量 |
 
 ---
-
-## v3.2.0 新增功能（2026-04-04）
-
-### ClipRepurposingPipeline — 长视频转短片段自动化管线
-
-参考：OpusClip / Reap / Vizard.ai
-
-**新增文件**：`app/services/video_tools/clip_repurposing.py`
-
-**管线步骤**：
-
-```
-Step 1: 音频提取（FFmpeg PCM 16kHz）
-Step 2: 场景分割（FFmpeg scene detection，阈值 0.3）
-Step 3: Faster-Whisper 转录（CPU int8，中文+英文）
-Step 4: ClipScorer 多维 AI 评分
-Step 5: Top-N 非重叠片段选择
-Step 6: 格式转换（横→竖智能裁剪）+ 字幕烧录
-```
-
-**支持平台**：抖音 / 小红书 / TikTok / YouTube Shorts / Instagram Reels / Twitter
-
-**使用方式**：
-```python
-from app.services.video_tools.clip_repurposing import (
-    ClipRepurposingPipeline, AspectRatio, PlatformPreset
-)
-
-pipeline = ClipRepurposingPipeline(output_dir="./output/clips")
-results = pipeline.run(
-    video_path="/path/to/podcast.mp4",
-    max_clips=5,
-    platform="douyin",          # 使用抖音预设
-    languages=["zh", "en"],
-)
-for clip in results:
-    print(f"→ {clip.output_path} score={clip.score.total_score:.1f}")
-```
-
-### ClipScorer — 多维评分引擎
-
-**新增文件**：`app/services/video_tools/clip_scorer.py`
-
-**评分维度（权重可配置）**：
-
-| 维度 | 权重 | 信号 |
-|------|------|------|
-| `laughter_density` | 20% | 笑声/鼓掌密度（转录文本匹配） |
-| `emotion_peak` | 20% | 情感关键词命中（震惊/愤怒/搞笑等） |
-| `speech_completeness` | 20% | 对话完整性（句子是否被打断） |
-| `silence_ratio` | 10% | 有声占比（过静/过嘈杂都扣分） |
-| `speaking_pace` | 10% | 语速健康度（100-200字/分钟最优） |
-| `keyword_boost` | 20% | 高 engagement 关键词命中（中英双语） |
-
-**内置关键词库**：69 个高吸引力词（揭秘/干货/must watch/plot twist 等）
-
-### 平台预设（PlatformPreset）
-
-| 平台 | 宽高比 | 最大时长 |
-|------|--------|---------|
-| 抖音/小红书/TikTok/Shorts/Reels | 9:16 竖版 | 60s |
-| Twitter/X | 1:1 方形 | 140s |
-
-### CPU 友好设计
-
-- **Faster-Whisper**：`int8` 量化，CPU 可运行（`small` 模型 ~1GB RAM）
-- **FFmpeg 裁剪**：纯 CPU，无外部 GPU 依赖
-- **无外部 API 调用**：评分引擎完全本地计算
-
-### 扩展方式
-
-- **自定义评分权重**：`ClipScorer(weights={"laughter_density": 0.4, ...})`
-- **覆盖 Step 实现**：子类化 `ClipRepurposingPipeline`，覆盖 `_extract_audio` / `_split_scenes` / `_transcribe_segments`
-- **接入 GPU**：将 `faster-whisper` 改为 `whisper` + CUDA，或使用 ` WhisperX`
-
----
-
-## 目录结构
-
-```
-app/
-├── core/                          应用核心（配置/日志/事件总线）
-├── plugins/                       插件系统
-├── services/                      业务服务层
-│   ├── ai/                       AI 服务（LLM/视觉/语音）
-│   │   └── providers/             多模型 provider
-│   ├── ai_service/               Mock AIService（开发/测试）
-│   ├── audio/                    音频处理
-│   ├── export/                   导出服务（剪映/PR/FCP/DaVinci）
-│   ├── video/                    视频制作工具
-│   ├── video_tools/              病毒视频工具（原 viral_video，v3.2.0）
-│   ├── orchestration/            编排服务（原 core，v1.2 重命名）
-│   │   ├── workflow_engine.py    工作流引擎
-│   │   ├── project_manager.py    项目管理
-│   │   ├── batch_processor.py    批量处理
-│   │   ├── undo_manager.py       撤销管理
-│   │   └── prompt_templates.py   提示词模板
-│   ├── publish/                  多平台发布
-│   └── service_manager.py
-├── ui/                           UI 层（PyQt6）
-│   ├── common/                   macOS 专用组件
-│   ├── components/               原子组件库
-│   │   ├── buttons/
-│   │   ├── containers/           preview_panel / project_card / video_player
-│   │   ├── inputs/
-│   │   ├── labels/
-│   │   ├── layout/
-│   │   ├── loading/              skeleton / pulse_indicator
-│   │   └── onboarding/           feature_tour / welcome_screen
-│   ├── main/                     主应用
-│   │   ├── components/           主窗口组件（timeline/preview/export_panel）
-│   │   ├── dialogs/
-│   │   ├── layouts/
-│   │   ├── pages/                页面（home/projects/video_editor/ai_chat）
-│   │   ├── constants.py           UI 常量
-│   │   ├── event_handler.py       事件处理器
-│   │   └── main_window.py        主窗口入口
-│   └── theme/                    主题管理
-└── utils/                        工具函数
-```
 
 ## 重构记录
 
-| 阶段 | 内容 | 状态 |
-|------|------|------|
-| Phase 0 | 死代码清理（main_window.py/splash_screen.py/macOS_migration.py 移至 scripts/） | ✅ v3.2 |
-| Phase 1 | viral_video → video_tools，目录重命名 + 导入路径全量更新 | ✅ v3.2 |
-| Phase 2 | services/core → services/orchestration，消除与 app/core/ 命名冲突 | ✅ v3.2 |
-| Phase 3 | UI 组件专业化（UI 结构已较清晰，暂缓大范围重构） | ⏸ 暂缓 |
-
-**命名冲突说明**：`app/core/`（应用核心）与 `app/services/core/`（编排服务）是两个不同目录，Python 按完整路径解析，无运行时冲突，但语义上已通过重命名消除歧义。
+| 日期 | 内容 |
+|------|------|
+| 2026-04-05 | 品牌重命名 VideoForge → NARRAFILM，产品定位专注第一人称解说 |
+| 2026-04-05 | 裁剪全部冗余 Maker（MashupMaker/BeatSyncMaker 等）|
+| 2026-04-05 | 裁剪 4 个冗余 Exporter（Premiere/DaVinci/FinalCut/EDL）|
+| 2026-04-05 | 模型升级：Qwen2.5-VL / DeepSeek-V3 / SenseVoice / Edge-TTS + F5-TTS |

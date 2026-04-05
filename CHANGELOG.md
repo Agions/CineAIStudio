@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.0] - 2026-04-05
+
+### Changed
+- **品牌重命名**: VideoForge → NARRAFILM，专注 AI 第一人称视频解说
+- **产品定位重构**: 裁剪全部冗余功能（MashupMaker / BeatSyncMaker / CommentaryMaker / BatchProcessor 等），只保留 MonologueMaker 核心
+- **模型升级**: Qwen2.5-VL（视频理解）+ DeepSeek-V3（解说生成）+ SenseVoice（ASR）+ Edge-TTS + F5-TTS（配音）
+- **导出架构精简**: 移除 PremiereExporter / DaVinciExporter / FinalCutExporter / EDLExporter，只保留 DirectVideoExporter + JianyingExporter
+- **文档全面更新**: README.md / docs/index.md / docs/README.md / SPEC.md 全部重写
+- **在线文档**: FAQ 合并疑难排查内容
+
+### Added
+- **无头环境适配**: main.py / application_launcher.py 自动检测 offscreen 平台
+- **libEGL 依赖**: 自动安装 EGL 图形库，解决无显示器环境运行问题
+
+### Fixed
+- **运行无反应**: 无 DISPLAY 环境下 Qt 应用静默退出的问题，自动设置 QT_QPA_PLATFORM=offscreen
+
 ## [3.1.1] - 2026-04-03
 
 ### Refactored

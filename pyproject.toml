@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "videoforge"
-version = "3.1.1"
+name = "narrafiilm"
+version = "3.2.0"
 description = "VideoForge - AI-Powered Video Creation Desktop App"
 license = {text = "MIT"}
 authors = [

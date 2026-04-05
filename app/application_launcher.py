@@ -7,8 +7,18 @@ VideoForge 应用启动器
 """
 
 import sys
+import os
 import traceback
 from typing import List, Optional
+
+# 自动检测无头环境，设置 Qt 平台
+def _setup_headless_platform():
+    """检测无头环境并设置合适的 Qt 平台。"""
+    if not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+        os.environ.setdefault("QT_LOGGING_TO_STDOUT", "1")
+
+_setup_headless_platform()
 
 from PySide6.QtWidgets import QApplication, QSplashScreen, QMessageBox
 from PySide6.QtCore import QThread, Qt

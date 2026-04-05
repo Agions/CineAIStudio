@@ -5,8 +5,20 @@ VideoForge 主程序入口
 """
 
 import sys
+import os
 import logging
 from pathlib import Path
+
+# 自动检测无头环境，设置 Qt 平台
+def _setup_headless_platform():
+    """检测无头环境并设置合适的 Qt 平台。"""
+    if not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+        # 无显示器环境，使用 offscreen 平台
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+        # 禁用多媒体 pipewire 警告
+        os.environ.setdefault("QT_LOGGING_TO_STDOUT", "1")
+
+_setup_headless_platform()
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent

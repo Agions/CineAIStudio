@@ -1,32 +1,33 @@
 ---
-title: 欢迎使用 VideoForge
-description: VideoForge 文档首页，快速导航到各个功能模块。
+title: 欢迎使用 NARRAFILM
+description: NARRAFILM 文档首页，AI 第一人称视频解说工具。
 ---
 
-# 欢迎使用 VideoForge
+# 欢迎使用 NARRAFILM
 
-VideoForge 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统手动剪辑软件，VideoForge 通过 AI 实现自动化创作。
+NARRAFILM 是专业的 **AI 第一人称视频解说** 桌面应用。上传任意视频，AI 自动代入画面主角视角，生成"我"的口吻配音解说 + 电影级字幕。
 
 ## 🚀 快速开始
 
 - [5 分钟快速开始](guide/quick-start.md) — 最简化的上手指引
 - [安装配置](guide/installation.md) — 各平台详细安装步骤
-- [功能介绍](../features.md) — 了解全部 AI 创作模式
+- [功能介绍](../features.md) — 了解全部能力
 
-## ✨ 核心功能
+## ✨ 核心流程
 
-| 功能 | 说明 |
+| 步骤 | 说明 |
 |------|------|
-| 🎙️ AI 视频解说 | 原视频 + AI 配音 + 动态字幕 |
-| 🎵 AI 视频混剪 | 多素材 + 节拍匹配 + 自动转场 |
-| 🎭 AI 第一人称独白 | 画面情感 + 情感独白 + 电影字幕 |
+| 📹 上传视频 | 支持 MP4/MOV/AVI 等主流格式 |
+| 🧠 AI 场景理解 | Qwen2.5-VL 逐帧分析画面 |
+| ✍️ 生成解说 | DeepSeek-V3 代入第一人称视角 |
+| 🎙️ 情感配音 | Edge-TTS / F5-TTS 电影感旁白 |
+| ✨ 合成输出 | MP4 成品 / 剪映草稿 |
 
 ## 📖 更多文档
 
 | 文档 | 说明 |
 |------|------|
 | [AI 配置指南](guide/ai-configuration.md) | AI 能力配置 |
-| [AI 视频创作指南](guide/ai-video-guide.md) | 三种创作模式详解 |
 | [导出格式详解](guide/exporting.md) | 所有导出格式说明 |
 | [常见问题](../faq.md) | 常见问题解答 |
 | [架构概览](../architecture.md) | 系统架构和技术设计 |
@@ -34,6 +35,6 @@ VideoForge 是专业的 **AI 驱动** 视频创作桌面应用，区别于传统
 
 ## 🔗 外部资源
 
-- [GitHub 仓库](https://github.com/Agions/VideoForge)
-- [Bug 报告](https://github.com/Agions/VideoForge/issues)
-- [功能建议](https://github.com/Agions/VideoForge/discussions)
+- [GitHub 仓库](https://github.com/Agions/NARRAFILM)
+- [Bug 报告](https://github.com/Agions/NARRAFILM/issues)
+- [功能建议](https://github.com/Agions/NARRAFILM/discussions)
