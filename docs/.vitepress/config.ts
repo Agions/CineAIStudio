@@ -37,7 +37,7 @@ export default defineConfig({
         { text: '参考', items: [
           { text: '架构', link: '/architecture' },
           { text: '安全', link: '/security' },
-          { text: 'FAQ', link: '/faq' },
+          { text: 'FAQ & 疑难排查', link: '/faq' },
           { text: '贡献', link: '/contributing' },
         ]},
       ],

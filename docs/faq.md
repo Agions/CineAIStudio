@@ -285,3 +285,111 @@ pip install videoforge==2.0.0
 4. 操作步骤（如何复现）
 这能帮助我们更快定位和解决问题。
 :::
+
+---
+
+## 疑难排查
+
+以下问题通常不在日常使用中出现，但在特定环境下可能遇到。
+
+### ❓ 报错 `libEGL.so.1: cannot open shared object file`？
+
+**A:** PySide6 依赖 EGL 图形库，系统未安装：
+
+```bash
+# Ubuntu / Debian
+sudo apt install libegl1 libgl1 libopengl0
+
+# 验证
+ldconfig -p | grep libEGL
+```
+
+---
+
+### ❓ 提示 `System keyring not available`？
+
+**A:** Linux 下 keyring 服务不可用。**不影响主功能**，只是 API Key 无法安全存储（仍可正常使用）：
+
+```bash
+# 可选：安装 keyring 服务
+sudo apt install libsecret-1-0 gnome-keyring
+```
+
+---
+
+### ❓ 提示 `Couldn't load pipewire-0.3 library`？
+
+**A:** Qt 音频后端尝试加载 pipewire 失败，**不影响视频处理功能**：
+
+```bash
+# 可选：安装 pipewire 库
+sudo apt install pipewire-audio-client-libraries
+
+# 或强制使用 ALSA 后端
+export QT_AUDIO_BACKEND=alsa
+```
+
+---
+
+### ❓ 窗口显示不完整 / UI 错位 / 文字过小？
+
+**A:** 高 DPI 屏幕缩放不匹配。尝试强制设置缩放：
+
+```bash
+# 自动适应屏幕
+QT_AUTO_SCREEN_SCALE_FACTOR=1 python3 main.py
+
+# 关闭缩放
+QT_AUTO_SCREEN_SCALE_FACTOR=0 QT_SCALE_FACTOR=1 python3 main.py
+
+# 强制 200% 缩放
+QT_SCALE_FACTOR=2 python3 main.py
+```
+
+---
+
+### ❓ 界面中文显示为方块（豆腐字符）？
+
+**A:** 系统缺少 Noto CJK 字体：
+
+```bash
+# Ubuntu / Debian
+sudo apt install fonts-noto-cjk
+
+# macOS 一般自带，无需处理
+# Windows：安装「Noto Sans CJK」字体
+```
+
+---
+
+### ❓ 视频导入或导出速度极慢？
+
+**A:** 源视频未经优化（高码率、H.265/HEVC、60fps 等格式对编辑不友好）：
+
+1. 在剪映/Jianying 中先将视频导出为：
+   - 分辨率：1080p
+   - 编码：H.264（AVC）
+   - 帧率：30fps
+   - 码率：8–15 Mbps
+2. 再导入 VideoForge 编辑
+
+> 小体积、易处理的源素材能显著提升编辑和导出速度。
+
+---
+
+### ❓ 如何获取完整调试日志？
+
+**A:** 在终端运行以下命令，将输出保存到文件：
+
+```bash
+# 完整 stdout 日志
+QT_LOGGING_TO_STDOUT=1 python3 main.py 2>&1 | tee debug.log
+
+# 无头模式（无显示器环境）
+QT_QPA_PLATFORM=offscreen python3 main.py
+
+# 组合使用
+QT_LOGGING_TO_STDOUT=1 QT_QPA_PLATFORM=offscreen python3 main.py 2>&1 | tee debug.log
+```
+
+提交 Issue 时附上 `debug.log` 可大幅加快问题定位。
