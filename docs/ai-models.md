@@ -1,131 +1,132 @@
 ---
 title: AI 模型配置
-description: Narrafiilm 支持的所有 AI 模型一览，包括文本、语音合成和视觉理解模型。
+description: Narrafiilm 支持的 AI 模型一览与配置指南。
 ---
 
 # AI 模型配置
 
-Narrafiilm 支持多种 AI 模型，以下为 2026 年 4 月最新版本。
+Narrafiilm 的 AI 模型分三层：视频理解、解说生成、配音合成。
 
-## 支持的模型列表
+---
 
-### 文本生成模型
+## 视频理解模型（抽帧分析）
 
-| 提供商 | 模型 | 上下文 | 特点 | 推荐场景 |
-|--------|------|--------|------|----------|
-| **OpenAI** | GPT-4.1 | 1M | 最强通用能力 | 剧情分析、脚本生成 |
-| **Anthropic** | Claude Opus 4.5 | 200K | 长上下文、安全性高 | 长文本分析、代码 |
-| **Google** | Gemini 3 Pro | 1M+ | 超长上下文、多模态 | 视频理解、超长文本 |
-| **DeepSeek** | DeepSeek-V3.2 | 128K | 性价比高 | 翻译、日常任务 |
-| **阿里云** | Qwen3-Max | 128K | 中文优化、推理强 | 中文创作 |
-| **智谱** | GLM-4 | 128K | 中文优化 | 中文创作 |
-| **Kimi** | Kimi 2 | 200K+ | 超长上下文 | 长文本分析 |
-| **豆包** | Doubao Pro | 128K | 字节出品 | 日常任务 |
-| **腾讯** | Hunyuan Pro | 128K | 腾讯出品 | 企业场景 |
-| **Ollama** | 本地模型 | 可配置 | 完全私有 | 隐私敏感 |
+负责逐帧分析视频画面，识别主角、地点、动作、氛围。
 
-### 语音合成
+| 模型 | 说明 | 推荐度 |
+|------|------|--------|
+| **Qwen2.5-VL (7B)** | 阿里 2024.12 开源，视频理解 SOTA，推理速度快 | ⭐⭐⭐⭐⭐ |
+| **Qwen3-VL (8B/32B)** | Qwen 2025 开源，Qwen3-VL 比 2.5 推理更慢，准确度差异不大 | ⭐⭐⭐ |
+| **GPT-4.1** | OpenAI 多模态，能力强但费用高 | ⭐⭐⭐ |
+| **Gemini 2.5 Flash** | Google 最新主力，性价比高 | ⭐⭐⭐⭐ |
 
-| 提供商 | 质量 | 费用 | 特点 |
-|--------|------|------|------|
-| **Edge TTS** | ⭐⭐⭐⭐⭐ | 免费 | 多音色、中英文 |
-| **F5-TTS v0.1** | ⭐⭐⭐⭐ | 免费 | 零样本音色克隆（2026.03） |
-| **OpenAI TTS** | ⭐⭐⭐⭐⭐ | 付费 | 超自然语音 |
+> **Narrafiilm 默认使用 Qwen2.5-VL (7B)**，平衡了精度与速度。
 
-### 视觉理解
+---
 
-| 提供商 | 模型 | 特点 |
-|--------|------|------|
-| **Qwen** | Qwen3-VL (235B MoE / 32B) | 国产最强，2025.09 开源 |
-| **OpenAI** | GPT-4.1 | 多模态最强 |
-| **Anthropic** | Claude Opus 4.5 | 安全性高 |
-| **Google** | Gemini 3 Pro | 超长上下文 |
+## 解说生成模型（文稿撰写）
+
+负责将画面分析结果转化为第一人称解说稿。
+
+| 模型 | 说明 | 推荐度 |
+|------|------|--------|
+| **DeepSeek-V3.2** | 性价比最高，中文理解强，API 成本极低 | ⭐⭐⭐⭐⭐ |
+| **DeepSeek-V3** | V3.2 的前身，API 兼容 | ⭐⭐⭐⭐ |
+| **GPT-4.1** | OpenAI 最强通用能力 | ⭐⭐⭐⭐ |
+| **Claude Opus 4.6** | Anthropic 最新旗舰（2026.02），超长上下文 | ⭐⭐⭐⭐ |
+| **Qwen2.5-Max** | 阿里中文优化，API 稳定 | ⭐⭐⭐ |
+
+> **Narrafiilm 默认使用 DeepSeek-V3.2**，成本约为 GPT-4.1 的 1/50。
+
+---
+
+## 语音识别模型（ASR）
+
+负责将原片音频转文字，辅助场景理解。
+
+| 模型 | 说明 | 部署方式 |
+|------|------|----------|
+| **SenseVoice** | 阿里 FunAudioLLM，中文 ASR + 说话人分离 | 本地 |
+| **Whisper** | OpenAI 开源，多语言识别 | 本地 |
+| **云端 ASR** | API 调用第三方服务 | 云端 |
+
+> **Narrafiilm 默认使用 SenseVoice**，完全本地运行，视频不上传。
+
+---
+
+## 配音合成模型（TTS）
+
+负责将解说稿转化为自然语音。
+
+| 模型 | 版本 | 质量 | 费用 | 特点 |
+|------|------|------|------|------|
+| **Edge-TTS** | 7.2.8（2026.03） | ⭐⭐⭐⭐⭐ | 免费 | 低延迟，多音色，Narrafiilm 默认 |
+| **F5-TTS** | latest | ⭐⭐⭐⭐ | 免费 | 零样本音色克隆，需 15–30s 参考音频 |
+| **OpenAI TTS** | latest | ⭐⭐⭐⭐⭐ | 付费 | 超自然，但需付费 |
+
+---
 
 ## 快速配置
 
-### 1. OpenAI
+### DeepSeek（默认，推荐）
 
 ```bash
-# 设置 API Key
-export OPENAI_API_KEY="sk-..."
+# 获取 Key：https://platform.deepseek.com
+export DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
 
-# 或在应用中配置
-AI_PROVIDER=openai
-OPENAI_MODEL=gpt-4.1
+# 应用内设置：设置 → AI 配置 → DeepSeek
 ```
 
-### 2. Anthropic Claude
+### OpenAI GPT-4.1
 
 ```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
+export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
 
-AI_PROVIDER=claude
-CLAUDE_MODEL=claude-opus-4.5
+# 应用内设置：设置 → AI 配置 → OpenAI → GPT-4.1
 ```
 
-### 3. Google Gemini
+### Claude Opus 4.6
 
 ```bash
-export GOOGLE_API_KEY="..."
+export ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
 
-AI_PROVIDER=gemini
-GEMINI_MODEL=gemini-3-pro
+# 应用内设置：设置 → AI 配置 → Anthropic → Claude Opus 4.6
 ```
 
-### 4. 国产模型
+### 阿里云百炼（Qwen2.5-VL）
 
 ```bash
-# 通义千问
-export DASHSCOPE_API_KEY="..."
-AI_PROVIDER=qwen
-QWEN_MODEL=qwen3-max
+# https://bailian.console.aliyun.com
+export DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxx
 
-# 智谱 GLM
-export ZHIPU_API_KEY="..."
-AI_PROVIDER=glm
-GLM_MODEL=glm-4
-
-# Kimi
-export MOONSHOT_API_KEY="..."
-AI_PROVIDER=kimi
-KIMI_MODEL=kimi-2
+# 应用内设置：设置 → AI 配置 → 阿里云百炼
 ```
+
+---
 
 ## 模型选择建议
 
-### 按场景
+| 预算 | 视频理解 | 解说生成 | 配音 |
+|------|----------|----------|------|
+| **免费** | Qwen2.5-VL（本地） | DeepSeek-V3.2 | Edge-TTS |
+| **低预算 <$5/月** | Qwen2.5-VL（API） | DeepSeek-V3.2 | Edge-TTS |
+| **中预算 $5-50/月** | Qwen2.5-VL（API） | GPT-4.1 | Edge-TTS |
+| **高预算 >$50/月** | GPT-4.1 | Claude Opus 4.6 | OpenAI TTS |
 
-| 场景 | 推荐模型 | 原因 |
-|------|----------|------|
-| 电影解说 | GPT-4.1 / Claude Opus 4.5 | 强大的叙事分析能力 |
-| 快速翻译 | DeepSeek-V3.2 | 性价比高，速度快 |
-| 长视频分析 | Claude Opus 4.5 / Kimi 2 | 超长上下文 |
-| 中文内容 | Qwen3-Max / GLM-4 | 中文优化 |
-| 隐私敏感 | Ollama 本地 | 完全私有 |
-
-### 按预算
-
-| 预算 | 推荐组合 |
-|------|----------|
-| 免费 | Edge TTS + Ollama 本地 |
-| 低预算 | DeepSeek-V3.2 + Edge TTS |
-| 中预算 | GPT-4.1 + Edge TTS |
-| 高预算 | Claude Opus 4.5 + OpenAI TTS |
+---
 
 ## API Key 安全
 
 ::: warning 安全提示
-- 不要将 API Key 提交到代码仓库
-- 使用环境变量或系统 Keychain 存储
-- 定期轮换 API Key
+- **不要** 将 API Key 提交到代码仓库
+- 使用 `.env` 文件（已加入 .gitignore）或系统 Keychain 存储
+- 定期检查用量异常
 :::
 
-## 更多配置
-
-详细的模型参数配置请参考 [配置参考](/config)。
+---
 
 ## 更新日志
 
-- **2026.04**: 更新至 GPT-4.1、Claude Opus 4.5、Gemini 3 Pro、Qwen3-VL、DeepSeek-V3.2
-- **2026.03**: 新增 F5-TTS v0.1 音色克隆支持
-- **2026.01**: 全面支持国产模型
+- **2026.04**: Edge-TTS 更新至 7.2.8（2026.03 最新）
+- **2026.02**: Claude Opus 更新至 4.6，Gemini 3 Pro Preview 已停用
+- **2026.01**: Qwen3-VL 开源（但 Qwen2.5-VL 仍为推荐选择）
