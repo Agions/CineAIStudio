@@ -9,11 +9,11 @@ export default defineConfig({
   ignoreDeadLinks: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/Narrafiilm/logo.png' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
   ],
 
   themeConfig: {
-    logo: '/Narrafiilm/logo.png',
+    logo: '/logo.png',
     siteTitle: 'Narrafiilm',
 
     nav: [
