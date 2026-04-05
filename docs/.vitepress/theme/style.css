@@ -1,327 +1,707 @@
 /**
- * Narrafiilm VitePress Theme
- * Custom styles + CSS variables
+ * Narrafiilm VitePress Theme — Professional Cinematic Dark
+ * 深邃、沉浸、专业级文档首页
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* ===================================================================
-   CSS Variables — Narrafiilm Brand
-   =================================================================== */
-
+/* ================================================================
+   CSS VARIABLES
+   ================================================================ */
 :root {
-  /* Brand accent */
-  --vf-blue: #0A84FF;
-  --vf-blue-light: #2196FF;
-  --vf-green: #10B981;
-  --vf-green-dim: rgba(16, 185, 129, 0.15);
+  --nf-bg:        #070B12;
+  --nf-surface:   #0D1525;
+  --nf-border:   #1A2540;
+  --nf-border-hi:#243560;
 
-  /* Override VitePress defaults */
+  --nf-text:     #E2E8F5;
+  --nf-text-2:  #8BA3C0;
+  --nf-text-3:  #4A6080;
+
+  --nf-blue:     #0A84FF;
+  --nf-blue-hi:  #2196FF;
+  --nf-blue-glow:rgba(10, 132, 255, 0.15);
+  --nf-green:    #10B981;
+  --nf-purple:   #8B5CF6;
+
+  --nf-radius:   14px;
+  --nf-radius-lg:20px;
+
+  /* VitePress overrides */
+  --vp-font-family-base: 'Inter', 'PingFang SC', 'Microsoft YaHei SC', sans-serif;
   --vp-c-brand-1: #0A84FF;
   --vp-c-brand-2: #0070E0;
   --vp-c-brand-3: #2196FF;
-  --vp-c-brand-soft: rgba(10, 132, 255, 0.12);
-
-  /* Typography */
-  --vp-font-family-base: 'Inter', 'PingFang SC', 'Microsoft YaHei SC', 'Segoe UI', sans-serif;
+  --vp-c-brand-soft: rgba(10, 132, 255, 0.10);
+  --vp-c-bg: #070B12;
+  --vp-c-bg-soft: #0D1525;
+  --vp-c-bg-alt: #070B12;
+  --vp-c-border: #1A2540;
+  --vp-c-text-1: #E2E8F5;
+  --vp-c-text-2: #8BA3C0;
+  --vp-c-text-3: #4A6080;
 }
 
-/* ===================================================================
-   Global Overrides
-   =================================================================== */
-
+/* ================================================================
+   BASE
+   ================================================================ */
 body {
   font-family: var(--vp-font-family-base);
+  background: var(--nf-bg);
+  color: var(--nf-text);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===================================================================
-   Hero Section
-   =================================================================== */
+::selection {
+  background: var(--nf-blue);
+  color: white;
+}
 
-.VPHero .name {
-  font-size: 3.5rem !important;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #E8EDF5 0%, #A0C0E8 100%);
+/* ================================================================
+   HERO SECTION
+   ================================================================ */
+.nf-hero {
+  text-align: center;
+  padding: 64px 24px 48px;
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Subtle glow behind logo */
+.nf-hero::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 400px;
+  height: 300px;
+  background: radial-gradient(ellipse at center,
+    rgba(10, 132, 255, 0.06) 0%,
+    transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nf-hero-logo {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
+  display: inline-block;
+  filter: drop-shadow(0 0 20px rgba(10, 132, 255, 0.3));
+  transition: filter 0.3s ease;
+}
+
+.nf-hero-logo:hover {
+  filter: drop-shadow(0 0 32px rgba(10, 132, 255, 0.5));
+}
+
+.nf-hero-title {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(2.4rem, 6vw, 3.8rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.03em !important;
+  margin: 0 0 8px !important;
+  line-height: 1.1 !important;
+}
+
+.nf-gradient-text {
+  background: linear-gradient(135deg, #FFFFFF 0%, #A0C8FF 50%, #0A84FF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: inline-block;
 }
 
-.VPHero .text {
-  font-size: 1.2rem;
-  color: #8098B0;
-  font-weight: 400;
+.nf-hero-tagline {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(0.9rem, 2.5vw, 1.15rem) !important;
+  font-weight: 600 !important;
+  color: var(--nf-blue) !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 16px !important;
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
 }
 
-.VPHero .tagline {
-  color: #4A6080 !important;
-  font-size: 1rem !important;
+.nf-hero-desc {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  color: var(--nf-text-2);
+  line-height: 1.7;
+  margin: 0 0 32px;
 }
 
-.VPHero .image {
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+.nf-hero-cta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
 }
 
-/* ===================================================================
-   Features Grid
-   =================================================================== */
+/* CTA Buttons */
+.nf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+  border: none;
+}
 
-.features-grid {
+.nf-btn-primary {
+  background: var(--nf-blue);
+  color: white;
+  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.3);
+}
+
+.nf-btn-primary:hover {
+  background: var(--nf-blue-hi);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(10, 132, 255, 0.4);
+}
+
+.nf-btn-secondary {
+  background: var(--nf-surface);
+  color: var(--nf-text-2);
+  border: 1px solid var(--nf-border);
+}
+
+.nf-btn-secondary:hover {
+  background: var(--nf-border);
+  color: var(--nf-text);
+  border-color: var(--nf-border-hi);
+  transform: translateY(-1px);
+}
+
+.nf-btn-ghost {
+  background: transparent;
+  color: var(--nf-text-3);
+  border: 1px solid var(--nf-border);
+}
+
+.nf-btn-ghost:hover {
+  background: var(--nf-surface);
+  color: var(--nf-text);
+  border-color: var(--nf-border-hi);
+}
+
+/* Badges */
+.nf-hero-badges {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nf-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--nf-text-3);
+  letter-spacing: 0.02em;
+  font-family: 'SF Mono', monospace;
+}
+
+.nf-badge-sep {
+  color: var(--nf-border-hi);
+  font-size: 11px;
+}
+
+/* ================================================================
+   SECTION TITLE
+   ================================================================ */
+.nf-section-title {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--nf-text) !important;
+  margin: 2.5rem 0 1.25rem !important;
+  padding-top: 1rem;
+  border-top: 1px solid var(--nf-border);
+}
+
+.nf-section-title:first-of-type {
+  margin-top: 0 !important;
+  border-top: none !important;
+  padding-top: 0 !important;
+}
+
+/* ================================================================
+   FEATURES GRID
+   ================================================================ */
+.nf-features {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin: 2.5rem 0;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
-@media (max-width: 900px) {
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+@media (max-width: 768px) {
+  .nf-features { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .nf-features { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 560px) {
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.feature-card {
-  background: var(--vp-c-bg-soft, #0D1520);
-  border: 1px solid var(--vp-c-border, #1A2332);
-  border-radius: 16px;
-  padding: 1.5rem 1.25rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+.nf-feature-card {
+  background: var(--nf-surface);
+  border: 1px solid var(--nf-border);
+  border-radius: var(--nf-radius);
+  padding: 24px 20px;
+  transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
 }
 
-.feature-card::before {
+.nf-feature-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--vf-blue), transparent);
+  background: linear-gradient(90deg, transparent, var(--nf-blue), transparent);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
-.feature-card:hover {
-  border-color: var(--vf-blue);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(10, 132, 255, 0.15);
+.nf-feature-card:hover {
+  border-color: var(--nf-border-hi);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(10, 132, 255, 0.08);
 }
 
-.feature-card:hover::before {
+.nf-feature-card:hover::before {
   opacity: 1;
 }
 
-.feature-card .icon {
-  font-size: 2rem;
-  line-height: 1;
-  margin-bottom: 0.25rem;
-}
-
-.feature-card .title {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--vp-c-text-1, #E8EDF5);
-  margin: 0;
-}
-
-.feature-card .desc {
-  font-size: 0.8rem;
-  color: var(--vp-c-text-3, #8098B0);
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* ===================================================================
-   Stats Row
-   =================================================================== */
-
-.stats-row {
-  display: flex !important;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-  justify-content: center;
-}
-
-.stats-row a,
-.stats-row img {
-  height: 28px;
-  display: inline-block;
-}
-
-.stats-row strong {
-  color: var(--vp-c-text-2, #A0B8D0);
-  font-size: 0.9rem;
-  margin-left: 0.5rem;
-}
-
-/* ===================================================================
-   TipCard Component
-   =================================================================== */
-
-.VPHome .tip-card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (max-width: 768px) {
-  .VPHome .tip-card-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.tip-card {
-  background: var(--vp-c-bg-soft, #0D1520);
-  border: 1px solid var(--vp-c-border, #1A2332);
-  border-radius: 14px;
-  padding: 1.25rem;
-  transition: all 0.25s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.tip-card:hover {
-  border-color: var(--vf-blue);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(10, 132, 255, 0.1);
-}
-
-.tip-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tip-card-icon {
-  font-size: 1.4rem;
+.nf-feature-icon {
+  font-size: 1.75rem;
+  margin-bottom: 12px;
+  display: block;
   line-height: 1;
 }
 
-.tip-card-title {
+.nf-feature-title {
+  font-size: 14px;
   font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--vp-c-text-1, #E8EDF5);
+  color: var(--nf-text);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
 }
 
-.tip-card-body {
-  font-size: 0.82rem;
-  color: var(--vp-c-text-3, #8098B0);
+.nf-feature-desc {
+  font-size: 12px;
+  color: var(--nf-text-3);
   line-height: 1.6;
   margin: 0;
 }
 
-.tip-card-body p {
+/* ================================================================
+   WORKFLOW
+   ================================================================ */
+.nf-workflow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.nf-workflow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 160px;
+  background: var(--nf-surface);
+  border: 1px solid var(--nf-border);
+  border-radius: var(--nf-radius);
+  padding: 16px;
+}
+
+.nf-workflow-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--nf-blue-glow);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  color: var(--nf-blue);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nf-workflow-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nf-text);
+  margin-bottom: 4px;
+}
+
+.nf-workflow-desc {
+  font-size: 11px;
+  color: var(--nf-text-3);
+  line-height: 1.5;
   margin: 0;
 }
 
-/* ===================================================================
-   Section Headings
-   =================================================================== */
-
-.VPHome h2 {
-  font-size: 1.6rem !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.01em;
-  color: var(--vp-c-text-1, #E8EDF5) !important;
-  margin-top: 2rem !important;
-  margin-bottom: 1rem !important;
+.nf-workflow-arrow {
+  flex-shrink: 0;
+  color: var(--nf-border-hi);
+  font-size: 18px;
+  padding-top: 16px;
+  line-height: 1;
 }
 
-.VPHome h3 {
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-  color: var(--vp-c-text-1, #E8EDF5) !important;
+/* ================================================================
+   GETTING STARTED CARDS
+   ================================================================ */
+.nf-start-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
-/* ===================================================================
-   Tables
-   =================================================================== */
+@media (max-width: 700px) {
+  .nf-start-cards { grid-template-columns: 1fr; }
+}
 
-.VPHome table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-  border-radius: 10px;
+.nf-start-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--nf-surface);
+  border: 1px solid var(--nf-border);
+  border-radius: var(--nf-radius);
+  padding: 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nf-start-card:hover {
+  border-color: var(--nf-blue);
+  background: rgba(10, 132, 255, 0.04);
+  transform: translateY(-2px);
+}
+
+.nf-start-card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.nf-start-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--nf-text);
+  margin-bottom: 6px;
+}
+
+.nf-start-card-desc {
+  font-size: 12px;
+  color: var(--nf-text-3);
+  line-height: 1.6;
+  flex: 1;
+  margin: 0;
+}
+
+.nf-start-card-arrow {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: var(--nf-border-hi);
+  font-size: 14px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nf-start-card:hover .nf-start-card-arrow {
+  transform: translateX(4px);
+  color: var(--nf-blue);
+}
+
+/* ================================================================
+   ARCH TABLE
+   ================================================================ */
+.nf-arch-table {
+  background: var(--nf-surface);
+  border: 1px solid var(--nf-border);
+  border-radius: var(--nf-radius);
   overflow: hidden;
+  margin-bottom: 8px;
 }
 
-.VPHome th {
-  background: var(--vp-c-bg-soft, #0D1520);
-  color: var(--vp-c-text-1, #E8EDF5);
-  font-weight: 600;
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--vp-c-border, #1A2332);
+.nf-arch-row {
+  display: grid;
+  grid-template-columns: 160px 220px 1fr;
+  gap: 0;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--nf-border);
+  font-size: 13px;
+  align-items: center;
 }
 
-.VPHome td {
-  padding: 0.6rem 1rem;
-  color: var(--vp-c-text-2, #A0B8D0);
-  border-bottom: 1px solid var(--vp-c-border, #1A2332);
-}
-
-.VPHome tr:last-child td {
+.nf-arch-row:last-child {
   border-bottom: none;
 }
 
-.VPHome td code {
-  background: var(--vp-c-bg-soft, #0D1520);
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
-  font-size: 0.82em;
-  color: var(--vf-blue);
+.nf-arch-header {
+  background: rgba(10, 132, 255, 0.04);
+  border-bottom: 1px solid var(--nf-border-hi);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nf-text-3);
 }
 
-/* ===================================================================
-   Code Blocks
-   =================================================================== */
-
-.VPHome div[class*='language-'] {
-  border-radius: 12px;
-  border: 1px solid var(--vp-c-border, #1A2332);
+.nf-arch-module {
+  font-weight: 700;
+  color: var(--nf-text);
 }
 
-/* ===================================================================
-   Badges & Tags
-   =================================================================== */
-
-.VPHome .badge {
-  display: inline-block;
-  padding: 0.15rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
+.nf-arch-row code {
+  background: rgba(10, 132, 255, 0.08);
+  color: var(--nf-blue);
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
+  border: 1px solid rgba(10, 132, 255, 0.15);
 }
 
-.VPHome .badge.tip {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--vf-green);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+.nf-arch-row div:last-child {
+  color: var(--nf-text-3);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
-/* ===================================================================
-   Footer
-   =================================================================== */
+@media (max-width: 600px) {
+  .nf-arch-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 14px 16px;
+  }
+  .nf-arch-header { display: none; }
+}
 
-.VPFooter {
-  border-top: 1px solid var(--vp-c-border, #141E2E) !important;
+/* ================================================================
+   STATS
+   ================================================================ */
+.nf-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 28px 0;
+  border-top: 1px solid var(--nf-border);
+  border-bottom: 1px solid var(--nf-border);
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.nf-stat {
+  text-align: center;
+}
+
+.nf-stat-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--nf-text);
+  letter-spacing: -0.01em;
+}
+
+.nf-stat-label {
+  font-size: 11px;
+  color: var(--nf-text-3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.nf-stat-sep {
+  color: var(--nf-border-hi);
+  font-size: 18px;
+}
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+.nf-footer {
+  text-align: center;
+  padding: 24px 0 8px;
+  font-size: 13px;
+}
+
+.nf-footer p {
+  margin: 0 0 6px;
+}
+
+.nf-footer a {
+  color: var(--nf-text-3);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nf-footer a:hover {
+  color: var(--nf-blue);
+}
+
+.nf-footer-copy {
+  font-size: 11px !important;
+  color: var(--nf-text-3) !important;
+  opacity: 0.6;
+}
+
+/* ================================================================
+   VITEPRESS OVERRIDES — 确保不被默认样式干扰
+   ================================================================ */
+
+/* Hide VitePress default hero (since we use custom) */
+.VPHero {
+  display: none !important;
+}
+
+.VPHome .main {
+  max-width: 1100px !important;
+  padding: 0 24px !important;
+}
+
+/* Navigation */
+.VPNav {
+  background: rgba(7, 11, 18, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid var(--nf-border) !important;
+}
+
+.VPNavBar .title {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+}
+
+/* Sidebar */
+.VPSidebar {
+  background: var(--nf-bg) !important;
+  border-right: 1px solid var(--nf-border) !important;
+}
+
+/* Content */
+.VPDoc .content-container {
+  max-width: 860px !important;
+}
+
+/* Tables */
+.vp-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: var(--nf-radius);
+  overflow: hidden;
+  border: 1px solid var(--nf-border);
+}
+
+.vp-doc th {
+  background: var(--nf-surface);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nf-text-3);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--nf-border-hi);
+  text-align: left;
+}
+
+.vp-doc td {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--nf-text-2);
+  border-bottom: 1px solid var(--nf-border);
+}
+
+.vp-doc tr:last-child td {
+  border-bottom: none;
+}
+
+.vp-doc tr:hover td {
+  background: rgba(10, 132, 255, 0.03);
+}
+
+/* Code blocks */
+.vp-doc div[class*='language-'] {
+  border-radius: var(--nf-radius) !important;
+  border: 1px solid var(--nf-border) !important;
+  background: var(--nf-surface) !important;
+}
+
+/* Links */
+.vp-doc a {
+  color: var(--nf-blue) !important;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.vp-doc a:hover {
+  color: var(--nf-blue-hi) !important;
+}
+
+/* Blockquotes */
+.vp-doc blockquote {
+  border-left: 3px solid var(--nf-blue) !important;
+  background: rgba(10, 132, 255, 0.05) !important;
+  border-radius: 0 var(--nf-radius) var(--nf-radius) 0 !important;
+  padding: 12px 16px !important;
+  margin: 16px 0 !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--nf-border-hi);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--nf-text-3);
+}
+
+/* Focus states */
+:focus-visible {
+  outline: 2px solid var(--nf-blue);
+  outline-offset: 2px;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }

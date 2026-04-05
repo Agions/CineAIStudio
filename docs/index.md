@@ -1,248 +1,168 @@
 ---
 layout: home
 
-title: NARRAFILM
+title: Narrafiilm
 titleTemplate: false
 
 hero:
   name: NARRAFILM
   text: AI First-Person Video Narrator
-  tagline: 上传视频，AI 代入画面主角视角，一键生成配音解说 — 免费开源跨平台
-  image: ~
+  tagline: 上传视频，AI 代入画面主角视角，一键生成配音解说 — 免费 · 开源 · 跨平台
+  image:
+    src: https://img.shields.io/badge/NARRAFILM-AI%20Narrator-0A84FF?style=for-the-badge&logo=cinema5&logoColor=white
+    alt: NARRAFILM
   actions:
     - theme: brand
-      text: 🚀 5 分钟快速开始
-      link: /guide/quick-start
+      text: 🚀 快速开始
+      link: /guide/quick-start.html
     - theme: alt
-      text: 📖 详细文档
-      link: /guide/getting-started
+      text: 📖 功能介绍
+      link: /features.html
     - theme: alt
       text: ⭐ Star on GitHub
-      link: https://github.com/Agions/NARRAFILM
+      link: https://github.com/Agions/Narrafiilm
+
+features:
+  - icon: 🎬
+    title: 第一人称代入
+    details: AI 分析画面主角视角，用"我"的口吻生成解说，自然沉浸
+  - icon: 🎙️
+    title: 情感配音
+    details: 多风格旁白：治愈 / 悬疑 / 励志 / 浪漫 / 哲思，Edge-TTS 高保真合成
+  - icon: ✍️
+    title: 精准字幕
+    details: ASS 电影级字幕，基于 TTS word-level timing，音字完全同步
+  - icon: 🖥️
+    title: 剪映导出
+    details: 原生草稿格式，直达剪映继续精剪，零门槛工作流
+  - icon: 🔒
+    title: 全本地运行
+    details: SenseVoice 本地 ASR，视频不上传云端，隐私安全无忧
+  - icon: 🌐
+    title: 多模型支持
+    details: Qwen2.5-VL / DeepSeek-V3 / GPT-4o 按需切换，灵活适配各类场景
 ---
 
-<div align="center" style="margin: 2rem 0 1rem;">
-  <a href="https://github.com/Agions/Narrafiilm">
-    <img src="https://img.shields.io/badge/NARRAFILM-AI%20Narrator-0A84FF?style=for-the-badge&logo=cinema5&logoColor=white" alt="NARRAFILM" />
-  </a>
+<div class="nf-home">
+
+<!-- WORKFLOW SECTION -->
+<section class="nf-section">
+  <h2 class="nf-section-title">🔄 工作流程</h2>
+  <div class="nf-workflow">
+    <div class="nf-workflow-step">
+      <div class="nf-workflow-num">1</div>
+      <div class="nf-workflow-content">
+        <div class="nf-workflow-title">上传视频</div>
+        <div class="nf-workflow-desc">支持 MP4 / MOV / AVI / MKV，拖拽即上传</div>
+      </div>
+    </div>
+    <div class="nf-workflow-arrow">→</div>
+    <div class="nf-workflow-step">
+      <div class="nf-workflow-num">2</div>
+      <div class="nf-workflow-content">
+        <div class="nf-workflow-title">AI 场景理解</div>
+        <div class="nf-workflow-desc">Qwen2.5-VL 逐帧分析，主角视角 + 环境氛围</div>
+      </div>
+    </div>
+    <div class="nf-workflow-arrow">→</div>
+    <div class="nf-workflow-step">
+      <div class="nf-workflow-num">3</div>
+      <div class="nf-workflow-content">
+        <div class="nf-workflow-title">生成解说</div>
+        <div class="nf-workflow-desc">DeepSeek-V3 代入"我"的口吻，撰写解说稿</div>
+      </div>
+    </div>
+    <div class="nf-workflow-arrow">→</div>
+    <div class="nf-workflow-step">
+      <div class="nf-workflow-num">4</div>
+      <div class="nf-workflow-content">
+        <div class="nf-workflow-title">合成输出</div>
+        <div class="nf-workflow-desc">Edge-TTS 配音 + 电影级字幕，导出 MP4</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH ARCH TABLE -->
+<section class="nf-section">
+  <h2 class="nf-section-title">🧠 技术架构</h2>
+  <div class="nf-arch-table">
+    <div class="nf-arch-row nf-arch-header">
+      <div>模块</div><div>模型</div><div>说明</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">场景理解</span></div>
+      <div><code>Qwen2.5-VL (72B)</code></div>
+      <div>阿里开源，视频理解 SOTA，Native 视频输入</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">解说生成</span></div>
+      <div><code>DeepSeek-V3</code></div>
+      <div>最强开源 LLM，第一人称视角提示词执行最优</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">ASR 识别</span></div>
+      <div><code>SenseVoice</code></div>
+      <div>阿里 FunAudioLLM，中文 ASR + 说话人分离</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">配音合成</span></div>
+      <div><code>Edge-TTS / F5-TTS</code></div>
+      <div>Edge 主流优质低延迟，F5 零样本音色克隆</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">云端备选</span></div>
+      <div><code>GPT-4o / Claude</code></div>
+      <div>按需切换，兼容 OpenAI SDK 多厂商 API</div>
+    </div>
+  </div>
+</section>
+
+<!-- GETTING STARTED -->
+<section class="nf-section">
+  <h2 class="nf-section-title">🚀 开始使用</h2>
+  <div class="nf-start-cards">
+    <a href="/guide/quick-start.html" class="nf-start-card">
+      <div class="nf-start-card-icon">📦</div>
+      <div class="nf-start-card-title">下载安装包</div>
+      <div class="nf-start-card-desc">访问 GitHub Releases 下载最新版本，支持 Windows / macOS / Linux</div>
+      <span class="nf-start-card-arrow">→</span>
+    </a>
+    <a href="/guide/installation.html" class="nf-start-card">
+      <div class="nf-start-card-icon">🤖</div>
+      <div class="nf-start-card-title">配置 AI 能力</div>
+      <div class="nf-start-card-desc">只需一个 DeepSeek API Key，最低成本启动完整 AI 流程</div>
+      <span class="nf-start-card-arrow">→</span>
+    </a>
+    <a href="/features.html" class="nf-start-card">
+      <div class="nf-start-card-icon">🎬</div>
+      <div class="nf-start-card-title">创建你的作品</div>
+      <div class="nf-start-card-desc">导入视频 → 选择情感风格 → 一键生成配音解说 → 预览导出</div>
+      <span class="nf-start-card-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="nf-stats">
+  <div class="nf-stat"><div class="nf-stat-value">v3.2.0</div><div class="nf-stat-label">最新版本</div></div>
+  <div class="nf-stat-sep">|</div>
+  <div class="nf-stat"><div class="nf-stat-value">MIT</div><div class="nf-stat-label">开源协议</div></div>
+  <div class="nf-stat-sep">|</div>
+  <div class="nf-stat"><div class="nf-stat-value">Python 3.10+</div><div class="nf-stat-label">跨平台</div></div>
+  <div class="nf-stat-sep">|</div>
+  <div class="nf-stat"><div class="nf-stat-value">PySide6</div><div class="nf-stat-label">Qt 6.5+</div></div>
 </div>
 
-<div class="features-grid">
-
-<div class="feature-card">
-<span class="icon">🎬</span>
-<span class="title">第一人称代入</span>
-<span class="desc">AI 分析画面主角视角，用"我"的口吻生成解说</span>
-</div>
-
-<div class="feature-card">
-<span class="icon">🎙️</span>
-<span class="title">情感配音</span>
-<span class="desc">多风格旁白：治愈 / 悬疑 / 励志 / 怀旧 / 浪漫</span>
-</div>
-
-<div class="feature-card">
-<span class="icon">✍️</span>
-<span class="title">电影级字幕</span>
-<span class="desc">ASS 精准字幕，音字完全同步，电影感样式</span>
-</div>
-
-<div class="feature-card">
-<span class="icon">🖥️</span>
-<span class="title">剪映导出</span>
-<span class="desc">原生草稿格式，直达剪映继续精剪</span>
-</div>
-
-<div class="feature-card">
-<span class="icon">🔒</span>
-<span class="title">全本地运行</span>
-<span class="desc">SenseVoice 本地 ASR，无需上传视频到云端</span>
-</div>
-
-<div class="feature-card">
-<span class="icon">🌐</span>
-<span class="title">多模型支持</span>
-<span class="desc">Qwen2.5-VL / DeepSeek-V3 / GPT-4o 按需切换</span>
-</div>
+<!-- FOOTER -->
+<footer class="nf-footer">
+  <p>
+    <a href="https://github.com/Agions/Narrafiilm">GitHub</a>
+    · <a href="/guide/quick-start.html">快速开始</a>
+    · <a href="/faq.html">FAQ</a>
+    · <a href="https://github.com/Agions/Narrafiilm/issues">反馈问题</a>
+  </p>
+  <p class="nf-footer-copy">Narrafiilm © 2025–2026 · Built with AI · Released under MIT License</p>
+</footer>
 
 </div>
-
----
-
-<div class="stats-row">
-
-<a href="https://github.com/Agions/NARRAFILM/stargazers"><img src="https://img.shields.io/github/stars/Agions/NARRAFILM?style=for-the-badge&logo=github&color=10B981" alt="Stars" /></a>
-<a href="https://github.com/Agions/NARRAFILM/network/members"><img src="https://img.shields.io/github/forks/Agions/NARRAFILM?style=for-the-badge&logo=github&color=10B981" alt="Forks" /></a>
-<a href="https://github.com/Agions/NARRAFILM/issues"><img src="https://img.shields.io/github/issues/Agions/NARRAFILM?style=for-the-badge&color=10B981" alt="Issues" /></a>
-<a href="https://github.com/Agions/NARRAFILM/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=opensource&color=10B981" alt="License" /></a>
-<img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&color=6366F1" alt="Python" />
-<img src="https://img.shields.io/badge/Qt-6.5+-41?style=for-the-badge&logo=qt&color=41CD53" alt="Qt" />
-<img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-silver?style=for-the-badge&logo=linux&logoColor=white" alt="Platform" />
-
-**免费 · 开源 · 跨平台**
-
-</div>
-
----
-
-## 🚀 开始使用
-
-### 安装 NARRAFILM
-
-<TipCard title="下载安装包" icon="📦">
-访问 [GitHub Releases](https://github.com/Agions/NARRAFILM/releases/latest) 下载对应平台的最新版本。
-</TipCard>
-
-<TipCard title="配置 AI" icon="🤖">
-只需一个 API Key 即可启动（推荐 DeepSeek），场景理解 + 解说生成全部本地可跑。
-</TipCard>
-
-<TipCard title="创建作品" icon="🎬">
-导入视频 → 选择情感风格 → 一键生成配音解说 → 预览并导出。
-</TipCard>
-
----
-
-## 💡 技术架构
-
-| 模块 | 模型 | 说明 |
-|------|------|------|
-| 场景理解 | **Qwen2.5-VL** (72B) | 阿里开源，视频理解 SOTA |
-| 解说生成 | **DeepSeek-V3** | 最强开源 LLM |
-| 语音识别 | **SenseVoice** | 阿里，中文 ASR + 说话人分离 |
-| 配音合成 | **Edge-TTS** + **F5-TTS** | 优质旁白 + 零样本音色克隆 |
-| 云端备选 | GPT-4o / Claude | 按需切换 |
-
----
-
-## 📋 更新日志
-
-### v3.2.0 (2026.04) — 当前版本
-
-- 🏷️ **品牌重命名** — Narrafiilm → NARRAFILM，专注第一人称解说
-- 🎬 **极简定位** — 裁剪全部冗余功能，只留第一人称解说核心
-- 🏗️ **架构重构** — 依赖精简，MonologueMaker 为唯一核心
-- 🤖 **模型升级** — Qwen2.5-VL / DeepSeek-V3 / SenseVoice 全链路更新
-
-### v3.1.1 (2026.03)
-
-- ✨ **全新 UI** — PySide6 迁移，深色科技感界面
-- 🎭 **SenseVoice 框架** — 情感检测、说话人分离
-- 🔧 **构建系统升级** — uv 依赖管理、CI 优化
-
-### v3.0.0 (2026.02)
-
-- ✨ **AI 第一人称独白模式** — 电影级字幕，情感分析驱动
-- ✨ 支持剪映草稿导出
-- 🔧 性能优化，内存占用降低 40%
-
----
-
-## 🤝 参与贡献
-
-| 贡献方式 | 说明 |
-|----------|------|
-| 🐛 报告 Bug | [GitHub Issues](https://github.com/Agions/NARRAFILM/issues) |
-| 📝 完善文档 | 直接提交 PR |
-| 🔧 提交代码 | 提交 Pull Request |
-
----
-
-<style>
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin: 2.5rem 0;
-}
-
-@media (max-width: 768px) {
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.feature-card {
-  background: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-border);
-  border-radius: 16px;
-  padding: 1.5rem 1rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.feature-card:hover {
-  border-color: var(--vf-green);
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
-}
-
-.feature-card .icon {
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.feature-card .title {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--vp-c-text-1);
-  margin: 0;
-}
-
-.feature-card .desc {
-  font-size: 0.8rem;
-  color: var(--vp-c-text-3);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.stats-row {
-  display: flex !important;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-  justify-content: center;
-}
-
-.stats-row p {
-  display: flex !important;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.stats-row a,
-.stats-row img {
-  height: 28px;
-  display: inline-block;
-}
-
-.stats-row strong {
-  color: var(--vp-c-text-2);
-  font-size: 0.9rem;
-  margin-left: 0.5rem;
-}
-
-.VPHero .name {
-  font-size: 3.5rem;
-}
-
-@media (max-width: 640px) {
-  .VPHero .name {
-    font-size: 2.5rem;
-  }
-}
-</style>
