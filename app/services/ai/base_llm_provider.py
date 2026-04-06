@@ -579,7 +579,6 @@ class BaseLLMProvider(ABC):
         # 初始化安全组件
         self._rate_limiter = RateLimiter()
         self._circuit_breaker = CircuitBreaker()
-        self._cache = RequestCache()
 
     @abstractmethod
     async def generate(self, request: LLMRequest) -> LLMResponse:

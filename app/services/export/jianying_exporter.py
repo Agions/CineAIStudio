@@ -29,6 +29,7 @@ from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime
+from ..video_tools.ffmpeg_tool import FFmpegTool
 
 
 logger = logging.getLogger(__name__)
@@ -660,37 +661,19 @@ class JianyingExporter:
         """
         获取视频信息
         
-        使用 FFprobe 获取视频的时长、分辨率等信息
+        使用 FFmpegTool 获取视频的时长、分辨率等信息
         """
-        import subprocess
-        
         try:
-            cmd = [
-                'ffprobe', '-v', 'quiet',
-                '-print_format', 'json',
-                '-show_format', '-show_streams',
-                video_path
-            ]
-            
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                
-                # 查找视频流
-                for stream in data.get('streams', []):
-                    if stream.get('codec_type') == 'video':
-                        duration = float(data.get('format', {}).get('duration', 0))
-                        return {
-                            'width': stream.get('width', 1920),
-                            'height': stream.get('height', 1080),
-                            'duration': int(duration * 1_000_000),
-                        }
-            
+            duration = FFmpegTool.get_duration(video_path) or 0.0
+            width, height = FFmpegTool.get_resolution(video_path)
+            return {
+                'width': width,
+                'height': height,
+                'duration': int(duration * 1_000_000),
+            }
         except Exception as e:
             logger.error(f"获取视频信息失败: {e}")
-        
-        return {'width': 1920, 'height': 1080, 'duration': 0}
+            return {'width': 1920, 'height': 1080, 'duration': 0}
 
 
 # =========== 使用示例 ===========
