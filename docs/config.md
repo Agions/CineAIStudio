@@ -12,7 +12,7 @@ Narrafiilm 支持灵活的配置文件和环境变量配置。
 ### 目录结构
 
 ```
-~/.videoforge/
+~/.narrafiilm/
 ├── config.yaml          # 主配置文件
 ├── providers/           # AI 提供商配置
 │   ├── openai.yaml
@@ -25,7 +25,7 @@ Narrafiilm 支持灵活的配置文件和环境变量配置。
 ### 主配置文件
 
 ```yaml
-# ~/.videoforge/config.yaml
+# ~/.narrafiilm/config.yaml
 
 app:
   name: Narrafiilm
@@ -62,7 +62,7 @@ video:
   default_codec: h264
   
   # 临时文件目录
-  temp_dir: /tmp/videoforge
+  temp_dir: /tmp/narrafiilm
   
   # FFmpeg 路径
   ffmpeg_path: ffmpeg

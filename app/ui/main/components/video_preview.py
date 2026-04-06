@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 视频预览组件
+Narrafiilm 视频预览组件
 基于 QMediaPlayer 的视频播放 + 帧预览
 """
 

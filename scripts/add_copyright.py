@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 COPYRIGHT_HEADER = '''"""
-VideoForge - AI Video Editor
+Narrafiilm - AI Video Editor
 Copyright (c) 2025 Agions. All rights reserved.
 Licensed under the MIT License.
 """
@@ -73,7 +73,7 @@ def add_copyright_to_file(filepath: Path) -> bool:
         return False
 
 def main():
-    project_root = Path('/root/.openclaw/workspace/VideoForge')
+    project_root = Path('/root/.openclaw/workspace/Narrafiilm')
     app_dir = project_root / 'app'
     
     print("开始为 Python 文件添加版权头...")

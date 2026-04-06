@@ -1,17 +1,17 @@
 #!/bin/bash
-# VideoForge Nuitka 打包脚本
+# Narrafiilm Nuitka 打包脚本
 # 性能优势：启动速度提升 2-3x，包体积减少 40%+
 # 使用方法: ./build_nuitka.sh
 
 set -e
 
 # 配置
-APP_NAME="VideoForge"
+APP_NAME="Narrafiilm"
 VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "//' | sed 's/"//')
 OUTPUT_DIR="dist-nuitka"
 
 echo "========================================"
-echo "  VideoForge Nuitka 打包工具"
+echo "  Narrafiilm Nuitka 打包工具"
 echo "  版本: ${VERSION}"
 echo "========================================"
 echo ""

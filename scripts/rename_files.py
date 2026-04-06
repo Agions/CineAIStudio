@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VideoForge 文件命名结构化改造脚本
+Narrafiilm 文件命名结构化改造脚本
 
 修复以下问题:
 1. 删除重复/废弃文件
@@ -13,7 +13,7 @@ import os
 import shutil
 from pathlib import Path
 
-PROJECT_ROOT = Path('/root/.openclaw/workspace/VideoForge')
+PROJECT_ROOT = Path('/root/.openclaw/workspace/Narrafiilm')
 
 # 需要删除的文件
 FILES_TO_DELETE = [
@@ -79,7 +79,7 @@ def remove_empty_dirs() -> None:
                 pass
 
 def main():
-    print("🔄 VideoForge 文件命名结构化改造")
+    print("🔄 Narrafiilm 文件命名结构化改造")
     print("=" * 50)
     
     # 1. 删除废弃文件

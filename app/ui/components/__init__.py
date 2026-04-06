@@ -1,5 +1,5 @@
 """
-VideoForge UI 组件库
+Narrafiilm UI 组件库
 
 模块化组件设计:
 - containers: 容器组件 (Card, Section, ElevatedCard)

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "narrafiilm"
 version = "3.2.0"
-description = "VideoForge - AI-Powered Video Creation Desktop App"
+description = "Narrafiilm - AI-Powered Video Creation Desktop App"
 license = {text = "MIT"}
 authors = [
     {name = "Agions", email = "agions@qq.com"}
@@ -94,7 +94,7 @@ all = [
 ]
 
 [project.scripts]
-videoforge = "app.main:main"
+narrafiilm = "app.main:main"
 
 [tool.setuptools]
 packages = ["app"]

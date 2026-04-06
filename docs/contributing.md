@@ -222,7 +222,7 @@ Narrafiilm/
 |------|------|
 | [GitHub Issues](https://github.com/Agions/Narrafiilm/issues) | Bug 报告、功能请求 |
 | [GitHub Discussions](https://github.com/Agions/Narrafiilm/discussions) | 提问、讨论 |
-| [Discord 社区](https://discord.gg/videoforge) | 实时交流 |
+| [Discord 社区](https://discord.gg/narrafiilm) | 实时交流 |
 
 ---
 

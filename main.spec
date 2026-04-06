@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-VideoForge PyInstaller 构建配置
+Narrafiilm PyInstaller 构建配置
 使用方法: pyinstaller main.spec
 
 版本: 1.2.0
@@ -63,7 +63,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name=f'VideoForge-{VERSION}',
+    name=f'Narrafiilm-{VERSION}',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -78,5 +78,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    name=f'VideoForge-{VERSION}',
+    name=f'Narrafiilm-{VERSION}',
 )

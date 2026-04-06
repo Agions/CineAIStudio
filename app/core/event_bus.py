@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 事件总线模块
+Narrafiilm 事件总线模块
 提供事件发布/订阅功能
 """
 

@@ -584,7 +584,7 @@ def print_quality_report(report: VideoQualityReport):
 def demo_quality_analysis():
     """演示视频质量分析"""
     print("=" * 50)
-    print("VideoForge 视频质量分析演示")
+    print("Narrafiilm 视频质量分析演示")
     print("=" * 50)
     
     analyzer = QualityAnalyzer(platform="bilibili")

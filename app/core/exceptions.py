@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 错误处理和异常模块
+Narrafiilm 错误处理和异常模块
 提供自定义异常和错误处理功能
 """
 
@@ -44,8 +44,8 @@ class ErrorCode(Enum):
     UNKNOWN_ERROR = "UNK001"
 
 
-class VideoForgeError(Exception):
-    """VideoForge 基础异常类"""
+class NarrafiilmError(Exception):
+    """Narrafiilm 基础异常类"""
 
     def __init__(
         self,
@@ -73,7 +73,7 @@ class VideoForgeError(Exception):
         return result
 
 
-class LLMError(VideoForgeError):
+class LLMError(NarrafiilmError):
     """LLM 错误"""
 
     def __init__(
@@ -113,7 +113,7 @@ class LLMError(VideoForgeError):
         )
 
 
-class ConfigError(VideoForgeError):
+class ConfigError(NarrafiilmError):
     """配置错误"""
 
     def __init__(self, message: str, key: Optional[str] = None):
@@ -128,7 +128,7 @@ class ConfigError(VideoForgeError):
         )
 
 
-class FileError(VideoForgeError):
+class FileError(NarrafiilmError):
     """文件操作错误"""
 
     def __init__(
@@ -156,7 +156,7 @@ class FileError(VideoForgeError):
         )
 
 
-class VideoError(VideoForgeError):
+class VideoError(NarrafiilmError):
     """视频处理错误"""
 
     def __init__(
@@ -187,7 +187,7 @@ class VideoError(VideoForgeError):
         )
 
 
-class TTSError(VideoForgeError):
+class TTSError(NarrafiilmError):
     """语音合成错误"""
 
     def __init__(self, message: str, voice: Optional[str] = None):
@@ -201,7 +201,7 @@ class TTSError(VideoForgeError):
         )
 
 
-class NetworkError(VideoForgeError):
+class NetworkError(NarrafiilmError):
     """网络错误"""
 
     def __init__(self, message: str, url: Optional[str] = None):
@@ -218,7 +218,7 @@ class NetworkError(VideoForgeError):
 def format_error_message(error: Exception) -> str:
     """格式化错误消息，用于用户界面显示"""
 
-    if isinstance(error, VideoForgeError):
+    if isinstance(error, NarrafiilmError):
         return str(error)
 
     # 处理其他异常

@@ -29,7 +29,7 @@
 ## 反馈渠道
 
 遇到本文未覆盖的问题，请提交 Issue：\
-https://github.com/agions/videoforge/issues
+https://github.com/agions/narrafiilm/issues
 
 提交时请附上：
 - 操作系统和版本

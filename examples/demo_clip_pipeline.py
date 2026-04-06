@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VideoForge v3.2.0 — ClipRepurposingPipeline 示例
+Narrafiilm v3.2.0 — ClipRepurposingPipeline 示例
 
 展示如何使用长视频转短片段自动化管线。
 
@@ -154,7 +154,7 @@ def demo_platform_presets():
 
 
 if __name__ == "__main__":
-    print("VideoForge v3.2.0 — ClipRepurposingPipeline 示例")
+    print("Narrafiilm v3.2.0 — ClipRepurposingPipeline 示例")
     print()
 
     # Demo 1: 独立评分引擎（无需视频文件）

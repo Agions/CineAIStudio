@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 时间线组件
+Narrafiilm 时间线组件
 多轨时间线编辑器：视频轨 / 音频轨 / 字幕轨
 """
 

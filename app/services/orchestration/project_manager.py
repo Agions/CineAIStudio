@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 项目文件管理
+Narrafiilm 项目文件管理
 
-支持 .videoforge 项目文件的保存、加载和管理。
+支持 .narrafiilm 项目文件的保存、加载和管理。
 
 项目文件格式：
 - JSON 格式，易于阅读和调试
@@ -17,10 +17,10 @@ VideoForge 项目文件管理
     manager = ProjectManager()
     
     # 保存项目
-    manager.save(project, "my_video.videoforge")
+    manager.save(project, "my_video.narrafiilm")
     
     # 加载项目
-    project = manager.load("my_video.videoforge")
+    project = manager.load("my_video.narrafiilm")
 """
 
 import json
@@ -65,7 +65,7 @@ class ProjectMetadata:
     description: str = ""           # 项目描述
     
     # 软件信息
-    app_version: str = "2.0.0"      # VideoForge 版本
+    app_version: str = "2.0.0"      # Narrafiilm 版本
     platform: str = "windows"      # 平台
     
     # 输出设置
@@ -111,9 +111,9 @@ class ProjectConfig:
 
 
 @dataclass
-class VideoForgeProject:
+class NarrafiilmProject:
     """
-    VideoForge 项目
+    Narrafiilm 项目
     
     完整的项目数据结构
     """
@@ -144,17 +144,17 @@ class ProjectManager:
     """
     
     # 支持的文件扩展名
-    PROJECT_EXTENSIONS = [".videoforge", ".vfproj"]
+    PROJECT_EXTENSIONS = [".narrafiilm", ".vfproj"]
     
     def __init__(self):
-        self.current_project: Optional[VideoForgeProject] = None
+        self.current_project: Optional[NarrafiilmProject] = None
         self._last_save_path: Optional[Path] = None
     
     def create_project(
         self,
         name: str = "未命名项目",
         project_type: ProjectType = ProjectType.RAW,
-    ) -> VideoForgeProject:
+    ) -> NarrafiilmProject:
         """
         创建新项目
         
@@ -165,7 +165,7 @@ class ProjectManager:
         Returns:
             新项目对象
         """
-        project = VideoForgeProject(
+        project = NarrafiilmProject(
             metadata=ProjectMetadata(
                 name=name,
                 project_type=project_type.value,
@@ -176,7 +176,7 @@ class ProjectManager:
     
     def save(
         self,
-        project: VideoForgeProject,
+        project: NarrafiilmProject,
         output_path: str,
         include_sources: bool = True,
         compress: bool = True,
@@ -197,7 +197,7 @@ class ProjectManager:
         
         # 确保扩展名正确
         if output_path.suffix.lower() not in self.PROJECT_EXTENSIONS:
-            output_path = output_path.with_suffix(".videoforge")
+            output_path = output_path.with_suffix(".narrafiilm")
         
         # 更新修改时间
         project.metadata.modified_at = datetime.now().isoformat()
@@ -212,7 +212,7 @@ class ProjectManager:
             # 直接保存 JSON
             return self._save_json(project_dict, output_path)
     
-    def load(self, project_path: str) -> VideoForgeProject:
+    def load(self, project_path: str) -> NarrafiilmProject:
         """
         从文件加载项目
         
@@ -240,7 +240,7 @@ class ProjectManager:
         
         return project
     
-    def _project_to_dict(self, project: VideoForgeProject) -> Dict:
+    def _project_to_dict(self, project: NarrafiilmProject) -> Dict:
         """将项目转换为字典"""
         return {
             "metadata": asdict(project.metadata),
@@ -249,13 +249,13 @@ class ProjectManager:
             "project_data": project.project_data,
         }
     
-    def _dict_to_project(self, data: Dict) -> VideoForgeProject:
+    def _dict_to_project(self, data: Dict) -> NarrafiilmProject:
         """将字典转换为项目"""
         metadata = ProjectMetadata(**data.get("metadata", {}))
         sources = [ProjectSource(**s) for s in data.get("sources", [])]
         config = ProjectConfig(**data.get("config", {}))
         
-        project = VideoForgeProject(
+        project = NarrafiilmProject(
             metadata=metadata,
             sources=sources,
             config=config,
@@ -356,7 +356,7 @@ class ProjectManager:
     
     def add_source(
         self,
-        project: VideoForgeProject,
+        project: NarrafiilmProject,
         path: str,
         source_type: str = "video",
     ) -> ProjectSource:
@@ -412,7 +412,7 @@ class ProjectManager:
     
     def export_to_template(
         self,
-        project: VideoForgeProject,
+        project: NarrafiilmProject,
         output_path: str,
     ) -> str:
         """
@@ -428,7 +428,7 @@ class ProjectManager:
             模板文件路径
         """
         # 创建模板项目（复制配置，清除敏感信息）
-        template = VideoForgeProject(
+        template = NarrafiilmProject(
             metadata=ProjectMetadata(
                 name=f"{project.metadata.name} (模板)",
                 project_type=project.metadata.project_type,
@@ -444,7 +444,7 @@ class ProjectManager:
         self,
         template_path: str,
         new_name: str,
-    ) -> VideoForgeProject:
+    ) -> NarrafiilmProject:
         """
         从模板创建项目
         
@@ -471,7 +471,7 @@ class ProjectManager:
 
 
 def save_project(
-    project: VideoForgeProject,
+    project: NarrafiilmProject,
     output_path: str,
 ) -> str:
     """
@@ -488,7 +488,7 @@ def save_project(
     return manager.save(project, output_path)
 
 
-def load_project(project_path: str) -> VideoForgeProject:
+def load_project(project_path: str) -> NarrafiilmProject:
     """
     便捷的项目加载函数
     
@@ -507,7 +507,7 @@ def load_project(project_path: str) -> VideoForgeProject:
 def demo_project_management():
     """演示项目管理"""
     print("=" * 50)
-    print("VideoForge 项目管理演示")
+    print("Narrafiilm 项目管理演示")
     print("=" * 50)
     
     manager = ProjectManager()
@@ -530,7 +530,7 @@ def demo_project_management():
     project.config.target_platform = "bilibili"
     
     # 保存项目
-    save_path = manager.save(project, "./demo_project.videoforge")
+    save_path = manager.save(project, "./demo_project.narrafiilm")
     print(f"项目已保存: {save_path}")
     
     # 加载项目

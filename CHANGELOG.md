@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.2.0] - 2026-04-05
 
 ### Changed
-- **品牌重命名**: VideoForge → NARRAFILM，专注 AI 第一人称视频解说
+- **品牌重命名**: Narrafiilm → NARRAFILM，专注 AI 第一人称视频解说
 - **产品定位重构**: 裁剪全部冗余功能（MashupMaker / BeatSyncMaker / CommentaryMaker / BatchProcessor 等），只保留 MonologueMaker 核心
 - **模型升级**: Qwen2.5-VL（视频理解）+ DeepSeek-V3（解说生成）+ SenseVoice（ASR）+ Edge-TTS + F5-TTS（配音）
 - **导出架构精简**: 移除 PremiereExporter / DaVinciExporter / FinalCutExporter / EDLExporter，只保留 DirectVideoExporter + JianyingExporter

@@ -22,7 +22,7 @@ Narrafiilm 采用多层级密钥存储策略，按优先级依次尝试：
         └── Linux:        Secret Service API (GNOME Keyring / KWallet)
 
 降级 → 加密文件 (Fernet + PBKDF2)
-        └── ~/.videoforge/credentials.enc
+        └── ~/.narrafiilm/credentials.enc
 ```
 
 ### 加密机制
@@ -84,7 +84,7 @@ Narrafiilm 对所有文件路径进行严格验证：
 
 ```python
 # 使用 SecureFileHandler 进行所有文件操作
-from videoforge.core.secure_file_handler import SecureFileHandler
+from narrafiilm.core.secure_file_handler import SecureFileHandler
 
 handler = SecureFileHandler()
 
@@ -139,7 +139,7 @@ BLOCKED_ENV_VARS = [
 
 ```python
 # 示例：安全执行 FFmpeg
-from videoforge.core.command_validator import CommandValidator
+from narrafiilm.core.command_validator import CommandValidator
 
 validator = CommandValidator()
 
@@ -166,10 +166,10 @@ subprocess.run(['ffmpeg', ...], env=env)
 
 ```bash
 # 插件开发者签名
-python -m videoforge plugins sign ./plugins/my-plugin
+python -m narrafiilm plugins sign ./plugins/my-plugin
 
 # Narrafiilm 验证签名
-python -m videoforge plugins install ./my-plugin-1.0.0.vfplugin
+python -m narrafiilm plugins install ./my-plugin-1.0.0.vfplugin
 # → 签名验证通过后才安装
 ```
 
@@ -204,10 +204,10 @@ python -m videoforge plugins install ./my-plugin-1.0.0.vfplugin
 
 ```bash
 # 清除所有本地缓存
-python -m videoforge cache clear
+python -m narrafiilm cache clear
 
 # 清除项目数据（不可恢复）
-python -m videoforge data purge --project=my-project
+python -m narrafiilm data purge --project=my-project
 ```
 
 ---
@@ -219,7 +219,7 @@ python -m videoforge data purge --project=my-project
 | 方式 | 说明 |
 |------|------|
 | GitHub Security Advisory | [报告安全漏洞](https://github.com/Agions/Narrafiilm/security/advisories/new) |
-| 邮件 | security@videoforge.ai |
+| 邮件 | security@narrafiilm.ai |
 
 **请不要**在公开的 GitHub Issues 中报告安全问题。
 
@@ -231,11 +231,11 @@ python -m videoforge data purge --project=my-project
 
 | 配置项 | 文件位置 | 说明 |
 |--------|----------|------|
-| API Key 存储 | `~/.videoforge/credentials.enc` | 加密文件 |
-| 信任密钥 | `~/.videoforge/trusted_keys/` | 插件签名公钥 |
+| API Key 存储 | `~/.narrafiilm/credentials.enc` | 加密文件 |
+| 信任密钥 | `~/.narrafiilm/trusted_keys/` | 插件签名公钥 |
 | 插件目录 | `./plugins/` | 插件加载目录 |
-| 日志 | `~/.videoforge/logs/` | 操作日志（不含敏感数据） |
-| 缓存 | `~/.videoforge/cache/` | 临时缓存 |
+| 日志 | `~/.narrafiilm/logs/` | 操作日志（不含敏感数据） |
+| 缓存 | `~/.narrafiilm/cache/` | 临时缓存 |
 
 ---
 

@@ -1,5 +1,5 @@
 """
-VideoForge 核心模块
+Narrafiilm 核心模块
 
 核心功能：
 - application: 应用入口和管理 (需要 Qt)
@@ -20,7 +20,7 @@ from .config_manager import ConfigManager, AppConfig
 from .cache_manager import CacheManager, MemoryCache, DiskCache
 from .event_bus import EventBus
 from .exceptions import (
-    VideoForgeError,
+    NarrafiilmError,
     LLMError,
     ConfigError,
     FileError,
@@ -49,7 +49,7 @@ __all__ = [
     "EventBus",
 
     # Exceptions
-    "VideoForgeError",
+    "NarrafiilmError",
     "LLMError",
     "ConfigError",
     "FileError",

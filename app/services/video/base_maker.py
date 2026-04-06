@@ -1,10 +1,9 @@
 """
 视频制作器基类 (Base Video Maker)
 
-提供三大视频制作功能的公共抽象:
-- CommentaryMaker: AI 视频解说
-- MashupMaker: AI 视频混剪
-- MonologueMaker: AI 第一人称独白
+为所有视频制作器提供公共抽象。
+当前活跃实现:
+- MonologueMaker: AI 第一人称独白（核心）
 """
 
 import uuid

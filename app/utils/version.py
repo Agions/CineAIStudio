@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 版本管理
+Narrafiilm 版本管理
 从 pyproject.toml 读取版本信息
 """
 

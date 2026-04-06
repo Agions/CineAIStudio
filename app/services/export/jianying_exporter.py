@@ -1,7 +1,7 @@
 """
 剪映草稿导出器 (Jianying Exporter)
 
-将 VideoForge 项目导出为剪映草稿格式，实现与剪映的完美对接。
+将 Narrafiilm 项目导出为剪映草稿格式，实现与剪映的完美对接。
 
 剪映草稿结构:
     drafts/
@@ -261,7 +261,7 @@ class JianyingDraft:
     这是导出的核心数据结构，包含所有轨道、素材和配置信息
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    name: str = "VideoForge Project"
+    name: str = "Narrafiilm Project"
     duration: int = 0  # 总时长（微秒）
     
     # 轨道

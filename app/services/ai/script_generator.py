@@ -616,7 +616,7 @@ def demo_generate():
     # 使用新架构
     try:
         print("\n" + "=" * 50)
-        print("🎬 VideoForge - 文案生成测试")
+        print("🎬 Narrafiilm - 文案生成测试")
         print("=" * 50)
 
         generator = ScriptGenerator(use_llm_manager=True)

@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 统一工作流引擎
+Narrafiilm 统一工作流引擎
 
 将所有创作模式统一为标准化的 9 步流水线：
   上传 → AI分析 → 模式选择 → 脚本生成 → 编辑 → 时间轴 → 配音 → 导出
 
-与 VideoForge Web 版 (clip-flow) 的 workflow.service.ts 对齐。
+与 Narrafiilm Web 版 (clip-flow) 的 workflow.service.ts 对齐。
 """
 import os
 import time
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class WorkflowEngine:
     """
-    VideoForge 统一工作流引擎
+    Narrafiilm 统一工作流引擎
     9 步流水线，每步有明确的输入/处理/输出。
     """
 
@@ -339,7 +339,7 @@ class WorkflowEngine:
             raise ValueError("没有脚本内容")
 
         if not output_dir:
-            output_dir = os.path.join(os.path.expanduser("~"), ".videoforge", "audio")
+            output_dir = os.path.join(os.path.expanduser("~"), ".narrafiilm", "audio")
         os.makedirs(output_dir, exist_ok=True)
 
         voiceover = VoiceoverData(voice_style=voice, beat_sync=beat_sync)
@@ -427,7 +427,7 @@ class WorkflowEngine:
         self._update(step=WorkflowStep.EXPORT, progress=96)
 
         if not output_dir:
-            output_dir = os.path.join(os.path.expanduser("~"), ".videoforge", "exports")
+            output_dir = os.path.join(os.path.expanduser("~"), ".narrafiilm", "exports")
         os.makedirs(output_dir, exist_ok=True)
 
         pid = self._state.project_id
@@ -436,40 +436,40 @@ class WorkflowEngine:
 
         try:
             if fmt == ExportFormat.SRT:
-                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.srt")
+                output_path = os.path.join(output_dir, f"narrafiilm_{pid}_{ts}.srt")
                 self._export_srt(output_path)
 
             elif fmt == ExportFormat.ASS:
-                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.ass")
+                output_path = os.path.join(output_dir, f"narrafiilm_{pid}_{ts}.ass")
                 self._export_ass(output_path)
 
             elif fmt == ExportFormat.JIANYING:
                 from ..export.jianying_exporter import JianyingExporter
-                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}")
+                output_path = os.path.join(output_dir, f"narrafiilm_{pid}_{ts}")
                 exporter = JianyingExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             elif fmt == ExportFormat.PREMIERE:
                 from ..export.premiere_exporter import PremiereExporter
-                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.xml")
+                output_path = os.path.join(output_dir, f"narrafiilm_{pid}_{ts}.xml")
                 exporter = PremiereExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             elif fmt == ExportFormat.FINALCUT:
                 from ..export.finalcut_exporter import FinalCutExporter
-                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.fcpxml")
+                output_path = os.path.join(output_dir, f"narrafiilm_{pid}_{ts}.fcpxml")
                 exporter = FinalCutExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             elif fmt == ExportFormat.DAVINCI:
                 from ..export.davinci_exporter import DaVinciExporter
-                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.fcpxml")
+                output_path = os.path.join(output_dir, f"narrafiilm_{pid}_{ts}.fcpxml")
                 exporter = DaVinciExporter()
                 exporter.export(self._build_export_data(), output_path)
 
             else:  # MP4
                 from ..export.direct_video_exporter import DirectVideoExporter
-                output_path = os.path.join(output_dir, f"videoforge_{pid}_{ts}.mp4")
+                output_path = os.path.join(output_dir, f"narrafiilm_{pid}_{ts}.mp4")
                 exporter = DirectVideoExporter()
                 exporter.export(self._build_export_data(), output_path, quality=quality)
 
@@ -520,7 +520,7 @@ class WorkflowEngine:
         if not self._state.timeline:
             return
         with open(path, "w", encoding="utf-8") as f:
-            f.write("[Script Info]\nTitle: VideoForge Export\nScriptType: v4.00+\n\n")
+            f.write("[Script Info]\nTitle: Narrafiilm Export\nScriptType: v4.00+\n\n")
             f.write("[V4+ Styles]\nFormat: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding\n")
             f.write("Style: Default,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,1,2,10,10,10,1\n\n")
             f.write("[Events]\nFormat: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text\n")

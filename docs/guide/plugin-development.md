@@ -68,7 +68,7 @@ cd plugins/my-first-plugin
 
 ```python
 # plugin.py
-from videoforge.plugins import VideoProcessorPlugin
+from narrafiilm.plugins import VideoProcessorPlugin
 
 class MyPlugin(VideoProcessorPlugin):
     """我的第一个插件"""
@@ -142,13 +142,13 @@ __all__ = ['MyPlugin']
 
 ```bash
 # 在项目根目录运行
-python -m videoforge plugins install ./plugins/my-first-plugin
+python -m narrafiilm plugins install ./plugins/my-first-plugin
 ```
 
 ### 验证安装
 
 ```bash
-python -m videoforge plugins list
+python -m narrafiilm plugins list
 ```
 
 输出：
@@ -159,7 +159,7 @@ python -m videoforge plugins list
 ### 卸载插件
 
 ```bash
-python -m videoforge plugins uninstall my-first-plugin
+python -m narrafiilm plugins uninstall my-first-plugin
 ```
 
 ---
@@ -265,7 +265,7 @@ Narrafiilm 插件运行在受限制的环境中：
 
 ```bash
 # 对插件进行签名
-python -m videoforge plugins sign ./plugins/my-first-plugin
+python -m narrafiilm plugins sign ./plugins/my-first-plugin
 ```
 
 ---
@@ -275,7 +275,7 @@ python -m videoforge plugins sign ./plugins/my-first-plugin
 ### 打包插件
 
 ```bash
-python -m videoforge plugins package ./plugins/my-first-plugin
+python -m narrafiilm plugins package ./plugins/my-first-plugin
 ```
 
 生成文件：`my-first-plugin-1.0.0.vfplugin`
@@ -293,7 +293,7 @@ python -m videoforge plugins package ./plugins/my-first-plugin
 ```python
 import logging
 
-logger = logging.getLogger('videoforge.plugins.my-first-plugin')
+logger = logging.getLogger('narrafiilm.plugins.my-first-plugin')
 logger.setLevel(logging.DEBUG)
 
 handler = logging.StreamHandler()
@@ -310,7 +310,7 @@ python app/main.py --plugin-dev --plugin-path=./plugins/my-first-plugin
 ### 测试单个插件
 
 ```python
-from videoforge.plugins.manager import PluginManager
+from narrafiilm.plugins.manager import PluginManager
 
 manager = PluginManager()
 manager.load_plugin('./plugins/my-first-plugin')

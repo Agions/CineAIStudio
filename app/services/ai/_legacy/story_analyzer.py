@@ -257,7 +257,7 @@ class StoryAnalyzer:
             帧信息列表 [{timestamp, image_path}, ...]
         """
         frames = []
-        temp_dir = Path.home() / ".videoforge" / "temp" / "story_frames"
+        temp_dir = Path.home() / ".narrafiilm" / "temp" / "story_frames"
         temp_dir.mkdir(parents=True, exist_ok=True)
 
         duration = self._get_video_duration(video_path)

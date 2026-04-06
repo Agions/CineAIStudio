@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 配置管理器
+Narrafiilm 配置管理器
 提供统一的配置管理接口
 """
 

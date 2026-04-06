@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class AppConfig:
     """应用配置"""
     # 应用信息
-    name: str = "VideoForge"
+    name: str = "Narrafiilm"
     version: str = "3.0.0"
     debug: bool = False
     
@@ -89,7 +89,7 @@ class ConfigManager:
         if config_dir:
             self.config_dir = Path(config_dir)
         else:
-            self.config_dir = Path.home() / ".videoforge"
+            self.config_dir = Path.home() / ".narrafiilm"
         
         self.config_dir.mkdir(parents=True, exist_ok=True)
         

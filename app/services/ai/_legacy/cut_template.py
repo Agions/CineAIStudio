@@ -226,7 +226,7 @@ class CutTemplateManager:
         if template_dir:
             self.template_dir = Path(template_dir)
         else:
-            self.template_dir = Path.home() / ".videoforge" / "templates"
+            self.template_dir = Path.home() / ".narrafiilm" / "templates"
 
         self.template_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"CutTemplateManager initialized, template_dir: {self.template_dir}")

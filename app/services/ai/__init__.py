@@ -1,12 +1,15 @@
 """
 Narrafiilm AI 服务模块
 
-提供AI能力:
+提供 AI 能力:
 - LLM: 大语言模型支持（DeepSeek-V3 主力）
 - Vision: 视觉理解（Qwen2.5-VL 72B SOTA）
 - Voice: 语音合成（Edge-TTS / F5-TTS）
-- Analysis: 视频分析
-- FirstPersonNarrator: 第一人称解说编排器（核心）
+- Subtitle: 字幕提取与生成
+- ASR: 语音识别（SenseVoice）
+
+核心入口:
+- MonologueMaker (services/video/monologue_maker.py) — 第一人称解说编排
 """
 
 # LLM 相关
@@ -29,26 +32,24 @@ from .vision_providers import (
 # 语音相关
 from .voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
 
-# 第一人称解说编排器 ⭐
-from .first_person_narrator import (
-    FirstPersonNarrator,
-    NarrationProject,
-    SceneSegment,
+# 解说文案生成
+from .script_generator import ScriptGenerator
+
+# 字幕提取
+from .subtitle_extractor import (
+    SubtitleSegment,
+    SubtitleExtractionResult,
+    OCRSubtitleExtractor,
+    SpeechSubtitleExtractor,
+    SubtitleMerger,
+    SubtitleTranslator,
 )
 
-# 分析相关
-from .scene_analyzer import SceneAnalyzer, SceneInfo
-from .video_understanding import VideoUnderstanding
-from .video_summarizer import VideoSummarizer
-from .script_generator import ScriptGenerator
-from .story_analyzer import StoryAnalyzer, StoryAnalysisResult, PlotType, SceneType
-from .cut_template import CutTemplateManager, CutTemplate, TemplateStyle
-from .batch_story_processor import BatchStoryProcessor, BatchStatus
-from .cut_preview import CutPreviewGenerator, PreviewConfig
+# ASR
+from .sensevoice_provider import SenseVoiceProvider
 
 # 缓存
 from .cache import LLMMemoryCache
-
 
 __all__ = [
     # LLM
@@ -69,34 +70,19 @@ __all__ = [
     "VoiceConfig",
     "VoiceStyle",
 
-    # FirstPersonNarrator ⭐
-    "FirstPersonNarrator",
-    "NarrationProject",
-    "SceneSegment",
-
-    # Analysis
-    "SceneAnalyzer",
-    "SceneInfo",
-    "VideoUnderstanding",
-    "VideoSummarizer",
+    # Script
     "ScriptGenerator",
-    "StoryAnalyzer",
-    "StoryAnalysisResult",
-    "PlotType",
-    "SceneType",
 
-    # Template
-    "CutTemplateManager",
-    "CutTemplate",
-    "TemplateStyle",
+    # Subtitle
+    "SubtitleSegment",
+    "SubtitleExtractionResult",
+    "OCRSubtitleExtractor",
+    "SpeechSubtitleExtractor",
+    "SubtitleMerger",
+    "SubtitleTranslator",
 
-    # Batch Processing
-    "BatchStoryProcessor",
-    "BatchStatus",
-
-    # Preview
-    "CutPreviewGenerator",
-    "PreviewConfig",
+    # ASR
+    "SenseVoiceProvider",
 
     # Cache
     "LLMMemoryCache",

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 项目管理器
+Narrafiilm 项目管理器
 提供完整的项目生命周期管理功能
 """
 
@@ -48,6 +48,14 @@ class ProjectType(Enum):
     @property
     def value(self) -> str:
         return self._value_
+
+    @classmethod
+    def _missing_(cls, value: Any) -> Optional['ProjectType']:
+        """支持通过字符串 ID 查找枚举成员（如 ProjectType('ai_enhancement')）"""
+        for member in cls:
+            if member._value_ == value:
+                return member
+        return None
 
 
 @dataclass
@@ -334,9 +342,9 @@ class ProjectManager(QObject):
         self.templates: Dict[str, Project] = {}
 
         # 项目目录
-        self.projects_dir = os.path.expanduser("~/VideoForge/Projects")
-        self.templates_dir = os.path.expanduser("~/VideoForge/Templates")
-        self.temp_dir = os.path.expanduser("~/VideoForge/Temp")
+        self.projects_dir = os.path.expanduser("~/Narrafiilm/Projects")
+        self.templates_dir = os.path.expanduser("~/Narrafiilm/Templates")
+        self.temp_dir = os.path.expanduser("~/Narrafiilm/Temp")
 
         # 确保目录存在
         self._ensure_directories()

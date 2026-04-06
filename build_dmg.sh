@@ -1,11 +1,11 @@
 #!/bin/bash
-# VideoForge DMG 打包脚本
+# Narrafiilm DMG 打包脚本
 # 使用方法: ./build_dmg.sh
 
 set -e
 
 # 配置
-APP_NAME="VideoForge"
+APP_NAME="Narrafiilm"
 VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "//' | sed 's/"//')
 APP_BUNDLE="${APP_NAME}.app"
 DMG_NAME="${APP_NAME}-${VERSION}-macOS.dmg"
@@ -13,7 +13,7 @@ TEMP_DIR="/tmp/${APP_NAME}_build"
 RESOURCES_DIR="resources/icons"
 
 echo "========================================"
-echo "  VideoForge DMG 打包工具"
+echo "  Narrafiilm DMG 打包工具"
 echo "  版本: ${VERSION}"
 echo "========================================"
 echo ""
@@ -89,7 +89,7 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" << EOF
     <key>CFBundleIconFile</key>
     <string>${APP_NAME}</string>
     <key>CFBundleIdentifier</key>
-    <string>com.videoforge.${APP_NAME}</string>
+    <string>com.narrafiilm.${APP_NAME}</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>

@@ -65,7 +65,7 @@ class CutPreviewGenerator:
 
         # 生成输出路径
         if not output_path:
-            output_dir = Path.home() / ".videoforge" / "previews"
+            output_dir = Path.home() / ".narrafiilm" / "previews"
             output_dir.mkdir(parents=True, exist_ok=True)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_path = str(output_dir / f"preview_{timestamp}.{self.config.format}")
@@ -136,7 +136,7 @@ class CutPreviewGenerator:
             concat 文件路径
         """
         if not output_path:
-            output_dir = Path.home() / ".videoforge" / "temp"
+            output_dir = Path.home() / ".narrafiilm" / "temp"
             output_dir.mkdir(parents=True, exist_ok=True)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_path = str(output_dir / f"concat_list_{timestamp}.txt")
@@ -176,7 +176,7 @@ class CutPreviewGenerator:
             raise ValueError("No cuts provided")
 
         if not output_path:
-            output_dir = Path.home() / ".videoforge" / "previews"
+            output_dir = Path.home() / ".narrafiilm" / "previews"
             output_dir.mkdir(parents=True, exist_ok=True)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_path = str(output_dir / f"preview_{timestamp}.{self.config.format}")

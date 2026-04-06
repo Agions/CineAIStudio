@@ -1,7 +1,7 @@
 {
   "name": "narrafiilm-docs",
   "version": "3.0.0",
-  "description": "VideoForge Documentation",
+  "description": "Narrafiilm Documentation",
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev docs",

@@ -1,5 +1,5 @@
 """
-VideoForge 服务模块
+Narrafiilm 服务模块
 
 提供以下核心服务:
 - ai: AI大模型、视觉、语音服务
@@ -25,7 +25,6 @@ from . import orchestration
 
 # 兼容层
 from .ai_service_manager import AIServiceManager, ServiceStatus, get_ai_service_manager
-from .ai_service.mock_ai_service import MockAIService
 
 
 __all__ = [
@@ -41,5 +40,4 @@ __all__ = [
     "AIServiceManager",
     "ServiceStatus",
     "get_ai_service_manager",
-    "MockAIService",
 ]

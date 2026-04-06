@@ -284,7 +284,7 @@ app/
 
 | 日期 | 内容 |
 |------|------|
-| 2026-04-05 | 品牌重命名 VideoForge → NARRAFILM，产品定位专注第一人称解说 |
+| 2026-04-05 | 品牌重命名 Narrafiilm → NARRAFILM，产品定位专注第一人称解说 |
 | 2026-04-05 | 裁剪全部冗余 Maker（MashupMaker/BeatSyncMaker 等）|
 | 2026-04-05 | 裁剪 4 个冗余 Exporter（Premiere/DaVinci/FinalCut/EDL）|
 | 2026-04-05 | 模型升级：Qwen2.5-VL / DeepSeek-V3 / SenseVoice / Edge-TTS + F5-TTS |

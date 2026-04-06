@@ -58,7 +58,7 @@ class I18n:
                 "nav.about": "关于",
                 
                 # ===== 首页 =====
-                "home.welcome": "欢迎使用 VideoForge",
+                "home.welcome": "欢迎使用 Narrafiilm",
                 "home.subtitle": "AI 驱动的专业视频创作平台",
                 "home.new_project": "新建项目",
                 "home.import": "导入素材",
@@ -232,7 +232,7 @@ class I18n:
                 "nav.about": "About",
                 
                 # ===== Home =====
-                "home.welcome": "Welcome to VideoForge",
+                "home.welcome": "Welcome to Narrafiilm",
                 "home.subtitle": "AI-Powered Video Creation Platform",
                 "home.new_project": "New Project",
                 "home.import": "Import Media",
@@ -406,7 +406,7 @@ class I18n:
                 "nav.about": "概要",
                 
                 # ===== Home =====
-                "home.welcome": "VideoForgeへようこそ",
+                "home.welcome": "Narrafiilmへようこそ",
                 "home.subtitle": "AI搭載の動画作成プラットフォーム",
                 "home.new_project": "新規プロジェクト",
                 "home.import": "メディアをインポート",
@@ -477,7 +477,7 @@ class I18n:
                 "nav.about": "정보",
                 
                 # ===== Home =====
-                "home.welcome": "VideoForge에 오신 것을 환영합니다",
+                "home.welcome": "Narrafiilm에 오신 것을 환영합니다",
                 "home.subtitle": "AI 기반 비디오 제작 플랫폼",
                 "home.new_project": "새 프로젝트",
                 "home.import": "미디어 가져오기",
@@ -548,7 +548,7 @@ class I18n:
                 "nav.about": "關於",
                 
                 # ===== 首頁 =====
-                "home.welcome": "歡迎使用 VideoForge",
+                "home.welcome": "歡迎使用 Narrafiilm",
                 "home.subtitle": "AI 驅動的專業影片創作平台",
                 "home.new_project": "新建專案",
                 "home.import": "匯入素材",

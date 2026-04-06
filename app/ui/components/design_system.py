@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge 设计系统 - 统一 UI 组件
+Narrafiilm 设计系统 - 统一 UI 组件
 """
 
 from PySide6.QtWidgets import (
@@ -12,7 +12,7 @@ from PySide6.QtCore import Qt
 
 
 class DesignSystem:
-    """设计系统常量 - VideoForge 现代暗色主题"""
+    """设计系统常量 - Narrafiilm 现代暗色主题"""
 
     COLORS = {
         # 主色调 - GitHub 风格暗色
@@ -98,7 +98,7 @@ class DesignSystem:
 
 
 class StyleSheet:
-    """样式生成器 - VideoForge 现代暗色主题"""
+    """样式生成器 - Narrafiilm 现代暗色主题"""
 
     @staticmethod
     def button(variant="primary"):
@@ -255,7 +255,7 @@ class StyleSheet:
 
 
 class CFButton(QPushButton):
-    """VideoForge 按钮"""
+    """Narrafiilm 按钮"""
     
     def __init__(self, text="", variant="primary", icon="", parent=None):
         super().__init__(text, parent)
@@ -266,7 +266,7 @@ class CFButton(QPushButton):
 
 
 class CFLabel(QLabel):
-    """VideoForge 标签"""
+    """Narrafiilm 标签"""
     
     def __init__(self, text="", secondary=False, parent=None):
         super().__init__(text, parent)
@@ -274,7 +274,7 @@ class CFLabel(QLabel):
 
 
 class CFCard(QWidget):
-    """VideoForge 卡片"""
+    """Narrafiilm 卡片"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -282,7 +282,7 @@ class CFCard(QWidget):
 
 
 class CFPanel(QWidget):
-    """VideoForge 面板"""
+    """Narrafiilm 面板"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -290,7 +290,7 @@ class CFPanel(QWidget):
 
 
 class CFInput(QLineEdit):
-    """VideoForge 输入框"""
+    """Narrafiilm 输入框"""
     
     def __init__(self, placeholder="", parent=None):
         super().__init__(parent)
@@ -299,7 +299,7 @@ class CFInput(QLineEdit):
 
 
 class CFProgressBar(QProgressBar):
-    """VideoForge 进度条"""
+    """Narrafiilm 进度条"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -307,7 +307,7 @@ class CFProgressBar(QProgressBar):
 
 
 class CFNavButton(CFButton):
-    """VideoForge 导航按钮"""
+    """Narrafiilm 导航按钮"""
     
     def __init__(self, text="", icon="", selected=False, parent=None):
         super().__init__(text, variant="ghost", parent=parent)

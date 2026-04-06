@@ -1,15 +1,15 @@
 # Developer Guide
 
-> VideoForge Developer Documentation
+> Narrafiilm Developer Documentation
 
 ## Overview
 
-VideoForge is an AI-driven video creation desktop application built with Python and PyQt6.
+Narrafiilm is an AI-driven video creation desktop application built with Python and PyQt6.
 
 ## Project Structure
 
 ```
-VideoForge/
+Narrafiilm/
 ├── app/              # Application source code
 ├── core/             # Core business logic
 ├── ui/               # User interface (PyQt6)

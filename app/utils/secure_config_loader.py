@@ -45,9 +45,9 @@ class SecureConfigLoader:
         self._load_environment(env_file)
         
         self.allowed_dirs = allowed_dirs or [
-            os.path.expanduser("~/.videoforge"),
-            os.path.expanduser("~/VideoForge"),
-            "/etc/videoforge",
+            os.path.expanduser("~/.narrafiilm"),
+            os.path.expanduser("~/Narrafiilm"),
+            "/etc/narrafiilm",
             os.path.join(os.path.dirname(__file__), '..', '..', 'config')
         ]
         self.allowed_dirs = [os.path.abspath(d) for d in self.allowed_dirs]

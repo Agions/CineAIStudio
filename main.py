@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-VideoForge - AI Video Editor
+Narrafiilm - AI Video Editor
 Copyright (c) 2025 Agions. All rights reserved.
 Licensed under the MIT License.
 """

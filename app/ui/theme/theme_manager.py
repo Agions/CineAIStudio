@@ -12,7 +12,7 @@ from ...core.config_manager import ThemeConfig
 
 @dataclass
 class ThemeColors:
-    """主题颜色 - VideoForge 现代暗色"""
+    """主题颜色 - Narrafiilm 现代暗色"""
     primary: str = "#388BFD"
     secondary: str = "#1F6FEB"
     background: str = "#0D1117"
@@ -64,7 +64,7 @@ class ThemeManager(QObject):
 
     def _initialize_theme_presets(self) -> None:
         """初始化主题预设"""
-        # 深色主题预设 - VideoForge 现代暗色
+        # 深色主题预设 - Narrafiilm 现代暗色
         dark_colors = ThemeColors(
             primary="#388BFD",
             secondary="#1F6FEB",

@@ -40,11 +40,11 @@ class VideoThumbnailCache:
         初始化缩略图缓存
 
         Args:
-            cache_dir: 缓存目录，默认 ~/.cache/videoforge/thumbnails
+            cache_dir: 缓存目录，默认 ~/.cache/narrafiilm/thumbnails
             max_cache_size: 最大缓存大小，默认 500MB
         """
         if cache_dir is None:
-            cache_dir = os.path.expanduser("~/.cache/videoforge/thumbnails")
+            cache_dir = os.path.expanduser("~/.cache/narrafiilm/thumbnails")
 
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)

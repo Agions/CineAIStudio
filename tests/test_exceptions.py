@@ -5,7 +5,7 @@ import pytest
 
 from app.core.exceptions import (
     ErrorCode,
-    VideoForgeError,
+    NarrafiilmError,
     LLMError,
     ConfigError,
     FileError,
@@ -37,12 +37,12 @@ class TestErrorCode:
         assert ErrorCode.FILE_WRITE_ERROR.value == "FILE003"
 
 
-class TestVideoForgeError:
+class TestNarrafiilmError:
     """测试基础异常类"""
 
     def test_basic_creation(self):
         """测试基本创建"""
-        err = VideoForgeError(
+        err = NarrafiilmError(
             code=ErrorCode.UNKNOWN_ERROR,
             message="测试错误"
         )
@@ -54,7 +54,7 @@ class TestVideoForgeError:
 
     def test_with_details(self):
         """测试带详情的错误"""
-        err = VideoForgeError(
+        err = NarrafiilmError(
             code=ErrorCode.FILE_NOT_FOUND,
             message="文件未找到",
             details={"path": "/test/file.mp4"},
@@ -66,7 +66,7 @@ class TestVideoForgeError:
 
     def test_str_representation(self):
         """测试字符串表示"""
-        err = VideoForgeError(
+        err = NarrafiilmError(
             code=ErrorCode.CONFIG_MISSING,
             message="配置缺失"
         )

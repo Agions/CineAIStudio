@@ -331,7 +331,7 @@ class BatchStoryProcessor:
 
         output_path = output_dir or self.output_dir
         if not output_path:
-            output_path = Path.home() / ".videoforge" / "exports"
+            output_path = Path.home() / ".narrafiilm" / "exports"
         else:
             output_path = Path(output_path)
 
@@ -406,7 +406,7 @@ class BatchStoryProcessor:
         """
         output_path = output_dir or self.output_dir
         if not output_path:
-            output_path = Path.home() / ".videoforge" / "exports"
+            output_path = Path.home() / ".narrafiilm" / "exports"
         else:
             output_path = Path(output_path)
 
