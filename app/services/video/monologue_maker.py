@@ -26,7 +26,6 @@ AI 第一人称独白制作器 (Monologue Maker)
 
 import os
 import re
-import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional, List, Dict
@@ -37,6 +36,7 @@ from .base_maker import BaseVideoMaker, BaseProject
 from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
 from ..video_tools.caption_generator import CaptionGenerator
+from ..video_tools.ffmpeg_tool import FFmpegTool
 from ..export.jianying_exporter import (
     JianyingDraft,
     Track, TrackType, Segment, TimeRange,
@@ -318,6 +318,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self.voice_provider = voice_provider
 
         self.voice_generator = VoiceGenerator(provider=voice_provider)
+        self.script_generator = ScriptGenerator(use_llm_manager=True)
         self.caption_generator = CaptionGenerator()
     
     def create_project(
@@ -365,10 +366,8 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         if custom_script:
             project.full_script = custom_script
         else:
-            # 使用 LLMManager（DeepSeek-V3 默认）
-            script_generator = ScriptGenerator(use_llm_manager=True)
-
-            result = script_generator.generate_monologue(
+            # 复用预建的 script_generator（避免每次重新加载配置）
+            result = self.script_generator.generate_monologue(
                 context=project.context,
                 emotion=project.emotion,
                 duration=project.video_duration,
@@ -685,16 +684,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     # ------------------------------------------------------------------ #
 
     def _get_video_duration(self, video_path: str) -> float:
-        """通过 ffprobe 获取视频时长（秒），失败返回 0.0"""
-        cmd = [
-            'ffprobe', '-v', 'error',
-            '-show_entries', 'format=duration',
-            '-of', 'default=noprint_wrappers=1:nokey=1',
-            video_path,
-        ]
+        """通过 FFmpegTool 获取视频时长（秒），失败返回 0.0"""
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-            return float(result.stdout.strip())
+            return FFmpegTool.get_duration(video_path) or 0.0
         except Exception:
             return 0.0
 

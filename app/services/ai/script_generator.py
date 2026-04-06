@@ -256,19 +256,22 @@ class ScriptGenerator:
         config = config or ScriptConfig()
 
         if self.use_llm_manager:
-            # 新架构：使用 LLMManager (异步包装为同步)
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
+            # 新架构：使用 LLMManager（异步包装为同步）
+            # 避免在已有 event loop 的线程中调用 run_until_complete
+            async def _run():
+                result = await self._generate_async(topic, config)
+                await self.llm_manager.close_all()
+                return result
 
             try:
-                raw_content, provider_used = loop.run_until_complete(
-                    self._generate_async(topic, config)
-                )
-            finally:
-                loop.run_until_complete(self.llm_manager.close_all())
+                asyncio.get_running_loop()
+                # 已有 loop，在新线程中运行
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    raw_content, provider_used = pool.submit(asyncio.run, _run()).result()
+            except RuntimeError:
+                # 没有运行中的 loop
+                raw_content, provider_used = asyncio.run(_run())
 
         else:
             # 传统方式
