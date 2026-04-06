@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-通义千问 Qwen 3.5 提供商
-支持 Qwen 3.5 系列模型 (2026.02 最新)
+通义千问 Qwen 提供商
+支持 Qwen Plus/Max/Turbo 等模型 (2026.03 最新)
 
 优化:
 - asyncio.gather 批量并发处理 ✅
@@ -37,40 +37,40 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     # 模型管理混入需要
     MODELS = {
-        "qwen3.5": {
-            "name": "Qwen 3.5",
-            "description": "397B MoE 原生多模态模型，Agent AI 时代 (2026.02.16)",
-            "max_tokens": 8000,
-            "context_length": 128000,
-            "vision": True,
-        },
         "qwen-plus": {
             "name": "Qwen Plus",
-            "description": "综合最佳模型",
+            "description": "综合最佳模型，32K context",
             "max_tokens": 8000,
             "context_length": 32000,
         },
-        "qwen3-max": {
-            "name": "Qwen 3 Max",
-            "description": "最强性能模型",
+        "qwen-max": {
+            "name": "Qwen Max",
+            "description": "最强性能模型，128K context",
             "max_tokens": 8000,
             "context_length": 128000,
         },
-        "qwen-flash": {
-            "name": "Qwen Flash",
-            "description": "超快响应模型",
+        "qwen-turbo": {
+            "name": "Qwen Turbo",
+            "description": "高性价比，响应最快",
             "max_tokens": 6000,
             "context_length": 32000,
         },
-        "qwq-plus": {
-            "name": "QwQ Plus",
+        "qwq-32b": {
+            "name": "QwQ 32B",
             "description": "推理能力模型",
             "max_tokens": 32768,
             "context_length": 32768,
             "reasoning": True,
         },
+        "qwen-vl-plus": {
+            "name": "Qwen VL Plus",
+            "description": "视觉理解版本",
+            "max_tokens": 8000,
+            "context_length": 32000,
+            "vision": True,
+        },
     }
-    DEFAULT_MODEL = "qwen3.5"
+    DEFAULT_MODEL = "qwen-plus"
 
     def __init__(
         self,

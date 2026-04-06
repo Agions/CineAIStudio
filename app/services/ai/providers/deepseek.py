@@ -33,24 +33,18 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     # 可用模型列表 (2026年3月最新)
     MODELS = {
+        "deepseek-chat": {
+            "name": "DeepSeek V3",
+            "description": "最新基础模型，多任务能力强 (2026.03)",
+            "max_tokens": 16384,
+            "context_length": 64000,
+        },
         "deepseek-reasoner": {
             "name": "DeepSeek R1",
             "description": "推理模型，数学和代码能力强大，适合复杂推理任务 (2026.03)",
             "max_tokens": 32768,
             "context_length": 64000,
             "reasoning": True,
-        },
-        "deepseek-v3-2": {
-            "name": "DeepSeek V3.2",
-            "description": "最新基础模型，多任务能力强 (2026.03)",
-            "max_tokens": 16384,
-            "context_length": 64000,
-        },
-        "deepseek-chat": {
-            "name": "DeepSeek Chat",
-            "description": "通用对话模型",
-            "max_tokens": 4096,
-            "context_length": 64000,
         },
         "deepseek-coder": {
             "name": "DeepSeek Coder",
@@ -67,7 +61,7 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     }
 
     # 默认模型
-    DEFAULT_MODEL = "deepseek-v3-2"
+    DEFAULT_MODEL = "deepseek-chat"
 
     def __init__(
         self,
