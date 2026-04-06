@@ -349,9 +349,9 @@ class ScriptGenerator:
             messages.append({"role": "user", "content": user_prompt})
 
             response = client.chat.completions.create(
-                model="gpt-4",
+                model=config.model or "gpt-4",
                 messages=messages,
-                temperature=0.7,
+                temperature=config.temperature if hasattr(config, 'temperature') else 0.7,
                 max_tokens=2000,
             )
 

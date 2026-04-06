@@ -368,15 +368,6 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             # 使用 LLMManager（DeepSeek-V3 默认）
             script_generator = ScriptGenerator(use_llm_manager=True)
 
-            # 获取风格配置
-            style_cfg = self.STYLE_CONFIG.get(
-                project.style,
-                self.STYLE_CONFIG[MonologueStyle.MELANCHOLIC]
-            )
-
-            # 构建主题（generate_monologue 内部会加提示词）
-            topic = f"场景: {project.context}\n情感: {project.emotion}"
-
             result = script_generator.generate_monologue(
                 context=project.context,
                 emotion=project.emotion,
@@ -391,8 +382,6 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     
     def _segment_script(self, project: MonologueProject) -> None:
         """将独白分段 — 支持空白行和中文句末标点双重拆分"""
-        import re
-
         # 优先按空白行分段，否则按中文句末标点分
         paragraphs = [p.strip() for p in project.full_script.split('\n\n') if p.strip()]
 

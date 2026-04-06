@@ -204,7 +204,16 @@ class EdgeTTSProvider(TTSProvider):
                 for chunk in audio_chunks:
                     f.write(chunk)
 
-        asyncio.run(_generate())
+        # 避免 asyncio.run() 与已有 event loop 冲突
+        try:
+            asyncio.get_running_loop()
+            # 已有 loop，在新线程中运行（EdgeTTS 必须在自己的 loop 中）
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(asyncio.run, _generate()).result()
+        except RuntimeError:
+            # 没有运行中的 loop，可以安全用 asyncio.run()
+            asyncio.run(_generate())
 
         # 获取音频时长
         duration = self._get_audio_duration(output_path)
