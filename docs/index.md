@@ -141,7 +141,7 @@ features:
 </section>
 
 <div class="nf-stats">
-  <div class="nf-stat"><div class="nf-stat-value">v3.3.0</div><div class="nf-stat-label">最新版本</div></div>
+  <div class="nf-stat"><div class="nf-stat-value">v3.4.0</div><div class="nf-stat-label">最新版本</div></div>
   <div class="nf-stat-sep">|</div>
   <div class="nf-stat"><div class="nf-stat-value">MIT</div><div class="nf-stat-label">开源协议</div></div>
   <div class="nf-stat-sep">|</div>

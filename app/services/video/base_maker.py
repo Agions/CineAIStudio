@@ -117,12 +117,19 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
             copy_materials=True,
         ))
 
+        self._report_progress("构建轨道", 0.0)
         draft = exporter.create_draft(project.name)
 
         # 子类可重写此方法来添加自定义轨道
         self._build_jianying_tracks(draft, project)
+        self._report_progress("构建轨道", 1.0)
 
-        draft_path = exporter.export(draft, jianying_drafts_dir)
+        def _on_exporter_progress(phase: str, phase_p: float):
+            # 将导出器的子阶段映射到 0.5-1.0
+            overall_p = 0.5 + phase_p * 0.5
+            self._report_progress(f"导出: {phase}", overall_p)
+
+        draft_path = exporter.export(draft, jianying_drafts_dir, progress_callback=_on_exporter_progress)
         self._report_progress("导出剪映", 1.0)
 
         return draft_path

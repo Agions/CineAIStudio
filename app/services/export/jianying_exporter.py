@@ -399,39 +399,55 @@ class JianyingExporter:
         }
         return configs.get(ratio, configs["9:16"])
     
-    def export(self, draft: JianyingDraft, output_dir: str) -> str:
+    def export(
+        self,
+        draft: JianyingDraft,
+        output_dir: str,
+        progress_callback=None,
+    ) -> str:
         """
         导出草稿到指定目录
-        
+
         Args:
             draft: 剪映草稿对象
             output_dir: 输出目录（剪映草稿目录）
-            
+            progress_callback: 进度回调 fn(phase: str, progress: float)
+
         Returns:
             草稿文件夹路径
         """
+        def _report(phase: str, p: float):
+            if progress_callback:
+                progress_callback(phase, p)
+
         output_path = Path(output_dir)
-        
+
         # 创建草稿文件夹（使用项目名称）
         safe_name = self._safe_filename(draft.name)
         draft_folder = output_path / safe_name
         draft_folder.mkdir(parents=True, exist_ok=True)
-        
+
         # 复制素材（如果启用）
         if self.config.copy_materials:
+            _report("复制素材", 0.0)
             self._copy_materials(draft, draft_folder)
-        
+            _report("复制素材", 1.0)
+
         # 生成 draft_content.json
+        _report("生成草稿配置", 0.0)
         content = draft.to_draft_content()
         content_path = draft_folder / "draft_content.json"
         self._write_json(content_path, content)
-        
+        _report("生成草稿配置", 1.0)
+
         # 生成 draft_meta_info.json
+        _report("写入元信息", 0.0)
         meta = draft.to_draft_meta_info()
         meta["draft_root_path"] = str(draft_folder)
         meta_path = draft_folder / "draft_meta_info.json"
         self._write_json(meta_path, meta)
-        
+        _report("写入元信息", 1.0)
+
         return str(draft_folder)
     
     def _safe_filename(self, name: str) -> str:

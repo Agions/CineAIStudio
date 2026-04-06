@@ -16,9 +16,17 @@ transition_effects
 """
 
 from .base_maker import BaseVideoMaker
-from .monologue_maker import MonologueMaker
+from .monologue_maker import (
+    MonologueMaker,
+    MonologueProject,
+    MonologueSegment,
+    MonologueStyle,
+)
 
 __all__ = [
     "BaseVideoMaker",
     "MonologueMaker",
+    "MonologueProject",
+    "MonologueSegment",
+    "MonologueStyle",
 ]

@@ -7,7 +7,7 @@ LLM 管理器
 """
 
 import logging
-from typing import Dict, Optional, List, Any
+from typing import Dict, Optional, List, Any, AsyncIterator
 
 
 from .base_llm_provider import (
@@ -241,6 +241,65 @@ class LLMManager:
         for provider_type, provider in self.providers.items():
             results[provider_type] = provider.health_check()
         return results
+
+    async def stream_generate(
+        self,
+        prompt: str,
+        system_prompt: str = "",
+        model: str = "default",
+        max_tokens: int = 2000,
+        temperature: float = 0.7,
+        provider: Optional[ProviderType] = None,
+    ) -> AsyncIterator[dict]:
+        """
+        流式生成文本（仅支持 DeepSeek，其他提供商回退到非流式）
+
+        Args:
+            prompt: 用户提示词
+            system_prompt: 系统提示词
+            model: 模型名
+            max_tokens: 最大 token 数
+            temperature: 温度
+            provider: 指定提供商（默认 DeepSeek）
+
+        Yields:
+            dict: {'content': str, 'done': bool}
+        """
+        if provider is None:
+            provider = self._default_provider
+
+        provider_instance = self.providers.get(provider)
+        if not provider_instance:
+            # 回退到 DeepSeek
+            provider = ProviderType.DEEPSEEK
+            provider_instance = self.providers.get(provider)
+            if not provider_instance:
+                return
+
+        # 检查是否支持流式
+        if not hasattr(provider_instance, "stream_generate"):
+            # 不支持流式，回退到普通 generate
+            request = LLMRequest(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+            )
+            response = await provider_instance.generate(request)
+            yield {"done": False, "content": response.content}
+            yield {"done": True, "content": ""}
+            return
+
+        request = LLMRequest(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        async for chunk in provider_instance.stream_generate(request):
+            yield chunk
 
     async def close_all(self):
         """关闭所有提供商的连接"""

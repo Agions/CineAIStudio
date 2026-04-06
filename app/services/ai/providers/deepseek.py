@@ -7,7 +7,7 @@ DeepSeek 提供商
 """
 
 import httpx
-from typing import List
+from typing import List, AsyncIterator, Optional
 
 from ..base_llm_provider import (
     BaseLLMProvider,
@@ -157,6 +157,58 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     ) -> List[LLMResponse]:
         """批量生成"""
         return await super().generate_batch(requests)
+
+    async def stream_generate(
+        self,
+        request: LLMRequest,
+    ) -> AsyncIterator[dict]:
+        """
+        流式生成文本（支持 SSE）
+
+        Yields:
+            dict: 增量片段 {'content': str, 'done': bool}
+        """
+        model = self._get_model_name(request.model)
+        messages = self._build_messages(request)
+
+        api_request = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": request.max_tokens,
+            "temperature": request.temperature,
+            "stream": True,
+        }
+
+        try:
+            async with self.http_client.stream(
+                "POST",
+                f"{self.base_url}/chat/completions",
+                json=api_request,
+                timeout=120.0,
+            ) as response:
+                response.raise_for_status()
+                async for line in response.aiter_lines():
+                    line = line.strip()
+                    if not line or line.startswith(":"):
+                        continue
+                    if line.startswith("data: "):
+                        line = line[6:]
+                    if line == "[DONE]":
+                        yield {"done": True, "content": ""}
+                        return
+                    import json
+                    try:
+                        data = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    delta = data.get("choices", [{}])[0].get("delta", {})
+                    content = delta.get("content", "")
+                    if content:
+                        yield {"done": False, "content": content}
+        except httpx.HTTPStatusError as e:
+            raise self._handle_http_error(e)
+        except Exception as e:
+            raise ProviderError(f"流式生成失败: {str(e)}")
 
     async def count_tokens(self, text: str) -> int:
         """计算 token 数量（估算）"""

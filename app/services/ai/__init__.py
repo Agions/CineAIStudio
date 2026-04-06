@@ -47,6 +47,7 @@ from .subtitle_extractor import (
 
 # ASR
 from .sensevoice_provider import SenseVoiceProvider
+from .whisper_asr_provider import WhisperASRProvider, TranscriptionResult, TranscriptSegment
 
 # 缓存
 from .cache import LLMMemoryCache
@@ -83,6 +84,9 @@ __all__ = [
 
     # ASR
     "SenseVoiceProvider",
+    "WhisperASRProvider",
+    "TranscriptionResult",
+    "TranscriptSegment",
 
     # Cache
     "LLMMemoryCache",
