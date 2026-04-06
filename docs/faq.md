@@ -14,7 +14,7 @@ description: Narrafiilm 使用中的常见问题解答。
 GitHub Releases 国内访问较慢，可使用代理：
 ```bash
 # 使用 ghproxy
-wget https://ghproxy.com/https://github.com/Agions/Narrafiilm/releases/download/v3.2.0/Narrafiilm-x.x.x.AppImage
+wget https://ghproxy.com/https://github.com/Agions/Narrafiilm/releases/download/v3.3.0/Narrafiilm-x.x.x.AppImage
 ```
 
 或使用 Gitee 镜像（如有同步）。
