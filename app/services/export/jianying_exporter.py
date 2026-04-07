@@ -664,8 +664,12 @@ class JianyingExporter:
         使用 FFmpegTool 获取视频的时长、分辨率等信息
         """
         try:
-            duration = FFmpegTool.get_duration(video_path) or 0.0
-            width, height = FFmpegTool.get_resolution(video_path)
+            info = FFmpegTool.get_video_info(video_path)
+            video_stream = next((s for s in info.get('streams', []) if s.get('codec_type') == 'video'), {})
+            duration_str = info.get('format', {}).get('duration', '0')
+            duration = float(duration_str) if duration_str else 0.0
+            width = int(video_stream.get('width', 1920))
+            height = int(video_stream.get('height', 1080))
             return {
                 'width': width,
                 'height': height,

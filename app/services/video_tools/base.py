@@ -88,9 +88,15 @@ class BaseVideoProcessor(IVideoProcessor):
         """分析视频获取元数据"""
         from .ffmpeg_tool import FFmpegTool
 
-        duration = FFmpegTool.get_duration(video_path)
-        width, height = FFmpegTool.get_resolution(video_path)
-        fps = FFmpegTool.get_framerate(video_path)
+        info = FFmpegTool.get_video_info(video_path)
+        video_stream = next((s for s in info.get('streams', []) if s.get('codec_type') == 'video'), {})
+        format_info = info.get('format', {})
+        duration = float(format_info.get('duration') or 0)
+        width = video_stream.get('width', 0) or 0
+        height = video_stream.get('height', 0) or 0
+        fps_str = video_stream.get('r_frame_rate', '0/1')
+        num, denom = fps_str.split('/')
+        fps = float(num) / float(denom) if float(denom) != 0 else 0.0
 
         # 获取文件大小
         size_bytes = 0
@@ -99,8 +105,7 @@ class BaseVideoProcessor(IVideoProcessor):
         except OSError:
             pass
 
-        # 获取码率
-        bitrate = FFmpegTool.get_bitrate(video_path)
+        bitrate = int(format_info.get('bit_rate') or 0)
 
         return VideoMetadata(
             path=video_path,
