@@ -338,10 +338,10 @@ def demo_export():
         use_hw_accel=True,
     ))
     
-    print("VideoExporter 已初始化")
-    print(f"  格式: {exporter.config.format.value}")
-    print(f"  分辨率: {exporter.config.width}x{exporter.config.height}")
-    print(f"  硬件加速: {exporter.config.use_hw_accel}")
+    logger.info("VideoExporter 已初始化")
+    logger.info(f"  格式: {exporter.config.format.value}")
+    logger.info(f"  分辨率: {exporter.config.width}x{exporter.config.height}")
+    logger.info(f"  硬件加速: {exporter.config.use_hw_accel}")
 
 
 if __name__ == '__main__':

@@ -467,7 +467,7 @@ class DirectVideoExporter:
             output_name = f"{project_name}_{resolution.name}.mp4"
             output_path = output_dir / output_name
 
-            print(f"导出 {resolution.name}...")
+            logger.info(f"导出 {resolution.name}...")
             self.export_commentary(
                 project,
                 str(output_path),
@@ -517,31 +517,31 @@ class DirectVideoExporter:
 
 def demo_export():
     """演示视频导出"""
-    print("=" * 60)
-    print("🎬 直接视频导出器")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("🎬 直接视频导出器")
+    logger.info("=" * 60)
 
     exporter = DirectVideoExporter()
 
     # 检测硬件加速
     hw_accel = exporter.get_system_hw_accel()
-    print(f"\n检测到的硬件加速: {hw_accel.value}")
+    logger.info(f"检测到的硬件加速: {hw_accel.value}")
 
     # 显示可用分辨率
-    print("\n可用分辨率:")
+    logger.info("可用分辨率:")
     for res in Resolution:
-        print(f"  - {res.name}: {res.width}x{res.height}")
+        logger.info(f"  - {res.name}: {res.width}x{res.height}")
 
-    print("\n导出配置示例:")
+    logger.info("导出配置示例:")
     config = VideoExportConfig(
         resolution=Resolution.VERTICAL_1080P,
         hw_accel=hw_accel,
         video_bitrate="8M",
     )
-    print(f"  分辨率: {config.resolution.name}")
-    print(f"  编码器: {config.video_codec.value}")
-    print(f"  硬件加速: {config.hw_accel.value}")
-    print(f"  视频码率: {config.video_bitrate}")
+    logger.info(f"  分辨率: {config.resolution.name}")
+    logger.info(f"  编码器: {config.video_codec.value}")
+    logger.info(f"  硬件加速: {config.hw_accel.value}")
+    logger.info(f"  视频码率: {config.video_bitrate}")
 
 
 if __name__ == '__main__':

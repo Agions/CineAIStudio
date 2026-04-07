@@ -270,28 +270,28 @@ class LLMPerformanceMonitor:
         """打印统计信息"""
         stats = self.get_stats()
 
-        print("\n📊 LLM 性能统计")
-        print("=" * 50)
-        print(f"总请求数: {stats['total_requests']}")
-        print(f"成功请求: {stats['successful_requests']}")
+        logger.info("📊 LLM 性能统计")
+        logger.info("=" * 50)
+        logger.info(f"总请求数: {stats['total_requests']}")
+        logger.info(f"成功请求: {stats['successful_requests']}")
         logger.warning(f"失败请求: {stats['failed_requests']}")
 
         if "success_rate" in stats:
-            print(f"成功率: {stats['success_rate']:.1%}")
+            logger.info(f"成功率: {stats['success_rate']:.1%}")
 
-        print(f"\n缓存命中: {stats['cache_hits']}")
-        print(f"缓存未命中: {stats['cache_misses']}")
+        logger.info(f"缓存命中: {stats['cache_hits']}")
+        logger.info(f"缓存未命中: {stats['cache_misses']}")
 
         if "cache_hit_rate" in stats:
-            print(f"缓存命中率: {stats['cache_hit_rate']:.1%}")
+            logger.info(f"缓存命中率: {stats['cache_hit_rate']:.1%}")
 
-        print(f"\n总 Token 数: {stats['total_tokens']}")
-        print(f"估计成本: ¥{stats['estimated_cost']:.2f}")
+        logger.info(f"总 Token 数: {stats['total_tokens']}")
+        logger.info(f"估计成本: ¥{stats['estimated_cost']:.2f}")
 
         if stats['avg_response_time'] > 0:
-            print(f"平均响应时间: {stats['avg_response_time']:.2f} 秒")
+            logger.info(f"平均响应时间: {stats['avg_response_time']:.2f} 秒")
 
-        print("=" * 50)
+        logger.info("=" * 50)
 
     def reset(self) -> None:
         """重置统计信息"""

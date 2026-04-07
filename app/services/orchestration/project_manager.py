@@ -506,9 +506,9 @@ def load_project(project_path: str) -> NarrafiilmProject:
 
 def demo_project_management():
     """演示项目管理"""
-    print("=" * 50)
-    print("Narrafiilm 项目管理演示")
-    print("=" * 50)
+    logger.info("=" * 50)
+    logger.info("Narrafiilm 项目管理演示")
+    logger.info("=" * 50)
     
     manager = ProjectManager()
     
@@ -531,13 +531,13 @@ def demo_project_management():
     
     # 保存项目
     save_path = manager.save(project, "./demo_project.narrafiilm")
-    print(f"项目已保存: {save_path}")
-    
+    logger.info(f"项目已保存: {save_path}")
+
     # 加载项目
     loaded = manager.load(save_path)
-    print(f"项目已加载: {loaded.metadata.name}")
-    print(f"素材数量: {len(loaded.sources)}")
-    print(f"目标平台: {loaded.config.target_platform}")
+    logger.info(f"项目已加载: {loaded.metadata.name}")
+    logger.info(f"素材数量: {len(loaded.sources)}")
+    logger.info(f"目标平台: {loaded.config.target_platform}")
 
 
 if __name__ == '__main__':

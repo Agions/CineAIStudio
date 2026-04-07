@@ -15,7 +15,7 @@
     
     exporter = JianyingExporter()
     draft_path = exporter.export(project, output_dir)
-    print(f"草稿已导出: {draft_path}")
+    logger.info(f"草稿已导出: {draft_path}")
 """
 
 import logging
@@ -731,7 +731,7 @@ def demo_export():
     # 导出到剪映草稿目录
     # macOS: ~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft/drafts/
     output = exporter.export(draft, "/path/to/jianying/drafts")
-    print(f"草稿已导出: {output}")
+    logger.info(f"草稿已导出: {output}")
 
 
 if __name__ == '__main__':
