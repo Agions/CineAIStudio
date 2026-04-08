@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (without v, e.g. 3.4.1)'
+        required: false
 
 permissions:
   contents: write
@@ -14,29 +18,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install uv
-        run: pip install uv
+
       - name: Install dependencies
         run: |
-          uv pip install --system pyinstaller
-      - name: Build
+          pip install uv
+          uv pip install --system -e .
+
+      - name: Build with PyInstaller
         run: |
+          set -e
           pyinstaller --clean --onedir \
-            --name Narrafiilm-${GITHUB_REF#refs/tags/v} \
+            --name Narrafiilm-${{ github.ref_name }}-linux-x86_64 \
+            --add-data resources:resources \
             app/main.py
+
       - name: Package
         run: |
+          set -e
           cd dist
-          tar -czvf Narrafiilm-${GITHUB_REF#refs/tags/v}-linux-x86_64.tar.gz Narrafiilm-${GITHUB_REF#refs/tags/v}
+          tar -czvf Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.gz \
+            Narrafiilm-${{ github.ref_name }}-linux-x86_64
+          ls -la
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Narrafiilm-${{ github.ref_name }}-linux-x86_64
+          path: dist/*.tar.gz
+          retention-days: 3
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref }}
           name: Narrafiilm ${{ github.ref_name }}
           draft: false
-          files: Narrafiilm-*-linux-x86_64.tar.gz
+          files: dist/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
