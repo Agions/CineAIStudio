@@ -19,7 +19,7 @@ from PySide6.QtCore import Qt, QThread, Signal, QSize
 from PySide6.QtGui import QFont, QColor
 
 from .base_page import BasePage
-from ...services.ai import FirstPersonNarrator
+from app.services.ai._legacy.first_person_narrator import FirstPersonNarrator
 
 
 # ============================================================================
@@ -54,7 +54,7 @@ class GenerationWorker(QThread):
             self.progress_signal.emit(5, "场景理解...")
 
             # 构建项目
-            from ...services.ai import NarrationProject
+            from app.services.ai._legacy.first_person_narrator import NarrationProject
             project = NarrationProject(
                 video_path=self.video_path,
                 output_dir=self.output_dir,
