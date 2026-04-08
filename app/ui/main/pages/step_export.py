@@ -111,6 +111,7 @@ class StepExport(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._project = None
+        self._draft_path = ""
         self._export_path = ""
         self._player = None
         self._audio = None
@@ -313,11 +314,18 @@ class StepExport(QWidget):
     def set_project(self, project):
         """接收 Pipeline 完成后的 Project"""
         self._project = project
-        # 设置视频路径到播放器
-        if hasattr(project, "source_video") and project.source_video:
+
+    def set_draft_path(self, path: str):
+        """设置导出草稿路径（由 Pipeline 完成后传入）"""
+        self._draft_path = path
+        self.out_path_label.setText(f"📁 {path}") if hasattr(self, 'out_path_label') else None
+
+    def set_source_video(self, video_path: str):
+        """设置源视频路径用于预览"""
+        if video_path:
             self._player = QMediaPlayer()
             self._audio = QAudioOutput()
             self._player.setAudioOutput(self._audio)
             self._player.setVideoOutput(self.video_widget)
-            self._player.setSource(QUrl.fromLocalFile(project.source_video))
+            self._player.setSource(QUrl.fromLocalFile(video_path))
             self.play_btn.setText("▶")

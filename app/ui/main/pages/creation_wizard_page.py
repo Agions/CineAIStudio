@@ -165,6 +165,7 @@ class CreationWizardPage(BasePage):
             self._show_step(2)
             project = self._controller.current_project()
             self._step_export.set_project(project)
+            self._step_export.set_source_video(project.source_video)
         elif direction == "back":
             self._show_step(0)
 

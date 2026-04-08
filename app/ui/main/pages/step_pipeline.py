@@ -393,6 +393,8 @@ class StepPipeline(QWidget):
         self.stage_cards[PipelineStage.CAPTION.value].set_state("done", "已完成")
         self._append_log(f"✅ Pipeline 完成: {output_path}")
         self.next_btn.show()
+        # 将导出路径传递给 Step3
+        self._step_export.set_draft_path(output_path)
 
     def _on_error(self, error: str):
         self._append_log(f"❌ 错误: {error}")
