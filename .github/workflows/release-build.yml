@@ -16,6 +16,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -25,15 +26,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install uv
-          uv pip install --system -e .
+          pip install -e . pyinstaller
 
       - name: Build with PyInstaller
         run: |
           set -e
-          pyinstaller --clean --onedir \
+          python -m PyInstaller \
+            --clean \
+            --onedir \
             --name Narrafiilm-${{ github.ref_name }}-linux-x86_64 \
-            --add-data resources:resources \
+            --add-data "resources:resources" \
             app/main.py
 
       - name: Package
@@ -42,14 +44,6 @@ jobs:
           cd dist
           tar -czvf Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.gz \
             Narrafiilm-${{ github.ref_name }}-linux-x86_64
-          ls -la
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Narrafiilm-${{ github.ref_name }}-linux-x86_64
-          path: dist/*.tar.gz
-          retention-days: 3
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
