@@ -400,6 +400,4 @@ class StepPipeline(QWidget):
     def _append_log(self, msg: str):
         self.log_output.append(msg)
         # 自动滚动到底部
-        cursor = self.log_output.textCursor()
-        cursor.movePosition(cursor.MoveOperation.End)
-        self.log_output.setTextCursor(cursor)
+        self.log_output.ensureCursorVisible()

@@ -4,6 +4,8 @@ Step 1: 上传配置页
 """
 
 import os
+import json
+import subprocess
 from pathlib import Path
 
 from PySide6.QtWidgets import (
@@ -164,8 +166,6 @@ class VideoMetadataPanel(QFrame):
 
     def set_metadata(self, path: str):
         """从视频文件路径提取元数据"""
-        import subprocess, re
-
         try:
             result = subprocess.run(
                 [
@@ -174,7 +174,6 @@ class VideoMetadataPanel(QFrame):
                 ],
                 capture_output=True, text=True, timeout=10
             )
-            import json
             data = json.loads(result.stdout)
             fmt = data.get("format", {})
 
@@ -203,9 +202,9 @@ class VideoMetadataPanel(QFrame):
             # 格式
             fmt_name = fmt.get("format_name", "")
             self.labels["format"].setText(fmt_name.split(",")[0])
-        except Exception:
-            for lbl in self.labels.values():
-                lbl.setText("未知")
+        except (subprocess.TimeoutExpired, FileNotFoundError, json.JSONDecodeError, KeyError):
+            # ffprobe 不可用或解析失败，静默跳过（元数据保持显示 "—"）
+            pass
 
 
 class StepUpload(QWidget):
@@ -400,7 +399,11 @@ class StepUpload(QWidget):
             MonologueStyle.MELANCHOLIC
         )
 
-        output_dir = self.out_input.text() or os.path.expanduser("~/Narrafiilm")
+        from datetime import date
+        default_dir = os.path.join(
+            os.path.expanduser("~"), "Narrafiilm", str(date.today())
+        )
+        output_dir = self.out_input.text() or default_dir
         self.config_ready.emit(
             self._video_path,
             self.ctx_input.text(),

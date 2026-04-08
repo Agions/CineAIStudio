@@ -112,6 +112,8 @@ class StepExport(QWidget):
         super().__init__(parent)
         self._project = None
         self._export_path = ""
+        self._player = None
+        self._audio = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -283,13 +285,13 @@ class StepExport(QWidget):
         layout.addLayout(btn_layout)
 
     def _toggle_playback(self):
-        if not self._project:
+        if not self._player:
             return
-        if self.player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            self.player.pause()
+        if self._player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self._player.pause()
             self.play_btn.setText("▶")
         else:
-            self.player.play()
+            self._player.play()
             self.play_btn.setText("⏸")
 
     def _on_sub_style_selected(self, style_id: str):
@@ -313,9 +315,9 @@ class StepExport(QWidget):
         self._project = project
         # 设置视频路径到播放器
         if hasattr(project, "source_video") and project.source_video:
-            self.player = QMediaPlayer()
-            self.audio = QAudioOutput()
-            self.player.setAudioOutput(self.audio)
-            self.player.setVideoOutput(self.video_widget)
-            self.player.setSource(QUrl.fromLocalFile(project.source_video))
+            self._player = QMediaPlayer()
+            self._audio = QAudioOutput()
+            self._player.setAudioOutput(self._audio)
+            self._player.setVideoOutput(self.video_widget)
+            self._player.setSource(QUrl.fromLocalFile(project.source_video))
             self.play_btn.setText("▶")
