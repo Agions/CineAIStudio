@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QListWidget, QListWidgetItem, QProgressBar,
     QSizePolicy, QSpacerItem, QAbstractItemView
 )
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal, QSize, QTimer
 from PySide6.QtGui import QFont, QCursor
 
 from app.ui.components import MacCard, MacTitleLabel
@@ -124,21 +124,27 @@ class StageCard(QFrame):
         self.sub_label.setText(f"{pct}%")
 
     def _start_animation(self):
-        # 脉冲动画（透明度）
-        from PySide6.QtCore import QPropertyAnimation, QEasingCurve
-        self._anim = QPropertyAnimation(self, b"windowOpacity")
-        self._anim.setDuration(1000)
-        self._anim.setStartValue(1.0)
-        self._anim.setKeyValueAt(0.5, 0.7)
-        self._anim.setEndValue(1.0)
-        self._anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
-        self._anim.setLoopCount(-1)  # 无限循环
-        self._anim.start()
+        # 简单的边框颜色脉冲动画
+        from PySide6.QtCore import QTimer
+        self._anim_toggle = False
+        if hasattr(self, "_anim_timer"):
+            self._anim_timer.stop()
+        self._anim_timer = QTimer(self)
+        self._anim_timer.timeout.connect(self._pulse_border)
+        self._anim_timer.start(500)  # 每500ms切换一次
+
+    def _pulse_border(self):
+        self._anim_toggle = not self._anim_toggle
+        color = "#58A6FF" if self._anim_toggle else "#388BFD"
+        self.setStyleSheet(
+            "QFrame { background: #0D1117; border: 2px solid "
+            + color + "; border-radius: 12px; }"
+        )
 
     def _stop_animation(self):
-        if hasattr(self, "_anim"):
-            self._anim.stop()
-            self.setWindowOpacity(1.0)
+        if hasattr(self, "_anim_timer"):
+            self._anim_timer.stop()
+        self._apply_style()  # 恢复原始状态
 
 
 class ScriptEditor(QWidget):

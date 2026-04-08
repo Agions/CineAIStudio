@@ -135,11 +135,16 @@ class CreationWizardPage(BasePage):
         self._step_upload.config_ready.connect(self._start_pipeline)
         self._step_pipeline.bind_controller(self._controller)
         self._step_pipeline.finished.connect(self._on_pipeline_step_finished)
-        self._step_export.restart_requested.connect(lambda: self._show_step(0))
+        self._step_export.restart_requested.connect(self._restart_wizard)
 
     def activate(self) -> None:
         """页面激活"""
         super().activate()
+
+    def _restart_wizard(self):
+        """重置 Pipeline，回到 Step1 开始新项目"""
+        self._controller.reset()
+        self._show_step(0)
 
     def _show_step(self, index: int):
         self.step_indicator.set_current(index)
