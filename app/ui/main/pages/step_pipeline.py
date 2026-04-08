@@ -340,7 +340,16 @@ class StepPipeline(QWidget):
         layout.addLayout(btn_layout)
 
     def bind_controller(self, controller):
-        """绑定 PipelineController"""
+        """绑定 PipelineController（断开旧连接防止重复触发）"""
+        # 断开旧连接
+        if self._controller is not None:
+            try:
+                self._controller.stage_changed.disconnect(self._on_stage_changed)
+                self._controller.stage_progress.disconnect(self._on_stage_progress)
+                self._controller.finished.disconnect(self._on_pipeline_finished)
+                self._controller.error_occurred.disconnect(self._on_error)
+            except Exception:
+                pass  # 忽略未连接的情况
         self._controller = controller
         self._controller.stage_changed.connect(self._on_stage_changed)
         self._controller.stage_progress.connect(self._on_stage_progress)

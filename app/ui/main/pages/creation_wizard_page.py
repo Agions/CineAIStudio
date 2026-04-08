@@ -147,7 +147,6 @@ class CreationWizardPage(BasePage):
 
     def _start_pipeline(self, video_path, context, emotion, style, output_dir):
         self._show_step(1)
-        self._step_pipeline.bind_controller(self._controller)
         self._controller.start_pipeline(
             video_path=video_path,
             context=context,
