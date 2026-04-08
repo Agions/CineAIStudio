@@ -38,12 +38,26 @@ jobs:
             --add-data "resources:resources" \
             app/main.py
 
-      - name: Package
+      - name: Package (split archive for <2GB GitHub limit)
         run: |
           set -e
           cd dist
-          tar -czvf Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.gz \
+          # Tar then split into ~500MB parts (GitHub limit is 2GB per asset)
+          tar -cvf Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar \
             Narrafiilm-${{ github.ref_name }}-linux-x86_64
+          # Split into 500MB chunks
+          split -b 500M -a 2 \
+            Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar \
+            Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.part_
+          rm Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar
+          ls -lh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Narrafiilm-${{ github.ref_name }}-linux-x86_64
+          path: dist/Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.part_*
+          retention-days: 3
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -51,6 +65,6 @@ jobs:
           tag_name: ${{ github.ref }}
           name: Narrafiilm ${{ github.ref_name }}
           draft: false
-          files: dist/*.tar.gz
+          files: dist/Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.part_*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
