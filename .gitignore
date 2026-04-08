@@ -371,3 +371,7 @@ TODO.md
 REFORMATION_REPORT.md
 RESEARCH_*.md
 *.draft.md
+
+# Internal planning docs
+SPEC.md
+ARCHITECTURE.md
