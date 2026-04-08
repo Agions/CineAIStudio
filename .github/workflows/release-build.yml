@@ -1,0 +1,42 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: |
+          uv pip install --system pyinstaller
+      - name: Build
+        run: |
+          pyinstaller --clean --onedir \
+            --name Narrafiilm-${GITHUB_REF#refs/tags/v} \
+            app/main.py
+      - name: Package
+        run: |
+          cd dist
+          tar -czvf Narrafiilm-${GITHUB_REF#refs/tags/v}-linux-x86_64.tar.gz Narrafiilm-${GITHUB_REF#refs/tags/v}
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref }}
+          name: Narrafiilm ${{ github.ref_name }}
+          draft: false
+          files: Narrafiilm-*-linux-x86_64.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
