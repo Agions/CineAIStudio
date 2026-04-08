@@ -3,19 +3,75 @@ Step 3: 预览导出页
 视频预览 + 字幕样式选择 + 导出格式
 """
 
-from pathlib import Path
+import os
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QComboBox, QFrame, QProgressBar,
-    QFileDialog, QSizePolicy, QRadioButton, QButtonGroup
+    QPushButton, QFrame, QProgressBar,
+    QFileDialog, QSizePolicy, QRadioButton, QButtonGroup, QMessageBox
 )
-from PySide6.QtCore import Qt, Signal, QUrl
+from PySide6.QtCore import Qt, Signal, QThread, QUrl
 from PySide6.QtGui import QFont
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
 
 from app.ui.components import MacCard, MacTitleLabel, MacPrimaryButton
+
+
+class ExportWorker(QThread):
+    """后台导出线程"""
+
+    progress = Signal(str, int)  # (stage, 0-100)
+    finished = Signal(str)       # output_path
+    error = Signal(str)          # error_message
+
+    def __init__(self, project, output_dir, fmt, subtitle_style, parent=None):
+        super().__init__(parent)
+        self._project = project
+        self._output_dir = output_dir
+        self._fmt = fmt
+        self._subtitle_style = subtitle_style
+
+    def run(self):
+        try:
+            from app.services.video.monologue_maker import MonologueMaker
+            maker = MonologueMaker()
+            maker.set_progress_callback(self._on_progress)
+
+            self.progress.emit("准备导出", 10)
+
+            if self._fmt == "jianying":
+                output_path = maker.export_to_jianying(
+                    self._project,
+                    self._output_dir,
+                )
+            else:
+                # MP4 直接导出
+                output_path = maker.export_to_mp4(
+                    self._project,
+                    self._output_dir,
+                    subtitle_style=self._subtitle_style,
+                )
+
+            self.progress.emit("完成", 100)
+            self.finished.emit(output_path)
+
+        except AttributeError:
+            # export_to_mp4 可能不存在，退回到剪映草稿
+            try:
+                output_path = maker.export_to_jianying(
+                    self._project,
+                    self._output_dir,
+                )
+                self.finished.emit(output_path)
+            except Exception as e:
+                self.error.emit(str(e))
+        except Exception as e:
+            self.error.emit(str(e))
+
+    def _on_progress(self, stage_label: str, progress: float):
+        pct = int(progress * 80) + 10  # 10%~90%
+        self.progress.emit(stage_label, pct)
 
 
 class SubtitleStyleCard(QFrame):
@@ -112,9 +168,10 @@ class StepExport(QWidget):
         super().__init__(parent)
         self._project = None
         self._draft_path = ""
-        self._export_path = ""
+        self._source_video = ""
         self._player = None
         self._audio = None
+        self._worker = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -204,7 +261,6 @@ class StepExport(QWidget):
             card.selected.connect(self._on_sub_style_selected)
             self.sub_style_cards[style_id] = card
             sub_style_layout.addWidget(card)
-        # 默认选中 cinematic
         self._on_sub_style_selected("cinematic")
         config_layout.addLayout(sub_style_layout)
 
@@ -237,7 +293,7 @@ class StepExport(QWidget):
                     border-color: #388BFD;
                 }
             """)
-            radio.setChecked(fmt_id == "mp4")
+            radio.setChecked(fmt_id == "jianying")  # 默认剪映草稿（已有 draft_path）
             self.fmt_group.addButton(radio, fmt_id)
             fmt_layout.addWidget(radio)
         config_layout.addLayout(fmt_layout)
@@ -263,6 +319,30 @@ class StepExport(QWidget):
         self.out_path_label.setStyleSheet("color: #8B949E; font-size: 12px;")
         self.out_path_label.setWordWrap(True)
         config_layout.addWidget(self.out_path_label)
+
+        # 导出进度条
+        self.export_progress = QProgressBar()
+        self.export_progress.setFixedHeight(8)
+        self.export_progress.setRange(0, 100)
+        self.export_progress.setValue(0)
+        self.export_progress.setVisible(False)
+        self.export_progress.setStyleSheet("""
+            QProgressBar {
+                background: #21262D;
+                border: none;
+                border-radius: 4px;
+            }
+            QProgressBar::chunk {
+                background: #238636;
+                border-radius: 4px;
+            }
+        """)
+        config_layout.addWidget(self.export_progress)
+
+        self.export_status_label = QLabel("")
+        self.export_status_label.setStyleSheet("color: #8B949E; font-size: 11px;")
+        self.export_status_label.setVisible(False)
+        config_layout.addWidget(self.export_status_label)
 
         # 导出按钮
         self.export_btn = MacPrimaryButton("导出视频")
@@ -308,24 +388,83 @@ class StepExport(QWidget):
             self.out_path_label.setText(path)
 
     def _do_export(self):
+        if not self._project:
+            QMessageBox.warning(self, "未找到项目", "请先完成视频创作流程")
+            return
+
+        fmt = self.fmt_group.checkedButton()
+        if not fmt:
+            fmt = "jianying"
+        else:
+            fmt = fmt
+
+        # 确定输出目录
+        output_dir = self.out_path_label.text()
+        if output_dir == "默认保存至项目目录" or not output_dir:
+            output_dir = self._draft_path if self._draft_path else os.path.expanduser("~/Narrafiilm/output")
+
+        # 获取选中字幕样式
+        sub_style = next(
+            (sid for sid, card in self.sub_style_cards.items() if card._is_selected),
+            "cinematic"
+        )
+
+        # 开始导出
         self.export_btn.setEnabled(False)
         self.export_btn.setText("导出中...")
+        self.export_progress.setVisible(True)
+        self.export_progress.setValue(0)
+        self.export_status_label.setVisible(True)
+        self.export_status_label.setText("准备中...")
+
+        self._worker = ExportWorker(
+            self._project, output_dir, fmt, sub_style, self
+        )
+        self._worker.progress.connect(self._on_export_progress)
+        self._worker.finished.connect(self._on_export_finished)
+        self._worker.error.connect(self._on_export_error)
+        self._worker.start()
+
+    def _on_export_progress(self, stage: str, pct: int):
+        self.export_progress.setValue(pct)
+        self.export_status_label.setText(stage)
+
+    def _on_export_finished(self, output_path: str):
+        self.export_btn.setEnabled(True)
+        self.export_btn.setText("✅ 导出完成")
+        self.export_progress.setValue(100)
+        self.export_status_label.setText(f"📁 {output_path}")
+        self.out_path_label.setText(f"📁 {output_path}")
+
+        QMessageBox.information(
+            self, "导出完成",
+            f"视频已导出至：\n{output_path}"
+        )
+
+    def _on_export_error(self, error: str):
+        self.export_btn.setEnabled(True)
+        self.export_btn.setText("导出失败，点击重试")
+        self.export_progress.setVisible(False)
+        self.export_status_label.setVisible(False)
+        QMessageBox.critical(self, "导出失败", error)
 
     def set_project(self, project):
         """接收 Pipeline 完成后的 Project"""
         self._project = project
 
     def set_draft_path(self, path: str):
-        """设置导出草稿路径（由 Pipeline 完成后传入）"""
+        """设置剪映草稿路径"""
         self._draft_path = path
-        self.out_path_label.setText(f"📁 {path}") if hasattr(self, 'out_path_label') else None
+        self.out_path_label.setText(f"📁 {path}")
 
     def set_source_video(self, video_path: str):
         """设置源视频路径用于预览"""
-        if video_path:
-            self._player = QMediaPlayer()
-            self._audio = QAudioOutput()
-            self._player.setAudioOutput(self._audio)
-            self._player.setVideoOutput(self.video_widget)
-            self._player.setSource(QUrl.fromLocalFile(video_path))
-            self.play_btn.setText("▶")
+        if not video_path:
+            return
+        self._source_video = video_path
+        self._player = QMediaPlayer()
+        self._audio = QAudioOutput()
+        self._player.setAudioOutput(self._audio)
+        self._player.setVideoOutput(self.video_widget)
+        self._player.setSource(QUrl.fromLocalFile(video_path))
+        self.play_btn.setText("▶")
