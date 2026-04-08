@@ -152,8 +152,8 @@ class NarrafiilmWindow(QMainWindow):
     def _load_pages(self):
         """惰性加载所有页面"""
         # 创作台页
-        from .pages.creator_page import CreatorPage
-        creator = CreatorPage("creator", "创作台", self.application)
+        from .pages.creation_wizard_page import CreationWizardPage
+        creator = CreationWizardPage("creator", "创作台", self.application)
         creator.create_content()
         creator.page_activated.connect(self._on_page_activated)
         self.page_stack.addWidget(creator)
