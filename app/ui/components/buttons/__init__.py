@@ -1,67 +1,87 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-按钮组件 - MacButton 系列
+MacButton — REDESIGNED
+统一按钮样式，frontend-design-pro compliant
 """
 
-from typing import Optional
-from PySide6.QtWidgets import QPushButton, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QPushButton
 from PySide6.QtCore import Qt
+
+from .common_styles import ColorPalette as CP, ButtonStyles
 
 
 class MacButton(QPushButton):
-    """macOS 风格按钮基类"""
+    """
+    基础按钮（一般不直接使用，用其子类）
+    """
 
-    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+    def __init__(self, text: str = "", parent=None):
         super().__init__(text, parent)
-        self.setProperty("class", "button")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
 
 class MacPrimaryButton(MacButton):
-    """主要按钮"""
+    """
+    主按钮 — solid fill + hover scale
+    """
 
-    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+    def __init__(self, text: str = "", parent=None):
         super().__init__(text, parent)
-        self.setProperty("class", "primary")
+        self.setObjectName("primary_btn")
+        self.setStyleSheet(ButtonStyles.PRIMARY)
+        self._mouse_over = False
+
+    def enterEvent(self, event):
+        self._mouse_over = True
+        self.setStyleSheet(ButtonStyles.PRIMARY_HOVER)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self._mouse_over = False
+        self.setStyleSheet(ButtonStyles.PRIMARY)
+        super().leaveEvent(event)
 
 
 class MacSecondaryButton(MacButton):
-    """次要按钮"""
+    """
+    次要按钮 — transparent + border
+    """
 
-    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+    def __init__(self, text: str = "", parent=None):
         super().__init__(text, parent)
-        self.setProperty("class", "secondary")
+        self.setObjectName("secondary_btn")
+        self.setStyleSheet(ButtonStyles.SECONDARY)
+
+    def enterEvent(self, event):
+        self.setStyleSheet(ButtonStyles.SECONDARY_HOVER)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self.setStyleSheet(ButtonStyles.SECONDARY)
+        super().leaveEvent(event)
 
 
 class MacDangerButton(MacButton):
-    """危险操作按钮"""
+    """
+    危险操作按钮 — 红色
+    """
 
-    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+    def __init__(self, text: str = "", parent=None):
         super().__init__(text, parent)
-        self.setProperty("class", "danger")
-
-
-class MacIconButton(QPushButton):
-    """图标按钮"""
-
-    def __init__(self, icon: str = "", size: int = 32, parent: Optional[QWidget] = None):
-        super().__init__(icon, parent)
-        self.setProperty("class", "icon-button")
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setFixedSize(size, size)
-        self.setStyleSheet("font-size: {}px;".format(size // 2))
-
-
-class MacButtonGroup(QWidget):
-    """按钮组"""
-
-    def __init__(self, parent: Optional[QWidget] = None):
-        super().__init__(parent)
-        self._setup_ui()
-
-    def _setup_ui(self):
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
-
-    def add_button(self, button: QPushButton):
-        self.layout().addWidget(button)
+        self.setObjectName("danger_btn")
+        self.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent;
+                color: {CP.ERROR};
+                border: 1px solid {CP.ERROR};
+                border-radius: 10px;
+                padding: 10px 20px;
+                font-weight: 600;
+                font-size: 13px;
+            }}
+            QPushButton:hover {{
+                background: {CP.ERROR}20;
+            }}
+        """)

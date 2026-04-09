@@ -1,115 +1,76 @@
-"""
-Step 2: Pipeline 执行台
-4 阶段横向进度卡 + ScriptEditor + 实时日志
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Step 2: Pipeline 执行 — REDESIGNED"""
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QFrame, QScrollArea, QTextEdit,
-    QLineEdit, QListWidget, QListWidgetItem, QProgressBar,
-    QSizePolicy, QSpacerItem, QAbstractItemView
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
+    QFrame, QTextEdit, QProgressBar
 )
-from PySide6.QtCore import Qt, Signal, QSize, QTimer
+from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QFont, QCursor
 
-from app.ui.components import MacCard, MacTitleLabel
+from ...components import MacCard
 from app.orchestration.pipeline_controller import PipelineStage
 
 
+_STAGE_COLORS = {"idle": "#1E2D42", "running": "#0A84FF", "done": "#10B981", "error": "#F59E0B", "skip": "#4A5A70"}
+_STAGE_ICONS  = {"idle": "⏸", "running": "⚡", "done": "✓", "error": "✗", "skip": "⊘"}
+
+
 class StageCard(QFrame):
-    """
-    Pipeline 阶段卡片
-
-    状态：idle(灰) / running(蓝+动画) / done(绿✓) / error(红) / skipable(虚线)
-    """
-
+    """Pipeline 阶段卡片 — REDESIGNED: 圆角12px · 脉冲动画"""
     stage_clicked = Signal(PipelineStage)
-
-    _STATE_COLORS = {
-        "idle": "#30363D",
-        "running": "#388BFD",
-        "done": "#238636",
-        "error": "#DA3633",
-        "skip": "#484F58",
-    }
-
-    _STATE_ICONS = {
-        "idle": "⏸",
-        "running": "⚡",
-        "done": "✅",
-        "error": "❌",
-        "skip": "⏭",
-    }
 
     def __init__(self, stage: PipelineStage, label: str, parent=None):
         super().__init__(parent)
         self._stage = stage
         self._label = label
         self._state = "idle"
-        self._progress = 0.0
+        self._anim_toggle = False
         self._setup_ui()
 
     def _setup_ui(self):
         self.setFixedSize(160, 100)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self._apply_style()
-
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(6)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.icon_label = QLabel(self._STATE_ICONS["idle"])
+        self.icon_label = QLabel(_STAGE_ICONS["idle"])
         self.icon_label.setFont(QFont("", 20))
         self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.icon_label)
-
         self.name_label = QLabel(self._label)
         self.name_label.setFont(QFont("", 12, QFont.Weight.Bold))
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.name_label.setStyleSheet("color: #C9D1D9;")
+        self.name_label.setStyleSheet("color: #8098B0;")
         layout.addWidget(self.name_label)
-
         self.progress_bar = QProgressBar()
         self.progress_bar.setFixedHeight(4)
         self.progress_bar.setTextVisible(False)
         self.progress_bar.setRange(0, 1000)
-        self.progress_bar.setValue(0)
         self.progress_bar.setStyleSheet("""
-            QProgressBar {
-                background: #21262D;
-                border: none;
-                border-radius: 2px;
-            }
-            QProgressBar::chunk { background: #388BFD; border-radius: 2px; }
+            QProgressBar { background: #1E2D42; border: none; border-radius: 2px; }
+            QProgressBar::chunk { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,stop:0 #0A84FF,stop:1 #00C8FF); border-radius: 2px; }
         """)
         layout.addWidget(self.progress_bar)
-
         self.sub_label = QLabel("")
         self.sub_label.setFont(QFont("", 10))
         self.sub_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.sub_label.setStyleSheet("color: #8B949E;")
+        self.sub_label.setStyleSheet("color: #4A5A70;")
         layout.addWidget(self.sub_label)
-
         self.clicked.connect(lambda: self.stage_clicked.emit(self._stage))
 
     def _apply_style(self):
-        color = self._STATE_COLORS.get(self._state, "#30363D")
-        border = f"1px solid {color}"
-        bg = "#161B22" if self._state != "running" else "#0D1117"
-        self.setStyleSheet(f"""
-            QFrame {{
-                background: {bg};
-                border: {border};
-                border-radius: 12px;
-            }}
-        """)
+        color = _STAGE_COLORS.get(self._state, "#1E2D42")
+        bg = "#0A1020" if self._state == "running" else "#0E1520"
+        self.setStyleSheet(f"QFrame {{ background: {bg}; border: 1px solid {color}; border-radius: 12px; }}")
 
     def set_state(self, state: str, sub: str = ""):
-        """更新卡片状态"""
         self._state = state
         self._apply_style()
-        self.icon_label.setText(self._STATE_ICONS.get(state, "⏸"))
+        self.icon_label.setText(_STAGE_ICONS.get(state, "⏸"))
         self.sub_label.setText(sub)
         if state == "running":
             self._start_animation()
@@ -117,152 +78,100 @@ class StageCard(QFrame):
             self._stop_animation()
 
     def set_progress(self, value: float):
-        """更新进度 0.0~1.0"""
-        self._progress = value
         self.progress_bar.setValue(int(value * 1000))
-        pct = int(value * 100)
-        self.sub_label.setText(f"{pct}%")
+        self.sub_label.setText(f"{int(value * 100)}%")
 
     def _start_animation(self):
-        # 简单的边框颜色脉冲动画
-        from PySide6.QtCore import QTimer
-        self._anim_toggle = False
-        if hasattr(self, "_anim_timer"):
-            self._anim_timer.stop()
         self._anim_timer = QTimer(self)
         self._anim_timer.timeout.connect(self._pulse_border)
-        self._anim_timer.start(500)  # 每500ms切换一次
+        self._anim_timer.start(500)
 
     def _pulse_border(self):
         self._anim_toggle = not self._anim_toggle
-        color = "#58A6FF" if self._anim_toggle else "#388BFD"
-        self.setStyleSheet(
-            "QFrame { background: #0D1117; border: 2px solid "
-            + color + "; border-radius: 12px; }"
-        )
+        color = "#2196FF" if self._anim_toggle else "#0A84FF"
+        self.setStyleSheet(f"QFrame {{ background: #0A1020; border: 2px solid {color}; border-radius: 12px; }}")
 
     def _stop_animation(self):
         if hasattr(self, "_anim_timer"):
             self._anim_timer.stop()
-        self._apply_style()  # 恢复原始状态
 
 
 class ScriptEditor(QWidget):
-    """
-    可编辑 AI 生成文案的面板
-    生成后可修改，再触发后续 Pipeline
-    """
-
-    script_changed = Signal(str)  # 用户修改后的文案
-    retry_requested = Signal()      # 请求重试
+    """解说词编辑器 — REDESIGNED"""
+    script_changed = Signal(str)
+    retry_requested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._setup_ui()
-        self._segments: list = []
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
-
-        # 标题栏
         header = QHBoxLayout()
         header.setSpacing(8)
-
-        title = QLabel("解说文案")
+        title = QLabel("解说词")
         title.setFont(QFont("", 13, QFont.Weight.Bold))
-        title.setStyleSheet("color: #E6EDF3;")
+        title.setStyleSheet("color: #E2E8F0;")
         header.addWidget(title)
-
         self.word_count_label = QLabel("0 字")
-        self.word_count_label.setStyleSheet("color: #8B949E; font-size: 12px;")
+        self.word_count_label.setStyleSheet("color: #4A5A70; font-size: 12px;")
         header.addWidget(self.word_count_label)
         header.addStretch()
-
-        self.edit_btn = QPushButton("编辑")
-        self.edit_btn.setObjectName("secondary_button")
+        self.edit_btn = QPushButton("✏️ 编辑")
+        self.edit_btn.setObjectName("secondary_btn")
         self.edit_btn.setFixedSize(56, 26)
         self.edit_btn.clicked.connect(self._toggle_edit)
         header.addWidget(self.edit_btn)
-
         self.retry_btn = QPushButton("🔄 重试")
-        self.retry_btn.setObjectName("secondary_button")
+        self.retry_btn.setObjectName("secondary_btn")
         self.retry_btn.setFixedSize(72, 26)
         self.retry_btn.hide()
         self.retry_btn.clicked.connect(self.retry_requested.emit)
         header.addWidget(self.retry_btn)
-
         layout.addLayout(header)
-
-        # 文案编辑器
         self.editor = QTextEdit()
-        self.editor.setPlaceholderText("AI 生成的解说文案将显示在这里...\n\n点击「编辑」可手动修改。")
         self.editor.setReadOnly(True)
         self.editor.setMinimumHeight(200)
         self.editor.setStyleSheet("""
-            QTextEdit {
-                background: #0D1117;
-                border: 1px solid #21262D;
-                border-radius: 8px;
-                color: #E6EDF3;
-                padding: 12px;
-                font-size: 13px;
-                line-height: 1.6;
-                font-family: 'SF Pro Text', 'Segoe UI', sans-serif;
-            }
+            QTextEdit { background: #0A0E16; color: #D0E0F0; border: 1px solid #1A2332; border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.6; }
+            QTextEdit:focus { border-color: #0A84FF; }
         """)
-        self.editor.textChanged.connect(self._on_text_changed)
+        self.editor.textChanged.connect(lambda: (
+            self.word_count_label.setText(f"{len(self.editor.toPlainText())} 字"),
+            self.script_changed.emit(self.editor.toPlainText())
+        ))
         layout.addWidget(self.editor)
-
-    def set_read_only(self, readonly: bool):
-        self.editor.setReadOnly(readonly)
-        self.edit_btn.setText("编辑" if readonly else "完成")
-        self.retry_btn.setVisible(not readonly)
 
     def _toggle_edit(self):
         if self.editor.isReadOnly():
-            self.set_read_only(False)
+            self.editor.setReadOnly(False)
             self.editor.setFocus()
+            self.edit_btn.setText("✓ 完成")
+            self.retry_btn.show()
         else:
-            self.set_read_only(True)
+            self.editor.setReadOnly(True)
+            self.edit_btn.setText("✏️ 编辑")
+            self.retry_btn.hide()
 
     def set_segments(self, segments: list):
-        """填充各片段的解说文案"""
-        self._segments = segments
-        lines = []
-        for i, seg in enumerate(segments, 1):
-            script = seg.get("script", "")
-            lines.append(f"[{i}] {script}")
+        lines = [f"[{i}] {s.get('script', '')}" for i, s in enumerate(segments, 1)]
         self.editor.setPlainText("\n\n".join(lines))
-
-    def set_full_text(self, text: str):
-        self.editor.setPlainText(text)
 
     def get_text(self) -> str:
         return self.editor.toPlainText()
 
-    def _on_text_changed(self):
-        text = self.editor.toPlainText()
-        self.word_count_label.setText(f"{len(text)} 字")
-        self.script_changed.emit(text)
-
 
 class StepPipeline(QWidget):
-    """
-    向导 Step 2：Pipeline 执行台
-
-    Signals:
-        finished(output_dir)
-    """
-
+    """Step 2 — REDESIGNED"""
     finished = Signal(str)
 
     _STAGES = [
-        (PipelineStage.ANALYZING, "分析视频"),
-        (PipelineStage.SCRIPT, "生成解说"),
-        (PipelineStage.VOICE, "生成配音"),
-        (PipelineStage.CAPTION, "生成字幕"),
+        (PipelineStage.ANALYZE, "场景理解"),
+        (PipelineStage.SCRIPT,  "解说生成"),
+        (PipelineStage.VOICE,    "配音合成"),
+        (PipelineStage.CAPTION,  "字幕制作"),
     ]
 
     def __init__(self, parent=None):
@@ -275,146 +184,75 @@ class StepPipeline(QWidget):
         layout.setContentsMargins(32, 24, 32, 24)
         layout.setSpacing(20)
 
-        # 标题
-        title = MacTitleLabel("创作进度")
-        title.setStyleSheet("font-size: 20px; font-weight: 700; color: #E6EDF3;")
+        title = QLabel("正在创作...")
+        title.setFont(QFont("", 20, QFont.Weight.Bold))
+        title.setStyleSheet("color: #E2E8F0;")
         layout.addWidget(title)
 
-        # 阶段进度卡片（横向）
         stage_layout = QHBoxLayout()
-        stage_layout.setSpacing(12)
         stage_layout.addStretch()
-
-        self.stage_cards: dict = {}
+        self.stage_cards = {}
         for stage, label in self._STAGES:
             card = StageCard(stage, label)
-            card.stage_clicked.connect(self._on_stage_click)
+            card.stage_clicked.connect(lambda s: None)
             self.stage_cards[stage.value] = card
             stage_layout.addWidget(card)
-
         stage_layout.addStretch()
         layout.addLayout(stage_layout)
 
-        # ScriptEditor
         self.script_editor = ScriptEditor()
-        self.script_editor.retry_requested.connect(self._on_retry_script)
-        layout.addWidget(self.script_editor, stretch=1)
+        self.script_editor.retry_requested.connect(self._on_retry)
+        layout.addWidget(self.script_editor, 1)
 
-        # 日志输出
         log_card = MacCard()
         log_layout = QVBoxLayout(log_card)
         log_layout.setContentsMargins(12, 12, 12, 12)
-
-        log_header = QLabel("执行日志")
-        log_header.setStyleSheet("color: #8B949E; font-size: 12px; font-weight: 600;")
+        log_header = QLabel("处理日志")
+        log_header.setStyleSheet("color: #4A5A70; font-size: 12px; font-weight: 600;")
         log_layout.addWidget(log_header)
-
-        self.log_output = QTextEdit()
-        self.log_output.setReadOnly(True)
-        self.log_output.setMaximumHeight(120)
-        self.log_output.setStyleSheet("""
-            QTextEdit {
-                background: #0D1117;
-                border: 1px solid #21262D;
-                border-radius: 6px;
-                color: #8B949E;
-                font-size: 11px;
-                font-family: 'SF Mono', 'JetBrains Mono', monospace;
-                padding: 8px;
-            }
+        self.log_area = QTextEdit()
+        self.log_area.setReadOnly(True)
+        self.log_area.setMaximumHeight(120)
+        self.log_area.setStyleSheet("""
+            QTextEdit { background: #0A0E16; color: #4A5A70; border: 1px solid #141E2E; border-radius: 8px; padding: 8px; font-size: 11px; }
         """)
-        log_layout.addWidget(self.log_output)
+        log_layout.addWidget(self.log_area)
         layout.addWidget(log_card)
 
-        # 底部按钮
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
-
         self.back_btn = QPushButton("← 上一步")
-        self.back_btn.setObjectName("secondary_button")
+        self.back_btn.setObjectName("secondary_btn")
         self.back_btn.setFixedSize(120, 40)
         self.back_btn.clicked.connect(lambda: self.finished.emit("back"))
         btn_layout.addWidget(self.back_btn)
-
         self.next_btn = QPushButton("导出视频 →")
-        self.next_btn.setObjectName("primary_button")
-        self.next_btn.setFixedSize(140, 40)
-        self.next_btn.hide()
-        self.next_btn.clicked.connect(self._on_export)
+        self.next_btn.setObjectName("primary_btn")
+        self.next_btn.setFixedSize(140, 44)
+        self.next_btn.setEnabled(False)
+        self.next_btn.clicked.connect(lambda: self.finished.emit("export"))
         btn_layout.addWidget(self.next_btn)
-
         layout.addLayout(btn_layout)
 
     def bind_controller(self, controller):
-        """绑定 PipelineController（断开旧连接防止重复触发）"""
-        # 断开旧连接
-        if self._controller is not None:
-            try:
-                self._controller.stage_changed.disconnect(self._on_stage_changed)
-                self._controller.stage_progress.disconnect(self._on_stage_progress)
-                self._controller.finished.disconnect(self._on_pipeline_finished)
-                self._controller.error_occurred.disconnect(self._on_error)
-            except Exception:
-                pass  # 忽略未连接的情况
         self._controller = controller
-        self._controller.stage_changed.connect(self._on_stage_changed)
-        self._controller.stage_progress.connect(self._on_stage_progress)
-        self._controller.finished.connect(self._on_pipeline_finished)
-        self._controller.error_occurred.connect(self._on_error)
 
-    def _on_stage_changed(self, stage_value: str, label: str):
-        # 找到对应 stage 的 index
-        stage_idx = {s.value: i for i, (s, _) in enumerate(self._STAGES)}
+    def _on_retry(self):
+        if self._controller:
+            self._controller.retry_stage(PipelineStage.SCRIPT)
 
-        # 标记完成阶段
-        for s_val, card in self.stage_cards.items():
-            if s_val in stage_idx:
-                idx = stage_idx[s_val]
-                current_idx = stage_idx.get(stage_value, -1)
-                if idx < current_idx:
-                    card.set_state("done", "已完成")
-                elif idx == current_idx:
-                    card.set_state("running", "进行中")
-                else:
-                    card.set_state("idle", "")
+    def append_log(self, text: str):
+        self.log_area.append(text)
 
-        # Script 完成后可编辑
-        if stage_value == PipelineStage.SCRIPT.value:
-            self.script_editor.set_read_only(False)
-            self._append_log("✅ 解说文案已生成，可编辑后再继续")
+    def set_stage_state(self, stage_value: int, state: str, sub: str = ""):
+        card = self.stage_cards.get(stage_value)
+        if card:
+            card.set_state(state, sub)
 
-    def _on_stage_progress(self, stage_value: str, progress: float):
-        if stage_value in self.stage_cards:
-            self.stage_cards[stage_value].set_progress(progress)
-            pct = int(progress * 100)
-            self._append_log(f"[{stage_value}] {pct}%")
+    def set_stage_progress(self, stage_value: int, value: float):
+        card = self.stage_cards.get(stage_value)
+        if card:
+            card.set_progress(value)
 
-    def _on_pipeline_finished(self, output_path: str):
-        self.stage_cards[PipelineStage.CAPTION.value].set_state("done", "已完成")
-        self._append_log(f"✅ Pipeline 完成: {output_path}")
-        self.next_btn.show()
-        # 将导出路径传递给 Step3
-        self._step_export.set_draft_path(output_path)
-
-    def _on_error(self, error: str):
-        self._append_log(f"❌ 错误: {error}")
-        current = self._controller.current_stage()
-        if current.value in self.stage_cards:
-            self.stage_cards[current.value].set_state("error", "失败")
-
-    def _on_stage_click(self, stage: PipelineStage):
-        # 可点击已完成或当前运行阶段查看详情
-        pass
-
-    def _on_retry_script(self):
-        self._append_log("🔄 请求重试文案生成...")
-        self._controller.retry_stage(PipelineStage.SCRIPT)
-
-    def _on_export(self):
-        # 进入 Step3 导出页
-        self.finished.emit("export")
-
-    def _append_log(self, msg: str):
-        self.log_output.append(msg)
-        # 自动滚动到底部
-        self.log_output.ensureCursorVisible()
+    def enable_export(self):
+        self.next_btn.setEnabled(True)

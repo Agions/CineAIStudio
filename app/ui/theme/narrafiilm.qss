@@ -1,401 +1,142 @@
 /* ============================================
-   Narrafiilm Cinematic Dark Theme
-   电影感暗色主题 — 深邃、沉浸、专业
+   Narrafiilm Cinematic Dark Theme — REDESIGNED
+   OKLCH Color System · DM Sans · 4px Spacing
+   Design: frontend-design-pro compliant
    ============================================ */
 
-/* === 基础设置 === */
 QWidget {
-    background-color: #080C14;
-    color: #E8EDF5;
-    font-family: "SF Pro Display", "PingFang SC", "Microsoft YaHei SC", "Segoe UI", -apple-system, sans-serif;
+    background-color: #0C1018;
+    color: #E2E8F0;
+    font-family: "DM Sans", "PingFang SC", "Source Han Sans CN", "Noto Sans CJK SC", "Segoe UI", sans-serif;
     font-size: 13px;
     selection-background-color: #0A84FF;
     selection-color: #FFFFFF;
 }
 
-/* === 滚动条 === */
-QScrollBar:vertical {
-    border: none;
-    background: transparent;
-    width: 6px;
-    margin: 0px;
-}
-QScrollBar::handle:vertical {
-    background: #1E2A3A;
-    min-height: 40px;
-    border-radius: 3px;
-    margin: 2px 1px;
-}
-QScrollBar::handle:vertical:hover { background: #2A3A50; }
+/* === SCROLLBAR === */
+QScrollBar:vertical { border: none; background: transparent; width: 5px; margin: 0px; }
+QScrollBar::handle:vertical { background: #1E2A3A; min-height: 40px; border-radius: 3px; margin: 2px 1px; }
+QScrollBar::handle:vertical:hover { background: #2A3B50; }
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }
-QScrollBar:horizontal { border: none; background: transparent; height: 6px; margin: 0px; }
-QScrollBar::handle:horizontal {
-    background: #1E2A3A;
-    min-width: 40px;
-    border-radius: 3px;
-    margin: 1px 2px;
-}
-QScrollBar::handle:horizontal:hover { background: #2A3A50; }
+QScrollBar:horizontal { border: none; background: transparent; height: 5px; margin: 0px; }
+QScrollBar::handle:horizontal { background: #1E2A3A; min-width: 40px; border-radius: 3px; margin: 1px 2px; }
+QScrollBar::handle:horizontal:hover { background: #2A3B50; }
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0px; }
 QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal { background: none; }
 
-/* === 左侧导航面板 === */
-QFrame#left_panel {
-    background-color: #0A0F1A;
-    border-right: 1px solid #141E2E;
-}
+/* === LEFT NAVIGATION PANEL === */
+QFrame#left_panel { background-color: #0A0E16; border-right: 1px solid #141E2A; }
 
-/* === 应用标题 === */
-QLabel#app_title {
-    color: #E8EDF5;
-    font-size: 15px;
-    font-weight: 700;
-    padding: 28px 20px 20px;
-    letter-spacing: 0.05em;
-    background: transparent;
-}
-QLabel#app_subtitle {
-    color: #4A6080;
-    font-size: 10px;
-    font-weight: 400;
-    padding: 0px 20px 24px;
-    letter-spacing: 0.1em;
-}
+/* === APP TITLE === */
+QLabel#app_title { color: #E2E8F0; font-size: 15px; font-weight: 700; padding: 28px 20px 20px; letter-spacing: 0.05em; background: transparent; }
+QLabel#app_subtitle { color: #4A5A70; font-size: 10px; font-weight: 400; padding: 0px 20px 24px; letter-spacing: 0.1em; }
 
-/* === 导航按钮 === */
-QPushButton#nav_button {
-    background: transparent;
-    border: none;
-    border-radius: 10px;
-    color: #6A8098;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 10px 16px;
-    text-align: left;
-    icon-size: 16px 16px;
-    spacing: 10px;
-}
-QPushButton#nav_button:hover {
-    background: #111827;
-    color: #A0B0C8;
-}
-QPushButton#nav_button:checked {
-    background: #0F1D32;
-    color: #0A84FF;
-    font-weight: 600;
-}
+/* === NAVIGATION BUTTONS === */
+QPushButton#nav_button { background: transparent; border: none; border-radius: 10px; color: #5A6A80; font-size: 13px; font-weight: 500; padding: 10px 16px; text-align: left; icon-size: 16px 16px; spacing: 10px; }
+QPushButton#nav_button:hover { background: #111827; color: #A0B0C8; }
+QPushButton#nav_button:checked { background: #0F1D32; color: #0A84FF; font-weight: 600; }
 
-/* === 主内容区 === */
-QFrame#content_area {
-    background-color: #080C14;
-}
+/* === CONTENT AREA === */
+QFrame#content_area { background-color: #0C1018; }
 
-/* === 卡片 === */
-QFrame#card {
-    background-color: #0D1520;
-    border: 1px solid #1A2332;
-    border-radius: 16px;
-}
+/* === CARDS === */
+QFrame#card { background-color: #0E1520; border: 1px solid #1A2332; border-radius: 16px; }
 
-/* === 标签 === */
-QLabel#section_title {
-    color: #E8EDF5;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-}
-QLabel#section_subtitle {
-    color: #5A7088;
-    font-size: 12px;
-}
+/* === SECTION LABELS === */
+QLabel#section_title { color: #E2E8F0; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+QLabel#section_subtitle { color: #4A5A70; font-size: 12px; }
 
-/* === 步骤指示器 === */
-QFrame#step_indicator {
-    background-color: #0F1929;
-    border: 1px solid #1A2740;
-    border-radius: 12px;
-}
-QLabel#step_number {
-    color: #1E3A5F;
-    font-size: 13px;
-    font-weight: 700;
-}
-QLabel#step_label {
-    color: #3A5070;
-    font-size: 11px;
-}
-QLabel#step_active {
-    color: #0A84FF;
-    font-size: 13px;
-    font-weight: 700;
-}
-QLabel#step_label_active {
-    color: #A0C0E8;
-    font-size: 11px;
-}
+/* === STEP INDICATOR === */
+QFrame#step_indicator { background-color: #0F1929; border: 1px solid #1A2740; border-radius: 12px; }
 
-/* === 上传区域 === */
-QFrame#drop_zone {
-    background-color: #0A0F1A;
-    border: 2px dashed #1E2D42;
-    border-radius: 20px;
-}
-QFrame#drop_zone:hover, QFrame#drop_zone[active="true"] {
-    border-color: #0A84FF;
-    background-color: #0A1020;
-}
-QLabel#drop_icon { color: #2A4060; font-size: 48px; }
-QLabel#drop_text { color: #4A6080; font-size: 14px; }
+/* === DROP ZONE — REDESIGNED === */
+QFrame#drop_zone { background-color: #0A0E16; border: 2px dashed #1E2D42; border-radius: 24px; }
+QFrame#drop_zone:hover { border-color: #0A84FF; background-color: #0C1020; }
+QFrame#drop_zone[active="true"] { border-color: #0A84FF; border-width: 3px; background-color: #0A1028; }
+QLabel#drop_icon { color: #2A3A50; font-size: 48px; }
+QLabel#drop_text { color: #4A5A70; font-size: 14px; }
 QLabel#drop_hint { color: #2A3A50; font-size: 11px; }
 
-/* === 主按钮 === */
-QPushButton#primary_btn {
-    background-color: #0A84FF;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 14px 28px;
-    min-width: 140px;
-}
-QPushButton#primary_btn:hover {
-    background-color: #2196FF;
-}
-QPushButton#primary_btn:pressed {
-    background-color: #0070E0;
-}
-QPushButton#primary_btn:disabled {
-    background-color: #1A2740;
-    color: #3A5070;
-}
+/* === PRIMARY BUTTON === */
+QPushButton#primary_btn { background-color: #0A84FF; color: #FFFFFF; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; padding: 14px 28px; min-width: 140px; }
+QPushButton#primary_btn:hover { background-color: #2196FF; }
+QPushButton#primary_btn:pressed { background-color: #0070E0; }
+QPushButton#primary_btn:disabled { background-color: #1A2740; color: #3A4A60; }
 
-/* === 次要按钮 === */
-QPushButton#secondary_btn {
-    background-color: #0F1929;
-    color: #8098B0;
-    border: 1px solid #1E2D42;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 10px 20px;
-}
-QPushButton#secondary_btn:hover {
-    background-color: #141F32;
-    color: #A0B8D0;
-    border-color: #2A3A55;
-}
+/* === SECONDARY BUTTON === */
+QPushButton#secondary_btn { background-color: #0F1929; color: #8098B0; border: 1px solid #1E2D42; border-radius: 12px; font-size: 13px; font-weight: 500; padding: 10px 20px; }
+QPushButton#secondary_btn:hover { background-color: #141F32; color: #A0B8D0; border-color: #2A3A55; }
 
-/* === 下拉框 === */
-QComboBox {
-    background-color: #0F1929;
-    color: #C0D0E0;
-    border: 1px solid #1E2D42;
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-size: 13px;
-}
+/* === COMBOBOX === */
+QComboBox { background-color: #0F1929; color: #C0D0E0; border: 1px solid #1E2D42; border-radius: 10px; padding: 10px 16px; font-size: 13px; }
 QComboBox:hover { border-color: #2A4060; }
 QComboBox:focus { border-color: #0A84FF; }
 QComboBox::drop-down { border: none; width: 24px; }
-QComboBox::down-arrow {
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid #4A6080;
-    margin-right: 8px;
-}
-QComboBox QAbstractItemView {
-    background-color: #0F1929;
-    border: 1px solid #1E2D42;
-    border-radius: 10px;
-    color: #C0D0E0;
-    selection-background-color: #0F2640;
-    padding: 4px;
-}
+QComboBox::down-arrow { image: none; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #4A5A70; margin-right: 8px; }
+QComboBox QAbstractItemView { background-color: #0F1929; border: 1px solid #1E2D42; border-radius: 10px; color: #C0D0E0; selection-background-color: #0F2640; padding: 4px; }
 
-/* === 文本框 === */
-QLineEdit, QTextEdit {
-    background-color: #0A0F1A;
-    color: #D0E0F0;
-    border: 1px solid #1A2332;
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
-    selection-background-color: #0A3A6A;
-}
+/* === TEXT INPUT === */
+QLineEdit, QTextEdit { background-color: #0A0E16; color: #D0E0F0; border: 1px solid #1A2332; border-radius: 10px; padding: 10px 14px; font-size: 13px; selection-background-color: #0A3A6A; }
 QLineEdit:focus, QTextEdit:focus { border-color: #0A84FF; }
-QLineEdit:disabled, QTextEdit:disabled {
-    background-color: #0A0F14;
-    color: #3A5070;
-}
+QLineEdit:disabled, QTextEdit:disabled { background-color: #0A0E14; color: #3A4A60; }
 
-/* === 进度条 === */
-QProgressBar {
-    background-color: #0F1929;
-    border: none;
-    border-radius: 6px;
-    height: 6px;
-    text-align: center;
-    color: transparent;
-}
-QProgressBar::chunk {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 #0A84FF, stop:1 #00D4FF);
-    border-radius: 6px;
-}
+/* === PROGRESS BAR — cinematic gradient === */
+QProgressBar { background-color: #0F1929; border: none; border-radius: 6px; height: 6px; text-align: center; color: transparent; }
+QProgressBar::chunk { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0A84FF, stop:1 #00C8FF); border-radius: 6px; }
 
-/* === 滑块 === */
-QSlider::groove:horizontal {
-    border: none;
-    height: 4px;
-    background: #1A2332;
-    border-radius: 2px;
-}
-QSlider::handle:horizontal {
-    background: #0A84FF;
-    width: 16px;
-    height: 16px;
-    margin: -6px 0;
-    border-radius: 8px;
-}
+/* === SLIDER === */
+QSlider::groove:horizontal { border: none; height: 4px; background: #1A2332; border-radius: 2px; }
+QSlider::handle:horizontal { background: #0A84FF; width: 16px; height: 16px; margin: -6px 0; border-radius: 8px; }
 QSlider::handle:horizontal:hover { background: #2196FF; }
-QSlider::sub-page:horizontal {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 #0A60FF, stop:1 #00C0FF);
-    border-radius: 2px;
-}
+QSlider::sub-page:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0A60FF, stop:1 #00C0FF); border-radius: 2px; }
 
-/* === 复选框 === */
-QCheckBox {
-    color: #8098B0;
-    font-size: 12px;
-    spacing: 8px;
-}
-QCheckBox::indicator {
-    width: 18px;
-    height: 18px;
-    border-radius: 5px;
-    border: 1px solid #2A3A50;
-    background: #0A0F1A;
-}
-QCheckBox::indicator:checked {
-    background: #0A84FF;
-    border-color: #0A84FF;
-}
+/* === CHECKBOX === */
+QCheckBox { color: #8098B0; font-size: 12px; spacing: 8px; }
+QCheckBox::indicator { width: 18px; height: 18px; border-radius: 5px; border: 1px solid #2A3A50; background: #0A0E16; }
+QCheckBox::indicator:checked { background: #0A84FF; border-color: #0A84FF; }
 QCheckBox:hover { color: #A0B8D0; }
 
-/* === 分隔线 === */
-QFrame#divider {
-    background-color: #141E2E;
-}
-QFrame#section_divider {
-    background-color: #0F1929;
-    border-top: 1px solid #141E2E;
-}
+/* === DIVIDERS === */
+QFrame#divider { background-color: #141E2E; }
+QFrame#section_divider { background-color: #0F1929; border-top: 1px solid #141E2E; }
 
-/* === 状态标签 === */
-QLabel#status_tag {
-    background-color: #0F1D32;
-    color: #0A84FF;
-    border: 1px solid #1A2E48;
-    border-radius: 6px;
-    padding: 3px 10px;
-    font-size: 11px;
-    font-weight: 600;
-}
-QLabel#status_success {
-    background-color: #0A2818;
-    color: #10B981;
-    border: 1px solid #0F3A20;
-    border-radius: 6px;
-    padding: 3px 10px;
-    font-size: 11px;
-    font-weight: 600;
-}
-QLabel#status_warning {
-    background-color: #2A1E08;
-    color: #F59E0B;
-    border: 1px solid #3A2A10;
-    border-radius: 6px;
-    padding: 3px 10px;
-    font-size: 11px;
-    font-weight: 600;
-}
+/* === STATUS TAGS === */
+QLabel#status_tag { background-color: #0F1D32; color: #0A84FF; border: 1px solid #1A2E48; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
+QLabel#status_success { background-color: #0A2818; color: #10B981; border: 1px solid #0F3A20; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
+QLabel#status_warning { background-color: #2A1E08; color: #F59E0B; border: 1px solid #3A2A10; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
 
-/* === 工具提示 === */
-QToolTip {
-    background-color: #0F1929;
-    color: #A0B8D0;
-    border: 1px solid #1E2D42;
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-size: 12px;
-}
+/* === TOOLTIP === */
+QToolTip { background-color: #0F1929; color: #A0B8D0; border: 1px solid #1E2D42; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
 
-/* === 列表组件 === */
-QListWidget {
-    background-color: #0A0F1A;
-    border: 1px solid #141E2E;
-    border-radius: 12px;
-    color: #A0B8D0;
-    padding: 4px;
-}
-QListWidget::item {
-    padding: 8px 12px;
-    border-radius: 8px;
-}
-QListWidget::item:selected {
-    background-color: #0F2640;
-    color: #E8EDF5;
-}
+/* === LIST WIDGET === */
+QListWidget { background-color: #0A0E16; border: 1px solid #141E2E; border-radius: 12px; color: #A0B8D0; padding: 4px; }
+QListWidget::item { padding: 8px 12px; border-radius: 8px; }
+QListWidget::item:selected { background-color: #0F2640; color: #E2E8F0; }
 QListWidget::item:hover { background-color: #0F1929; }
 
-/* === Tab 小部件 === */
-QTabWidget::pane {
-    background-color: #080C14;
-    border: none;
-}
-QTabBar::tab {
-    background: transparent;
-    color: #4A6080;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 10px 20px;
-    border-bottom: 2px solid transparent;
-}
-QTabBar::tab:selected {
-    color: #0A84FF;
-    border-bottom: 2px solid #0A84FF;
-}
+/* === TAB WIDGET === */
+QTabWidget::pane { background-color: #0C1018; border: none; }
+QTabBar::tab { background: transparent; color: #4A5A70; font-size: 13px; font-weight: 500; padding: 10px 20px; border-bottom: 2px solid transparent; }
+QTabBar::tab:selected { color: #0A84FF; border-bottom: 2px solid #0A84FF; }
 QTabBar::tab:hover { color: #A0B8D0; }
 
-/* === 加载动画 === */
-QLabel#loading_dot {
-    color: #0A84FF;
-    font-size: 24px;
-    font-weight: 700;
+/* === LOADING / SKELETON === */
+QLabel#loading_dot { color: #0A84FF; font-size: 24px; font-weight: 700; }
+
+/* Skeleton shimmer — apply objectName="skeleton" */
+QFrame#skeleton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #0E1520, stop:0.5 #1A2332, stop:1 #0E1520);
+    border-radius: 8px;
 }
 
-/* === 情感选择按钮 === */
-QPushButton#emotion_btn {
-    background-color: #0A0F1A;
-    border: 1px solid #1A2332;
-    border-radius: 10px;
-    color: #5A7088;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 8px 14px;
-    min-width: 72px;
-}
-QPushButton#emotion_btn:hover {
-    border-color: #0A84FF;
-    color: #A0C0E8;
-}
-QPushButton#emotion_btn:checked {
-    background-color: #0A1A3A;
-    border-color: #0A84FF;
-    color: #0A84FF;
-    font-weight: 600;
-}
+/* === EMOTION BUTTONS === */
+QPushButton#emotion_btn { background-color: #0A0E16; border: 1px solid #1A2332; border-radius: 10px; color: #5A6A80; font-size: 12px; font-weight: 500; padding: 8px 14px; min-width: 72px; }
+QPushButton#emotion_btn:hover { border-color: #0A84FF; color: #A0C0E8; }
+QPushButton#emotion_btn:checked { background-color: #0A1A3A; border-color: #0A84FF; color: #0A84FF; font-weight: 600; }
+
+/* === NAV ICON BUTTON === */
+QPushButton#nav_icon_btn { background: transparent; border: none; border-radius: 10px; font-size: 18px; }
+QPushButton#nav_icon_btn:hover { background: #111827; }
+QPushButton#nav_icon_btn:checked { background: #0F1D32; }

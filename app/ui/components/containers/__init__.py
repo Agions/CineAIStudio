@@ -1,65 +1,65 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-容器组件 - Card, Section, ElevatedCard
+MacCard — REDESIGNED
+卡片容器，统一圆角 + 边框样式，frontend-design-pro compliant
 """
 
-from PySide6.QtWidgets import QFrame, QVBoxLayout
+from PySide6.QtWidgets import QFrame
 from PySide6.QtCore import Qt
+
+from .common_styles import ColorPalette as CP, CardStyles
 
 
 class MacCard(QFrame):
-    """macOS 风格卡片容器"""
+    """
+    标准卡片容器
+
+    REDESIGN:
+    - 圆角: 14px (Radius.LG)
+    - 背景: BG_RAISED 微渐变
+    - 边框: BORDER_SUBTLE
+    - Hover: 边框变主色 + translateY(-2px) + 主色阴影
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setProperty("class", "card")
-        self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(20, 20, 20, 20)
-        self.layout().setSpacing(12)
+        self.setObjectName("mac_card")
+        self.setStyleSheet(CardStyles.DEFAULT)
 
-    def set_interactive(self, interactive: bool = True):
-        if interactive:
-            self.setProperty("class", "card card-interactive")
-            self.setCursor(Qt.CursorShape.PointingHandCursor)
-        else:
-            self.setProperty("class", "card")
-            self.setCursor(Qt.CursorShape.ArrowCursor)
-        self._refresh_style()
+    def enterEvent(self, event):
+        """REDESIGN: Hover — 边框发光 + 微微上浮"""
+        self.setStyleSheet(CardStyles.HOVER)
+        super().enterEvent(event)
 
-    def _refresh_style(self):
-        self.style().unpolish(self)
-        self.style().polish(self)
-        self.update()
+    def leaveEvent(self, event):
+        """REDESIGN: 离开恢复默认"""
+        self.setStyleSheet(CardStyles.DEFAULT)
+        super().leaveEvent(event)
 
 
-class MacElevatedCard(MacCard):
-    """提升的卡片（带阴影）"""
+class MacElevatedCard(QFrame):
+    """
+    悬浮卡片 — 用于预览/弹出层
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setProperty("class", "card card-elevated")
+        self.setStyleSheet(CardStyles.GLASS)
 
 
 class MacSection(QFrame):
-    """带标题的区域容器"""
+    """
+    区块容器 — 用于设置分组等
+    """
 
-    def __init__(self, title: str = "", parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.title = title
-        self._setup_ui()
-
-    def _setup_ui(self):
-        from PySide6.QtWidgets import QVBoxLayout, QLabel
-        from PySide6.QtGui import QFont
-        
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
-        
-        if self.title:
-            title_label = QLabel(self.title)
-            title_label.setFont(QFont("", 14, QFont.Weight.Bold))
-            layout.addWidget(title_label)
-        
-        self.content = QFrame()
-        self.content.setProperty("class", "section-content")
-        layout.addWidget(self.content)
+        self.setStyleSheet(f"""
+            QFrame {{
+                background: {CP.BG_BASE};
+                border-radius: {CP.Radius.LG};
+                padding: 16px;
+            }}
+        """)
