@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.5.0] - 2026-04-10
+
+### 🎨 UI 全面重设计
+
+- **创作向导重构 (Phase 1)**：3 步创作向导页面重设计
+- **WizardPage 信号管理**：修复信号重复绑定 + StepPipeline 断开旧连接
+- **StageCard 动画**：修复动画问题
+- **CreationWizardPage 继承 BasePage**：main_window 对接新向导
+
+### 🐛 Bug Fixes
+
+- 导出路径传递 + Step3 显示草稿位置
+- 向导页 3 处运行时问题修复
+- 清理废弃页面代码
+
+---
+
+## [3.4.1] - 2026-04-09
+
+### 🐛 Bug Fixes
+
+- 修复 UI 重构后全部 3 处问题
+
+---
+
+## [3.4.0] - 2026-04-09
+
+### 🎨 UI 重构 (P0/P1/P2/P3)
+
+- **P0 核心交付**：全面 UI 重构 + 死代码清理
+- OKLCH 色彩系统、OutCubic 缓动动画、专业设计规范
+
+---
+
+## [3.3.0] - 2026-04-08
+
+### ⚡ 性能优化
+
+- **Scene Detection**：视频场景检测性能改进
+
+---
+
 ## [3.2.0] - 2026-04-05
 
 ### Changed
