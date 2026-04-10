@@ -5,10 +5,6 @@
 - FFmpegTool        FFmpeg 封装（视频/音频处理）
 - CaptionGenerator  动态字幕生成
 - BaseVideoProcessor / IVideoProcessor  视频处理基类
-
-已移至 _legacy/ 的历史模块（不再维护）：
-clip_repurposing / clip_scorer / pace_analyzer /
-silence_remover / content_enhancer
 """
 
 from .ffmpeg_tool import FFmpegTool

@@ -376,3 +376,9 @@ RESEARCH_*.md
 SPEC.md
 PLAN.md
 ARCHITECTURE.md
+
+# Design/Architecture learning records
+.learnings/
+
+# Archived dead code (confirmation pending before deletion)
+_DEAD/

@@ -5,9 +5,6 @@
 - enums.py        工作流枚举（WorkflowStep/CreationMode/WorkflowStatus/ExportFormat）
 - models.py       工作流数据模型（VideoSource/ScriptData/TimelineData 等）
 - project_manager.py  项目管理
-
-已移至 _legacy/ 的历史模块（不再维护）：
-workflow_engine / prompt_templates / undo_manager
 """
 
 from .enums import (
@@ -45,7 +42,7 @@ __all__ = [
     "CreationMode",
     "WorkflowStatus",
     "ExportFormat",
-    # 数据模型
+    # 模型
     "VideoSource",
     "AnalysisResult",
     "ScriptData",
