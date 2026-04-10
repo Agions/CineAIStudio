@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-Step 3: 预览导出页 — REDESIGNED
+Step 3: 预览导出页 — OKLCH Design Tokens
 frontend-design-pro: OKLCH · 圆形播放按钮 · 选中态卡片
 """
 
@@ -21,17 +20,30 @@ from PySide6.QtMultimediaWidgets import QVideoWidget
 from app.ui.components import MacCard, MacTitleLabel, MacPrimaryButton, MacSecondaryButton
 
 
-# REDESIGN: OKLCH 调色板
-_C = {
-    "primary":    "#0A84FF",
-    "primary_l": "#2196FF",
-    "success":   "#10B981",
-    "bg_card":   "#0E1520",
-    "bg_input":  "#0A0E16",
-    "border":    "#1A2332",
-    "text":      "#E2E8F0",
-    "text_sub":  "#8098B0",
-    "text_muted":"#4A5A70",
+# ── OKLCH Design Tokens ──────────────────────────────────────
+_T = {
+    # Surface
+    "bg_card":    "oklch(0.16 0.01 250)",   # 卡片背景
+    "bg_input":   "oklch(0.13 0.01 250)",   # 输入/日志背景
+    "bg_active":  "oklch(0.17 0.01 250)",   # 选中态背景
+    "bg_base":    "oklch(0.13 0.01 250)",   # 页面背景
+    # Border
+    "border":     "oklch(0.24 0.01 250)",   # 默认边框
+    "border_h":   "oklch(0.30 0.02 250)",   # 悬停边框
+    "border_glow":"oklch(0.65 0.20 250)",   # 发光边框（主色）
+    # Text
+    "text":       "oklch(0.93 0.01 250)",   # 主要文字
+    "text_sub":   "oklch(0.75 0.01 250)",   # 次要文字
+    "text_muted": "oklch(0.55 0.01 250)",   # 辅助文字
+    # Primary
+    "primary":    "oklch(0.65 0.20 250)",   # 主色蓝
+    "primary_l":  "oklch(0.70 0.24 250)",  # 主色亮
+    "primary_d":  "oklch(0.55 0.18 250)",  # 主色暗（按下）
+    # Functional
+    "success":    "oklch(0.65 0.22 145)",  # 成功绿
+    # Gradient endpoints
+    "primary_g1": "oklch(0.65 0.20 250)",
+    "primary_g2": "oklch(0.72 0.22 200)",
 }
 
 
@@ -91,7 +103,7 @@ class ExportWorker(QThread):
 
 class SubtitleStyleCard(QFrame):
     """
-    字幕样式选择卡片 — REDESIGNED
+    字幕样式选择卡片 — OKLCH
     选中态: 主色边框发光 + 背景加深
     Hover: 边框微微亮起
     """
@@ -128,13 +140,13 @@ class SubtitleStyleCard(QFrame):
 
         name_label = QLabel(name)
         name_label.setFont(QFont("", 13, QFont.Weight.Bold))
-        name_label.setStyleSheet(f"color: {_C['text']};")
+        name_label.setStyleSheet(f"color: {_T['text']};")
         name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(name_label)
 
         desc_label = QLabel(desc)
         desc_label.setFont(QFont("", 11))
-        desc_label.setStyleSheet(f"color: {_C['text_sub']}; line-height: 1.4;")
+        desc_label.setStyleSheet(f"color: {_T['text_sub']}; line-height: 1.4;")
         desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
@@ -153,25 +165,25 @@ class SubtitleStyleCard(QFrame):
 
     def _apply_style(self):
         if self._is_selected:
-            # REDESIGN: 主色发光边框 + 背景加深
+            # OKLCH: 主色发光边框 + 背景加深
             self.setStyleSheet(f"""
                 QFrame {{
-                    background: #0A1A3A;
-                    border: 2px solid {_C['primary']};
+                    background: {_T['bg_active']};
+                    border: 2px solid {_T['primary']};
                     border-radius: 14px;
-                    box-shadow: 0 0 16px {_C['primary']}30;
+                    box-shadow: 0 0 16px oklch(0.65 0.20 250 / 0.20);
                 }}
             """)
         else:
-            # REDESIGN: 默认边框
+            # OKLCH: 默认边框
             self.setStyleSheet(f"""
                 QFrame {{
-                    background: {_C['bg_card']};
-                    border: 1px solid {_C['border']};
+                    background: {_T['bg_card']};
+                    border: 1px solid {_T['border']};
                     border-radius: 14px;
                 }}
                 QFrame:hover {{
-                    border-color: {_C['primary']}80;
+                    border-color: {_T['primary']}99;
                 }}
             """)
 
@@ -181,7 +193,7 @@ class SubtitleStyleCard(QFrame):
 
 class StepExport(QWidget):
     """
-    向导 Step 3 — REDESIGNED
+    向导 Step 3 — OKLCH Design Tokens
     播放按钮: 圆形 · 字幕卡片: 选中发光
     """
 
@@ -205,7 +217,7 @@ class StepExport(QWidget):
         # 标题
         title = QLabel("预览与导出")
         title.setFont(QFont("", 20, QFont.Weight.Bold))
-        title.setStyleSheet(f"color: {_C['text']};")
+        title.setStyleSheet(f"color: {_T['text']};")
         layout.addWidget(title)
 
         # 预览区
@@ -224,7 +236,7 @@ class StepExport(QWidget):
         )
         video_layout.addWidget(self.video_widget)
 
-        # 播放控制栏 — REDESIGN: 圆形播放按钮
+        # 播放控制栏 — OKLCH: 圆形播放按钮
         controls = QHBoxLayout()
         controls.setSpacing(12)
 
@@ -233,18 +245,14 @@ class StepExport(QWidget):
         self.play_btn.setFixedSize(40, 40)
         self.play_btn.setStyleSheet(f"""
             QPushButton {{
-                background: {_C['primary']};
+                background: {_T['primary']};
                 border: none;
                 border-radius: 20px;
                 color: #FFFFFF;
                 font-size: 14px;
             }}
-            QPushButton:hover {{
-                background: {_C['primary_l']};
-            }}
-            QPushButton:pressed {{
-                background: #0070E0;
-            }}
+            QPushButton:hover {{ background: {_T['primary_l']}; }}
+            QPushButton:pressed {{ background: {_T['primary_d']}; }}
         """)
         self.play_btn.clicked.connect(self._toggle_playback)
         controls.addWidget(self.play_btn)
@@ -257,21 +265,21 @@ class StepExport(QWidget):
         self.progress_slider.setTextVisible(False)
         self.progress_slider.setStyleSheet(f"""
             QProgressBar {{
-                background: {_C['bg_input']};
+                background: {_T['bg_input']};
                 border: none;
                 border-radius: 2px;
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_C['primary']},
-                    stop:1 #00C8FF);
+                    stop:0 {_T['primary_g1']},
+                    stop:1 {_T['primary_g2']});
                 border-radius: 2px;
             }}
         """)
         controls.addWidget(self.progress_slider, 1)
 
         self.time_label = QLabel("0:00 / 0:00")
-        self.time_label.setStyleSheet(f"color: {_C['text_sub']}; font-size: 11px;")
+        self.time_label.setStyleSheet(f"color: {_T['text_sub']}; font-size: 11px;")
         controls.addWidget(self.time_label)
 
         video_layout.addLayout(controls)
@@ -285,7 +293,7 @@ class StepExport(QWidget):
 
         # 字幕样式
         sub_title = QLabel("字幕样式")
-        sub_title.setStyleSheet(f"color: {_C['text_sub']}; font-size: 13px; font-weight: 600;")
+        sub_title.setStyleSheet(f"color: {_T['text_sub']}; font-size: 13px; font-weight: 600;")
         config_layout.addWidget(sub_title)
 
         sub_style_layout = QHBoxLayout()
@@ -302,7 +310,7 @@ class StepExport(QWidget):
 
         # 导出格式
         fmt_title = QLabel("导出格式")
-        fmt_title.setStyleSheet(f"color: {_C['text_sub']}; font-size: 13px; font-weight: 600;")
+        fmt_title.setStyleSheet(f"color: {_T['text_sub']}; font-size: 13px; font-weight: 600;")
         config_layout.addWidget(fmt_title)
 
         self.fmt_group = QButtonGroup()
@@ -315,18 +323,18 @@ class StepExport(QWidget):
             radio = QRadioButton(fmt_name)
             radio.setStyleSheet(f"""
                 QRadioButton {{
-                    color: {_C['text']};
+                    color: {_T['text']};
                     font-size: 13px;
                     spacing: 8px;
                 }}
                 QRadioButton::indicator {{
                     width: 16px; height: 16px;
-                    border: 1px solid {_C['border']};
+                    border: 1px solid {_T['border']};
                     border-radius: 8px;
                 }}
                 QRadioButton::indicator:checked {{
-                    background: {_C['primary']};
-                    border-color: {_C['primary']};
+                    background: {_T['primary']};
+                    border-color: {_T['primary']};
                 }}
             """)
             radio.setChecked(fmt_id == "jianying")
@@ -340,7 +348,7 @@ class StepExport(QWidget):
         out_layout = QHBoxLayout()
         out_layout.setSpacing(8)
         out_label = QLabel("保存至")
-        out_label.setStyleSheet(f"color: {_C['text']}; font-size: 13px;")
+        out_label.setStyleSheet(f"color: {_T['text']}; font-size: 13px;")
         out_layout.addWidget(out_label)
         out_layout.addStretch()
 
@@ -350,14 +358,14 @@ class StepExport(QWidget):
         browse_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {_C['text_sub']};
-                border: 1px solid {_C['border']};
+                color: {_T['text_sub']};
+                border: 1px solid {_T['border']};
                 border-radius: 8px;
                 font-size: 12px;
             }}
             QPushButton:hover {{
-                border-color: {_C['primary']};
-                color: {_C['text']};
+                border-color: {_T['primary']};
+                color: {_T['text']};
             }}
         """)
         browse_btn.clicked.connect(self._browse_output)
@@ -365,11 +373,11 @@ class StepExport(QWidget):
         config_layout.addLayout(out_layout)
 
         self.out_path_label = QLabel("默认保存至项目目录")
-        self.out_path_label.setStyleSheet(f"color: {_C['text_muted']}; font-size: 12px;")
+        self.out_path_label.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
         self.out_path_label.setWordWrap(True)
         config_layout.addWidget(self.out_path_label)
 
-        # 导出进度条 — REDESIGN: 蓝色渐变
+        # 导出进度条 — OKLCH: 蓝绿渐变
         self.export_progress = QProgressBar()
         self.export_progress.setFixedHeight(8)
         self.export_progress.setRange(0, 100)
@@ -377,33 +385,33 @@ class StepExport(QWidget):
         self.export_progress.setVisible(False)
         self.export_progress.setStyleSheet(f"""
             QProgressBar {{
-                background: {_C['bg_input']};
+                background: {_T['bg_input']};
                 border: none;
                 border-radius: 4px;
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_C['primary']},
-                    stop:1 {_C['success']});
+                    stop:0 {_T['primary_g1']},
+                    stop:1 {_T['success']});
                 border-radius: 4px;
             }}
         """)
         config_layout.addWidget(self.export_progress)
 
         self.export_status_label = QLabel("")
-        self.export_status_label.setStyleSheet(f"color: {_C['text_muted']}; font-size: 11px;")
+        self.export_status_label.setStyleSheet(f"color: {_T['text_muted']}; font-size: 11px;")
         self.export_status_label.setVisible(False)
         config_layout.addWidget(self.export_status_label)
 
-        # 导出按钮 — REDESIGN: 主色渐变
+        # 导出按钮 — OKLCH: 主色渐变
         self.export_btn = QPushButton("导出视频")
         self.export_btn.setFixedHeight(44)
         self.export_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.export_btn.setStyleSheet(f"""
             QPushButton {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_C['primary']},
-                    stop:1 {_C['primary_l']});
+                    stop:0 {_T['primary_g1']},
+                    stop:1 {_T['primary_g2']});
                 color: #FFFFFF;
                 border: none;
                 border-radius: 12px;
@@ -412,12 +420,12 @@ class StepExport(QWidget):
             }}
             QPushButton:hover {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_C['primary_l']},
-                    stop:1 {_C['primary']});
+                    stop:0 {_T['primary_g2']},
+                    stop:1 {_T['primary_g1']});
             }}
             QPushButton:disabled {{
-                background: #1A2740;
-                color: #3A4A60;
+                background: {_T['bg_active']};
+                color: {_T['text_muted']};
             }}
         """)
         self.export_btn.clicked.connect(self._do_export)
@@ -436,14 +444,14 @@ class StepExport(QWidget):
         self.back_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {_C['text_sub']};
-                border: 1px solid {_C['border']};
+                color: {_T['text_sub']};
+                border: 1px solid {_T['border']};
                 border-radius: 10px;
                 font-size: 13px;
             }}
             QPushButton:hover {{
-                border-color: {_C['primary']};
-                color: {_C['text']};
+                border-color: {_T['primary']};
+                color: {_T['text']};
             }}
         """)
         self.back_btn.clicked.connect(lambda: self.restart_requested.emit())

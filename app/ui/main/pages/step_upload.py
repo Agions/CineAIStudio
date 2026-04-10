@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Step 1: 上传配置 — REDESIGNED"""
+"""Step 1: 上传配置 — OKLCH Design Tokens"""
 
 import os, json, subprocess
 from pathlib import Path
@@ -13,9 +13,35 @@ from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent
 
 from ...components import MacCard, MacPrimaryButton, MacSecondaryButton, MacLabel
 
+# ── OKLCH Design Tokens ──────────────────────────────────────
+# Reference: app/ui/theme/tokens.py
+_T = {
+    # Surface
+    "bg_card":   "oklch(0.16 0.01 250)",   # #1a1a1a 卡片背景
+    "bg_input":  "oklch(0.13 0.01 250)",   # #121212 输入框背景
+    "bg_hover":  "oklch(0.14 0.01 250)",   # 悬停状态
+    "bg_active": "oklch(0.17 0.01 250)",   # 激活状态
+    # Border
+    "border":    "oklch(0.24 0.01 250)",   # #2e2e2e 默认边框
+    "border_h":   "oklch(0.30 0.02 250)",  # 悬停边框
+    # Text
+    "text":      "oklch(0.93 0.01 250)",   # #e8e8e8 主要文字
+    "text_sub":  "oklch(0.75 0.01 250)",   # #a8a8a8 次要文字
+    "text_muted":"oklch(0.55 0.01 250)",   # #787878 辅助文字
+    "text_disabled":"oklch(0.40 0.01 250)", # #555 禁用文字
+    # Primary
+    "primary":   "oklch(0.65 0.20 250)",   # #388BFD 主色蓝
+    "primary_l": "oklch(0.70 0.24 250)",   # 悬停主色
+    # Functional
+    "success":   "oklch(0.65 0.22 145)",   # #2EA043 成功绿
+    # Gradient
+    "primary_g1": "oklch(0.65 0.20 250)",
+    "primary_g2": "oklch(0.72 0.22 200)",  # 青蓝渐变端点
+}
+
 
 class VideoDropZone(QFrame):
-    """REDESIGNED: 24px圆角 · active边框加粗"""
+    """OKLCH: 24px圆角 · active边框加粗"""
     file_selected = Signal(str)
 
     def __init__(self, parent=None):
@@ -26,10 +52,21 @@ class VideoDropZone(QFrame):
         self.setMinimumHeight(160)
 
     def _setup_ui(self):
-        self.setStyleSheet("""
-            QFrame { border: 2px dashed #1E2D42; border-radius: 24px; background: #0A0E16; }
-            QFrame:hover { border-color: #0A84FF; background: #0C1020; }
-            QFrame[active="true"] { border-color: #0A84FF; border-width: 3px; background: #0A1028; }
+        self.setStyleSheet(f"""
+            QFrame {{
+                border: 2px dashed {_T['border']};
+                border-radius: 24px;
+                background: {_T['bg_input']};
+            }}
+            QFrame:hover {{
+                border-color: {_T['primary']};
+                background: {_T['bg_hover']};
+            }}
+            QFrame[active="true"] {{
+                border-color: {_T['primary']};
+                border-width: 3px;
+                background: {_T['bg_active']};
+            }}
         """)
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -40,7 +77,7 @@ class VideoDropZone(QFrame):
         layout.addWidget(self.icon_label)
         self.text_label = QLabel("将视频文件拖放到此处，或点击选择")
         self.text_label.setFont(QFont("", 14))
-        self.text_label.setStyleSheet("color: #4A5A70;")
+        self.text_label.setStyleSheet(f"color: {_T['text_muted']};")
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.text_label)
         self.select_btn = QPushButton("选择视频文件")
@@ -59,7 +96,7 @@ class VideoDropZone(QFrame):
     def _set_file(self, path: str):
         self._file_path = path
         self.text_label.setText(f"📄 {Path(path).name}")
-        self.text_label.setStyleSheet("color: #3FB950; font-weight: 600;")
+        self.text_label.setStyleSheet(f"color: {_T['success']}; font-weight: 600;")
         self.icon_label.setText("✅")
         self.file_selected.emit(path)
 
@@ -87,14 +124,18 @@ class VideoDropZone(QFrame):
 
 
 class VideoMetadataPanel(QFrame):
-    """REDESIGNED: oklch色彩 · 12px圆角"""
+    """OKLCH: 12px圆角 · tokens 色彩"""
     def __init__(self, parent=None):
         super().__init__(parent)
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setStyleSheet("""
-            QFrame { background: #0E1520; border-radius: 12px; border: 1px solid #1A2332; }
+        self.setStyleSheet(f"""
+            QFrame {{
+                background: {_T['bg_card']};
+                border-radius: 12px;
+                border: 1px solid {_T['border']};
+            }}
         """)
         layout = QGridLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
@@ -106,10 +147,10 @@ class VideoMetadataPanel(QFrame):
             ("size", "文件大小"), ("format", "格式"),
         ]):
             lbl_name = QLabel(label_text)
-            lbl_name.setStyleSheet("color: #4A5A70; font-size: 12px;")
+            lbl_name.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
             layout.addWidget(lbl_name, i, 0)
             lbl_value = QLabel("—")
-            lbl_value.setStyleSheet("color: #E2E8F0; font-size: 12px; font-weight: 600;")
+            lbl_value.setStyleSheet(f"color: {_T['text']}; font-size: 12px; font-weight: 600;")
             layout.addWidget(lbl_value, i, 1)
             self.labels[key] = lbl_value
 
@@ -137,7 +178,7 @@ class VideoMetadataPanel(QFrame):
 
 
 class StepUpload(QWidget):
-    """Step 1 — REDESIGNED"""
+    """Step 1 — OKLCH Design Tokens"""
     config_ready = Signal(str, str, object, str, str)
 
     def __init__(self, parent=None):
@@ -152,11 +193,11 @@ class StepUpload(QWidget):
 
         title = QLabel("创作新解说")
         title.setFont(QFont("", 20, QFont.Weight.Bold))
-        title.setStyleSheet("color: #E2E8F0;")
+        title.setStyleSheet(f"color: {_T['text']};")
         layout.addWidget(title)
 
         hint = QLabel("上传视频后，AI 将代入主角视角生成解说词")
-        hint.setStyleSheet("color: #4A5A70; font-size: 12px;")
+        hint.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
         layout.addWidget(hint)
 
         self.drop_zone = VideoDropZone()
@@ -173,20 +214,27 @@ class StepUpload(QWidget):
         gl.setSpacing(16)
 
         ctx_lbl = QLabel("解说场景")
-        ctx_lbl.setStyleSheet("color: #8098B0; font-size: 13px;")
+        ctx_lbl.setStyleSheet(f"color: {_T['text_sub']}; font-size: 13px;")
         gl.addWidget(ctx_lbl, 0, 0)
         self.ctx_input = QLineEdit()
         self.ctx_input.setPlaceholderText("例如：在咖啡馆独自工作，感受午后阳光...")
         self.ctx_input.setMinimumHeight(40)
-        self.ctx_input.setStyleSheet("""
-            QLineEdit { background: #0A0E16; color: #D0E0F0; border: 1px solid #1A2332; border-radius: 10px; padding: 0 12px; font-size: 13px; }
-            QLineEdit:focus { border-color: #0A84FF; }
-            QLineEdit::placeholder { color: #3A4A60; }
+        self.ctx_input.setStyleSheet(f"""
+            QLineEdit {{
+                background: {_T['bg_input']};
+                color: {_T['text']};
+                border: 1px solid {_T['border']};
+                border-radius: 10px;
+                padding: 0 12px;
+                font-size: 13px;
+            }}
+            QLineEdit:focus {{ border-color: {_T['primary']}; }}
+            QLineEdit::placeholder {{ color: {_T['text_muted']}; }}
         """)
         gl.addWidget(self.ctx_input, 0, 1, 1, 2)
 
         emotion_lbl = QLabel("情感风格")
-        emotion_lbl.setStyleSheet("color: #8098B0; font-size: 13px;")
+        emotion_lbl.setStyleSheet(f"color: {_T['text_sub']}; font-size: 13px;")
         gl.addWidget(emotion_lbl, 1, 0)
         self.emotion_combo = QComboBox()
         self.emotion_combo.addItems(["治愈", "悬疑", "励志", "怀旧", "浪漫"])
@@ -194,7 +242,7 @@ class StepUpload(QWidget):
         gl.addWidget(self.emotion_combo, 1, 1, 1, 2)
 
         style_lbl = QLabel("解说长度")
-        style_lbl.setStyleSheet("color: #8098B0; font-size: 13px;")
+        style_lbl.setStyleSheet(f"color: {_T['text_sub']}; font-size: 13px;")
         gl.addWidget(style_lbl, 2, 0)
         self.style_combo = QComboBox()
         self.style_combo.addItems(["简洁版", "标准版", "详细版"])
@@ -214,11 +262,25 @@ class StepUpload(QWidget):
         layout.addLayout(btn_layout)
 
     def _style_combo(self, combo: QComboBox):
-        combo.setStyleSheet("""
-            QComboBox { background-color: #0F1929; color: #C0D0E0; border: 1px solid #1E2D42; border-radius: 10px; padding: 10px 16px; font-size: 13px; }
-            QComboBox:hover { border-color: #2A4060; }
-            QComboBox:focus { border-color: #0A84FF; }
-            QComboBox QAbstractItemView { background-color: #0F1929; border: 1px solid #1E2D42; border-radius: 10px; color: #C0D0E0; selection-background-color: #0F2640; padding: 4px; }
+        combo.setStyleSheet(f"""
+            QComboBox {{
+                background-color: {_T['bg_card']};
+                color: {_T['text']};
+                border: 1px solid {_T['border']};
+                border-radius: 10px;
+                padding: 10px 16px;
+                font-size: 13px;
+            }}
+            QComboBox:hover {{ border-color: {_T['border_h']}; }}
+            QComboBox:focus {{ border-color: {_T['primary']}; }}
+            QComboBox QAbstractItemView {{
+                background-color: {_T['bg_card']};
+                border: 1px solid {_T['border']};
+                border-radius: 10px;
+                color: {_T['text']};
+                selection-background-color: {_T['bg_active']};
+                padding: 4px;
+            }}
         """)
 
     def _on_video_selected(self, path: str):

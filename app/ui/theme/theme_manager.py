@@ -7,29 +7,68 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QObject, Signal, QTimer
 
+# OKLCH Design Token source — all ThemeColors must reference these.
+from app.ui.theme.tokens import COLORS, LIGHT_TOKENS, DARK_TOKENS
+
+
+def _oklch(key: str, mode: str = "dark") -> str:
+    """Resolve an OKLCH token by key, mode-sensitively."""
+    tokens = DARK_TOKENS if mode == "dark" else LIGHT_TOKENS
+    return tokens.get(key, COLORS.get(key, "oklch(0.50 0.00 0)"))
+
+
 from ...core.config_manager import ThemeConfig
 
 
 @dataclass
 class ThemeColors:
-    """主题颜色 - Narrafiilm 现代暗色"""
-    primary: str = "#388BFD"
-    secondary: str = "#1F6FEB"
-    background: str = "#0D1117"
-    surface: str = "#161B22"
-    card: str = "#161B22"
-    text: str = "#E6EDF3"
-    text_secondary: str = "#C9D1D9"
-    border: str = "#30363D"
-    divider: str = "#21262D"
-    error: str = "#DA3633"
-    warning: str = "#D29922"
-    success: str = "#238636"
-    info: str = "#388BFD"
-    accent: str = "#A371F7"
-    tertiary: str = "#8B5CF6"
-    light: str = "#DBEAFE"
-    dark: str = "#1E40AF"
+    """主题颜色 — OKLCH Design Tokens (Narrafiilm)"""
+    # Primary
+    primary: str = ""
+    secondary: str = ""
+    # Surface
+    background: str = ""
+    surface: str = ""
+    card: str = ""
+    # Text
+    text: str = ""
+    text_secondary: str = ""
+    # Border / Divider
+    border: str = ""
+    divider: str = ""
+    # Functional
+    error: str = ""
+    warning: str = ""
+    success: str = ""
+    info: str = ""
+    # Accent
+    accent: str = ""
+    tertiary: str = ""
+    light: str = ""
+    dark: str = ""
+
+    @classmethod
+    def from_mode(cls, mode: str = "dark") -> "ThemeColors":
+        """Build a ThemeColors instance from OKLCH tokens."""
+        return cls(
+            primary=_oklch("primary", mode),
+            secondary=_oklch("primary-hover", mode),
+            background=_oklch("bg-base", mode),
+            surface=_oklch("bg-surface", mode),
+            card=_oklch("bg-surface", mode),
+            text=_oklch("text-primary", mode),
+            text_secondary=_oklch("text-secondary", mode),
+            border=_oklch("border-default", mode),
+            divider=_oklch("border-subtle", mode),
+            error=_oklch("error", mode),
+            warning=_oklch("warning", mode),
+            success=_oklch("success", mode),
+            info=_oklch("info", mode),
+            accent=_oklch("accent", mode),
+            tertiary=_oklch("accent-subtle", mode),
+            light=_oklch("primary-subtle", mode),
+            dark=_oklch("primary-pressed", mode),
+        )
 
 
 class ThemePreset:
@@ -53,151 +92,69 @@ class ThemeManager(QObject):
 
         self.theme_config = theme_config
         self.current_mode = theme_config.mode
-        self.colors = ThemeColors()
+        self.colors = ThemeColors.from_mode(theme_config.mode)
         self.theme_presets: List[ThemePreset] = []
-        
+
         # 初始化主题预设
         self._initialize_theme_presets()
-        
+
         # 更新颜色配置
         self._update_colors()
 
     def _initialize_theme_presets(self) -> None:
-        """初始化主题预设"""
-        # 深色主题预设 - Narrafiilm 现代暗色
-        dark_colors = ThemeColors(
-            primary="#388BFD",
-            secondary="#1F6FEB",
-            background="#0D1117",
-            surface="#161B22",
-            card="#161B22",
-            text="#E6EDF3",
-            text_secondary="#C9D1D9",
-            border="#30363D",
-            divider="#21262D",
-            error="#DA3633",
-            warning="#D29922",
-            success="#238636",
-            info="#388BFD",
-            accent="#A371F7",
-            tertiary="#8B5CF6",
-            light="#DBEAFE",
-            dark="#1E40AF"
-        )
+        """初始化主题预设 — 深色/浅色使用 OKLCH tokens，彩色变体保留 hex"""
+        # OKLCH 深色/浅色主题
+        dark_colors   = ThemeColors.from_mode("dark")
+        light_colors  = ThemeColors.from_mode("light")
 
-        # 浅色主题预设
-        light_colors = ThemeColors(
-            primary="#0969DA",
-            secondary="#0550AE",
-            background="#FFFFFF",
-            surface="#F6F8FA",
-            card="#FFFFFF",
-            text="#1F2328",
-            text_secondary="#656D76",
-            border="#D0D7DE",
-            divider="#D8DEE4",
-            error="#CF222E",
-            warning="#9A6700",
-            success="#1A7F37",
-            info="#0969DA",
-            accent="#BF3989",
-            tertiary="#8250DF",
-            light="#F0F3F6",
-            dark="#0550AE"
-        )
-
-        # 蓝调深色主题 - GitHub 风格
+        # 蓝调深色 — GitHub 风格（保留定制 hex）
         blue_dark_colors = ThemeColors(
-            primary="#388BFD",
-            secondary="#1F6FEB",
-            background="#0D1117",
-            surface="#161B22",
-            card="#161B22",
-            text="#E6EDF3",
-            text_secondary="#C9D1D9",
-            border="#30363D",
-            divider="#21262D",
-            error="#DA3633",
-            warning="#D29922",
-            success="#238636",
-            info="#388BFD",
-            accent="#A371F7",
-            tertiary="#8B5CF6",
-            light="#DBEAFE",
-            dark="#1E40AF"
+            primary="#388BFD", secondary="#1F6FEB", background="#0D1117",
+            surface="#161B22", card="#161B22", text="#E6EDF3",
+            text_secondary="#C9D1D9", border="#30363D", divider="#21262D",
+            error="#DA3633", warning="#D29922", success="#238636",
+            info="#388BFD", accent="#A371F7", tertiary="#8B5CF6",
+            light="#DBEAFE", dark="#1E40AF"
         )
-        
-        # 森林绿色主题
+
+        # 森林绿色（保留定制 hex）
         forest_colors = ThemeColors(
-            primary="#22C55E",
-            secondary="#16A34A",
-            background="#064E3B",
-            surface="#14532D",
-            card="#14532D",
-            text="#ECFDF5",
-            text_secondary="#99F6E4",
-            border="#16A34A",
-            divider="#15803D",
-            error="#EF4444",
-            warning="#F59E0B",
-            success="#22C55E",
-            info="#3B82F6",
-            accent="#8B5CF6",
-            tertiary="#EC4899",
-            light="#BBF7D0",
-            dark="#052E16"
+            primary="#22C55E", secondary="#16A34A", background="#064E3B",
+            surface="#14532D", card="#14532D", text="#ECFDF5",
+            text_secondary="#99F6E4", border="#16A34A", divider="#15803D",
+            error="#EF4444", warning="#F59E0B", success="#22C55E",
+            info="#3B82F6", accent="#8B5CF6", tertiary="#EC4899",
+            light="#BBF7D0", dark="#052E16"
         )
-        
-        # 紫色主题
+
+        # 紫色主题（保留定制 hex）
         purple_colors = ThemeColors(
-            primary="#9C27B0",
-            secondary="#7B1FA2",
-            background="#121212",
-            surface="#1E1B1E",
-            card="#1E1B1E",
-            text="#FFFFFF",
-            text_secondary="#E0E0E0",
-            border="#4A148C",
-            divider="#311B92",
-            error="#F44336",
-            warning="#FFB300",
-            success="#66BB6A",
-            info="#2196F3",
-            accent="#EC407A",
-            tertiary="#5C6BC0",
-            light="#E1BEE7",
-            dark="#4A148C"
+            primary="#9C27B0", secondary="#7B1FA2", background="#121212",
+            surface="#1E1B1E", card="#1E1B1E", text="#FFFFFF",
+            text_secondary="#E0E0E0", border="#4A148C", divider="#311B92",
+            error="#F44336", warning="#FFB300", success="#66BB6A",
+            info="#2196F3", accent="#EC407A", tertiary="#5C6BC0",
+            light="#E1BEE7", dark="#4A148C"
         )
-        
-        # 橙色主题
+
+        # 橙色主题（保留定制 hex）
         orange_colors = ThemeColors(
-            primary="#FF5722",
-            secondary="#E64A19",
-            background="#263238",
-            surface="#37474F",
-            card="#37474F",
-            text="#FFFFFF",
-            text_secondary="#CFD8DC",
-            border="#546E7A",
-            divider="#455A64",
-            error="#F44336",
-            warning="#FFB74D",
-            success="#81C784",
-            info="#4FC3F7",
-            accent="#9575CD",
-            tertiary="#FF8A65",
-            light="#FFCCBC",
-            dark="#BF360C"
+            primary="#FF5722", secondary="#E64A19", background="#263238",
+            surface="#37474F", card="#37474F", text="#FFFFFF",
+            text_secondary="#CFD8DC", border="#546E7A", divider="#455A64",
+            error="#F44336", warning="#FFB74D", success="#81C784",
+            info="#4FC3F7", accent="#9575CD", tertiary="#FF8A65",
+            light="#FFCCBC", dark="#BF360C"
         )
-        
+
         # 添加主题预设
         self.theme_presets = [
-            ThemePreset("深色主题", "dark", dark_colors),
-            ThemePreset("浅色主题", "light", light_colors),
-            ThemePreset("蓝调深色", "dark", blue_dark_colors),
-            ThemePreset("森林绿色", "dark", forest_colors),
-            ThemePreset("紫色主题", "dark", purple_colors),
-            ThemePreset("橙色主题", "dark", orange_colors)
+            ThemePreset("深色主题",   "dark",  dark_colors),
+            ThemePreset("浅色主题",   "light", light_colors),
+            ThemePreset("蓝调深色",   "dark",  blue_dark_colors),
+            ThemePreset("森林绿色",   "dark",  forest_colors),
+            ThemePreset("紫色主题",   "dark",  purple_colors),
+            ThemePreset("橙色主题",   "dark",  orange_colors),
         ]
 
     def get_available_themes(self) -> List[str]:
@@ -223,37 +180,19 @@ class ThemeManager(QObject):
             self.theme_applied.emit()
 
     def _update_colors(self) -> None:
-        """更新颜色配置"""
-        if self.current_mode == "dark":
-            self.colors = ThemeColors(
-                primary=self.theme_config.primary_color,
-                secondary=self.theme_config.secondary_color,
-                background=self.theme_config.background_color,
-                surface=self.theme_config.surface_color,
-                text=self.theme_config.text_color,
-                border="#404040",
-                divider="#555555",
-                accent="#FF4081",
-                tertiary="#9C27B0",
-                light="#E3F2FD",
-                dark="#0D47A1"
-            )
-        else:
-            self.colors = ThemeColors(
-                primary=self.theme_config.primary_color,
-                secondary=self.theme_config.secondary_color,
-                background="#FFFFFF",
-                surface="#F5F5F5",
-                card="#FFFFFF",
-                text="#000000",
-                text_secondary="#666666",
-                border="#E0E0E0",
-                divider="#EEEEEE",
-                accent="#FF4081",
-                tertiary="#9C27B0",
-                light="#E3F2FD",
-                dark="#0D47A1"
-            )
+        """更新颜色配置 — 从 OKLCH tokens 驱动"""
+        self.colors = ThemeColors.from_mode(self.current_mode)
+        # Allow theme_config overrides if explicitly set (non-empty)
+        if self.theme_config.primary_color:
+            self.colors.primary = self.theme_config.primary_color
+        if self.theme_config.secondary_color:
+            self.colors.secondary = self.theme_config.secondary_color
+        if self.theme_config.background_color:
+            self.colors.background = self.theme_config.background_color
+        if self.theme_config.surface_color:
+            self.colors.surface = self.theme_config.surface_color
+        if self.theme_config.text_color:
+            self.colors.text = self.theme_config.text_color
 
     def set_theme_mode(self, mode: str) -> None:
         """设置主题模式"""

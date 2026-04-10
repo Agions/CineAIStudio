@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CreationWizardPage — REDESIGNED
+CreationWizardPage — OKLCH Design Tokens
 frontend-design-pro: OKLCH色彩 · OutCubic动效 · 脉冲指示器
 
 架构：
@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QStackedWidget,
     QGraphicsOpacityEffect
 )
-from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QTimer
+from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QTimer, QPoint
 from PySide6.QtGui import QFont
 
 from .base_page import BasePage
@@ -23,16 +23,37 @@ from .step_pipeline import StepPipeline
 from .step_export import StepExport
 from app.orchestration.pipeline_controller import PipelineController
 
+# ── OKLCH Design Tokens ──────────────────────────────────────
+_T = {
+    # Surface
+    "bg_indicator": "oklch(0.14 0.01 250)",  # 指示器背景
+    # Border
+    "border":        "oklch(0.20 0.01 250)",  # 指示器底部边框
+    "border_pending":"oklch(0.24 0.01 250)",  # 待完成态
+    # Text
+    "text":          "oklch(0.93 0.01 250)",  # 主要文字
+    "text_muted":    "oklch(0.55 0.01 250)",  # 辅助文字
+    # Primary
+    "primary":       "oklch(0.65 0.20 250)",  # 主色蓝
+    "primary_l":     "oklch(0.70 0.24 250)",  # 脉冲亮色
+    # Stage states
+    "done":          "oklch(0.65 0.20 250)",  # 完成态（主色）
+    # Easing (for reference)
+    "ease_out":      "cubic-bezier(0.16, 1, 0.3, 1)",  # OutCubic
+}
+
+# ── Animation constants ──────────────────────────────────────
+_ANIM_DURATION = 280  # ms — OutCubic page transition
+_PULSE_INTERVAL = 800  # ms — active dot pulse
+
 
 class AnimatedDot(QFrame):
     """
-    脉冲动画圆点 — REDESIGNED
-    当前步骤：脉冲发光效果
+    脉冲动画圆点 — OKLCH
+    当前步骤：脉冲发光效果（primary ↔ primary_l 交替）
     已完成：静态主色
-    待完成：暗色
+    待完成：透明边框
     """
-
-    _PULSE_INTERVAL = 800  # ms
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -52,12 +73,12 @@ class AnimatedDot(QFrame):
         if self._state == "done":
             self.setStyleSheet(f"""
                 QFrame {{
-                    background: #0A84FF;
+                    background: {_T['done']};
                     border-radius: 10px;
                 }}
             """)
         elif self._state == "active":
-            color = "#2196FF" if self._anim_toggle else "#0A84FF"
+            color = _T["primary_l"] if self._anim_toggle else _T["primary"]
             self.setStyleSheet(f"""
                 QFrame {{
                     background: {color};
@@ -68,7 +89,7 @@ class AnimatedDot(QFrame):
             self.setStyleSheet(f"""
                 QFrame {{
                     background: transparent;
-                    border: 2px solid #2A3A50;
+                    border: 2px solid {_T['border_pending']};
                     border-radius: 10px;
                 }}
             """)
@@ -76,7 +97,7 @@ class AnimatedDot(QFrame):
     def _start_pulse(self):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._toggle)
-        self._timer.start(self._PULSE_INTERVAL)
+        self._timer.start(_PULSE_INTERVAL)
 
     def _stop_pulse(self):
         if hasattr(self, "_timer"):
@@ -89,9 +110,9 @@ class AnimatedDot(QFrame):
 
 class StepIndicator(QFrame):
     """
-    横向步骤指示器 — REDESIGNED
+    横向步骤指示器 — OKLCH
     [脉冲点 Step1] —— [○ Step2] —— [○ Step3]
-    主动画效: OutCubic 缓动
+    主动画效: OutCubic 缓动（由 QPropertyAnimation 驱动）
     """
 
     step_clicked = Signal(int)
@@ -108,9 +129,9 @@ class StepIndicator(QFrame):
         self.setStyleSheet(f"""
             QFrame {{
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #0F1929,
-                    stop:1 #0C1018);
-                border-bottom: 1px solid #141E2E;
+                    stop:0 {_T['bg_indicator']},
+                    stop:1 {_T['bg_indicator']});
+                border-bottom: 1px solid {_T['border']};
                 border-radius: 0px;
             }}
         """)
@@ -134,15 +155,15 @@ class StepIndicator(QFrame):
             layout.addWidget(lbl)
 
             if i < len(self._STEPS) - 1:
-                # 分隔线 — REDESIGN: 渐变色
+                # 分隔线 — OKLCH 渐变
                 line = QFrame()
                 line.setFrameShape(QFrame.Shape.HLine)
-                line.setStyleSheet("""
+                line.setStyleSheet(f"""
                     border: none;
                     border-top: 2px solid qlineargradient(
                         x1:0, y1:0, x2:1, y2:0,
-                        stop:0 #0A84FF,
-                        stop:1 #141E2E);
+                        stop:0 {_T['primary']},
+                        stop:1 {_T['border_pending']});
                     margin: 0 8px;
                 """)
                 layout.addWidget(line, 1)
@@ -159,9 +180,9 @@ class StepIndicator(QFrame):
 
     def _update_lbl(self, lbl: QLabel, index: int):
         if index <= self._current:
-            lbl.setStyleSheet("color: #E2E8F0; font-size: 13px; font-weight: 700;")
+            lbl.setStyleSheet(f"color: {_T['text']}; font-size: 13px; font-weight: 700;")
         else:
-            lbl.setStyleSheet("color: #4A5A70; font-size: 13px;")
+            lbl.setStyleSheet(f"color: {_T['text_muted']}; font-size: 13px;")
 
     def set_current(self, step: int):
         self._current = step
@@ -174,8 +195,8 @@ class StepIndicator(QFrame):
 
 class CreationWizardPage(BasePage):
     """
-    创作向导主页面 — REDESIGNED
-    页面切换: QPropertyAnimation + OutCubic 缓动
+    创作向导主页面 — OKLCH Design Tokens
+    页面切换: QPropertyAnimation + OutCubic 缓动（{_ANIM_DURATION}ms）
     """
 
     def __init__(self, page_id: str, title: str, application):
@@ -234,20 +255,20 @@ class CreationWizardPage(BasePage):
             self._is_animating = False
             return
 
-        # 滑入动画: OutCubic 280ms
+        # 滑入动画: OutCubic {_ANIM_DURATION}ms
         if old_widget:
             old_anim = QPropertyAnimation(old_widget, b"pos")
-            old_anim.setDuration(280)
+            old_anim.setDuration(_ANIM_DURATION)
             old_anim.setStartValue(old_widget.pos())
-            old_anim.setEndValue(old_widget.pos() + __import__('PySide6.QtCore', fromlist=['QPoint']).QPoint(-rect.width() // 3, 0))
+            old_anim.setEndValue(old_widget.pos() + QPoint(-rect.width() // 3, 0))
             old_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
             old_anim.start()
 
         new_widget.setGeometry(rect)
-        new_widget.move(new_widget.pos() + __import__('PySide6.QtCore', fromlist=['QPoint']).QPoint(rect.width() // 3, 0))
+        new_widget.move(new_widget.pos() + QPoint(rect.width() // 3, 0))
         self.page_stack.setCurrentIndex(index)
         new_anim = QPropertyAnimation(new_widget, b"pos")
-        new_anim.setDuration(280)
+        new_anim.setDuration(_ANIM_DURATION)
         new_anim.setStartValue(new_widget.pos())
         new_anim.setEndValue(new_widget.pos())
         new_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
