@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.6.0] - 2026-04-11
+
+### 🏗️ 架构升级
+
+- **类型安全强化**：`models.py` Any: 89→0，Pydantic v2 替换 dataclass，7个新子类型
+- **LLM Provider 统一抽象**：新建 `provider_models.py`（Pydantic 模型），修复 Hunyuan/Doubao `usage` 字段
+
+### 🔧 代码优化与加固
+
+- **P0 修复**：`step_upload.py` 裸 `except:pass` → 日志记录
+- **P1 修复**：15处空 `except:pass` 统一加日志（8个文件）
+- **P2 收尾**：`event_bus.py` 日志、`service_manager.py` 导入风格统一
+
+### 🎨 UI 组件拆分
+
+- **AIMonitorPanel 拆分**：1116行 → 657行主容器 + `monitor_widgets.py`(273行) + `monitor_pages.py`(265行)
+- **ExportPanel 拆分**：936行 → 647行主容器 + `export_format_selector.py`(146行) + `export_progress.py`(179行)
+
+### 📦 依赖与规范
+
+- 添加缺失 `__init__.py`（`ai_enhancement/`、`video_tutorial/`）
+
+---
+
 ## [3.5.0] - 2026-04-10
 
 ### 🎨 UI 全面重设计
