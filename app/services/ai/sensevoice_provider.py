@@ -102,7 +102,7 @@ class SenseVoiceProvider:
             logger.info("SenseVoice (ctranslate2) 可用")
             return True
         except ImportError:
-            pass
+            logger.debug("ctranslate2 not available for SenseVoice")
 
         # 回退到 librosa 方案
         try:

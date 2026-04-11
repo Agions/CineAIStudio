@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
 from pathlib import Path
+import logging
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -102,8 +104,8 @@ class BaseVideoProcessor(IVideoProcessor):
         size_bytes = 0
         try:
             size_bytes = Path(video_path).stat().st_size
-        except OSError:
-            pass
+        except OSError as e:
+            logger.debug(f"Failed to get file size for {video_path}: {e}")
 
         bitrate = int(format_info.get('bit_rate') or 0)
 

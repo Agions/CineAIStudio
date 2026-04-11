@@ -249,7 +249,7 @@ class EdgeTTSProvider(TTSProvider):
             audio = AudioSegment.from_file(audio_path)
             return len(audio) / 1000.0  # 毫秒转秒
         except ImportError:
-            pass
+            logger.debug("pydub not available for duration, falling back to ffprobe")
 
         # 使用 ffprobe
         try:
@@ -494,8 +494,8 @@ class F5TTSProvider(TTSProvider):
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 return float(result.stdout.strip())
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"ffprobe duration failed for {audio_path}: {e}")
         return 0.0
 
     def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:

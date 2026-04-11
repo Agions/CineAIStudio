@@ -5,9 +5,11 @@ FFmpeg 工具模块
 """
 
 import json
+import logging
 import subprocess
 import tempfile
 from pathlib import Path
+logger = logging.getLogger(__name__)
 from typing import Optional, List, Dict, Any, Tuple
 
 
@@ -63,8 +65,8 @@ class FFmpegTool:
             for stream in data.get('streams', []):
                 if stream.get('codec_type') == 'video':
                     return (stream.get('width', 1920), stream.get('height', 1080))
-        except (subprocess.CalledProcessError, json.JSONDecodeError):
-            pass
+        except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+            logger.debug(f"ffprobe resolution parse failed for {video_path}: {e}")
         return (1920, 1080)
 
     @staticmethod
@@ -87,8 +89,8 @@ class FFmpegTool:
                     num, den = fps_str.split('/')
                     return float(num) / float(den) if den != '0' else 30.0
                 return float(fps_str)
-        except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
-            pass
+        except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as e:
+            logger.debug(f"ffprobe framerate parse failed for {video_path}: {e}")
         return 30.0
 
     @staticmethod

@@ -105,10 +105,19 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             result = response.json()
 
             if "Response" in result:
+                resp_data = result["Response"]
+                usage_data = resp_data.get("Usage", {})
+                tokens_used = (
+                    usage_data.get("PromptTokens", 0) +
+                    usage_data.get("CompletionTokens", 0)
+                )
                 return LLMResponse(
-                    content=result["Response"]["Choices"][0]["Message"]["Content"],
+                    content=resp_data["Choices"][0]["Message"]["Content"],
                     model=model,
-                    usage=result["Response"].get("Usage", {}),
+                    tokens_used=tokens_used,
+                    finish_reason="stop",
+                    usage=usage_data or None,
+                    raw_response=resp_data,
                 )
             else:
                 raise ProviderError(f"API Error: {result}")

@@ -302,7 +302,7 @@ class ScriptGenerator:
                 from .llm_manager import ProviderType
                 provider_type = ProviderType(config.provider)
             except ValueError:
-                pass
+                logger.debug(f"Invalid provider '{config.provider}', using default")
 
         # 构建请求
         system_prompt = self.STYLE_PROMPTS.get(

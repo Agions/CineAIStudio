@@ -102,11 +102,19 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 raise ProviderError(f"API Error: {response.status_code} - {response.text}")
 
             result = response.json()
+            usage_data = result.get("usage", {})
+            tokens_used = (
+                usage_data.get("prompt_tokens", 0) +
+                usage_data.get("completion_tokens", 0)
+            )
 
             return LLMResponse(
                 content=result["choices"][0]["message"]["content"],
                 model=model,
-                usage=result.get("usage", {}),
+                tokens_used=tokens_used,
+                finish_reason=result["choices"][0].get("finish_reason", "stop"),
+                usage=usage_data or None,
+                raw_response=result,
             )
 
         except Exception as e:

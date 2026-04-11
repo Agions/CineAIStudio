@@ -44,13 +44,13 @@ class SecureKeyManager:
                         from keyring.backends import OSX
                         keyring.set_keyring(OSX.Keyring())
                     except (ImportError, AttributeError):
-                        pass
+                        self.logger.debug("macOS keyring backend (OSX) init failed, skipping")
             elif platform.system() == "Windows":
                 try:
                     from keyring.backends import Windows
                     keyring.set_keyring(Windows.WinVaultKeyring())
                 except (ImportError, AttributeError):
-                    pass
+                    self.logger.debug("Windows keyring backend init failed, skipping")
             elif platform.system() == "Linux":
                 try:
                     from keyring.backends import SecretService
@@ -60,7 +60,7 @@ class SecureKeyManager:
                         from keyring.backends import Gnome
                         keyring.set_keyring(Gnome.Keyring())
                     except (ImportError, AttributeError):
-                        pass
+                        self.logger.debug("Linux keyring backend (Gnome) init failed, skipping")
 
             # 测试密钥库功能
             test_key = f"{self.app_name}_test"
@@ -190,9 +190,9 @@ class SecureKeyManager:
                 if key_data_str:
                     key_data = json.loads(key_data_str)
                     return key_data
-            except Exception:
+            except Exception as e:
                 # keyring 访问失败，降级到加密文件
-                pass
+                self.logger.warning(f"keyring access failed, falling back to encrypted file: {e}")
 
             # 降级到加密文件
             return self._get_encrypted_key(provider)
@@ -237,8 +237,8 @@ class SecureKeyManager:
                 keyring.delete_password(service_name, "api_key")
                 success = True
                 self.logger.info(f"Deleted API key for {provider} from system keyring")
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.warning(f"Failed to delete key from system keyring: {e}")
 
             # 删除加密文件
             try:

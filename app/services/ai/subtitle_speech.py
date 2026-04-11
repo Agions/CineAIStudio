@@ -209,7 +209,7 @@ class SpeechSubtitleExtractor:
                 # GPU 可用，使用 float16 获得最佳性能
                 return ("cuda", "float16")
         except ImportError:
-            pass
+            logger.debug("torch not available for GPU detection, falling back to CPU")
 
         # 后备 CPU 方案
         return ("cpu", "int8")

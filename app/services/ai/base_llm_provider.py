@@ -76,6 +76,7 @@ class LLMResponse:
     finish_reason: str = "stop"          # 结束原因
     raw_response: Optional[Dict] = None  # 原始响应
     latency_ms: float = 0.0              # 延迟（毫秒）✅ 新增
+    usage: Optional[Dict[str, Any]] = None  # 用量详情 (prompt_tokens, completion_tokens, total_tokens)
 
 
 # ============ 异常类 ============
@@ -596,7 +597,6 @@ class BaseLLMProvider(ABC):
         """
         pass
 
-    @abstractmethod
     async def generate_batch(
         self,
         requests: List[LLMRequest],
@@ -605,6 +605,9 @@ class BaseLLMProvider(ABC):
         """
         批量生成文本 ✅ 优化：使用 asyncio.gather 并发处理
 
+        默认实现：使用 gather_with_concurrency 控制并发数。
+        子类可覆盖以使用提供商特有优化。
+
         Args:
             requests: LLM 请求列表
             max_concurrency: 最大并发数（防止超出 API 限制）
@@ -612,7 +615,14 @@ class BaseLLMProvider(ABC):
         Returns:
             LLM 响应列表
         """
-        pass
+        results = await gather_with_concurrency(
+            max_concurrency,
+            *[self.generate(req) for req in requests]
+        )
+        return [
+            r if isinstance(r, LLMResponse) else None
+            for r in results
+        ]
 
     @abstractmethod
     def health_check(self) -> bool:

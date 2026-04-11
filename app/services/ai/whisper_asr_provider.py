@@ -89,7 +89,7 @@ class WhisperASRProvider:
             logger.info(f"使用 faster-whisper ({self.model_size})")
             return
         except ImportError:
-            pass
+            logger.warning("faster-whisper not available, trying next backend")
 
         # 2. 回退: openai-whisper
         try:
@@ -98,7 +98,7 @@ class WhisperASRProvider:
             logger.info(f"使用 openai-whisper ({self.model_size})")
             return
         except ImportError:
-            pass
+            logger.warning("openai-whisper not available, trying next backend")
 
         # 3. 最终回退: API (需要 OPENAI_API_KEY)
         import os
