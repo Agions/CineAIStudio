@@ -48,7 +48,7 @@ class EventBus:
                 try:
                     self._handlers[event_name].remove(handler)
                 except ValueError:
-                    pass
+                    logger.debug("Handler not found for removal, ignoring")
 
     def publish(self, event_name: str, data: Any = None) -> None:
         """发布事件（线程安全）
