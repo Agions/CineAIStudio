@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Step 1: 上传配置 — OKLCH Design Tokens"""
 
-import os, json, subprocess
+import os, json, subprocess, logging
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
@@ -174,7 +174,8 @@ class VideoMetadataPanel(QFrame):
             elif size > 1024**2: self.labels["size"].setText(f"{size/1024**2:.0f} MB")
             else: self.labels["size"].setText(f"{size/1024:.0f} KB")
             self.labels["format"].setText(fmt.get("format_name", "").split(",")[0])
-        except: pass
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"获取文件信息失败: {e}")
 
 
 class StepUpload(QWidget):
