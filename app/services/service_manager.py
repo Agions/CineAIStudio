@@ -10,17 +10,17 @@ from typing import Dict, Type, Optional, Any
 from dataclasses import dataclass
 
 # AI 服务
-from app.services.ai.llm_manager import LLMManager
-from app.services.ai.scene_analyzer import SceneAnalyzer
-from app.services.ai.voice_generator import VoiceGenerator
-from app.services.ai.script_generator import ScriptGenerator
-from app.services.ai.secure_subtitle_extractor import SecureSubtitleExtractor as SubtitleExtractor
+from .ai.llm_manager import LLMManager
+from .ai.scene_analyzer import SceneAnalyzer
+from .ai.voice_generator import VoiceGenerator
+from .ai.script_generator import ScriptGenerator
+from .ai.secure_subtitle_extractor import SecureSubtitleExtractor as SubtitleExtractor
 
 # 视频服务
-from app.services.video.monologue_maker import MonologueMaker
+from .video.monologue_maker import MonologueMaker
 
 # 导出服务
-from app.services.export.export_manager import ExportManager
+from .export.export_manager import ExportManager
 
 
 @dataclass
