@@ -86,7 +86,7 @@ mypy app/ --strict
 
 | 类型 | 分支名示例 | 说明 |
 |------|-----------|------|
-| 功能开发 | `feature/ai-mashup-improvements` | 新功能 |
+| 功能开发 | `feature/emotion-style-refinement` | 新功能 |
 | Bug 修复 | `fix/audio-sync-on-windows` | Bug 修复 |
 | 文档更新 | `docs/update-installation-guide` | 文档改进 |
 | 重构 | `refactor/ai-provider-abstract` | 代码重构 |
