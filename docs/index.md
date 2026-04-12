@@ -185,7 +185,7 @@ features:
         <div class="nf-workflow-desc">拖入 MP4 / MOV / AVI / MKV / WebM，系统自动分析</div>
       </div>
     </div>
-    <div class="nf-workflow-arrow">→</div>
+    <div class="nf-workflow-arrow"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8h8M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="nf-workflow-step" data-step="2">
       <div class="nf-workflow-num">2</div>
       <div class="nf-workflow-content">
@@ -193,7 +193,7 @@ features:
         <div class="nf-workflow-desc">Qwen2.5-VL 逐帧分析，识别主角、地点、动作与氛围</div>
       </div>
     </div>
-    <div class="nf-workflow-arrow">→</div>
+    <div class="nf-workflow-arrow"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8h8M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="nf-workflow-step" data-step="3">
       <div class="nf-workflow-num">3</div>
       <div class="nf-workflow-content">
@@ -201,7 +201,7 @@ features:
         <div class="nf-workflow-desc">DeepSeek-V3 代入"我"视角，撰写自然流畅的解说词</div>
       </div>
     </div>
-    <div class="nf-workflow-arrow">→</div>
+    <div class="nf-workflow-arrow"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8h8M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="nf-workflow-step" data-step="4">
       <div class="nf-workflow-num">4</div>
       <div class="nf-workflow-content">

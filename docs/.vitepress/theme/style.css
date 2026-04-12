@@ -68,20 +68,27 @@ body {
   position: relative;
 }
 
-/* Subtle glow behind logo */
+/* Ambient cinematic glow behind logo */
 .nf-hero::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%);
-  width: 400px;
-  height: 300px;
-  background: radial-gradient(ellipse at center,
-    rgba(10, 132, 255, 0.06) 0%,
-    transparent 70%);
+  width: 500px;
+  height: 380px;
+  background:
+    radial-gradient(ellipse at 40% 50%, rgba(10, 132, 255, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 70%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+  animation: nf-glow-pulse 8s ease-in-out infinite;
+}
+
+@keyframes nf-glow-pulse {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -60%) scale(1); }
+  50%       { opacity: 1;   transform: translate(-50%, -60%) scale(1.06); }
 }
 
 .nf-hero-logo {
@@ -89,12 +96,12 @@ body {
   z-index: 1;
   margin-bottom: 20px;
   display: inline-block;
-  filter: drop-shadow(0 0 20px rgba(10, 132, 255, 0.3));
-  transition: filter 0.3s ease;
+  filter: drop-shadow(0 0 24px rgba(10, 132, 255, 0.35)) drop-shadow(0 0 60px rgba(10, 132, 255, 0.1));
+  transition: filter 0.4s ease;
 }
 
 .nf-hero-logo:hover {
-  filter: drop-shadow(0 0 32px rgba(10, 132, 255, 0.5));
+  filter: drop-shadow(0 0 36px rgba(10, 132, 255, 0.5)) drop-shadow(0 0 80px rgba(10, 132, 255, 0.15));
 }
 
 .nf-hero-title {
@@ -165,13 +172,18 @@ body {
 .nf-btn-primary {
   background: var(--nf-blue);
   color: white;
-  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .nf-btn-primary:hover {
   background: var(--nf-blue-hi);
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(10, 132, 255, 0.4);
+  box-shadow: 0 8px 28px rgba(10, 132, 255, 0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.nf-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
 }
 
 .nf-btn-secondary {
@@ -198,6 +210,43 @@ body {
   color: var(--nf-text);
   border-color: var(--nf-border-hi);
 }
+
+/* ================================================================
+   FEATURE CARDS — depth border
+   ================================================================ */
+.VPFeature {
+  position: relative;
+}
+
+.VPFeature::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(10,132,255,0.08) 0%, transparent 50%, rgba(139,92,246,0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.VPFeature:hover::after {
+  opacity: 1;
+}
+
+/* ================================================================
+   SECTION DIVIDER
+   ================================================================ */
+.nf-section {
+  position: relative;
+}
+
+.nf-section + .nf-section {
+  margin-top: 0;
+}
+
+/* ================================================================
+   BETTER SCROLLBAR
+   ================================================================ */
 
 /* Badges */
 .nf-hero-badges {
@@ -379,10 +428,25 @@ body {
 
 .nf-workflow-arrow {
   flex-shrink: 0;
-  color: var(--nf-border-hi);
-  font-size: 18px;
-  padding-top: 16px;
+  padding-top: 14px;
   line-height: 1;
+  color: var(--nf-border-hi);
+  opacity: 0.6;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  display: flex;
+  align-items: center;
+}
+
+.nf-workflow-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nf-workflow-step:hover ~ .nf-workflow-arrow:not(:last-child),
+.nf-workflow-step:hover + .nf-workflow-arrow {
+  opacity: 1;
+  color: var(--nf-blue);
+  transform: translateX(3px);
 }
 
 /* ================================================================
@@ -688,8 +752,8 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -698,11 +762,15 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--nf-border-hi);
-  border-radius: 3px;
+  border-radius: 100px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--nf-text-3);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Focus states */
@@ -739,6 +807,24 @@ html {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-family: 'SF Mono', 'Cascadia Code', monospace;
+  position: relative;
+  overflow: hidden;
+}
+
+.nf-hero-tag-inner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(10, 132, 255, 0.12), transparent);
+  animation: nf-shimmer 3.5s ease-in-out infinite;
+}
+
+@keyframes nf-shimmer {
+  0%   { left: -100%; }
+  60%, 100% { left: 150%; }
 }
 
 /* ================================================================
@@ -835,13 +921,14 @@ html {
   flex-wrap: wrap;
   padding: 0.5rem 1rem;
   margin-bottom: 0;
-  background: rgba(10, 132, 255, 0.04);
+  background: rgba(10, 132, 255, 0.03);
   border: 1px solid rgba(10, 132, 255, 0.1);
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
   color: var(--nf-text-3);
   letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
 }
 
 .nf-proof-item {
@@ -1174,6 +1261,30 @@ html {
   background: rgba(10, 132, 255, 0.06);
   border-color: rgba(10, 132, 255, 0.2);
   color: var(--nf-blue);
+}
+
+:root:not(.dark) .nf-hero::before {
+  background:
+    radial-gradient(ellipse at 40% 50%, rgba(10, 132, 255, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 40%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 70%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+  opacity: 0.8;
+}
+
+:root:not(.dark) .nf-workflow-arrow {
+  color: var(--nf-border-hi);
+  opacity: 0.5;
+}
+
+:root:not(.dark) .nf-workflow-step:hover + .nf-workflow-arrow,
+:root:not(.dark) .nf-workflow-step:hover ~ .nf-workflow-arrow:not(:last-child) {
+  color: var(--nf-blue);
+  opacity: 0.9;
+}
+
+:root:not(.dark) ::selection {
+  background: rgba(10, 132, 255, 0.2);
+  color: #0F172A;
 }
 
 @media (prefers-reduced-motion: reduce) {
