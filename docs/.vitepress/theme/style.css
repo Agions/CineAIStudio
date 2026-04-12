@@ -227,19 +227,29 @@ body {
    SECTION TITLE
    ================================================================ */
 .nf-section-title {
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em !important;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
   color: var(--nf-text) !important;
   margin: 2.5rem 0 1.25rem !important;
-  padding-top: 1rem;
-  border-top: 1px solid var(--nf-border);
+  padding-top: 0.5rem !important;
+  background: linear-gradient(90deg, var(--nf-text) 0%, var(--nf-text-2) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
 }
 
 .nf-section-title:first-of-type {
   margin-top: 0 !important;
   border-top: none !important;
   padding-top: 0 !important;
+}
+
+/* Subtle top border for non-first sections */
+.nf-section:not(:first-of-type) .nf-section-title {
+  border-top: 1px solid var(--nf-border);
+  padding-top: 1.5rem !important;
+  margin-top: 2rem !important;
 }
 
 /* ================================================================
@@ -707,6 +717,114 @@ html {
 }
 
 /* ================================================================
+   HERO TAG OVERRIDE
+   ================================================================ */
+.nf-hero-tag {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.nf-hero-tag-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: rgba(10, 132, 255, 0.08);
+  border: 1px solid rgba(10, 132, 255, 0.25);
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--nf-blue);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
+}
+
+/* ================================================================
+   COMPARISON TABLE
+   ================================================================ */
+.nf-compare-table {
+  background: var(--nf-surface);
+  border: 1px solid var(--nf-border);
+  border-radius: var(--nf-radius);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.nf-compare-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1.4fr;
+  border-bottom: 1px solid var(--nf-border);
+  font-size: 13px;
+  align-items: center;
+}
+
+.nf-compare-row:last-child {
+  border-bottom: none;
+}
+
+.nf-compare-header {
+  background: rgba(10, 132, 255, 0.04);
+  border-bottom: 1px solid var(--nf-border-hi) !important;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nf-text-3);
+  padding: 10px 20px;
+}
+
+.nf-compare-header > div {
+  color: var(--nf-text-3);
+}
+
+.nf-compare-row > div {
+  padding: 12px 20px;
+  line-height: 1.5;
+}
+
+.nf-compare-dim {
+  color: var(--nf-text-3);
+  font-weight: 500;
+}
+
+.nf-compare-old {
+  color: var(--nf-text-3);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.nf-compare-new {
+  color: var(--nf-text-2);
+}
+
+.nf-compare-highlight {
+  color: var(--nf-green, #10B981);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .nf-compare-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  .nf-compare-header > div:first-child,
+  .nf-compare-row > div:first-child {
+    display: none;
+  }
+  .nf-compare-header > div:nth-child(2),
+  .nf-compare-row > div:nth-child(2) {
+    grid-column: 1;
+  }
+  .nf-compare-header > div:nth-child(3),
+  .nf-compare-row > div:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+/* ================================================================
    SOCIAL PROOF BAR
    ================================================================ */
 .nf-proof-bar {
@@ -733,10 +851,11 @@ html {
 }
 
 .nf-proof-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+  opacity: 0.95;
 }
 
 .nf-proof-dot--green  { background: #10B981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
@@ -859,22 +978,6 @@ html {
   color: var(--nf-text-3) !important;
   line-height: 1.65 !important;
   margin: 0 !important;
-}
-
-/* ================================================================
-   SECTION TITLE
-   ================================================================ */
-.nf-section-title {
-  font-size: 1.4rem !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.03em !important;
-  color: var(--nf-text) !important;
-  margin: 2.5rem 0 1.25rem !important;
-  padding-top: 0.5rem !important;
-  background: linear-gradient(90deg, var(--nf-text) 0%, var(--nf-text-2) 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
 }
 
 /* ================================================================
@@ -1044,6 +1147,35 @@ html {
 /* ================================================================
    REDUCED MOTION
    ================================================================ */
+:root:not(.dark) .nf-compare-table {
+  background: #FFFFFF;
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-compare-row {
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-compare-header {
+  background: #F8FAFF;
+  border-color: var(--nf-border-hi) !important;
+}
+
+:root:not(.dark) .nf-compare-old {
+  color: var(--nf-text-3);
+  opacity: 0.6;
+}
+
+:root:not(.dark) .nf-compare-highlight {
+  color: #059669;
+}
+
+:root:not(.dark) .nf-hero-tag-inner {
+  background: rgba(10, 132, 255, 0.06);
+  border-color: rgba(10, 132, 255, 0.2);
+  color: var(--nf-blue);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .VPFeature,
   .nf-workflow-step,

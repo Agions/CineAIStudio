@@ -52,27 +52,74 @@ features:
 <div class="nf-home">
 
 <!-- Social Proof Banner -->
+
+<!-- Hero Tag Line Override -->
+<div class="nf-hero-tag">
+  <span class="nf-hero-tag-inner">AI First-Person Video Narrator</span>
+</div>
 <div class="nf-proof-bar">
   <span class="nf-proof-item">
-    <span class="nf-proof-dot nf-proof-dot--green"></span>
+    <svg class="nf-proof-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="3.5" fill="#10B981"/></svg>
     v3.6.0 已发布
   </span>
   <span class="nf-proof-sep">·</span>
   <span class="nf-proof-item">
-    <span class="nf-proof-dot nf-proof-dot--blue"></span>
+    <svg class="nf-proof-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="3.5" fill="#0A84FF"/></svg>
     DeepSeek-V3 解说生成
   </span>
   <span class="nf-proof-sep">·</span>
   <span class="nf-proof-item">
-    <span class="nf-proof-dot nf-proof-dot--purple"></span>
-    本地 Whisper ASR
+    <svg class="nf-proof-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="3.5" fill="#8B5CF6"/></svg>
+    SenseVoice ASR
   </span>
   <span class="nf-proof-sep">·</span>
   <span class="nf-proof-item">
-    <span class="nf-proof-dot nf-proof-dot--amber"></span>
+    <svg class="nf-proof-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="3.5" fill="#F59E0B"/></svg>
     MIT 开源免费
   </span>
 </div>
+
+<!-- Comparison Table -->
+<section class="nf-section">
+  <h2 class="nf-section-title">与"传统视频解说"对比</h2>
+  <div class="nf-compare-table">
+    <div class="nf-compare-row nf-compare-header">
+      <div></div>
+      <div><strong>传统方式</strong></div>
+      <div><strong>Narrafiilm</strong></div>
+    </div>
+    <div class="nf-compare-row">
+      <div class="nf-compare-dim">制作时间</div>
+      <div class="nf-compare-old">30–120 分钟</div>
+      <div class="nf-compare-new"><span class="nf-compare-highlight">3–10 分钟</span></div>
+    </div>
+    <div class="nf-compare-row">
+      <div class="nf-compare-dim">配音成本</div>
+      <div class="nf-compare-old">专业配音 ¥50–500/分钟</div>
+      <div class="nf-compare-new"><span class="nf-compare-highlight">&lt;¥0.01/视频</span></div>
+    </div>
+    <div class="nf-compare-row">
+      <div class="nf-compare-dim">技术门槛</div>
+      <div class="nf-compare-old">需专业剪辑 + 配音</div>
+      <div class="nf-compare-new"><span class="nf-compare-highlight">上传视频，一键完成</span></div>
+    </div>
+    <div class="nf-compare-row">
+      <div class="nf-compare-dim">隐私安全</div>
+      <div class="nf-compare-old">素材上传第三方平台</div>
+      <div class="nf-compare-new"><span class="nf-compare-highlight">视频永不上传云端</span></div>
+    </div>
+    <div class="nf-compare-row">
+      <div class="nf-compare-dim">字幕同步</div>
+      <div class="nf-compare-old">手动对齐，耗时费眼</div>
+      <div class="nf-compare-new"><span class="nf-compare-highlight">TTS word-level，50ms 精度</span></div>
+    </div>
+    <div class="nf-compare-row">
+      <div class="nf-compare-dim">导出格式</div>
+      <div class="nf-compare-old">仅 MP4</div>
+      <div class="nf-compare-new"><span class="nf-compare-highlight">MP4 + 剪映草稿 JSON</span></div>
+    </div>
+  </div>
+</section>
 
 <!-- Why Section -->
 <section class="nf-section">
@@ -174,7 +221,7 @@ features:
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">场景理解</span></div>
-      <div><code>Qwen2.5-VL (7B)</code></div>
+      <div><code>Qwen2.5-VL (72B)</code></div>
       <div>阿里开源，视频帧抽帧分析，主角视角识别</div>
     </div>
     <div class="nf-arch-row">
