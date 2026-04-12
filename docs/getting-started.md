@@ -1,74 +1,117 @@
 ---
-title: 快速开始（Legacy）
-description: Narrafiilm 快速入门指南。
+title: 快速入门
+description: Narrafiilm 完整安装与首次使用指南。
 ---
 
-# 快速开始
+# 快速入门
 
-本指南将帮助您快速上手 Narrafiilm。
+本文档帮助你在 10 分钟内完成 Narrafiilm 安装配置，并生成第一个解说视频。
 
-## 环境要求
+---
 
-- Python 3.9+
-- FFmpeg（需加入系统 PATH）
-- macOS 10.15+ / Windows 10+
+## 第一步：安装 Narrafiilm
 
-## 安装步骤
+### 下载安装包（推荐）
+
+访问 [GitHub Releases](https://github.com/Agions/Narrafiilm/releases/latest)，下载对应平台版本：
+
+| 平台 | 文件 | 安装方式 |
+|------|------|----------|
+| Windows | `Narrafiilm-Setup-x.x.x.exe` | 运行安装程序 |
+| macOS | `Narrafiilm-x.x.x.dmg` | 拖入 Applications |
+| Linux | `Narrafiilm-x.x.x.AppImage` | 添加执行权限后运行 |
+
+### Homebrew（macOS / Linux）
 
 ```bash
-# 1. 克隆项目
-git clone https://github.com/Agions/Narrafiilm.git
-cd Narrafiilm
-
-# 2. 创建虚拟环境（推荐）
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# venv\Scripts\activate  # Windows
-
-# 3. 安装依赖
-pip install -r requirements.txt
-
-# 4. 配置 API 密钥
-cp .env.example .env
-# 编辑 .env，填入所需的 API Key
-
-# 5. 运行应用
-python main.py
+brew install narrafiilm
 ```
 
-## 首次运行
+### 源码运行
 
-1. 启动应用后，进入**设置**页面配置 AI API
-2. 选择您想要使用的 AI 提供商（OpenAI、Claude、Qwen、DeepSeek 等）
-3. 输入对应的 API Key（密钥安全存储在系统 Keychain 中）
-4. 返回**首页**，开始创建您的第一个项目
+```bash
+git clone https://github.com/Agions/Narrafiilm.git
+cd narrafiilm
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python app/main.py
+```
 
-## 创建项目
+---
 
-1. 点击**项目管理** → **新建项目**
-2. 选择项目类型（AI 解说 / AI 混剪 / AI 独白）
-3. 导入素材视频
-4. 让 AI 自动完成创作
-5. 预览并导出成品
+## 第二步：安装 FFmpeg
 
-## API 密钥说明
+FFmpeg 是视频处理的核心依赖。
 
-Narrafiilm 支持以下 AI 服务商：
+```bash
+# macOS
+brew install ffmpeg
 
-| 服务商 | 用途 | 是否免费 |
-|--------|------|----------|
-| Edge TTS | 语音合成 | ✅ 免费 |
-| OpenAI | 文本/视觉/语音 | ❌ 付费 |
-| Claude | 文本/视觉 | ❌ 付费 |
-| Qwen | 文本/视觉 | ❌ 付费 |
-| DeepSeek | 文本 | ❌ 付费 |
-| Kimi | 文本/视觉 | ❌ 付费 |
+# Ubuntu / Debian
+sudo apt update && sudo apt install ffmpeg
 
-> 💡 **只需要配置一个 API Key 即可使用全部功能**
+# Windows
+# 下载 https://ffmpeg.org/download.html，解压后将 bin 目录加入 PATH
+```
 
-## 下一步
+验证安装：
 
-- [核心功能](features.md) - 了解更多功能
-- [工作流程](https://github.com/Agions/Narrafiilm#workflow) - 深入了解创作流程
-- [常见问题](faq.md) - 解答疑惑
+```bash
+ffmpeg -version
+```
 
+---
+
+## 第三步：配置 DeepSeek API Key
+
+Narrafiilm 使用 **DeepSeek-V3** 生成解说稿，性价比最高（约 $0.1 / 1M tokens）。
+
+### 获取 Key
+
+1. 打开 [platform.deepseek.com](https://platform.deepseek.com)
+2. 注册并登录 → **API Keys** → **Create API Key**
+3. 复制 Key（格式：`sk-...`）
+
+### 配置方式
+
+**方式一：应用内配置**
+
+启动应用 → **设置** → **AI 配置** → 粘贴 Key → **保存**
+
+**方式二：.env 文件**
+
+在项目根目录创建 `.env`：
+
+```env
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+---
+
+## 第四步：生成第一个解说视频
+
+### Step 1 — 新建项目
+
+启动 Narrafiilm → 点击 **新建项目** → 选择保存位置 → 输入项目名称
+
+### Step 2 — 导入视频
+
+- 点击 **导入素材** 或直接拖拽视频文件
+- 支持格式：`MP4` / `MOV` / `AVI` / `MKV` / `WebM`
+
+### Step 3 — 生成解说
+
+1. 选择**情感风格**：治愈 / 悬疑 / 励志 / 怀旧 / 浪漫
+2. 选择**配音音色**：默认 XiaoXiao（女声）
+3. 点击 **开始创作**
+
+等待 1–3 分钟（取决于视频长度），预览结果后点击 **导出**。
+
+---
+
+## 遇到问题？
+
+- [5 分钟快速开始](./guide/quick-start) — 精简版上手指南
+- [完整安装指南](./guide/installation) — 各平台详细步骤
+- [疑难排查](./guide/troubleshooting) — 常见问题解决
+- [常见问题](./faq) — FAQ 列表
