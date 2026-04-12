@@ -18,7 +18,7 @@ export default defineConfig({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'Narrafiilm — AI First-Person Video Narrator' }],
     ['meta', { property: 'og:description', content: '上传视频，AI 代入主角视角，一键生成电影感配音解说' }],
-    ['meta', { property: 'og:image', content: 'https://narrafiilm.com/og-image.png' }],
+    ['meta', { property: 'og:image', content: 'https://agions.github.io/Narrafiilm/logo.png' }],
     ['meta', { property: 'og:url', content: 'https://agions.github.io/Narrafiilm/' }],
     // Twitter Card
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
