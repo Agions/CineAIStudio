@@ -7,14 +7,12 @@
 """
 
 import os
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QPushButton, QComboBox, QSpinBox, QTableWidget, QTableWidgetItem,
                             QFileDialog, QMessageBox, QTabWidget, QGroupBox,
-                            QLineEdit, QTextEdit, QCheckBox, QDialog,
-                            QDialogButtonBox, QFormLayout)
+                            QLineEdit, QCheckBox, QDialog)
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QColor
 
 from ...export.export_system import ExportTask, ExportPreset
 from ...core.logger import Logger
@@ -38,6 +36,7 @@ class ExportPanel(QWidget):
         self.export_system = application.export_system
         self.logger = Logger.get_logger(__name__)
         self.current_project_id = None
+        self.presets: List[Any] = []
         self.setup_ui()
         self.connect_signals()
 
@@ -49,24 +48,24 @@ class ExportPanel(QWidget):
         self.tab_widget = QTabWidget()
 
         # 快速导出标签页
-        self.quick_export_tab = self.create_quick_export_tab()
+        self.quick_export_tab = self._create_quick_export_tab()
         self.tab_widget.addTab(self.quick_export_tab, "快速导出")
 
         # 批量导出标签页
-        self.batch_export_tab = self.create_batch_export_tab()
+        self.batch_export_tab = self._create_batch_export_tab()
         self.tab_widget.addTab(self.batch_export_tab, "批量导出")
 
         # 队列管理标签页
-        self.queue_tab = self.create_queue_tab()
+        self.queue_tab = self._create_queue_tab()
         self.tab_widget.addTab(self.queue_tab, "队列管理")
 
         # 预设管理标签页
-        self.presets_tab = self.create_presets_tab()
+        self.presets_tab = self._create_presets_tab()
         self.tab_widget.addTab(self.presets_tab, "预设管理")
 
         layout.addWidget(self.tab_widget)
 
-    def create_quick_export_tab(self) -> QWidget:
+    def _create_quick_export_tab(self) -> QWidget:
         """创建快速导出标签页"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -136,7 +135,7 @@ class ExportPanel(QWidget):
 
         return widget
 
-    def create_batch_export_tab(self) -> QWidget:
+    def _create_batch_export_tab(self) -> QWidget:
         """创建批量导出标签页"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -196,7 +195,7 @@ class ExportPanel(QWidget):
 
         return widget
 
-    def create_queue_tab(self) -> QWidget:
+    def _create_queue_tab(self) -> QWidget:
         """创建队列管理标签页"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -229,7 +228,7 @@ class ExportPanel(QWidget):
 
         return widget
 
-    def create_presets_tab(self) -> QWidget:
+    def _create_presets_tab(self) -> QWidget:
         """创建预设管理标签页"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -461,14 +460,12 @@ class ExportPanel(QWidget):
         """处理队列操作"""
         try:
             if action == "start":
-                # 开始任务（重新实现）
                 success = self.export_system.resume_export(task_id)
                 if success:
                     QMessageBox.information(self, "成功", "任务已恢复")
                 else:
                     QMessageBox.warning(self, "警告", "无法恢复该任务")
             elif action == "pause":
-                # 暂停任务
                 success = self.export_system.pause_export(task_id)
                 if success:
                     QMessageBox.information(self, "成功", "任务已暂停")
@@ -481,12 +478,10 @@ class ExportPanel(QWidget):
                 else:
                     QMessageBox.warning(self, "警告", "无法取消该任务")
             elif action == "remove":
-                # 移除任务
                 success = self.export_system.remove_from_queue(task_id)
                 if success:
                     self._refresh_queue_list()
             elif action == "clear_completed":
-                # 清除已完成任务
                 success = self.export_system.clear_completed()
                 if success:
                     self._refresh_queue_list()
@@ -495,15 +490,19 @@ class ExportPanel(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "错误", f"操作失败: {str(e)}")
 
+    def _refresh_queue_list(self):
+        """刷新队列列表"""
+        try:
+            tasks = self.export_system.get_task_history()
+            self.queue_widget.update_tasks(tasks)
+        except Exception as e:
+            self.logger.error(f"Failed to refresh queue list: {e}")
+
     def apply_queue_settings(self):
         """应用队列设置"""
         try:
-            # 应用队列设置
             _max_concurrent = self.max_concurrent_spin.value()
             _auto_cleanup = self.auto_cleanup_check.isChecked()
-
-            # 更新队列管理器设置
-            # 这里需要访问队列管理器并更新设置
             QMessageBox.information(self, "成功", "队列设置已应用")
 
         except Exception as e:
@@ -514,7 +513,6 @@ class ExportPanel(QWidget):
         dialog = ExportSettingsDialog(parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             preset_data = dialog.get_preset_data()
-            # 创建预设并添加到系统
             new_preset = ExportPreset(
                 name=preset_data.get("name", "新预设"),
                 format=preset_data.get("format", "mp4"),
@@ -525,9 +523,8 @@ class ExportPanel(QWidget):
                 audio_codec=preset_data.get("audio_codec", "aac"),
                 audio_bitrate=preset_data.get("audio_bitrate", "192k"),
             )
-            # 添加到预设列表
             self.presets.append(new_preset)
-            self._refresh_presets_table()
+            self.refresh_presets_table()
             QMessageBox.information(self, "成功", f"预设 '{new_preset.name}' 已添加")
 
     def edit_preset(self):
@@ -536,8 +533,6 @@ class ExportPanel(QWidget):
         if not selected_items:
             QMessageBox.warning(self, "警告", "请选择要编辑的预设")
             return
-
-        # 编辑预设逻辑
         self.edit_preset_data(None)
 
     def edit_preset_data(self, preset: ExportPreset):
@@ -545,7 +540,6 @@ class ExportPanel(QWidget):
         dialog = ExportSettingsDialog(preset, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             _preset_data = dialog.get_preset_data()
-            # 更新预设
             QMessageBox.information(self, "成功", "预设已更新")
 
     def delete_preset(self):
@@ -561,7 +555,6 @@ class ExportPanel(QWidget):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            # 删除预设逻辑
             QMessageBox.information(self, "成功", "预设已删除")
 
     def delete_preset_data(self, preset: ExportPreset):
@@ -618,7 +611,6 @@ class ExportPanel(QWidget):
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
-        # 根据主题更新样式
         if is_dark:
             self.setStyleSheet("""
                 QGroupBox {
@@ -645,3 +637,4 @@ class ExportPanel(QWidget):
                     alternate-background-color: #f5f5f5;
                 }
             """)
+
