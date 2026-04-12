@@ -705,3 +705,355 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* ================================================================
+   SOCIAL PROOF BAR
+   ================================================================ */
+.nf-proof-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0;
+  background: rgba(10, 132, 255, 0.04);
+  border: 1px solid rgba(10, 132, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  color: var(--nf-text-3);
+  letter-spacing: 0.02em;
+}
+
+.nf-proof-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.nf-proof-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.nf-proof-dot--green  { background: #10B981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+.nf-proof-dot--blue   { background: #0A84FF; box-shadow: 0 0 6px rgba(10, 132, 255, 0.6); }
+.nf-proof-dot--purple  { background: #8B5CF6; box-shadow: 0 0 6px rgba(139, 92, 246, 0.6); }
+.nf-proof-dot--amber  { background: #F59E0B; box-shadow: 0 0 6px rgba(245, 158, 11, 0.6); }
+
+.nf-proof-sep {
+  color: var(--nf-border-hi);
+  opacity: 0.5;
+}
+
+/* ================================================================
+   WHY SECTION
+   ================================================================ */
+.nf-why-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 640px) {
+  .nf-why-grid { grid-template-columns: 1fr; }
+}
+
+.nf-why-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--nf-surface);
+  border: 1px solid var(--nf-border);
+  border-radius: var(--nf-radius);
+  padding: 20px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nf-why-card:hover {
+  border-color: var(--nf-border-hi);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.nf-why-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 132, 255, 0.08);
+  border: 1px solid rgba(10, 132, 255, 0.2);
+  border-radius: 10px;
+  color: var(--nf-blue);
+}
+
+.nf-why-content h3 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--nf-text);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.nf-why-content p {
+  font-size: 0.8rem;
+  color: var(--nf-text-3);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.nf-why-content strong {
+  color: var(--nf-blue);
+  font-weight: 700;
+}
+
+/* ================================================================
+   VITEPRESS NATIVE FEATURES (hero.features)
+   ================================================================ */
+.VPFeature {
+  background: var(--nf-surface) !important;
+  border: 1px solid var(--nf-border) !important;
+  border-radius: var(--nf-radius) !important;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease !important;
+  padding: 20px 18px !important;
+}
+
+.VPFeature:hover {
+  border-color: rgba(10, 132, 255, 0.4) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(10, 132, 255, 0.08) !important;
+}
+
+.VPFeature .icon {
+  font-size: 0 !important;
+  margin-bottom: 12px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.VPFeature .icon img,
+.VPFeature .icon svg {
+  width: 32px !important;
+  height: 32px !important;
+  object-fit: contain;
+}
+
+.VPFeature .title {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  color: var(--nf-text) !important;
+  margin: 0 0 6px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.VPFeature .details {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-size: 0.775rem !important;
+  color: var(--nf-text-3) !important;
+  line-height: 1.65 !important;
+  margin: 0 !important;
+}
+
+/* ================================================================
+   SECTION TITLE
+   ================================================================ */
+.nf-section-title {
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--nf-text) !important;
+  margin: 2.5rem 0 1.25rem !important;
+  padding-top: 0.5rem !important;
+  background: linear-gradient(90deg, var(--nf-text) 0%, var(--nf-text-2) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ================================================================
+   LIGHT MODE OVERRIDES
+   ================================================================ */
+:root:not(.dark) {
+  --nf-bg:        #F8FAFF;
+  --nf-surface:   #FFFFFF;
+  --nf-border:   #E2E8F5;
+  --nf-border-hi:#CBD5E1;
+  --nf-text:     #0F172A;
+  --nf-text-2:  #475569;
+  --nf-text-3:  #94A3B8;
+  --nf-blue:     #0A84FF;
+  --nf-blue-hi:  #0070E0;
+  --nf-blue-glow:rgba(10, 132, 255, 0.08);
+}
+
+:root:not(.dark) .VPHome {
+  background: var(--nf-bg) !important;
+}
+
+:root:not(.dark) .VPFeature {
+  background: #FFFFFF !important;
+  border-color: var(--nf-border) !important;
+}
+
+:root:not(.dark) .VPFeature:hover {
+  border-color: var(--nf-blue) !important;
+  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.1) !important;
+}
+
+:root:not(.dark) .nf-proof-bar {
+  background: rgba(10, 132, 255, 0.04);
+  border-color: rgba(10, 132, 255, 0.12);
+  color: var(--nf-text-3);
+}
+
+:root:not(.dark) .nf-why-card {
+  background: #FFFFFF;
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-why-card:hover {
+  border-color: var(--nf-blue);
+}
+
+:root:not(.dark) .nf-why-icon {
+  background: rgba(10, 132, 255, 0.06);
+  border-color: rgba(10, 132, 255, 0.15);
+}
+
+:root:not(.dark) .nf-section-title {
+  background: linear-gradient(90deg, #0F172A 0%, #475569 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+:root:not(.dark) .nf-workflow-step {
+  background: #FFFFFF;
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-workflow-num {
+  background: rgba(10, 132, 255, 0.08);
+  border-color: rgba(10, 132, 255, 0.2);
+  color: var(--nf-blue);
+}
+
+:root:not(.dark) .nf-workflow-arrow {
+  color: var(--nf-border-hi);
+}
+
+:root:not(.dark) .nf-arch-table {
+  background: #FFFFFF;
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-arch-row {
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-arch-header {
+  background: #F8FAFF;
+  border-color: var(--nf-border-hi);
+}
+
+:root:not(.dark) .nf-start-card {
+  background: #FFFFFF;
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-start-card:hover {
+  border-color: var(--nf-blue);
+  background: rgba(10, 132, 255, 0.02);
+}
+
+:root:not(.dark) .nf-footer {
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-footer a:hover {
+  color: var(--nf-blue);
+}
+
+:root:not(.dark) .nf-stats {
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .nf-stat-value {
+  color: #0F172A;
+}
+
+:root:not(.dark) .nf-stat-label {
+  color: var(--nf-text-3);
+}
+
+:root:not(.dark) .nf-stat-sep {
+  color: var(--nf-border-hi);
+}
+
+/* Light mode nav */
+:root:not(.dark) .VPNav {
+  background: rgba(248, 250, 255, 0.88) !important;
+  border-bottom-color: var(--nf-border) !important;
+}
+
+:root:not(.dark) .VPNavBar .title {
+  color: #0F172A !important;
+}
+
+:root:not(.dark) .vp-doc a {
+  color: var(--nf-blue) !important;
+}
+
+:root:not(.dark) .vp-doc table {
+  background: #FFFFFF;
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .vp-doc th {
+  background: #F8FAFF;
+  color: #475569;
+  border-color: var(--nf-border-hi);
+}
+
+:root:not(.dark) .vp-doc td {
+  color: #475569;
+  border-color: var(--nf-border);
+}
+
+:root:not(.dark) .vp-doc div[class*='language-'] {
+  background: #0F172A !important;
+  border-color: var(--nf-border) !important;
+}
+
+:root:not(.dark) .vp-doc blockquote {
+  background: rgba(10, 132, 255, 0.04) !important;
+  border-color: var(--nf-blue) !important;
+}
+
+:root:not(.dark) body {
+  background: var(--nf-bg);
+  color: var(--nf-text);
+}
+
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .VPFeature,
+  .nf-workflow-step,
+  .nf-why-card,
+  .nf-start-card {
+    transition: none !important;
+  }
+  .VPFeature,
+  .nf-why-card,
+  .nf-start-card {
+    transform: none !important;
+  }
+}
