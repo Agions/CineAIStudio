@@ -38,11 +38,8 @@ from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
 from ..video_tools.caption_generator import CaptionGenerator
 from ..video_tools.ffmpeg_tool import FFmpegTool
-from ..export.jianying_models import (
-    JianyingDraft,
-    Track, TrackType, Segment, TimeRange,
-    VideoMaterial, AudioMaterial, TextMaterial,
-)
+from ..export.jianying_models import JianyingDraft
+from .track_builder import build_monologue_tracks, CAPTION_STYLES
 
 
 @dataclass
@@ -242,31 +239,6 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             "voice_style": VoiceStyle.CONVERSATIONAL,
             "rate": 0.92,
             "prompt_hint": "治愈、温暖、安慰",
-        },
-    }
-
-    # 电影级字幕样式
-    CAPTION_STYLES = {
-        "cinematic": {
-            "font_size": 6.0,
-            "font_color": "#FFFFFF",
-            "position": "bottom",
-            "shadow": True,
-            "animation": "fade",
-        },
-        "minimal": {
-            "font_size": 5.0,
-            "font_color": "#E0E0E0",
-            "position": "bottom",
-            "shadow": False,
-            "animation": "none",
-        },
-        "expressive": {
-            "font_size": 7.0,
-            "font_color": "#FFFFFF",
-            "position": "center",
-            "shadow": True,
-            "animation": "typewriter",
         },
     }
 
@@ -500,7 +472,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self._report_progress("生成字幕", 0.0)
         
         project.caption_style = style
-        caption_cfg = self.CAPTION_STYLES.get(style, self.CAPTION_STYLES["cinematic"])
+        caption_cfg = CAPTION_STYLES.get(style, CAPTION_STYLES["cinematic"])
         
         current_time = 0.0
 
@@ -566,78 +538,13 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     
     def _build_jianying_tracks(self, draft: JianyingDraft, project: MonologueProject) -> None:
         """构建独白视频的剪映轨道"""
-        # 1. 视频轨道
-        video_track = Track(type=TrackType.VIDEO, attribute=1)
-        draft.add_track(video_track)
-
-        video_material = VideoMaterial(
-            path=project.source_video,
-            duration=int(project.video_duration * 1_000_000),
+        build_monologue_tracks(
+            draft=draft,
+            source_video=project.source_video,
+            video_duration=project.video_duration,
+            segments=project.segments,
+            caption_style=project.caption_style,
         )
-        draft.add_video(video_material)
-
-        current_time = 0.0
-        for segment in project.segments:
-            video_segment = Segment(
-                material_id=video_material.id,
-                source_timerange=TimeRange.from_seconds(
-                    segment.video_start,
-                    min(segment.audio_duration, segment.video_end - segment.video_start),
-                ),
-                target_timerange=TimeRange.from_seconds(current_time, segment.audio_duration),
-            )
-            video_track.add_segment(video_segment)
-            current_time += segment.audio_duration
-
-        # 2. 音频轨道（独白）
-        audio_track = Track(type=TrackType.AUDIO)
-        draft.add_track(audio_track)
-
-        current_time = 0.0
-        for segment in project.segments:
-            if segment.audio_path:
-                audio_material = AudioMaterial(
-                    path=segment.audio_path,
-                    duration=int(segment.audio_duration * 1_000_000),
-                    name=Path(segment.audio_path).stem,
-                )
-                draft.add_audio(audio_material)
-
-                audio_segment = Segment(
-                    material_id=audio_material.id,
-                    source_timerange=TimeRange.from_seconds(0, segment.audio_duration),
-                    target_timerange=TimeRange.from_seconds(current_time, segment.audio_duration),
-                )
-                audio_track.add_segment(audio_segment)
-
-            current_time += segment.audio_duration
-
-        # 3. 字幕轨道
-        text_track = Track(type=TrackType.TEXT)
-        draft.add_track(text_track)
-
-        caption_cfg = self.CAPTION_STYLES.get(
-            project.caption_style,
-            self.CAPTION_STYLES["cinematic"]
-        )
-
-        for segment in project.segments:
-            for cap in segment.captions:
-                text_material = TextMaterial(
-                    content=cap["text"],
-                    font_size=caption_cfg["font_size"],
-                    font_color=caption_cfg["font_color"],
-                    has_shadow=caption_cfg["shadow"],
-                )
-                draft.add_text(text_material)
-
-                text_segment = Segment(
-                    material_id=text_material.id,
-                    source_timerange=TimeRange.from_seconds(0, cap["duration"]),
-                    target_timerange=TimeRange.from_seconds(cap["start"], cap["duration"]),
-                )
-                text_track.add_segment(text_segment)
-
 
     # ------------------------------------------------------------------ #
     #  辅助方法                                                           #
