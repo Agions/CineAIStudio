@@ -67,7 +67,7 @@ class AnimationHelper:
                     "org.gnome.desktop.interface",
                     QSettings.Format.NativeFormat
                 )
-                reduced = gtk_settings.value("enable-animations", True, bool) is False
+                reduced = not gtk_settings.value("enable-animations", True, bool)
             except Exception:
                 pass
             if not reduced:
