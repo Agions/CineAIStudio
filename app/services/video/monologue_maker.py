@@ -37,7 +37,7 @@ from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
 from ..video_tools.caption_generator import CaptionGenerator
 from ..video_tools.ffmpeg_tool import FFmpegTool
-from ..export.jianying_exporter import (
+from ..export.jianying_models import (
     JianyingDraft,
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,

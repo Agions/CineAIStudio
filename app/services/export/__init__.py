@@ -12,10 +12,12 @@ from .base_exporter import (
     ExporterConfig, TimeHelper, safe_filename,
     get_video_duration, get_video_resolution, copy_material_to_folder,
 )
-from .jianying_exporter import (
-    JianyingExporter, JianyingDraft, JianyingConfig,
+from .jianying_exporter import JianyingExporter
+from .jianying_models import (
+    JianyingDraft, JianyingConfig,
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,
+    JianyingMaterials, CanvasConfig,
 )
 from .video_exporter import VideoExporter, ExportConfig, ExportFormat
 from .direct_video_exporter import DirectVideoExporter, VideoExportConfig, Resolution, VideoCodec, VideoFormat, HWAccel
@@ -48,6 +50,8 @@ __all__ = [
     "VideoMaterial",
     "AudioMaterial",
     "TextMaterial",
+    "JianyingMaterials",
+    "CanvasConfig",
 
     # 视频文件导出
     "VideoExporter",

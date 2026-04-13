@@ -13,8 +13,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
-from ..export.jianying_exporter import (
-    JianyingExporter, JianyingDraft, JianyingConfig,
+from ..export.jianying_exporter import JianyingExporter
+from ..export.jianying_models import (
+    JianyingDraft, JianyingConfig,
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,
 )
