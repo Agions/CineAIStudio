@@ -1081,6 +1081,15 @@ html {
   --nf-blue:     #0A84FF;
   --nf-blue-hi:  #0070E0;
   --nf-blue-glow:rgba(10, 132, 255, 0.08);
+
+  /* VitePress light mode overrides */
+  --vp-c-bg: #FFFFFF;
+  --vp-c-bg-soft: #F8FAFF;
+  --vp-c-bg-alt: #F8FAFF;
+  --vp-c-border: #E2E8F5;
+  --vp-c-text-1: #0F172A;
+  --vp-c-text-2: #475569;
+  --vp-c-text-3: #94A3B8;
 }
 
 :root:not(.dark) .VPHome {
