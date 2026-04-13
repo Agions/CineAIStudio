@@ -13,141 +13,18 @@ import uuid
 import zipfile
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
-from enum import Enum
 import logging
 
 from PySide6.QtCore import QObject, Signal
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager
+from .models.project_models import (
+    ProjectStatus, ProjectType,
+    ProjectMetadata, ProjectSettings,
+    ProjectMedia, ProjectTimeline,
+)
 
-
-class ProjectStatus(Enum):
-    """项目状态枚举"""
-    ACTIVE = "active"
-    ARCHIVED = "archived"
-    TEMPLATE = "template"
-    CORRUPTED = "corrupted"
-
-
-class ProjectType(Enum):
-    """项目类型枚举"""
-    VIDEO_EDITING = ("video_editing", "视频剪辑", "基础视频剪辑模式")
-    AI_ENHANCEMENT = ("ai_enhancement", "AI 增强", "AI 智能增强画质和音效")
-    COMPILATION = ("compilation", "混剪合成", "多素材智能混剪")
-    COMMENTARY = ("commentary", "AI 解说", "自动生成解说配音")
-    STORY_ANALYSIS = ("story_analysis", "剧情分析", "AI 分析视频剧情并智能剪辑")
-    MULTIMEDIA = ("multimedia", "多媒体", "综合多媒体项目")
-
-    def __init__(self, value: str, display_name: str, description: str):
-        self._value_ = value
-        self.display_name = display_name
-        self.description = description
-
-    @property
-    def value(self) -> str:
-        return self._value_
-
-    @classmethod
-    def _missing_(cls, value: Any) -> Optional['ProjectType']:
-        """支持通过字符串 ID 查找枚举成员（如 ProjectType('ai_enhancement')）"""
-        for member in cls:
-            if member._value_ == value:
-                return member
-        return None
-
-
-@dataclass
-class ProjectMetadata:
-    """项目元数据"""
-    name: str
-    description: str = ""
-    created_at: datetime = field(default_factory=datetime.now)
-    modified_at: datetime = field(default_factory=datetime.now)
-    version: str = "1.0.0"
-    author: str = ""
-    tags: List[str] = field(default_factory=list)
-    thumbnail_path: Optional[str] = None
-    project_type: ProjectType = ProjectType.VIDEO_EDITING
-    status: ProjectStatus = ProjectStatus.ACTIVE
-
-    def to_dict(self) -> Dict[str, Any]:
-        """转换为字典"""
-        data = asdict(self)
-        # 转换datetime对象为字符串
-        data['created_at'] = self.created_at.isoformat()
-        data['modified_at'] = self.modified_at.isoformat()
-        data['project_type'] = self.project_type.value
-        data['status'] = self.status.value
-        return data
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMetadata':
-        """从字典创建实例"""
-        # 转换字符串为datetime对象
-        if isinstance(data.get('created_at'), str):
-            data['created_at'] = datetime.fromisoformat(data['created_at'])
-        if isinstance(data.get('modified_at'), str):
-            data['modified_at'] = datetime.fromisoformat(data['modified_at'])
-
-        # 转换枚举值
-        if isinstance(data.get('project_type'), str):
-            data['project_type'] = ProjectType(data['project_type'])
-        if isinstance(data.get('status'), str):
-            data['status'] = ProjectStatus(data['status'])
-
-        return cls(**data)
-
-
-@dataclass
-class ProjectSettings:
-    """项目设置"""
-    video_resolution: str = "1920x1080"
-    video_fps: int = 30
-    video_bitrate: str = "8000k"
-    audio_sample_rate: int = 44100
-    audio_bitrate: str = "192k"
-    auto_save_interval: int = 300  # 秒
-    backup_enabled: bool = True
-    backup_count: int = 10
-    ai_settings: Dict[str, Any] = field(default_factory=dict)
-    export_settings: Dict[str, Any] = field(default_factory=dict)
-    custom_settings: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class ProjectMedia:
-    """项目媒体文件"""
-    id: str
-    file_path: str
-    media_type: str  # video, audio, image
-    duration: Optional[float] = None
-    size: Optional[int] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMedia':
-        return cls(**data)
-
-
-@dataclass
-class ProjectTimeline:
-    """项目时间线"""
-    tracks: List[Dict[str, Any]] = field(default_factory=list)
-    duration: float = 0.0
-    markers: List[Dict[str, Any]] = field(default_factory=list)
-    effects: List[Dict[str, Any]] = field(default_factory=list)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectTimeline':
-        return cls(**data)
 
 
 class Project:
