@@ -13,6 +13,7 @@ from .monologue_maker import (
     MonologueSegment,
     MonologueStyle,
 )
+from .models.monologue_models import EmotionType
 
 __all__ = [
     "BaseVideoMaker",
@@ -20,4 +21,5 @@ __all__ = [
     "MonologueProject",
     "MonologueSegment",
     "MonologueStyle",
+    "EmotionType",
 ]

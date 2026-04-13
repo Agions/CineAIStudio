@@ -33,6 +33,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .base_maker import BaseVideoMaker, BaseProject
+from .models.monologue_models import MonologueStyle, EmotionType, MonologueSegment
 from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
 from ..video_tools.caption_generator import CaptionGenerator
@@ -42,47 +43,6 @@ from ..export.jianying_models import (
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,
 )
-
-
-class MonologueStyle(Enum):
-    """独白风格"""
-    MELANCHOLIC = "melancholic"    # 惆怅/忧郁
-    INSPIRATIONAL = "inspirational"  # 励志/向上
-    ROMANTIC = "romantic"          # 浪漫/温馨
-    MYSTERIOUS = "mysterious"      # 神秘/悬疑
-    NOSTALGIC = "nostalgic"        # 怀旧/追忆
-    PHILOSOPHICAL = "philosophical"  # 哲思/沉思
-    HEALING = "healing"            # 治愈/温暖
-
-
-class EmotionType(Enum):
-    """情感类型"""
-    NEUTRAL = "neutral"
-    SAD = "sad"
-    HAPPY = "happy"
-    ANGRY = "angry"
-    CALM = "calm"
-    EXCITED = "excited"
-    TENDER = "tender"
-
-
-@dataclass
-class MonologueSegment:
-    """独白片段"""
-    script: str                    # 独白文案
-    emotion: EmotionType           # 情感
-
-    # 视频片段
-    video_start: float
-    video_end: float
-
-    # 音频
-    audio_path: str = ""
-    audio_duration: float = 0.0
-    sentence_timestamps: List[Dict] = field(default_factory=list)  # EdgeTTS 句子级时间戳
-
-    # 字幕
-    captions: List[Dict] = field(default_factory=list)
 
 
 @dataclass
