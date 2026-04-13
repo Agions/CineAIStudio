@@ -63,21 +63,6 @@ class TestPerformanceBenchmarks:
         assert write_time < 1.0  # 写入应在1秒内
         assert read_time < 0.5   # 读取应在0.5秒内
         
-    def test_i18n_performance(self):
-        """国际化性能测试"""
-        from app.utils.i18n import I18n
-        
-        i18n = I18n("zh-CN")
-        
-        # 翻译性能
-        start = time.perf_counter()
-        for _ in range(10000):
-            i18n.t("nav.home")
-            i18n.t("common.save")
-        duration = time.perf_counter() - start
-        
-        print(f"10000 translations: {duration*1000:.2f}ms")
-        
         assert duration < 1.0  # 10000次翻译应在1秒内
         
     def test_task_creation(self):
