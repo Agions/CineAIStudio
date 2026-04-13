@@ -35,11 +35,16 @@ from app.ui.components import (
 
 
 # 导入项目卡片组件
-from .components import ProjectCard
+from .components import ProjectCard, stats
 
 
 # 导入对话框组件
 from .components.dialogs import CreateProjectDialog, ProjectSettingsDialog
+
+
+# 快捷访问
+_create_stat_item = stats.create_stat_item
+_create_detail_row = stats.create_detail_row
 
 class ProjectsPage(BasePage):
     """项目管理页面"""
@@ -372,51 +377,6 @@ class ProjectsPage(BasePage):
         layout.addStretch()
 
         return content
-
-    def _create_stat_item(self, icon: str, label: str, value: str) -> QWidget:
-        """创建统计项组件"""
-        container = QWidget()
-        container.setProperty("class", "stat-item")
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(8, 8, 8, 8)
-        layout.setSpacing(4)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        # 图标
-        icon_label = QLabel(icon)
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon_label.setStyleSheet("font-size: 20px;")
-        layout.addWidget(icon_label)
-
-        # 数值
-        value_label = MacLabel(value, css_class="text-lg text-bold")
-        value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        value_label.setObjectName("stat_value")
-        layout.addWidget(value_label)
-
-        # 标签
-        label_widget = MacLabel(label, css_class="text-sm text-muted")
-        label_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(label_widget)
-
-        # 保存引用以便后续更新
-        container.stat_value_label = value_label
-
-        return container
-
-    def _create_detail_row(self, label: str, value_label: MacLabel) -> QWidget:
-        """创建详情行"""
-        row = QWidget()
-        row.setProperty("class", "stat-row")
-        row_layout = QHBoxLayout(row)
-        row_layout.setContentsMargins(0, 0, 0, 0)
-        row_layout.setSpacing(8)
-
-        label_widget = MacLabel(label, css_class="text-secondary text-bold")
-        row_layout.addWidget(label_widget)
-        row_layout.addWidget(value_label, 1)
-
-        return row
 
     def _create_details_buttons(self) -> QWidget:
         """创建详情区域按钮 - 现代化布局"""
