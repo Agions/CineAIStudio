@@ -479,8 +479,8 @@ class ProjectsPage(BasePage):
             # 显示空状态
             try:
                 self.projects_layout.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding), 0, 0)
-            except RuntimeError:
-                pass
+            except RuntimeError as e:
+                self.logger.warning(f"添加空状态间隔器失败: {e}")
             return
 
         try:
