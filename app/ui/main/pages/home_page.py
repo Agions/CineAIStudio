@@ -15,6 +15,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QCursor
 
 from .base_page import BasePage
+from app.ui.components.empty_state import MacEmptyStateV2
 
 
 class TemplateCard(QFrame):
@@ -322,37 +323,13 @@ class HomePage(BasePage):
                 item.clicked.connect(self._on_open_recent)
                 layout.addWidget(item)
         else:
-            # 空状态 - 更精美的设计
-            empty_container = QFrame()
-            empty_container.setStyleSheet("""
-                QFrame {
-                    background: #161B22;
-                    border: 2px dashed #30363D;
-                    border-radius: 12px;
-                    padding: 40px;
-                }
-            """)
-            empty_layout = QVBoxLayout(empty_container)
-            empty_layout.setSpacing(12)
-            empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-            empty_icon = QLabel("📂")
-            empty_icon.setFont(QFont("", 48))
-            empty_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            empty_layout.addWidget(empty_icon)
-
-            empty_text = QLabel("还没有项目")
-            empty_text.setFont(QFont("", 16, QFont.Weight.Bold))
-            empty_text.setStyleSheet("color: #8B949E;")
-            empty_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            empty_layout.addWidget(empty_text)
-
-            empty_hint = QLabel("选择上方的模板开始创作吧 ✨")
-            empty_hint.setStyleSheet("color: #6E7681; font-size: 14px;")
-            empty_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            empty_layout.addWidget(empty_hint)
-            
-            layout.addWidget(empty_container)
+            # 空状态 - 使用统一组件 MacEmptyStateV2
+            empty_state = MacEmptyStateV2(
+                icon_type="projects",
+                title="还没有项目",
+                description="选择上方的模板开始创作吧 ✨",
+            )
+            layout.addWidget(empty_state)
 
         return widget
 

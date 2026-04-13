@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.7.0] - 2026-04-13
+
+### 🎨 UI 无障碍与动效优化
+
+- **Focus-visible 修复**：`dark_theme.qss` 移除重复的 `:focus { outline: none }` 规则，键盘导航时正确显示焦点环
+- **prefers-reduced-motion 支持**：`animation_helper.py` 添加跨平台系统减少动画偏好检测：
+  - macOS: AppleReduceMotion
+  - Windows: EaseOfAccess 显示动画选项
+  - Linux: GTK/KDE 减少动画设置
+  - 所有动画方法添加 `_get_reduced_duration()` 降级处理
+  - 添加 `invalidate_cache()` 方法供设置变更时重置
+- **EmptyState 组件统一**：`home_page.py` 内联空状态替换为 `MacEmptyStateV2` 统一组件
+
+---
+
 ## [3.6.0] - 2026-04-11
 
 ### 🏗️ 架构升级
