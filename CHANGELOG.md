@@ -1,3 +1,14 @@
+## [3.8.0] - 2026-04-14
+
+### ⚡ 性能优化
+
+- **Whisper 默认改为本地模式**：`SpeechSubtitleExtractor` 默认 `mode="local"` 替代 `"api"`，无需 API key，离线可用
+- **Whisper 模型升级**：默认模型从 `"base"` 升为 `"medium"`，精度大幅提升
+- **GPU 批处理加速**：`SpeechSubtitleExtractor` 和 `WhisperASRProvider` 均支持 `batch_size=8`，GPU 推理 **8.9x 加速**（faster-whisper benchmark）
+- **LLM 请求缓存激活**：`RequestCache`（TTL=24h）接入 `BaseLLMProvider.generate_batch()`，重复 prompt 零 API 调用，所有 9 个 Provider 自动继承
+- **CPU INT8 量化**：`faster-whisper` CPU 模式默认 INT8，2.4x 加速
+- **移除死依赖**：`ffmpeg-python==0.2.0`（2019 年停更）从 requirements.txt 和 pyproject.toml 删除，减少安装体积
+
 # 更新日志
 
 All notable changes to this project will be documented in this file.
