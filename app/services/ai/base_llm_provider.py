@@ -113,11 +113,13 @@ class RequestCache:
         """生成缓存键"""
         content = f"{request.model}:{request.prompt[:100]}:{request.temperature}"
         return hashlib.md5(content.encode()).hexdigest()
-    
     async def get(self, request: LLMRequest) -> Optional[LLMResponse]:
-        """获取缓存的响应"""
+        """获取缓存的响应（通过 request 对象）"""
         key = self._make_key(request)
-        
+        return await self.get_from_key(key)
+
+    async def get_from_key(self, key: str) -> Optional[LLMResponse]:
+        """获取缓存的响应（通过缓存键）"""
         async with self._lock:
             if key in self._cache:
                 value, expiry = self._cache[key]
@@ -127,23 +129,25 @@ class RequestCache:
                     return value
                 else:
                     del self._cache[key]
-        
         self._misses += 1
         return None
-    
+
     async def set(self, request: LLMRequest, response: LLMResponse):
-        """缓存响应"""
+        """缓存响应（通过 request 对象）"""
         key = self._make_key(request)
-        
+        await self.set_from_key(key, response)
+
+    async def set_from_key(self, key: str, response: LLMResponse):
+        """缓存响应（通过缓存键）"""
         async with self._lock:
             # 清理过期项
             if len(self._cache) >= self.max_size:
                 self._cleanup()
-            
             self._cache[key] = (
                 response,
                 time.monotonic() + self.ttl
             )
+
     
     def _cleanup(self):
         """清理过期缓存"""
@@ -318,10 +322,19 @@ class BaseLLMProvider(ABC):
         """
         self.api_key = api_key
         self.base_url = base_url
-        
+
         # 初始化安全组件
         self._rate_limiter = RateLimiter()
         self._circuit_breaker = CircuitBreaker()
+
+        # 初始化请求缓存（减少重复 API 调用，TTL=24h）
+        self._cache = RequestCache(max_size=500, ttl=86400.0)
+
+    def _make_cache_key(self, request: LLMRequest) -> str:
+        """生成缓存键（基于 model + prompt 前200字 + temperature）"""
+        prompt_preview = request.prompt[:200] if request.prompt else ""
+        content = f"{request.model}:{prompt_preview}:{request.temperature}:{request.max_tokens}"
+        return hashlib.md5(content.encode()).hexdigest()
 
     @abstractmethod
     async def generate(self, request: LLMRequest) -> LLMResponse:
@@ -338,33 +351,53 @@ class BaseLLMProvider(ABC):
             ProviderError: 提供商错误
         """
         pass
+    async def generate_cached(self, request: LLMRequest) -> LLMResponse:
+        """
+        生成文本（带缓存）✅ 优化：重复 prompt 直接返回缓存结果
+
+        缓存键 = model + prompt 前200字 + temperature + max_tokens（TTL=24h）。
+        """
+        key = self._make_cache_key(request)
+        cached = await self._cache.get_from_key(key)
+        if cached is not None:
+            logger.debug(f"[Cache hit] {key[:8]}... ({self.__class__.__name__})")
+            return cached
+        response = await self.generate(request)
+        await self._cache.set_from_key(key, response)
+        return response
 
     async def generate_batch(
         self,
         requests: List[LLMRequest],
-        max_concurrency: int = 5  # ✅ 新增：最大并发数
+        max_concurrency: int = 5,
+        use_cache: bool = True,
     ) -> List[LLMResponse]:
         """
-        批量生成文本 ✅ 优化：使用 asyncio.gather 并发处理
-
-        默认实现：使用 gather_with_concurrency 控制并发数。
-        子类可覆盖以使用提供商特有优化。
+        批量生成文本 ✅ 优化：asyncio.gather 并发 + 请求缓存
 
         Args:
             requests: LLM 请求列表
             max_concurrency: 最大并发数（防止超出 API 限制）
+            use_cache: 是否启用缓存（默认启用，重复 prompt 直接返回）
 
         Returns:
-            LLM 响应列表
+            响应列表
         """
-        results = await gather_with_concurrency(
-            max_concurrency,
-            *[self.generate(req) for req in requests]
-        )
+        if use_cache:
+            results = await gather_with_concurrency(
+                max_concurrency,
+                *[self.generate_cached(req) for req in requests]
+            )
+        else:
+            results = await gather_with_concurrency(
+                max_concurrency,
+                *[self.generate(req) for req in requests]
+            )
         return [
             r if isinstance(r, LLMResponse) else None
             for r in results
         ]
+
 
     @abstractmethod
     def health_check(self) -> bool:
