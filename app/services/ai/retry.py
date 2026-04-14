@@ -267,10 +267,7 @@ class CircuitBreaker:
             self._failure_count += 1
             self._last_failure_time = datetime.now()
 
-            if self._state == CircuitState.HALF_OPEN:
-                logger.warning("Circuit breaker transitioning to OPEN")
-                self._state = CircuitState.OPEN
-            elif self._failure_count >= self.failure_threshold:
+            if self._state == CircuitState.HALF_OPEN or self._failure_count >= self.failure_threshold:
                 logger.warning("Circuit breaker transitioning to OPEN")
                 self._state = CircuitState.OPEN
 

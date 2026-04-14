@@ -13,6 +13,7 @@ import hashlib
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 import logging
+from dataclasses import dataclass
 
 from PySide6.QtCore import QObject, Signal
 from .version_models import ProjectVersion, ProjectBranch

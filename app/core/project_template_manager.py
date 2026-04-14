@@ -20,6 +20,7 @@ from PySide6.QtCore import QObject, Signal
 
 from .project_manager import Project, ProjectType
 from .config_manager import ConfigManager
+from .template_models import TemplateInfo, TemplateCategory
 
 
 class ProjectTemplateManager(QObject):
