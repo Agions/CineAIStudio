@@ -29,7 +29,7 @@ jobs:
             platform: macos-x86_64
             artifact_ext: dmg
             pyinstaller_args: --add-data "resources:resources" --windowed
-          - os: macos-latest
+          - os: macos-14-latest
             platform: macos-arm64
             artifact_ext: dmg
             pyinstaller_args: --add-data "resources:resources" --windowed
@@ -45,15 +45,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set up PATH for UPX
-        if: matrix.platform == 'windows-x86_64'
+      - name: Install UPX
         shell: bash
-        run: echo "C:\Program Files\upx" >> $GITHUB_PATH
+        run: |
+          case "${{ matrix.os }}" in
+            ubuntu-latest) sudo apt-get install -y upx ;;
+            macos-latest) brew install upx ;;
+            windows-latest) choco install upx -y ;;
+          esac
 
       - name: Install dependencies
         shell: bash
         run: |
-          pip install -e . pyinstaller upx
+          pip install -e . pyinstaller
 
       - name: Build with PyInstaller
         shell: bash
