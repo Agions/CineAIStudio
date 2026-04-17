@@ -15,8 +15,29 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+            artifact_ext: tar.xz
+            pyinstaller_args: --add-data "resources:resources"
+          - os: macos-latest
+            platform: macos-x86_64
+            artifact_ext: dmg
+            pyinstaller_args: --add-data "resources:resources" --windowed
+          - os: macos-latest
+            platform: macos-arm64
+            artifact_ext: dmg
+            pyinstaller_args: --add-data "resources:resources" --windowed
+          - os: windows-latest
+            platform: windows-x86_64
+            artifact_ext: zip
+            pyinstaller_args: --add-data "resources;resources"
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,39 +45,68 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Set up PATH for UPX
+        if: matrix.platform == 'windows-x86_64'
+        shell: bash
+        run: echo "C:\Program Files\upx" >> $GITHUB_PATH
+
       - name: Install dependencies
+        shell: bash
         run: |
-          pip install -e . pyinstaller
+          pip install -e . pyinstaller upx
 
       - name: Build with PyInstaller
+        shell: bash
         run: |
           set -e
           python -m PyInstaller \
             --clean \
             --onedir \
-            --name Narrafiilm-${{ github.ref_name }}-linux-x86_64 \
-            --add-data "resources:resources" \
+            --name Narrafiilm-${{ matrix.platform }} \
+            ${{ matrix.pyinstaller_args }} \
             app/main.py
 
-      - name: Package (split archive for <2GB GitHub limit)
+      - id: package
+        name: Package artifact
+        shell: bash
         run: |
           set -e
           cd dist
-          # Tar then split into ~500MB parts (GitHub limit is 2GB per asset)
-          tar -cvf Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar \
-            Narrafiilm-${{ github.ref_name }}-linux-x86_64
-          # Split into 500MB chunks
-          split -b 500M -a 2 \
-            Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar \
-            Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.part_
-          rm Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar
+
+          case "${{ matrix.platform }}" in
+            linux-*)
+              tar -cvf Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.tar \
+                Narrafiilm-${{ matrix.platform }}
+              xz -9 Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.tar
+              ARTIFACT="Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.tar.xz"
+              ;;
+            macos-*)
+              # Create .app bundle
+              APP_NAME="Narrafiilm.app"
+              mkdir -p "$APP_NAME/Contents/MacOS"
+              mkdir -p "$APP_NAME/Contents/Resources"
+              cp -r "Narrafiilm-${{ matrix.platform }}/"* "$APP_NAME/Contents/MacOS/"
+              cp -r resources "$APP_NAME/Contents/"
+              
+              # Package as DMG
+              hdiutil create -volname "Narrafiilm" -srcfolder "$APP_NAME" \
+                -ov -format UDZO "Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
+              ARTIFACT="Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
+              ;;
+            windows-*)
+              powershell -Command "Compress-Archive -Force 'Narrafiilm-${{ matrix.platform }}\*' 'Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.zip'"
+              ARTIFACT="Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.zip"
+              ;;
+          esac
+          
           ls -lh
+          echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Narrafiilm-${{ github.ref_name }}-linux-x86_64
-          path: dist/Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.part_*
+          name: Narrafiilm-${{ matrix.platform }}
+          path: dist/${{ steps.package.outputs.artifact }}
           retention-days: 3
 
       - name: Create Release
@@ -65,6 +115,6 @@ jobs:
           tag_name: ${{ github.ref }}
           name: Narrafiilm ${{ github.ref_name }}
           draft: false
-          files: dist/Narrafiilm-${{ github.ref_name }}-linux-x86_64.tar.part_*
+          files: dist/${{ steps.package.outputs.artifact }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

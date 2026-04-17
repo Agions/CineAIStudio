@@ -32,6 +32,8 @@ from typing import Optional
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from .jianying_models import (
     TrackType,
+    MaterialType,
+    TimeRange,
     Track,
     Segment,
     VideoMaterial,

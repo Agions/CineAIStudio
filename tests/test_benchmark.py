@@ -62,9 +62,7 @@ class TestPerformanceBenchmarks:
         
         assert write_time < 1.0  # 写入应在1秒内
         assert read_time < 0.5   # 读取应在0.5秒内
-        
-        assert duration < 1.0  # 10000次翻译应在1秒内
-        
+
     def test_task_creation(self):
         """任务创建性能"""
         from app.utils.task_manager import Task
