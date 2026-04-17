@@ -264,3 +264,15 @@ def get_error_hint(code: ErrorCode) -> str:
     }
 
     return hints.get(code, "请查看日志获取更多信息")
+
+__all__ = [
+    "ErrorCode",
+    "NarrafiilmError",
+    "LLMError",
+    "ConfigError",
+    "FileError",
+    "VideoError",
+    "TTSError",
+    "NetworkError",
+    "get_error_hint",
+]
