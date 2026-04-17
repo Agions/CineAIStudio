@@ -13,6 +13,15 @@ from enum import Enum
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer, Signal, QObject, QSettings
 
+__all__ = [
+    "ApplicationState",
+    "ErrorType",
+    "ErrorSeverity",
+    "ErrorInfo",
+    "Application",
+]
+
+
 
 class ApplicationState(Enum):
     """应用程序状态枚举"""
@@ -282,7 +291,14 @@ class Application(QObject):
                         self.error_occurred.emit("EVENT_ERROR", f"Event handler error: {str(e)}")
 
     def add_timer(self, name: str, interval: int, callback: Callable, single_shot: bool = False) -> QTimer:
-        """添加定时器"""
+        """
+        添加定时器
+
+        注意: QTimer 必须在主线程（GUI 线程）中创建和操作。
+        如果从后台线程调用此方法，可能导致 Qt 警告或未定义行为。
+        确保所有定时器相关调用都在主线程中执行，或使用 QMetaObject.invokeMethod
+        将定时器操作调度到主线程。
+        """
         timer = QTimer()
         timer.setInterval(interval)
         timer.setSingleShot(single_shot)

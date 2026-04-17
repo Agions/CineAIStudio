@@ -56,10 +56,10 @@ jobs:
           pyright app/ 2>&1 | tee pyright_report.txt
           ERROR_COUNT=$(grep -c 'error:' pyright_report.txt || echo 0)
           echo "Pyright errors: $ERROR_COUNT"
-          MAX_ERRORS=2000
+          MAX_ERRORS=500
           if [ "$ERROR_COUNT" -gt "$MAX_ERRORS" ]; then
             echo "Pyright errors ($ERROR_COUNT) exceed threshold ($MAX_ERRORS)"
-            echo "Please fix pyright errors or increase MAX_ERRORS threshold"
+            echo "Please fix pyright errors or reduce MAX_ERRORS threshold in .github/workflows/ci.yml"
             exit 1
           fi
 
