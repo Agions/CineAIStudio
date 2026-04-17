@@ -90,7 +90,7 @@ jobs:
               mkdir -p "$APP_NAME/Contents/MacOS"
               mkdir -p "$APP_NAME/Contents/Resources"
               cp -r "Narrafiilm-${{ matrix.platform }}/"* "$APP_NAME/Contents/MacOS/"
-              cp -r resources "$APP_NAME/Contents/"
+              cp -r "$GITHUB_WORKSPACE/resources" "$APP_NAME/Contents/"
               
               # Package as DMG
               hdiutil create -volname "Narrafiilm" -srcfolder "$APP_NAME" \
