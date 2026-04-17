@@ -274,6 +274,5 @@ __all__ = [
     "VideoError",
     "TTSError",
     "NetworkError",
-    "UnknownError",
     "get_error_hint",
 ]
