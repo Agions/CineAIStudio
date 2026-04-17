@@ -12,7 +12,7 @@ import os
 block_cipher = None
 
 # 版本
-VERSION = "3.8.0"
+VERSION = "3.8.1"
 
 # 分析入口点
 app_main = 'app/main.py'
