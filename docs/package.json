@@ -1,0 +1,17 @@
+{
+  "name": "narrafiilm-docs",
+  "version": "3.0.0",
+  "description": "Voxplore Documentation",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build .",
+    "docs:preview": "vitepress preview docs"
+  },
+  "dependencies": {
+    "vitepress": "^1.0.0"
+  },
+  "devDependencies": {
+    "pnpm": "^8.0.0"
+  }
+}
