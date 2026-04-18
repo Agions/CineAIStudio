@@ -53,6 +53,11 @@ moviepy>=1.0.3
 openai>=1.0.0
 google-generativeai>=0.8.0
 
+## Web/API 服务
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.0.0
+
 ## 版本兼容
 packaging>=21.0
 

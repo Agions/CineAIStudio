@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Narrafiilm Design Tokens — OKLCH 感知均匀色彩系统
+Voxplore Design Tokens — OKLCH 感知均匀色彩系统
 Frontend Design Pro 规范 · 2026-04-10
 
 OKLCH 优势：

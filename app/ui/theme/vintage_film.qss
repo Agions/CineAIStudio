@@ -146,7 +146,7 @@ QPushButton {
     border: none;
     border-radius: var(--radius-sm);
     padding: 10px 24px;
-    font-family: 'Bebas Neue', 'Arial', sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.1em;
@@ -285,7 +285,7 @@ QTabBar::tab {
     color: var(--text-tertiary);
     padding: 12px 24px;
     border-bottom: 2px solid transparent;
-    font-family: 'Bebas Neue', 'Arial', sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
     letter-spacing: 0.1em;
     text-transform: uppercase;
 }
@@ -437,7 +437,7 @@ QHeaderView::section {
     padding: 12px;
     border: none;
     border-bottom: 1px solid var(--border-default);
-    font-family: 'Bebas Neue', 'Arial', sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }

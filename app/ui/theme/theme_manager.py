@@ -22,7 +22,7 @@ from ...core.config_manager import ThemeConfig
 
 @dataclass
 class ThemeColors:
-    """主题颜色 — OKLCH Design Tokens (Narrafiilm)"""
+    """主题颜色 — OKLCH Design Tokens (Voxplore)"""
     # Primary
     primary: str = ""
     secondary: str = ""
@@ -155,6 +155,8 @@ class ThemeManager(QObject):
             ThemePreset("森林绿色",   "dark",  forest_colors),
             ThemePreset("紫色主题",   "dark",  purple_colors),
             ThemePreset("橙色主题",   "dark",  orange_colors),
+            # Voxplore 架构升级 - 新增主题
+            ThemePreset("Voxplore 声视界", "voxplore", dark_colors),
         ]
 
     def get_available_themes(self) -> List[str]:
@@ -217,7 +219,11 @@ class ThemeManager(QObject):
         """获取样式表"""
         import os
         stylesheet_path = ""
-        if self.current_mode == "dark":
+
+        if self.current_mode == "voxplore":
+            # Voxplore 专用主题
+            stylesheet_path = os.path.join(os.path.dirname(__file__), "voxplore.qss")
+        elif self.current_mode == "dark":
             # 使用外部深色主题样式表
             stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "dark_theme.qss")
         else:

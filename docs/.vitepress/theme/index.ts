@@ -1,5 +1,5 @@
 /**
- * Narrafiilm VitePress Theme
+ * Voxplore VitePress Theme
  */
 
 import { h } from 'vue'
