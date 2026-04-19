@@ -1,3 +1,44 @@
+## [3.10.0] - 2026-04-19
+
+### 🎨 UI 统一与组件化
+
+- **设置页面设计系统升级**：`settings_page.py` 所有 QLabel/QPushButton/QLineEdit/QFrame 硬编码样式 → 替换为 `CF*` 组件体系（`CFLabel`、`CFButton`、`CFInput`、`CFCard`），消除 100+ 行硬编码 CSS
+- **欢迎页颜色系统统一**：`welcome_screen.py` 旧 hex 色彩表 → 接入 OKLCH `Colors` 类，`QPainter` 绘制处使用 hex fallback，保持与主应用色彩一致
+- **新增 CFToastNotification 组件**：`design_system.py` 新增 Toast 通知组件，支持 info/success/warning/error 四种类型，自动消失（默认 3s），右下角堆叠显示，交互动画接入 `AnimationHelper`
+- **全 UI 色彩系统统一**：10 个文件 50+ 处 `setStyleSheet` 硬编码 hex 颜色 → `Colors` OKLCH 常量，涵盖 home_page、home_components、timeline、video_preview、export_monitor、properties_panel、main_window、theme_optimizer、pro_components、layout 等核心页面和组件
+
+### 🐛 Bug Fixes
+
+- **版本号修复**：settings_page.py 硬编码 `"版本 3.2.0"` → `"版本 3.9.0"`，pyproject.toml `3.8.1` → `3.9.0`
+
+---
+
+## [3.9.0] - 2026-04-19
+
+### 🐛 Bug Fixes
+
+- **P0 修复**：`LLMManager.ask()` / `generate_sync()` 返回 `None` 的问题 —— 原实现在 running loop 中返回 `(loop, future)` 元组而非实际结果，改为在新线程独立 loop 中运行，确保同步调用返回正确字符串
+- **Provider 健康检查超时**：`BaseLLMProvider.health_check()` 原本是 `@abstractmethod` 但无默认实现，导致 provider 在网络超时时长阻塞；新增带 5s 超时的默认实现
+
+### ⚡ 性能优化
+
+- **请求去重**：`BaseLLMProvider.generate_batch()` 新增 `deduplicate=True` 参数，对相同 prompt+model+temperature 的请求只调用一次 API，大幅减少批量场景下的重复调用
+- **磁盘持久化缓存**：新增 `LLMDiskCache` 类（`app/services/ai/cache.py`），基于 SQLite，重启后缓存不丢失，默认 TTL=24h，最大 500MB，自动 LRU 淘汰
+
+### 🔧 代码质量
+
+- **print → logger**：移除 `app/core/application.py`、`app/core/logger.py`、`app/utils/error_handler.py` 中的裸 `print()` 调用，统一改为 `logging.getLogger()` 输出
+- **删除重复定义**：`BaseLLMProvider` 中重复的 `health_check` abstractmethod 声明已移除
+
+# 更新日志
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
 ## [3.8.0] - 2026-04-14
 
 ### ⚡ 性能优化
@@ -8,13 +49,6 @@
 - **LLM 请求缓存激活**：`RequestCache`（TTL=24h）接入 `BaseLLMProvider.generate_batch()`，重复 prompt 零 API 调用，所有 9 个 Provider 自动继承
 - **CPU INT8 量化**：`faster-whisper` CPU 模式默认 INT8，2.4x 加速
 - **移除死依赖**：`ffmpeg-python==0.2.0`（2019 年停更）从 requirements.txt 和 pyproject.toml 删除，减少安装体积
-
-# 更新日志
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
