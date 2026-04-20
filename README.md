@@ -12,9 +12,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Qt](https://img.shields.io/badge/Qt-6.5+-41?style=for-the-badge&logo=qt)](https://www.qt.io/)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-FF6B6B?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/Agions/Voxplore)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-FF6B6B?style=for-the-badge&logo=windows)](https://github.com/Agions/Voxplore)
 
-**免费 · 开源 · 跨平台** 支持 Windows / macOS / Linux
+**免费 · 开源 · 跨平台** 支持 Windows / macOS
 
 </div>
 
@@ -22,7 +22,7 @@
 
 ## 🎯 一句话介绍
 
-> **Voxplore** 将任何包含明确主角的视频，通过 AI 代入"我"的视角，一键生成电影感配音解说。让 vlog、教学、游戏录屏、会议录制瞬间变成"我在现场"的专业叙事视频。
+> **Voxplore** 将任何包含明确主角的视频，通过 AI 代入"我"的视角，一键生成电影感配音解说，让 vlog、教学、游戏录屏、会议录制瞬间变成"我在现场"的专业叙事视频。
 
 ---
 
@@ -78,11 +78,11 @@
 
 ## 🚀 快速开始
 
-### 方式一：下载安装包
+### 下载安装包
 
-访问 [Releases](https://github.com/Agions/Voxplore/releases) 下载对应平台的安装包。
+访问 [Releases](https://github.com/Agions/Voxplore/releases) 下载 Windows 安装包（`.exe`）或 macOS 安装包（`.dmg`）。
 
-### 方式二：从源码构建
+### 从源码构建
 
 ```bash
 git clone https://github.com/Agions/Voxplore.git
@@ -95,13 +95,13 @@ python app/main.py
 
 ```bash
 # DeepSeek（推荐，解说生成主力）
-export DEEPSEEK_API_KEY="sk-xxxx"
+export DEEPSEEK_API_KEY="***"
 
 # 或 OpenAI（GPT-4o 用于场景理解）
-export OPENAI_API_KEY="sk-xxxx"
+export OPENAI_API_KEY="***"
 
 # 通义千问（备选，Qwen2.5-VL 场景理解）
-export QWEN_API_KEY="sk-xxxx"
+export QWEN_API_KEY="***"
 ```
 
 > 不配置任何 Key 时，基础功能（音频合成等）仍可正常使用。AI 能力需要至少一个 API Key。

@@ -66,14 +66,7 @@ python -c "import torch; print(torch.cuda.is_available())"
 2. 打开并将应用拖入 Applications 文件夹
 3. 首次启动：右键 → 打开（绕过 Gatekeeper）
 
-### 方式二：Homebrew
-
-```bash
-brew install agions/tap/narrafiilm
-brew install ffmpeg  # 如未安装
-```
-
-### 方式三：源码运行
+### 方式二：源码运行
 
 ```bash
 git clone https://github.com/Agions/Voxplore.git
@@ -96,79 +89,6 @@ brew install python@3.10  # 如需指定版本
 - 应用为 universal binary，原生支持 Apple Silicon
 - 推荐使用 PyTorch MPS 加速：安装 `torch>=2.0` 后自动启用
 - 如遇 PySide6 兼容问题，使用 Homebrew 安装：`brew install pyside6`
-
----
-
-## Linux
-
-### 方式一：AppImage（推荐）
-
-```bash
-# 下载 Voxplore-x.x.x.AppImage
-chmod +x Voxplore-x.x.x.AppImage
-./Voxplore-x.x.x.AppImage
-```
-
-### 方式二：DEB / RPM 包
-
-| 发行版 | 下载格式 | 安装命令 |
-|--------|----------|----------|
-| Debian / Ubuntu | `.deb` | `sudo dpkg -i narrafiilm_x.x.x_amd64.deb` |
-| Fedora / RHEL | `.rpm` | `sudo rpm -i narrafiilm-x.x.x.rpm` |
-
-### 方式三：源码运行
-
-```bash
-# 安装系统依赖
-sudo apt install ffmpeg python3-venv python3-pip libegl1 libgl1 libxkbcommon0 libdbus-1-3
-
-git clone https://github.com/Agions/Voxplore.git
-cd Voxplore
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python3 app/main.py
-```
-
-### 无头环境（服务器 / Docker）
-
-服务器环境无需图形界面，可运行完整 AI 处理流程：
-
-```bash
-# 自动检测并使用 offscreen 模式
-python3 app/main.py
-
-# 或手动指定
-export QT_QPA_PLATFORM=offscreen
-python3 app/main.py
-```
-
-> 注意：无头模式下无法使用 GUI 编辑预览，但可以调用 Python API 进行批量处理。
-
-### 依赖库说明
-
-| 库 | 用途 | 安装 |
-|-----|------|------|
-| `libegl1` | Qt offscreen 平台 | `apt install libegl1` |
-| `libgl1` | OpenGL 支持 | `apt install libgl1` |
-| `libxkbcommon0` | 键盘事件处理 | `apt install libxkbcommon0` |
-| `libdbus-1-3` | 进程间通信 | `apt install libdbus-1-3` |
-
-### GPU 加速（CUDA）
-
-```bash
-# 安装 NVIDIA Driver
-sudo apt install nvidia-driver-535  # 根据显卡型号选择
-
-# 安装 CUDA Toolkit
-wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.0-1_all.deb
-sudo dpkg -i cuda-keyring_1.0-1_all.deb
-sudo apt update
-sudo apt install cuda-toolkit-12-3
-
-# 验证
-python3 -c "import torch; print(torch.cuda.is_available())"
-```
 
 ---
 
@@ -231,7 +151,6 @@ print(f"视频: {result['video_path']}")
 | 问题 | 原因 | 解决方案 |
 |------|------|----------|
 | 启动无反应（Windows） | 缺失 VC++ 运行库 | 安装 [VC++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
-| 启动无反应（Linux） | 缺失 libEGL | `sudo apt install libegl1 libgl1` |
 | 视频加载失败 | FFmpeg 未安装或未加入 PATH | 安装 FFmpeg 并重启应用 |
 | API 401 | API Key 错误或失效 | 检查 Key 是否正确、账户是否有余额 |
 | GPU 加速无效 | CUDA 版本不匹配 | 确认 CUDA >= 12.0，cuDNN 已正确安装 |
