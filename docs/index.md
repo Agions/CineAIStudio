@@ -7,7 +7,7 @@ titleTemplate: false
 hero:
   name: Voxplore
   text: AI First-Person Video Narrator
-  tagline: 上传视频，AI 代入主角视角，一键生成电影感配音解说
+  tagline: 多视频智能合并解说 — 批量上传，AI 自动分组选段，一键生成电影感配音视频
   image:
     src: /logo.png
     alt: Voxplore
@@ -24,29 +24,29 @@ hero:
 
 features:
   - icon:
+      src: /icons/multi-video.svg
+    title: 多视频智能合并
+    details: 批量上传视频，AI 视觉+声纹混合分组，避免同一人重复生成解说
+  - icon:
       src: /icons/monologue.svg
-    title: 第一人称代入
-    details: Qwen2.5-VL 识别画面主角视角，DeepSeek-V3 代入"我"的口吻，生成自然沉浸的解说稿
+    title: 第一人称片段提取
+    details: 逐帧分析画面，Qwen2.5-VL 判断"我"的视角，提取情感峰值高光片段
   - icon:
       src: /icons/emotion.svg
-    title: 情感配音合成
-    details: 5 种情感风格（治愈/悬疑/励志/怀旧/浪漫），Edge-TTS 高保真合成，F5-TTS 音色克隆
+    title: 情感峰值选段
+    details: 叙事完整优先 + 情感峰值驱动，悬疑铺垫 → 剧情高潮 → 情感共鸣
   - icon:
-      src: /icons/subtitle.svg
-    title: 精准 ASS 字幕
-    details: 基于 TTS word-level timing，音字同步精度 50ms 以内，电影级字幕样式
+      src: /icons/module.svg
+    title: 模块化成品
+    details: 合并版完整叙事 + 高光片段单独发布，最大化内容分发效率
+  - icon:
+      src: /icons/style.svg
+    title: 7 种预设风格
+    details: 治愈/悬疑/励志/怀旧/浪漫/幽默/纪录片 + 角色设定自定义
   - icon:
       src: /icons/export.svg
     title: 多格式导出
     details: H.264/H.265 MP4 直出，或原生剪映草稿 JSON，无缝继续精剪
-  - icon:
-      src: /icons/privacy.svg
-    title: 隐私优先
-    details: 视频不上传云端，API Key 自持，本地处理优先，MIT 完全开源
-  - icon:
-      src: /icons/speed.svg
-    title: 高性能管线
-    details: CUDA GPU 加速（10x 实时），无 GPU 自动回退 CPU，设计流畅
 ---
 
 <div class="nf-home">
@@ -60,7 +60,7 @@ features:
 <div class="nf-proof-bar">
   <span class="nf-proof-item">
     <svg class="nf-proof-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="3.5" fill="#10B981"/></svg>
-    v3.6.0 已发布
+    v4.0.0 已发布
   </span>
   <span class="nf-proof-sep">·</span>
   <span class="nf-proof-item">
@@ -181,32 +181,32 @@ features:
     <div class="nf-workflow-step" data-step="1">
       <div class="nf-workflow-num">1</div>
       <div class="nf-workflow-content">
-        <div class="nf-workflow-title">导入视频</div>
-        <div class="nf-workflow-desc">拖入 MP4 / MOV / AVI / MKV / WebM，系统自动分析</div>
+        <div class="nf-workflow-title">上传多视频</div>
+        <div class="nf-workflow-desc">文件夹选择 / Ctrl 多选，自动扫描 mp4/mov/avi/webm</div>
       </div>
     </div>
     <div class="nf-workflow-arrow"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8h8M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="nf-workflow-step" data-step="2">
       <div class="nf-workflow-num">2</div>
       <div class="nf-workflow-content">
-        <div class="nf-workflow-title">AI 场景理解</div>
-        <div class="nf-workflow-desc">Qwen2.5-VL 逐帧分析，识别主角、地点、动作与氛围</div>
+        <div class="nf-workflow-title">AI 智能分组</div>
+        <div class="nf-workflow-desc">视觉 embedding（0.7）+ 声纹（0.3）混合分组，避免重复</div>
       </div>
     </div>
     <div class="nf-workflow-arrow"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8h8M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="nf-workflow-step" data-step="3">
       <div class="nf-workflow-num">3</div>
       <div class="nf-workflow-content">
-        <div class="nf-workflow-title">生成解说稿</div>
-        <div class="nf-workflow-desc">DeepSeek-V3 代入"我"视角，撰写自然流畅的解说词</div>
+        <div class="nf-workflow-title">叙事完整选段</div>
+        <div class="nf-workflow-desc">情感峰值驱动，悬疑铺垫 → 剧情高潮 → 情感共鸣</div>
       </div>
     </div>
     <div class="nf-workflow-arrow"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8h8M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="nf-workflow-step" data-step="4">
       <div class="nf-workflow-num">4</div>
       <div class="nf-workflow-content">
-        <div class="nf-workflow-title">配音 + 字幕</div>
-        <div class="nf-workflow-desc">Edge-TTS 合成配音，ASS 字幕音字同步，电影感输出</div>
+        <div class="nf-workflow-title">模块化解说输出</div>
+        <div class="nf-workflow-desc">合并版完整叙事 + 高光片段 + 预设风格 + 角色设定</div>
       </div>
     </div>
   </div>
@@ -220,29 +220,39 @@ features:
       <div>模块</div><div>模型 / 技术</div><div>说明</div>
     </div>
     <div class="nf-arch-row">
-      <div><span class="nf-arch-module">场景理解</span></div>
-      <div><code>Qwen2.5-VL (72B)</code></div>
-      <div>阿里开源，视频帧抽帧分析，主角视角识别</div>
+      <div><span class="nf-arch-module">智能分组</span></div>
+      <div><code>Qwen2.5-VL</code> + 声纹识别</div>
+      <div>视觉 embedding（0.7）+ 音频 embedding（0.3）混合相似度</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">第一人称提取</span></div>
+      <div><code>Qwen2.5-VL</code></div>
+      <div>逐帧分析，判断"我"的主体视角，提取 9–60 秒片段</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">情感峰值检测</span></div>
+      <div><code>视觉复杂度</code> + <code>音频情绪</code></div>
+      <div>画面信息密度 + 语调变化，综合评分排序</div>
+    </div>
+    <div class="nf-arch-row">
+      <div><span class="nf-arch-module">叙事选段</span></div>
+      <div><code>Narrative First</code> + <code>Emotion Peak</code></div>
+      <div>叙事完整优先 + 情感峰值加权，悬疑铺垫 → 高潮 → 共鸣</div>
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">解说生成</span></div>
       <div><code>DeepSeek-V3</code></div>
-      <div>代入"我"视角的生活化解说稿，支持多种情感风格</div>
+      <div>代入"我"视角，支持 7 种预设风格 + 角色设定</div>
     </div>
     <div class="nf-arch-row">
       <div><span class="nf-arch-module">配音合成</span></div>
-      <div><code>Edge-TTS · F5-TTS</code></div>
-      <div>Edge 主流低延迟，F5 零样本音色克隆（2026.03）</div>
+      <div><code>Edge-TTS</code> · <code>F5-TTS</code></div>
+      <div>Edge 主流低延迟，F5 零样本音色克隆</div>
     </div>
     <div class="nf-arch-row">
-      <div><span class="nf-arch-module">字幕对齐</span></div>
-      <div><code>TTS word-level timing</code></div>
-      <div>音字精准同步，电影级 ASS 字幕，50ms 精度</div>
-    </div>
-    <div class="nf-arch-row">
-      <div><span class="nf-arch-module">视频合成</span></div>
-      <div><code>FFmpeg · H.264/H.265</code></div>
-      <div>MP4 输出或原生剪映草稿 JSON</div>
+      <div><span class="nf-arch-module">模块化导出</span></div>
+      <div><code>MP4</code> · <code>剪映草稿</code></div>
+      <div>合并版 + 高光片段双输出，最大化内容利用率</div>
     </div>
   </div>
 </section>
@@ -289,7 +299,7 @@ features:
 <!-- Stats -->
 <div class="nf-stats">
   <div class="nf-stat">
-    <div class="nf-stat-value">v3.6.0</div>
+    <div class="nf-stat-value">v4.0.0</div>
     <div class="nf-stat-label">最新版本</div>
   </div>
   <div class="nf-stat-sep">|</div>
