@@ -1,3 +1,39 @@
+## [4.0.0] - 2026-04-21
+
+### 🚀 全面重构 Phase 1-4
+
+#### Phase 1：工程质量问题修复
+- **animation_helper.py 异常处理**：4处 `except Exception: pass` → `logger.warning`，异常不再被吞掉
+- **类型标注完善**：修复 `event_bus.py`、`cache_interface.py` 等文件类型错误
+- **导入路径修复**：修正 `app/services/export/` 下 3 个文件的 4-dot 相对导入为 3-dot
+- **测试稳定性**：修复 `test_llm_base.py` 断言（ProviderError 信息格式变更）
+- **依赖补全**：安装 `openai`、`edge-tts` 依赖
+
+#### Phase 2：UX 改善
+- **step_upload.py**（重写 ~560行）：文件夹选择 + Ctrl 多选 + 3列缩略图网格 + 视频预览小窗 + QProgressBar 进度条 + 后台线程缩略图生成
+- **step_group.py**（新增 ~520行）：分组预览卡片 + 拖拽合并/拆分 + 置信度颜色动态显示（>80%绿/60-80%黄/<60%红）+ 新建/删除分组
+- **step_preview.py**（新增 ~520行）：解说文案分段预览 + 编辑模式 + 7种预设风格 + 角色参数自定义 + 实时字数统计
+
+#### Phase 3：核心功能实现（TDD 驱动，39 tests）
+- **SmartGrouper**（`app/services/video/grouping/smart_grouper.py`）：视觉+音频混合相似度分组（视觉权重0.7+音频权重0.3），层次聚类，9 tests ✅
+- **FirstPersonExtractor**（`app/services/video/extraction/first_person_extractor.py`）：逐帧第一人称分析，9-60秒片段提取，10 tests ✅
+- **EmotionPeakDetector**（`app/services/video/extraction/emotion_peak_detector.py`）：视觉复杂度+音频情绪峰值检测，9 tests ✅
+- **SegmentSelector**（`app/services/video/selection/segment_selector.py`）：叙事完整+情感峰值混合选段策略，11 tests ✅
+
+#### Phase 4：架构重构
+- **模块化拆分**：`app/services/video/` 细分为 extraction/selection/grouping/tools/analyzers/loaders/cutters 7个子目录，统一 `__init__.py` 导出
+- **AI Provider 插件化**：`app/services/ai/interfaces.py` 定义 `VisionProvider`/`LLMProvider`/`TTSProvider` 协议；`app/services/ai/registry.py` 实现 `ProviderRegistry` 单例 + YAML 配置热加载
+- **测试覆盖**：新增 65 tests（video services 39 + ai registry 26）
+
+### 📊 质量指标
+- Tests：294 → **294+65 passed**（+26 skipped）
+- Pyright errors：294 → **287**
+
+### 🏷️ Tags
+- `v4.0.0` — 完整 Phase 1-4 改进
+
+---
+
 ## [3.10.0] - 2026-04-19
 
 ### 🎨 UI 统一与组件化
