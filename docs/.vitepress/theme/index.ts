@@ -31,8 +31,6 @@ function setupScrollReveal() {
   if (typeof window === 'undefined') return
 
   const css = `
-.VPFeature{opacity:0;transform:translateY(28px);transition:opacity .55s ease,transform .55s ease}
-.VPFeature.revealed{opacity:1;transform:translateY(0)}
 .vp-proof-bar{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
 .vp-proof-bar.revealed{opacity:1;transform:translateY(0)}
 .nf-section-title{opacity:0;transform:translateX(-12px);transition:opacity .5s ease,transform .5s ease}
@@ -67,7 +65,6 @@ function setupScrollReveal() {
   )
 
   const groups = [
-    '.VPFeatures .VPFeature',
     '.vp-proof-bar',
     '.nf-why-grid .nf-why-card',
     '.nf-start-grid .nf-start-card',
