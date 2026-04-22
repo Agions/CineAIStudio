@@ -1,13 +1,12 @@
-name: CI
+name: PR Check
 
-# main 分支推送：全量检查（lint + type + test + docs build）
+# PR 事件：快速验证（lint + test，不构建 docs）
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -22,7 +21,7 @@ jobs:
       - run: pip install ruff
       - run: ruff check app/ tests/ --output-format=github || true
 
-  type-check:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,35 +29,5 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-      - run: pip install -e ".[dev]"
-      - run: ruff check app/ --select F,E,N,W,B,C4,SIM --ignore E501,F401 || true
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: ['3.10', '3.11', '3.12']
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-          cache: 'pip'
       - run: pip install -e ".[all,dev]"
       - run: pytest tests/ -v --ignore=tests/test_ui_components.py --ignore=tests/test_page_loader.py --ignore=tests/test_macOS_theme_manager.py --ignore=tests/test_icon_manager.py --ignore=tests/test_application.py --ignore=tests/test_integration.py --ignore=tests/test_error_handler.py --ignore=tests/test_event_handler.py --ignore=tests/test_cache_manager.py --ignore=tests/test_llm_cache.py --ignore=tests/test_mashup_maker.py --ignore=tests/test_subtitle_extractor.py --ignore=tests/test_video_content_analyzer.py --ignore=tests/test_video_summarizer.py --ignore=tests/test_video_understanding.py --ignore=tests/test_video_exporter.py --ignore=tests/test_direct_video_exporter.py --ignore=tests/test_caption_generator.py --ignore=tests/test_scene_analyzer.py --ignore=tests/test_script_generator.py --ignore=tests/test_voice_generator.py --ignore=tests/test_commentary_maker.py --ignore=tests/test_highlight_detector.py --ignore=tests/test_pace_analyzer.py --ignore=tests/test_video_enhancer.py --ignore=tests/test_video_maker.py --ignore=tests/test_silence_remover.py --ignore=tests/test_sync_engine.py --ignore=tests/test_transition_effects.py --ignore=tests/test_beat_detector.py --ignore=tests/test_templates.py --ignore=tests/test_ai_service_manager.py || true
-
-  docs-build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - run: pnpm install
-        working-directory: docs
-      - run: pnpm run docs:build
-        working-directory: docs
