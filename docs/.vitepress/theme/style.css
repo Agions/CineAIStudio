@@ -1698,6 +1698,44 @@ html {
   border-color: rgba(10, 132, 255, 0.5);
 }
 
+/* ── LIGHT MODE: 浅色模式覆盖 ─────────────────────────── */
+:root:not(.dark) .vp-hero .name {
+  background: linear-gradient(135deg, #0070E0 0%, #0A84FF 40%, #059669 80%, #0070E0 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: vp-gradient-shift 6s ease-in-out infinite;
+}
+
+:root:not(.dark) .vp-hero .tagline {
+  border-color: rgba(10, 132, 255, 0.5);
+  color: var(--nf-text-2);
+}
+
+:root:not(.dark) .vp-float-card {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(10, 132, 255, 0.3);
+  color: #E2E8F5;
+  box-shadow: 0 0 16px rgba(10, 132, 255, 0.15), 0 4px 12px rgba(0,0,0,0.15);
+}
+
+:root:not(.dark) .vp-proof-bar {
+  background: rgba(10, 132, 255, 0.06);
+  border-color: rgba(10, 132, 255, 0.15);
+  color: var(--nf-text-3);
+}
+
+/* Proof bar dots — make them vivid on light bg */
+:root:not(.dark) .vp-proof-item {
+  color: var(--nf-text-2);
+}
+
+/* Deep dark hero bg for light mode too */
+:root:not(.dark) .VPHome {
+  background: #F0F4FA !important;
+}
+
 /* ── RESPONSIVE: 移动端关闭部分动画 ────────────────────── */
 @media (max-width: 768px) {
   .vp-float-card.vp-float-1,
