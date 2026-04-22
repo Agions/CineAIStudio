@@ -1309,3 +1309,408 @@ html {
     transform: none !important;
   }
 }
+
+/* ================================================================
+   🎬 DYNAMIC EFFECTS — Voxplore Docs v2
+   动态效果增强：粒子、渐变、滚动触发、脉冲、闪烁
+   ================================================================ */
+
+/* ── HERO: 渐变动画名称 ───────────────────────────────────── */
+.vp-hero .name {
+  background: linear-gradient(
+    135deg,
+    #0A84FF 0%,
+    #8B5CF6 35%,
+    #10B981 60%,
+    #0A84FF 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-position: 0% 50%;
+  animation: vp-gradient-shift 6s ease-in-out infinite;
+}
+
+@keyframes vp-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── HERO: 打字机光标 ─────────────────────────────────────── */
+.vp-hero .tagline {
+  overflow: hidden;
+  border-right: 2px solid rgba(10, 132, 255, 0.6);
+  white-space: nowrap;
+  animation: vp-typing-cursor 1s step-end infinite;
+  display: inline-block;
+  min-width: 2px;
+}
+
+@keyframes vp-typing-cursor {
+  0%, 100% { border-color: rgba(10, 132, 255, 0.6); }
+  50%       { border-color: transparent; }
+}
+
+/* ── HERO: 浮动粒子容器 ──────────────────────────────────── */
+.vp-hero-animations {
+  position: relative;
+  pointer-events: none;
+}
+
+.vp-hero-animations .vp-float-card {
+  border: 1px solid rgba(10, 132, 255, 0.2);
+  background: rgba(13, 21, 37, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8BA3C0;
+  animation-duration: 4s, 3.5s, 5s;
+  animation-timing-function: ease-in-out, ease-in-out, ease-in-out;
+  animation-iteration-count: infinite;
+  animation-delay: 0s, 0.6s, 1.2s;
+  box-shadow: 0 0 12px rgba(10, 132, 255, 0.08), 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.vp-float-card.vp-float-1 {
+  animation-name: vp-float-a, vp-float-glow-1;
+  position: absolute;
+  top: 60px;
+  left: 8%;
+}
+
+.vp-float-card.vp-float-2 {
+  animation-name: vp-float-b, vp-float-glow-2;
+  position: absolute;
+  top: 20px;
+  right: 10%;
+}
+
+.vp-float-card.vp-float-3 {
+  animation-name: vp-float-c, vp-float-glow-3;
+  position: absolute;
+  bottom: 10px;
+  right: 6%;
+}
+
+@keyframes vp-float-a {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-12px) rotate(1deg); }
+}
+@keyframes vp-float-b {
+  0%, 100% { transform: translateY(0px) rotate(1deg); }
+  50%       { transform: translateY(-16px) rotate(-1.5deg); }
+}
+@keyframes vp-float-c {
+  0%, 100% { transform: translateY(0px) rotate(0.5deg); }
+  50%       { transform: translateY(-10px) rotate(-0.5deg); }
+}
+@keyframes vp-float-glow-1 {
+  0%, 100% { box-shadow: 0 0 12px rgba(10, 132, 255, 0.08); }
+  50%       { box-shadow: 0 0 20px rgba(10, 132, 255, 0.2), 0 0 40px rgba(10, 132, 255, 0.06); }
+}
+@keyframes vp-float-glow-2 {
+  0%, 100% { box-shadow: 0 0 12px rgba(139, 92, 246, 0.08); }
+  50%       { box-shadow: 0 0 20px rgba(139, 92, 246, 0.2), 0 0 40px rgba(139, 92, 246, 0.06); }
+}
+@keyframes vp-float-glow-3 {
+  0%, 100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.08); }
+  50%       { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2), 0 0 40px rgba(16, 185, 129, 0.06); }
+}
+
+/* ── HERO ACTIONS: 按钮闪光动画 ──────────────────────────── */
+.VPButton.medium.brand,
+.VPButton.medium.alt {
+  position: relative;
+  overflow: hidden;
+}
+
+.VPButton.medium.brand::after,
+.VPButton.medium.alt::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  animation: vp-shimmer-btn 3s ease-in-out infinite;
+}
+
+@keyframes vp-shimmer-btn {
+  0%   { left: -100%; }
+  50%, 100% { left: 150%; }
+}
+
+/* ── FEATURES: 卡片入场动画 ───────────────────────────────── */
+.VPFeature {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.VPFeature.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.VPFeature:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 40px rgba(10, 132, 255, 0.15) !important;
+  border-color: rgba(10, 132, 255, 0.4) !important;
+}
+
+/* 卡片图标: 入场上来了再脉冲 */
+.VPFeature .VPFeature-icon {
+  transition: transform 0.3s ease;
+}
+.VPFeature:hover .VPFeature-icon {
+  transform: scale(1.12);
+}
+
+/* ── FEATURES: 图标旋转动画 ───────────────────────────────── */
+.VPFeature .VPFeature-icon img,
+.VPFeature .VPFeature-icon svg {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.VPFeature:hover .VPFeature-icon img,
+.VPFeature:hover .VPFeature-icon svg {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+/* ── SOCIAL PROOF: 呼吸脉冲 ─────────────────────────────── */
+.vp-proof-dot {
+  animation: vp-pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes vp-pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ── PROOF BAR: 滚动滑入 ─────────────────────────────────── */
+.vp-proof-bar {
+  opacity: 0;
+  animation: vp-slide-up 0.6s ease 0.4s forwards;
+}
+
+@keyframes vp-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SCROLL: 视差滚动效果 ───────────────────────────────── */
+.VPFeature:nth-child(1) { transition-delay: 0.05s; }
+.VPFeature:nth-child(2) { transition-delay: 0.1s; }
+.VPFeature:nth-child(3) { transition-delay: 0.15s; }
+.VPFeature:nth-child(4) { transition-delay: 0.2s; }
+.VPFeature:nth-child(5) { transition-delay: 0.25s; }
+.VPFeature:nth-child(6) { transition-delay: 0.3s; }
+
+/* ── CODE BLOCKS: 边框呼吸光效 ─────────────────────────── */
+.vp-code-group .blocks div[class*='language-'] {
+  position: relative;
+  overflow: hidden;
+}
+
+.vp-code-group .blocks div[class*='language-']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 132, 255, 0.3),
+    transparent 40%,
+    rgba(139, 92, 246, 0.2),
+    transparent 70%,
+    rgba(16, 185, 129, 0.2)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: vp-border-flow 4s linear infinite;
+}
+
+@keyframes vp-border-flow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ── NAV: 滚动时毛玻璃加深 ──────────────────────────────── */
+.VPNav {
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.VPNav.scrolled {
+  background: rgba(7, 11, 18, 0.92) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(26, 37, 64, 0.8) !important;
+}
+
+/* ── FOOTER: 版权信息呼吸动画 ───────────────────────────── */
+.VPFooter .message {
+  animation: vp-footer-glow 3s ease-in-out infinite;
+}
+
+@keyframes vp-footer-glow {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+/* ── CUSTOM BLOCKS: 动态边框 ──────────────────────────────── */
+.tip-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(10, 132, 255, 0.25);
+  background: rgba(10, 132, 255, 0.04);
+  border-radius: 10px;
+  padding: 16px 20px;
+  transition: all 0.3s ease;
+}
+
+.tip-card:hover {
+  border-color: rgba(10, 132, 255, 0.5);
+  background: rgba(10, 132, 255, 0.08);
+  transform: translateX(4px);
+  box-shadow: 0 4px 20px rgba(10, 132, 255, 0.1);
+}
+
+/* ── TABLE: 行悬停动态高亮 ──────────────────────────────── */
+.vp-doc table tbody tr {
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.vp-doc table tbody tr:hover {
+  background: rgba(10, 132, 255, 0.06) !important;
+  transform: translateX(2px);
+}
+
+/* ── SIDEBAR: 链接入场动画 ──────────────────────────────── */
+.VPSidebarItem .link:hover .text {
+  color: var(--vp-c-brand-1);
+  transition: color 0.2s ease;
+}
+
+/* ── SECTION HEADINGS: 下划线动态 ──────────────────────── */
+.vp-doc h2 {
+  position: relative;
+  display: inline-block;
+}
+
+.vp-doc h2::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0A84FF, #8B5CF6);
+  border-radius: 1px;
+  transition: width 0.4s ease;
+}
+
+.vp-doc h2:hover::after {
+  width: 100%;
+}
+
+/* ── CODE: 行高亮动态效果 ─────────────────────────────── */
+.vp-doc div[class*='language-'] pre code .highlight-line {
+  background: linear-gradient(90deg, rgba(10, 132, 255, 0.12), transparent);
+  border-left: 2px solid #0A84FF;
+  margin: 0 -12px;
+  padding: 0 12px;
+  animation: vp-line-enter 0.4s ease;
+}
+
+@keyframes vp-line-enter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── RETURN TO TOP: 动态按钮 ───────────────────────────── */
+.VPDocFooter .pager .pager-link:hover .title {
+  color: #0A84FF;
+  transition: color 0.2s ease;
+}
+
+/* ── HERO: 图片入场动画 ────────────────────────────────── */
+.vp-hero .image-container {
+  animation: vp-hero-img-enter 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+@keyframes vp-hero-img-enter {
+  from { opacity: 0; transform: scale(0.88) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── SCROLL INDICATOR: 上下滚动箭头 ────────────────────── */
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  animation: vp-bounce-scroll 2s ease-in-out infinite;
+}
+
+.scroll-indicator span {
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid rgba(139, 156, 192, 0.5);
+  border-bottom: 2px solid rgba(139, 156, 192, 0.5);
+  transform: rotate(45deg);
+  animation: vp-scroll-arrow 1.5s ease-in-out infinite;
+}
+
+.scroll-indicator span:nth-child(1) { animation-delay: 0s; }
+.scroll-indicator span:nth-child(2) { animation-delay: 0.2s; opacity: 0.6; }
+.scroll-indicator span:nth-child(3) { animation-delay: 0.4s; opacity: 0.3; }
+
+@keyframes vp-scroll-arrow {
+  0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.5; }
+  50%       { transform: rotate(45deg) translateY(4px); opacity: 1; }
+}
+
+/* ── DARK MODE: 暗色系优化 ─────────────────────────────── */
+.dark .vp-hero .tagline {
+  border-color: rgba(10, 132, 255, 0.5);
+}
+
+/* ── RESPONSIVE: 移动端关闭部分动画 ────────────────────── */
+@media (max-width: 768px) {
+  .vp-float-card.vp-float-1,
+  .vp-float-card.vp-float-2,
+  .vp-float-card.vp-float-3 {
+    display: none;
+  }
+
+  .VPFeature,
+  .vp-proof-bar {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+

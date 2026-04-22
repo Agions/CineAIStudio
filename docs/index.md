@@ -712,13 +712,15 @@ features:
 <script setup>
 import { onMounted } from 'vue'
 
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-const root = document.documentElement
+const prefersDark = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)').matches : true
+const root = typeof document !== 'undefined' ? document.documentElement : null
 
 // Inject design tokens for this page
-root.style.setProperty('--vp-c-brand-1', '#10B981')
-root.style.setProperty('--vp-c-brand-2', '#059669')
-root.style.setProperty('--vp-c-brand-3', '#0A84FF')
+if (root) {
+  root.style.setProperty('--vp-c-brand-1', '#10B981')
+  root.style.setProperty('--vp-c-brand-2', '#059669')
+  root.style.setProperty('--vp-c-brand-3', '#0A84FF')
+}
 
 onMounted(() => {
   // Stagger workflow steps
