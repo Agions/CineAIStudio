@@ -1285,6 +1285,16 @@ html {
   opacity: 0.6;
 }
 
+:root:not(.dark) .vp-compare-dim,
+:root:not(.dark) .vp-compare-label {
+  color: #475569 !important;
+  font-weight: 600;
+}
+
+:root:not(.dark) .vp-compare-header > div {
+  color: #475569 !important;
+}
+
 :root:not(.dark) .vp-compare-highlight {
   color: #059669;
 }
