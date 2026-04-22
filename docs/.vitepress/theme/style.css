@@ -1336,9 +1336,11 @@ html {
 :root:not(.dark) .vp-home .vp-workflow-title { color: #0F172A !important; }
 :root:not(.dark) .vp-home .vp-workflow-desc  { color: #64748B !important; }
 :root:not(.dark) .vp-home .vp-workflow-arrow { color: #CBD5E1 !important; opacity: 0.6; }
-:root:not(.dark) .vp-home .vp-why-card      { background: #FFFFFF !important; border-color: #E2E8F5 !important; }
+:root:not(.dark) .vp-home .vp-why-card      { background: #FFFFFF !important; border: 1px solid #E2E8F5 !important; }
 :root:not(.dark) .vp-home .vp-why-card:hover { border-color: #0A84FF !important; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(10,132,255,0.12) !important; }
-:root:not(.dark) .vp-home .vp-start-card    { background: #FFFFFF !important; border-color: #E2E8F5 !important; }
+:root:not(.dark) .vp-home .vp-why-card h3  { color: #0F172A !important; }
+:root:not(.dark) .vp-home .vp-why-card p   { color: #64748B !important; }
+:root:not(.dark) .vp-home .vp-start-card    { background: #FFFFFF !important; border: 1px solid #E2E8F5 !important; }
 :root:not(.dark) .vp-home .vp-start-card:hover { border-color: #0A84FF !important; transform: translateY(-3px); }
 :root:not(.dark) .vp-home .vp-start-title   { color: #0F172A !important; }
 :root:not(.dark) .vp-home .vp-start-desc    { color: #64748B !important; }
@@ -1346,9 +1348,11 @@ html {
 :root:not(.dark) .vp-home .vp-stat-lbl     { color: #64748B !important; }
 :root:not(.dark) .vp-home .vp-proof-bar     { background: rgba(10,132,255,0.06) !important; border-color: rgba(10,132,255,0.12) !important; }
 :root:not(.dark) .vp-home .vp-section-title { color: #0F172A !important; border-color: rgba(0,0,0,0.08) !important; }
-:root:not(.dark) .vp-home .vp-float-card    { background: rgba(248,250,255,0.95) !important; border-color: rgba(10,132,255,0.2) !important; color: #0F172A !important; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(10,132,255,0.08) !important; }
+:root:not(.dark) .vp-home .vp-float-card    { background: rgba(248,250,255,0.95) !important; border: 1px solid rgba(10,132,255,0.2) !important; color: #0F172A !important; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(10,132,255,0.08) !important; }
 :root:not(.dark) .vp-home .vp-float-text   { color: #0F172A !important; }
 :root:not(.dark) .vp-home .vp-arch-badge   { background: rgba(10,132,255,0.08) !important; border-color: rgba(10,132,255,0.2) !important; color: #0A84FF !important; }
+:root:not(.dark) .vp-home .vp-workflow-step { background: #FFFFFF !important; border: 1px solid #E2E8F5 !important; }
+:root:not(.dark) .vp-home .vp-workflow-step:hover { border-color: #0A84FF !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .VPFeature,
