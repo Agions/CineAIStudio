@@ -42,6 +42,29 @@
   --vp-c-text-3: #4A6080;
 }
 
+:root:not(.dark) {
+  --vp-c-brand-1: #0A84FF;
+  --vp-c-brand-2: #0070E0;
+  --vp-c-brand-3: #2196FF;
+  --vp-c-brand-soft: rgba(10, 132, 255, 0.10);
+  --vp-c-bg: #FFFFFF;
+  --vp-c-bg-soft: #F8FAFF;
+  --vp-c-bg-alt: #FFFFFF;
+  --vp-c-border: #E2E8F5;
+  --vp-c-text-1: #0F172A;
+  --vp-c-text-2: #475569;
+  --vp-c-text-3: #94A3B8;
+  --vp-home-hero-name-color: #0A84FF;
+  --vp-home-hero-name-background: transparent;
+}
+
+/* LIGHT MODE: 清除 VitePress hero background-image */
+:root:not(.dark) .clip {
+  background: transparent !important;
+  -webkit-text-fill-color: #0A84FF !important;
+  color: #0A84FF !important;
+}
+
 /* ================================================================
    BASE
    ================================================================ */
