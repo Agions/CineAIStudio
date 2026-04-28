@@ -58,7 +58,7 @@ python app/main.py
 
 ## 配置 API Key {#配置-api-key}
 
-Voxplore 需要一个 AI API Key 来生成解说词。**DeepSeek-V3** 性价比最高，每月约 ¥7 可处理数十个视频（<¥0.01 / 视频）。
+Voxplore 需要一个 AI API Key 来生成解说词。**DeepSeek-V4** 性价比最高，每月约 ¥7 可处理数十个视频（<¥0.01 / 视频）。
 
 ### 获取 DeepSeek API Key
 

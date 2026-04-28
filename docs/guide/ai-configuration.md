@@ -50,7 +50,7 @@ OPENAI_MODEL=gpt-4.1
 
 | 提供商 | 模型 | 说明 |
 |--------|------|------|
-| **DeepSeek** | DeepSeek-V3.2 | 默认，性价比最高 |
+| **DeepSeek** | DeepSeek-V4.2 | 默认，性价比最高 |
 | **OpenAI** | GPT-4.1 | 最强通用能力 |
 | **Anthropic** | Claude Opus 4.6 | 超长上下文 |
 | **阿里云** | Qwen2.5-Max | 中文优化 |
@@ -59,7 +59,7 @@ OPENAI_MODEL=gpt-4.1
 
 ```env
 DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
-DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_MODEL=deepseek-v4-flash
 ```
 
 ### Claude 配置
@@ -107,6 +107,6 @@ TTS_ENGINE=edge-tts
 
 | 场景 | 视频理解 | 解说生成 | 成本 |
 |------|----------|----------|------|
-| **免费入门** | Qwen2.5-VL（本地） | DeepSeek-V3.2 | 接近零 |
-| **日常创作** | Qwen2.5-VL（API） | DeepSeek-V3.2 | 低 |
+| **免费入门** | Qwen2.5-VL（本地） | DeepSeek-V4.2 | 接近零 |
+| **日常创作** | Qwen2.5-VL（API） | DeepSeek-V4.2 | 低 |
 | **最高质量** | GPT-4.1 | Claude Opus 4.6 | 高 |

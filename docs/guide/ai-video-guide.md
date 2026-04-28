@@ -18,7 +18,7 @@ description: 深入了解 Voxplore AI 第一人称视频解说全流程的工作
 场景分析（Qwen2.5-VL）
    │  逐帧抽帧 → 主角识别 → 场景分段
    ▼
-解说生成（DeepSeek-V3）
+解说生成（DeepSeek-V4）
    │  "我"视角 → 情感风格 → 多版本备选
    ▼
 配音合成（Edge-TTS / F5-TTS）

@@ -174,7 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **品牌重命名**: Voxplore → Voxplore，专注 AI 第一人称视频解说
 - **产品定位重构**: 裁剪全部冗余功能（MashupMaker / BeatSyncMaker / CommentaryMaker / BatchProcessor 等），只保留 MonologueMaker 核心
-- **模型升级**: Qwen2.5-VL（视频理解）+ DeepSeek-V3（解说生成）+ SenseVoice（ASR）+ Edge-TTS + F5-TTS（配音）
+- **模型升级**: Qwen2.5-VL（视频理解）+ DeepSeek-V4（解说生成）+ SenseVoice（ASR）+ Edge-TTS + F5-TTS（配音）
 - **导出架构精简**: 移除 PremiereExporter / DaVinciExporter / FinalCutExporter / EDLExporter，只保留 DirectVideoExporter + JianyingExporter
 - **文档全面更新**: README.md / docs/index.md / docs/README.md / SPEC.md 全部重写
 - **在线文档**: FAQ 合并疑难排查内容

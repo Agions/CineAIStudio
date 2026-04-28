@@ -59,7 +59,7 @@ features:
   </div>
   <div class="vp-float-card vp-float-2">
     <span class="vp-float-icon">🎙️</span>
-    <span class="vp-float-text">DeepSeek-V3</span>
+    <span class="vp-float-text">DeepSeek-V4</span>
   </div>
   <div class="vp-float-card vp-float-3">
     <span class="vp-float-icon">✍️</span>
@@ -76,7 +76,7 @@ features:
   <span class="vp-proof-sep">·</span>
   <span class="vp-proof-item">
     <svg class="vp-proof-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="3.5" fill="#0A84FF"/></svg>
-    DeepSeek-V3 解说
+    DeepSeek-V4 解说
   </span>
   <span class="vp-proof-sep">·</span>
   <span class="vp-proof-item">
@@ -149,7 +149,7 @@ features:
     <div class="vp-why-card">
       <div class="vp-why-icon">💰</div>
       <h3>不到一分钱一个视频</h3>
-      <p>DeepSeek-V3 成本约 $0.1 / 1M tokens。处理一个 5 分钟视频成本不足 <strong>1 分钱</strong>。</p>
+      <p>DeepSeek-V4 成本约 $0.1 / 1M tokens。处理一个 5 分钟视频成本不足 <strong>1 分钱</strong>。</p>
     </div>
     <div class="vp-why-card">
       <div class="vp-why-icon">🔒</div>
@@ -196,7 +196,7 @@ features:
       <div class="vp-workflow-num">4</div>
       <div class="vp-workflow-body">
         <div class="vp-workflow-title">解说 + 导出</div>
-        <div class="vp-workflow-desc">DeepSeek-V3 生成文案 + Edge-TTS 配音，MP4 / 剪映草稿输出</div>
+        <div class="vp-workflow-desc">DeepSeek-V4 生成文案 + Edge-TTS 配音，MP4 / 剪映草稿输出</div>
       </div>
     </div>
   </div>
@@ -226,7 +226,7 @@ features:
     </div>
     <div class="vp-arch-row">
       <div><span class="vp-arch-badge">解说</span></div>
-      <div><code>DeepSeek-V3</code></div>
+      <div><code>DeepSeek-V4</code></div>
       <div>代入"我"视角，7 种预设风格 + 角色设定</div>
     </div>
     <div class="vp-arch-row">
