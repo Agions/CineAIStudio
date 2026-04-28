@@ -54,7 +54,13 @@ jobs:
           cache: 'pip'
       - run: pip install -e ".[all,dev]"
       # 所有测试均可运行，无 ignore（skipped 仅因 @pytest.mark.skip 装饰器，合法跳过）
-      - run: pytest tests/ -v --tb=short
+      - run: pytest tests/ -v --tb=short --cov=app --cov-report=xml --cov-report=term-missing
+      - uses: actions/upload-artifact@v4
+        if: matrix.python == '3.11'
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          retention-days: 5
 
   docs-build:
     runs-on: ubuntu-latest
