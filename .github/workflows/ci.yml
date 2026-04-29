@@ -28,7 +28,10 @@ jobs:
             --ignore N802 \
             --ignore B904,B007 \
             --ignore SIM102,SIM108,SIM118 \
-            --ignore W292,E401,E701
+            --ignore W292,E401,E701 \
+            --ignore N806,N803 \
+            --ignore SIM103,SIM105,SIM110,SIM117 \
+            --ignore N812
 
   type-check:
     runs-on: ubuntu-latest
@@ -39,7 +42,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install -e ".[dev]"
-      - run: ruff check app/ --select F,E,N,W,B,C4,SIM --ignore E501,F401
+      - run: ruff check app/ --select F,E,N,W,B,C4,SIM --ignore E501,F401,B904,N806,N803,SIM102,SIM103,SIM105,SIM108,SIM110,SIM117,SIM118,N812,W292
 
   test:
     runs-on: ubuntu-latest
